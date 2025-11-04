@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function NavMain({
   items,
@@ -22,6 +22,17 @@ export function NavMain({
   badges?: Record<string, number>;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (url: string) => {
+    // For root path, match exactly
+    if (url === "/") {
+      return location.pathname === "/";
+    }
+    // For other paths, match if pathname starts with the url
+    return location.pathname === url || location.pathname.startsWith(url + "/");
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -47,11 +58,13 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const badgeCount = badges?.[item.url] || 0;
+            const active = isActive(item.url);
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   tooltip={item.title}
                   onClick={() => navigate(item.url)}
+                  isActive={active}
                   className="relative cursor-pointer"
                 >
                   {item.icon && <item.icon />}
