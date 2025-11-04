@@ -1,0 +1,332 @@
+{
+  "app": {
+    "title": "Hoshran"
+  },
+  "login": {
+    "title": "Login to your account",
+    "subtitle": "Enter your phone number below to login to your account",
+    "phone": "Phone Number",
+    "phonePlaceholder": "09123456789",
+    "email": "Email",
+    "emailPlaceholder": "m@example.com",
+    "password": "Password",
+    "forgot": "Forgot your password?",
+    "submit": "Login",
+    "google": "Login with Google",
+    "noAccount": "Don't have an account?",
+    "signup": "Sign up",
+    "support": "Support"
+  },
+  "dashboard": {
+    "recent": "Recent Activity",
+    "team": "Team"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "lifecycle": "Lifecycle",
+    "analytics": "Analytics",
+    "projects": "Projects",
+    "team": "Team",
+    "capture": "Capture",
+    "proposal": "Proposal",
+    "prompts": "Prompts",
+    "activeProposals": "Active Proposals",
+    "archived": "Archived",
+    "settings": "Settings",
+    "getHelp": "Get Help",
+    "search": "Search",
+    "notifications": "Notifications",
+    "paymentGateways": "Payment Gateways",
+    "transactions": "Transactions",
+    "tickets": "Tickets"
+  },
+  "documents": {
+    "dataLibrary": "Data Library",
+    "reports": "Reports",
+    "wordAssistant": "Word Assistant"
+  },
+  "otp": {
+    "title": "Enter verification code",
+    "subtitle": "We sent a 5-digit code to your email.",
+    "codeLabel": "Verification code",
+    "codeHelp": "Enter the 5-digit code sent to your email.",
+    "verify": "Verify",
+    "notReceived": "Didn't receive the code?",
+    "resend": "Resend"
+  },
+  "sectionCards": {
+    "totalRevenue": "Total Revenue",
+    "trendingUpThisMonth": "Trending up this month",
+    "visitorsLast6Months": "Visitors for the last 6 months",
+    "newCustomers": "New Customers",
+    "down20PercentThisPeriod": "Down 20% this period",
+    "acquisitionNeedsAttention": "Acquisition needs attention",
+    "activeAccounts": "Active Accounts",
+    "strongUserRetention": "Strong user retention",
+    "engagementExceedTargets": "Engagement exceed targets",
+    "growthRate": "Growth Rate",
+    "steadyPerformanceIncrease": "Steady performance increase",
+    "meetsGrowthProjections": "Meets growth projections"
+  },
+  "chart": {
+    "totalVisitors": "Total Visitors",
+    "totalForLast3Months": "Total for the last 3 months",
+    "last3Months": "Last 3 months",
+    "last30Days": "Last 30 days",
+    "last7Days": "Last 7 days",
+    "selectValue": "Select a value",
+    "visitors": "Visitors",
+    "desktop": "Desktop",
+    "mobile": "Mobile"
+  },
+  "table": {
+    "view": "View",
+    "selectAView": "Select a view",
+    "outline": "Outline",
+    "pastPerformance": "Past Performance",
+    "keyPersonnel": "Key Personnel",
+    "focusDocuments": "Focus Documents",
+    "customizeColumns": "Customize Columns",
+    "columns": "Columns",
+    "addSection": "Add Section",
+    "noResults": "No results.",
+    "selectedCount": "{{selected}} of {{total}} row(s) selected.",
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {{page}} of {{total}}",
+    "goFirst": "Go to first page",
+    "goPrev": "Go to previous page",
+    "goNext": "Go to next page",
+    "goLast": "Go to last page",
+    "submit": "Submit",
+    "done": "Done",
+    "error": "Error",
+    "assignReviewer": "Assign reviewer",
+    "showingVisitors": "Showing total visitors for the last 6 months",
+    "trendingUp": "Trending up by 5.2% this month",
+    "showingVisitorsLong": "Showing total visitors for the last 6 months. This is just some random text to test the layout. It spans multiple lines and should wrap around.",
+    "header": "Header",
+    "sectionType": "Section Type",
+    "type": "Type",
+    "selectType": "Select a type",
+    "status": "Status",
+    "selectStatus": "Select a status",
+    "target": "Target",
+    "limit": "Limit",
+    "reviewer": "Reviewer",
+    "selectReviewer": "Select a reviewer",
+    "statusDone": "Done",
+    "statusInProgress": "In Progress",
+    "statusNotStarted": "Not Started",
+    "typeTOC": "Table of Contents",
+    "typeExecSummary": "Executive Summary",
+    "typeTechApproach": "Technical Approach",
+    "typeDesign": "Design",
+    "typeCapabilities": "Capabilities",
+    "typeFocusDocs": "Focus Documents",
+    "typeNarrative": "Narrative",
+    "typeCoverPage": "Cover Page",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "dragToReorder": "Drag to reorder",
+    "openMenu": "Open menu",
+    "edit": "Edit",
+    "makeACopy": "Make a copy",
+    "favorite": "Favorite",
+    "delete": "Delete",
+    "saving": "Saving {{header}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "General and display settings for the application",
+    "theme": {
+      "title": "Theme Settings",
+      "description": "Choose light, dark, or system theme",
+      "mode": "Theme Mode",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "colorPalette": {
+      "title": "Color Palette",
+      "description": "Choose color palette for shadcn theme",
+      "palette": "Color Palette",
+      "selectPalette": "Select color palette",
+      "palettes": {
+        "default": "Default",
+        "blue": "Blue",
+        "green": "Green",
+        "orange": "Orange",
+        "red": "Red",
+        "rose": "Rose",
+        "violet": "Violet",
+        "yellow": "Yellow"
+      }
+    },
+    "language": {
+      "title": "Language",
+      "description": "Change interface language",
+      "language": "Language",
+      "persian": "Persian",
+      "english": "English"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Page not found"
+  },
+  "users": {
+    "title": "User Management",
+    "description": "Manage and view all system users",
+    "search": "Search users...",
+    "phonePlaceholder": "Phone number...",
+    "role": "Role",
+    "status": "Status",
+    "allRoles": "All roles",
+    "allStatuses": "All statuses",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "addNewUser": "Add New User",
+    "editUserInfo": "Edit user information",
+    "addUserInfo": "Enter new user information",
+    "name": "Name",
+    "phone": "Phone",
+    "noName": "No name",
+    "roles": {
+      "admin": "Admin",
+      "ADMIN": "Admin",
+      "moderator": "Moderator",
+      "user": "User",
+      "USER": "User"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "openMenu": "Open menu"
+    },
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "noResults": "No results found",
+    "selectedRows": "{{selected}} of {{total}} rows selected",
+    "page": "Page",
+    "of": "of",
+    "items": "items",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "notifications": {
+    "title": "Notification Management",
+    "description": "View history and send new notifications",
+    "filter": "Notification type",
+    "allTypes": "All types",
+    "types": {
+      "system": "System",
+      "user": "User",
+      "admin": "Admin",
+      "alert": "Alert",
+      "info": "Info"
+    },
+    "sendNew": "Send New Notification",
+    "sendNewTitle": "Send New Notification",
+    "sendNewDescription": "Set message and notification type",
+    "user": "User",
+    "noResults": "No notifications found",
+    "page": "Page",
+    "of": "of",
+    "items": "items",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "paymentGateways": {
+    "title": "Payment Gateway Management",
+    "description": "View and manage all available payment gateways",
+    "active": "Active",
+    "inactive": "Inactive",
+    "toggleActive": "Toggle {{gateway}} to {{status}}",
+    "toggleInactive": "Toggle {{gateway}} to {{status}}",
+    "settings": "Settings",
+    "noResults": "No payment gateways found",
+    "toast": {
+      "activated": "Gateway {{gateway}} activated",
+      "deactivated": "Gateway {{gateway}} deactivated"
+    }
+  },
+  "tickets": {
+    "title": "User Tickets",
+    "description": "View, review and respond to user tickets",
+    "search": "Search tickets",
+    "status": "Status",
+    "all": "All",
+    "statuses": {
+      "open": "Open",
+      "pending": "Pending",
+      "closed": "Closed"
+    },
+    "table": {
+      "id": "ID",
+      "subject": "Subject",
+      "user": "User",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "drawer": {
+      "title": "Ticket {{id}} - {{subject}}",
+      "user": "User",
+      "sender": {
+        "user": "User",
+        "admin": "Admin"
+      },
+      "placeholder": "Write your message...",
+      "send": "Send"
+    },
+    "noResults": "No results found"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "description": "Transaction list with instant filter and search",
+    "search": "Search",
+    "searchPlaceholder": "ID, reference or phone number...",
+    "gateway": "Gateway",
+    "selectGateway": "Select gateway",
+    "all": "All",
+    "status": "Status",
+    "selectStatus": "Select status",
+    "statuses": {
+      "all": "All",
+      "success": "Success",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "table": {
+      "id": "ID",
+      "reference": "Reference",
+      "user": "User",
+      "gateway": "Gateway",
+      "amount": "Amount (Toman)",
+      "status": "Status",
+      "date": "Date"
+    },
+    "statuses": {
+      "success": "Success",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "noResults": "No items found",
+    "page": "Page",
+    "of": "of",
+    "items": "items",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "aboutUs": {
+    "title": "About Us"
+  },
+  "contactUs": {
+    "title": "Contact Us"
+  }
+}

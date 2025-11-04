@@ -1,0 +1,332 @@
+{
+  "app": {
+    "title": "هوشران"
+  },
+  "login": {
+    "title": "ورود به حساب کاربری",
+    "subtitle": "شماره موبایل خود را وارد کنید",
+    "phone": "شماره موبایل",
+    "phonePlaceholder": "09123456789",
+    "email": "ایمیل",
+    "emailPlaceholder": "m@example.com",
+    "password": "رمز عبور",
+    "forgot": "رمز عبور را فراموش کرده‌اید؟",
+    "submit": "ورود",
+    "google": "ورود با گوگل",
+    "noAccount": "حسابی ندارید؟",
+    "signup": "ثبت نام",
+    "support": "پشتیبانی"
+  },
+  "dashboard": {
+    "recent": "فعالیت‌های اخیر",
+    "team": "تیم"
+  },
+  "nav": {
+    "dashboard": "داشبورد",
+    "users": "کاربران",
+    "lifecycle": "چرخه عمر",
+    "analytics": "تحلیل‌ها",
+    "projects": "پروژه‌ها",
+    "team": "تیم",
+    "capture": "ضبط",
+    "proposal": "پیشنهاد",
+    "prompts": "پرومپت‌ها",
+    "activeProposals": "پیشنهادهای فعال",
+    "archived": "بایگانی",
+    "settings": "تنظیمات",
+    "getHelp": "دریافت کمک",
+    "search": "جستجو",
+    "notifications": "اعلانات",
+    "paymentGateways": "درگاه پرداخت",
+    "transactions": "تراکنش‌ها",
+    "tickets": "تیکت‌ها"
+  },
+  "documents": {
+    "dataLibrary": "کتابخانه داده",
+    "reports": "گزارش‌ها",
+    "wordAssistant": "دستیار ورد"
+  },
+  "otp": {
+    "title": "کد تأیید را وارد کنید",
+    "subtitle": "ما یک کد ۵ رقمی به شماره موبایل شما ارسال کردیم.",
+    "codeLabel": "کد تأیید",
+    "codeHelp": "کد ۵ رقمی ارسال‌شده به شماره موبایل خود را وارد کنید.",
+    "verify": "تأیید",
+    "notReceived": "کدی دریافت نکردید؟",
+    "resend": "ارسال مجدد"
+  },
+  "sectionCards": {
+    "totalRevenue": "کل درآمد",
+    "trendingUpThisMonth": "روند صعودی این ماه",
+    "visitorsLast6Months": "بازدیدکنندگان ۶ ماه اخیر",
+    "newCustomers": "مشتریان جدید",
+    "down20PercentThisPeriod": "کاهش ۲۰٪ در این دوره",
+    "acquisitionNeedsAttention": "جذب نیازمند توجه است",
+    "activeAccounts": "حساب‌های فعال",
+    "strongUserRetention": "نگهداری قوی کاربران",
+    "engagementExceedTargets": "تعامل از اهداف فراتر رفته",
+    "growthRate": "نرخ رشد",
+    "steadyPerformanceIncrease": "افزایش مداوم عملکرد",
+    "meetsGrowthProjections": "با پیش‌بینی‌های رشد مطابقت دارد"
+  },
+  "chart": {
+    "totalVisitors": "کل بازدیدکنندگان",
+    "totalForLast3Months": "مجموع برای ۳ ماه اخیر",
+    "last3Months": "۳ ماه اخیر",
+    "last30Days": "۳۰ روز اخیر",
+    "last7Days": "۷ روز اخیر",
+    "selectValue": "انتخاب مقدار",
+    "visitors": "بازدیدکنندگان",
+    "desktop": "دسکتاپ",
+    "mobile": "موبایل"
+  },
+  "table": {
+    "view": "نمایش",
+    "selectAView": "یک نما را انتخاب کنید",
+    "outline": "طرح کلی",
+    "pastPerformance": "عملکرد گذشته",
+    "keyPersonnel": "اعضای کلیدی",
+    "focusDocuments": "اسناد تمرکز",
+    "customizeColumns": "سفارشی‌سازی ستون‌ها",
+    "columns": "ستون‌ها",
+    "addSection": "افزودن بخش",
+    "noResults": "موردی یافت نشد.",
+    "selectedCount": "{{selected}} از {{total}} ردیف انتخاب شده.",
+    "rowsPerPage": "ردیف در هر صفحه",
+    "pageOf": "صفحه {{page}} از {{total}}",
+    "goFirst": "رفتن به صفحه اول",
+    "goPrev": "رفتن به صفحه قبل",
+    "goNext": "رفتن به صفحه بعد",
+    "goLast": "رفتن به صفحه آخر",
+    "submit": "ثبت",
+    "done": "انجام شد",
+    "error": "خطا",
+    "assignReviewer": "تخصیص بازبین",
+    "showingVisitors": "نمایش مجموع بازدیدکنندگان در ۶ ماه اخیر",
+    "trendingUp": "روند صعودی ۵.۲٪ در این ماه",
+    "showingVisitorsLong": "نمایش مجموع بازدیدکنندگان در ۶ ماه اخیر. این یک متن نمونه برای تست چیدمان است که در چند خط قرار می‌گیرد و باید به‌درستی شکسته شود.",
+    "header": "سرعنوان",
+    "sectionType": "نوع بخش",
+    "type": "نوع",
+    "selectType": "انتخاب نوع",
+    "status": "وضعیت",
+    "selectStatus": "انتخاب وضعیت",
+    "target": "هدف",
+    "limit": "حد",
+    "reviewer": "بازبین",
+    "selectReviewer": "انتخاب بازبین",
+    "statusDone": "انجام شد",
+    "statusInProgress": "در حال انجام",
+    "statusNotStarted": "شروع نشده",
+    "typeTOC": "فهرست مطالب",
+    "typeExecSummary": "خلاصه اجرایی",
+    "typeTechApproach": "رویکرد فنی",
+    "typeDesign": "طراحی",
+    "typeCapabilities": "قابلیت‌ها",
+    "typeFocusDocs": "اسناد تمرکز",
+    "typeNarrative": "روایت",
+    "typeCoverPage": "صفحه جلد",
+    "selectAll": "انتخاب همه",
+    "selectRow": "انتخاب ردیف",
+    "dragToReorder": "کشیدن برای تغییر ترتیب",
+    "openMenu": "باز کردن منو",
+    "edit": "ویرایش",
+    "makeACopy": "ایجاد کپی",
+    "favorite": "علاقه‌مندی",
+    "delete": "حذف",
+    "saving": "در حال ذخیره {{header}}"
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "description": "تنظیمات عمومی و نمایشی برنامه",
+    "theme": {
+      "title": "تنظیمات تم",
+      "description": "انتخاب تم روشن، تاریک یا سیستم",
+      "mode": "حالت تم",
+      "light": "روشن",
+      "dark": "تاریک",
+      "system": "سیستم"
+    },
+    "colorPalette": {
+      "title": "پالت رنگ",
+      "description": "انتخاب پالت رنگ برای تم سایت",
+      "palette": "پالت رنگ",
+      "selectPalette": "انتخاب پالت رنگ",
+      "palettes": {
+        "default": "پیش‌فرض",
+        "blue": "آبی",
+        "green": "سبز",
+        "orange": "نارنجی",
+        "red": "قرمز",
+        "rose": "رز",
+        "violet": "بنفش",
+        "yellow": "زرد"
+      }
+    },
+    "language": {
+      "title": "زبان",
+      "description": "تغییر زبان رابط کاربری",
+      "language": "زبان",
+      "persian": "فارسی",
+      "english": "انگلیسی"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "صفحه مورد نظر یافت نشد"
+  },
+  "users": {
+    "title": "مدیریت کاربران",
+    "description": "مدیریت و مشاهده تمام کاربران سیستم",
+    "search": "جستجوی کاربر...",
+    "phonePlaceholder": "شماره تماس...",
+    "role": "نقش",
+    "status": "وضعیت",
+    "allRoles": "همه نقش‌ها",
+    "allStatuses": "همه وضعیت‌ها",
+    "addUser": "افزودن کاربر",
+    "editUser": "ویرایش کاربر",
+    "addNewUser": "افزودن کاربر جدید",
+    "editUserInfo": "اطلاعات کاربر را ویرایش کنید",
+    "addUserInfo": "اطلاعات کاربر جدید را وارد کنید",
+    "name": "نام",
+    "phone": "شماره تماس",
+    "noName": "بدون نام",
+    "roles": {
+      "admin": "مدیر",
+      "ADMIN": "مدیر",
+      "moderator": "ناظر",
+      "user": "کاربر",
+      "USER": "کاربر"
+    },
+    "statuses": {
+      "active": "فعال",
+      "inactive": "غیرفعال",
+      "suspended": "معلق"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "openMenu": "باز کردن منو"
+    },
+    "confirmDelete": "آیا از حذف این کاربر اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "selectedRows": "{{selected}} از {{total}} ردیف انتخاب شده",
+    "page": "صفحه",
+    "of": "از",
+    "items": "مورد",
+    "prev": "قبلی",
+    "next": "بعدی"
+  },
+  "notifications": {
+    "title": "مدیریت اعلانات",
+    "description": "مشاهده تاریخچه و ارسال اعلانات جدید",
+    "filter": "نوع نوتیفیکیشن",
+    "allTypes": "همه انواع",
+    "types": {
+      "system": "سیستمی",
+      "user": "کاربر",
+      "admin": "مدیر",
+      "alert": "هشدار",
+      "info": "اطلاعیه"
+    },
+    "sendNew": "ارسال نوتیفیکیشن جدید",
+    "sendNewTitle": "ارسال نوتیفیکیشن جدید",
+    "sendNewDescription": "پیام و نوع نوتیفیکیشن را تعیین کنید",
+    "user": "کاربر",
+    "noResults": "نوتیفیکیشنی یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "items": "مورد",
+    "prev": "قبلی",
+    "next": "بعدی"
+  },
+  "paymentGateways": {
+    "title": "مدیریت درگاه‌های پرداخت",
+    "description": "مشاهده و مدیریت تمام درگاه‌های پرداخت موجود",
+    "active": "فعال",
+    "inactive": "غیرفعال",
+    "toggleActive": "{{gateway}} را {{status}} کنید",
+    "toggleInactive": "{{gateway}} را {{status}} کنید",
+    "settings": "تنظیمات",
+    "noResults": "درگاه پرداختی یافت نشد",
+    "toast": {
+      "activated": "درگاه {{gateway}} فعال شد",
+      "deactivated": "درگاه {{gateway}} غیرفعال شد"
+    }
+  },
+  "tickets": {
+    "title": "تیکت‌های کاربران",
+    "description": "مشاهده، بررسی و پاسخ به تیکت‌های کاربران",
+    "search": "جستجو در تیکت‌ها",
+    "status": "وضعیت",
+    "all": "همه",
+    "statuses": {
+      "open": "باز",
+      "pending": "در انتظار",
+      "closed": "بسته"
+    },
+    "table": {
+      "id": "شناسه",
+      "subject": "موضوع",
+      "user": "کاربر",
+      "status": "وضعیت",
+      "date": "تاریخ",
+      "actions": "عملیات"
+    },
+    "drawer": {
+      "title": "تیکت {{id}} - {{subject}}",
+      "user": "کاربر",
+      "sender": {
+        "user": "کاربر",
+        "admin": "ادمین"
+      },
+      "placeholder": "پیام خود را بنویسید...",
+      "send": "ارسال"
+    },
+    "noResults": "نتیجه‌ای یافت نشد"
+  },
+  "transactions": {
+    "title": "تراکنش‌ها",
+    "description": "لیست تراکنش‌ها به همراه فیلتر و جستجوی آنی",
+    "search": "جستجو",
+    "searchPlaceholder": "شناسه، رفرنس یا شماره موبایل...",
+    "gateway": "درگاه",
+    "selectGateway": "انتخاب درگاه",
+    "all": "همه",
+    "status": "وضعیت",
+    "selectStatus": "انتخاب وضعیت",
+    "statuses": {
+      "all": "همه",
+      "success": "موفق",
+      "failed": "ناموفق",
+      "pending": "در انتظار"
+    },
+    "table": {
+      "id": "شناسه",
+      "reference": "رفرنس",
+      "user": "کاربر",
+      "gateway": "درگاه",
+      "amount": "مبلغ (تومان)",
+      "status": "وضعیت",
+      "date": "تاریخ"
+    },
+    "statuses": {
+      "success": "موفق",
+      "failed": "ناموفق",
+      "pending": "در انتظار"
+    },
+    "noResults": "موردی یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "items": "مورد",
+    "prev": "قبلی",
+    "next": "بعدی"
+  },
+  "aboutUs": {
+    "title": "درباره ما"
+  },
+  "contactUs": {
+    "title": "تماس با ما"
+  }
+}

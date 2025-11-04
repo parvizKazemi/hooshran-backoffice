@@ -1,0 +1,614 @@
+[
+  {
+    "id": 1,
+    "header": "صفحه جلد",
+    "type": "Cover page",
+    "status": "در حال انجام",
+    "target": "18",
+    "limit": "5",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 2,
+    "header": "فهرست مطالب",
+    "type": "Table of contents",
+    "status": "انجام شد",
+    "target": "29",
+    "limit": "24",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 3,
+    "header": "خلاصه اجرایی",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "10",
+    "limit": "13",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 4,
+    "header": "رویکرد فنی",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "27",
+    "limit": "23",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 5,
+    "header": "طراحی",
+    "type": "Narrative",
+    "status": "در حال انجام",
+    "target": "2",
+    "limit": "16",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 6,
+    "header": "قابلیت‌ها",
+    "type": "Narrative",
+    "status": "در حال انجام",
+    "target": "20",
+    "limit": "8",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 7,
+    "header": "یکپارچه‌سازی با سیستم‌های موجود",
+    "type": "Narrative",
+    "status": "در حال انجام",
+    "target": "19",
+    "limit": "21",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 8,
+    "header": "نوآوری و مزایا",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "25",
+    "limit": "26",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 9,
+    "header": "نمای کلی از راه‌حل‌های نوآورانه EMR",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "7",
+    "limit": "23",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 10,
+    "header": "الگوریتم‌های پیشرفته و یادگیری ماشین",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "30",
+    "limit": "28",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 11,
+    "header": "پروتکل‌های ارتباطی تطبیقی",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "9",
+    "limit": "31",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 12,
+    "header": "مزایا نسبت به فناوری‌های فعلی",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "12",
+    "limit": "0",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 13,
+    "header": "عملکرد گذشته",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "22",
+    "limit": "33",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 14,
+    "header": "بازخورد مشتری و سطح رضایت",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "15",
+    "limit": "34",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 15,
+    "header": "چالش‌های پیاده‌سازی و راه‌حل‌ها",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "3",
+    "limit": "35",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 16,
+    "header": "اقدامات امنیتی و سیاست‌های حفاظت از داده",
+    "type": "Narrative",
+    "status": "در حال انجام",
+    "target": "6",
+    "limit": "36",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 17,
+    "header": "مقیاس‌پذیری و اثبات آینده",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "4",
+    "limit": "37",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 18,
+    "header": "تحلیل هزینه‌فایده",
+    "type": "Plain language",
+    "status": "انجام شد",
+    "target": "14",
+    "limit": "38",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 19,
+    "header": "تجربه آموزش و راه‌اندازی کاربر",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "17",
+    "limit": "39",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 20,
+    "header": "نقشه راه توسعه آینده",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "11",
+    "limit": "40",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 21,
+    "header": "نمای کلی معماری سیستم",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "24",
+    "limit": "18",
+    "reviewer": "Maya Johnson"
+  },
+  {
+    "id": 22,
+    "header": "طرح مدیریت ریسک",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "15",
+    "limit": "22",
+    "reviewer": "Carlos Rodriguez"
+  },
+  {
+    "id": 23,
+    "header": "مستندات انطباق",
+    "type": "Legal",
+    "status": "در حال انجام",
+    "target": "31",
+    "limit": "27",
+    "reviewer": "Sarah Chen"
+  },
+  {
+    "id": 24,
+    "header": "مستندات API",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "8",
+    "limit": "12",
+    "reviewer": "Raj Patel"
+  },
+  {
+    "id": 25,
+    "header": "ماکت‌های رابط کاربری",
+    "type": "Visual",
+    "status": "در حال انجام",
+    "target": "19",
+    "limit": "25",
+    "reviewer": "Leila Ahmadi"
+  },
+  {
+    "id": 26,
+    "header": "طرح‌واره پایگاه داده",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "22",
+    "limit": "20",
+    "reviewer": "Thomas Wilson"
+  },
+  {
+    "id": 27,
+    "header": "روش شناسی تست",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "17",
+    "limit": "14",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 28,
+    "header": "استراتژی استقرار",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "26",
+    "limit": "30",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 29,
+    "header": "تجزیه بودجه",
+    "type": "Financial",
+    "status": "در حال انجام",
+    "target": "13",
+    "limit": "16",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 30,
+    "header": "تحلیل بازار",
+    "type": "Research",
+    "status": "انجام شد",
+    "target": "29",
+    "limit": "32",
+    "reviewer": "Sophia Martinez"
+  },
+  {
+    "id": 31,
+    "header": "مقایسه رقبا",
+    "type": "Research",
+    "status": "در حال انجام",
+    "target": "21",
+    "limit": "19",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 32,
+    "header": "طرح نگهداری",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "16",
+    "limit": "23",
+    "reviewer": "Alex Thompson"
+  },
+  {
+    "id": 33,
+    "header": "شخصیت‌های کاربر",
+    "type": "Research",
+    "status": "در حال انجام",
+    "target": "27",
+    "limit": "24",
+    "reviewer": "Nina Patel"
+  },
+  {
+    "id": 34,
+    "header": "انطباق دسترس‌پذیری",
+    "type": "Legal",
+    "status": "انجام شد",
+    "target": "18",
+    "limit": "21",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 35,
+    "header": "معیارهای عملکرد",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "23",
+    "limit": "26",
+    "reviewer": "David Kim"
+  },
+  {
+    "id": 36,
+    "header": "طرح بازیابی فاجعه",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "14",
+    "limit": "17",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 37,
+    "header": "یکپارچه‌سازی‌های شخص ثالث",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "25",
+    "limit": "28",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 38,
+    "header": "خلاصه بازخورد کاربر",
+    "type": "Research",
+    "status": "انجام شد",
+    "target": "20",
+    "limit": "15",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 39,
+    "header": "استراتژی بومی‌سازی",
+    "type": "Narrative",
+    "status": "در حال انجام",
+    "target": "12",
+    "limit": "19",
+    "reviewer": "Maria Garcia"
+  },
+  {
+    "id": 40,
+    "header": "سازگاری موبایل",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "28",
+    "limit": "31",
+    "reviewer": "James Wilson"
+  },
+  {
+    "id": 41,
+    "header": "طرح مهاجرت داده",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "19",
+    "limit": "22",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 42,
+    "header": "پروتکل‌های تضمین کیفیت",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "30",
+    "limit": "33",
+    "reviewer": "Priya Singh"
+  },
+  {
+    "id": 43,
+    "header": "تحلیل ذی‌نفعان",
+    "type": "Research",
+    "status": "در حال انجام",
+    "target": "11",
+    "limit": "14",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 44,
+    "header": "ارزیابی تاثیر زیست‌محیطی",
+    "type": "Research",
+    "status": "انجام شد",
+    "target": "24",
+    "limit": "27",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 45,
+    "header": "حقوق مالکیت فکری",
+    "type": "Legal",
+    "status": "در حال انجام",
+    "target": "17",
+    "limit": "20",
+    "reviewer": "Sarah Johnson"
+  },
+  {
+    "id": 46,
+    "header": "چارچوب پشتیبانی مشتری",
+    "type": "Narrative",
+    "status": "انجام شد",
+    "target": "22",
+    "limit": "25",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 47,
+    "header": "استراتژی کنترل نسخه",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "15",
+    "limit": "18",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 48,
+    "header": "خط لوله یکپارچه‌سازی مستمر",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "26",
+    "limit": "29",
+    "reviewer": "Michael Chen"
+  },
+  {
+    "id": 49,
+    "header": "انطباق نظارتی",
+    "type": "Legal",
+    "status": "در حال انجام",
+    "target": "13",
+    "limit": "16",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 50,
+    "header": "سیستم احراز هویت کاربر",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "28",
+    "limit": "31",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 51,
+    "header": "چارچوب تحلیل داده",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "21",
+    "limit": "24",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 52,
+    "header": "زیرساخت ابری",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "16",
+    "limit": "19",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 53,
+    "header": "اقدامات امنیت شبکه",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "29",
+    "limit": "32",
+    "reviewer": "Lisa Wong"
+  },
+  {
+    "id": 54,
+    "header": "جدول زمانی پروژه",
+    "type": "Planning",
+    "status": "انجام شد",
+    "target": "14",
+    "limit": "17",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 55,
+    "header": "تخصیص منابع",
+    "type": "Planning",
+    "status": "در حال انجام",
+    "target": "27",
+    "limit": "30",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 56,
+    "header": "ساختار تیم و نقش‌ها",
+    "type": "Planning",
+    "status": "انجام شد",
+    "target": "20",
+    "limit": "23",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 57,
+    "header": "پروتکل‌های ارتباطی",
+    "type": "Planning",
+    "status": "در حال انجام",
+    "target": "15",
+    "limit": "18",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 58,
+    "header": "معیارهای موفقیت",
+    "type": "Planning",
+    "status": "انجام شد",
+    "target": "30",
+    "limit": "33",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 59,
+    "header": "پشتیبانی چندزبانه",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "23",
+    "limit": "26",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 60,
+    "header": "روش‌های پشتیبان‌گیری و بازیابی",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "18",
+    "limit": "21",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 61,
+    "header": "سیستم نظارت و هشدار",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "25",
+    "limit": "28",
+    "reviewer": "Daniel Park"
+  },
+  {
+    "id": 62,
+    "header": "راهنمای بررسی کد",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "12",
+    "limit": "15",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 63,
+    "header": "استانداردهای مستندسازی",
+    "type": "Technical content",
+    "status": "در حال انجام",
+    "target": "27",
+    "limit": "30",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 64,
+    "header": "فرآیند مدیریت انتشار",
+    "type": "Planning",
+    "status": "انجام شد",
+    "target": "22",
+    "limit": "25",
+    "reviewer": "تخصیص بازبین"
+  },
+  {
+    "id": 65,
+    "header": "ماتریس اولویت‌بندی ویژگی",
+    "type": "Planning",
+    "status": "در حال انجام",
+    "target": "19",
+    "limit": "22",
+    "reviewer": "Emma Davis"
+  },
+  {
+    "id": 66,
+    "header": "ارزیابی بدهی فنی",
+    "type": "Technical content",
+    "status": "انجام شد",
+    "target": "24",
+    "limit": "27",
+    "reviewer": "Eddie Lake"
+  },
+  {
+    "id": 67,
+    "header": "برنامه‌ریزی ظرفیت",
+    "type": "Planning",
+    "status": "در حال انجام",
+    "target": "21",
+    "limit": "24",
+    "reviewer": "Jamik Tashpulatov"
+  },
+  {
+    "id": 68,
+    "header": "توافق‌نامه‌های سطح خدمات",
+    "type": "Legal",
+    "status": "انجام شد",
+    "target": "26",
+    "limit": "29",
+    "reviewer": "تخصیص بازبین"
+  }
+]
