@@ -21,6 +21,24 @@ const Transactions = lazy(
   () => import("../features/transactions/Transactions.tsx")
 );
 const Settings = lazy(() => import("../features/settings/Settings.tsx"));
+const ApiServices = lazy(
+  () => import("../features/api-services/ApiServices.tsx")
+);
+const ServiceRequests = lazy(
+  () => import("../features/service-requests/ServiceRequests.tsx")
+);
+const Categories = lazy(() => import("../features/categories/Categories.tsx"));
+const UserCredits = lazy(
+  () => import("../features/user-credits/UserCredits.tsx")
+);
+const Packages = lazy(() => import("../features/packages/Packages.tsx"));
+const Plans = lazy(() => import("../features/plans/Plans.tsx"));
+const Referrals = lazy(() => import("../features/referrals/Referrals.tsx"));
+const Media = lazy(() => import("../features/media/Media.tsx"));
+const Payments = lazy(() => import("../features/payments/Payments.tsx"));
+const UtmAnalytics = lazy(
+  () => import("../features/utm-analytics/UtmAnalytics.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -82,6 +100,46 @@ const router = createBrowserRouter([
           {
             path: "/settings",
             element: <Settings />,
+          },
+          {
+            path: "/api-services",
+            element: <ApiServices />,
+          },
+          {
+            path: "/service-requests",
+            element: <ServiceRequests />,
+          },
+          {
+            path: "/categories",
+            element: <Categories />,
+          },
+          {
+            path: "/user-credits",
+            element: <UserCredits />,
+          },
+          {
+            path: "/packages",
+            element: <Packages />,
+          },
+          {
+            path: "/plans",
+            element: <Plans />,
+          },
+          {
+            path: "/referrals",
+            element: <Referrals />,
+          },
+          {
+            path: "/media",
+            element: <Media />,
+          },
+          {
+            path: "/payments",
+            element: <Payments />,
+          },
+          {
+            path: "/utm-analytics",
+            element: <UtmAnalytics />,
           },
         ],
       },

@@ -1,0 +1,55 @@
+import { UtmEvent } from "./types";
+
+export const mockUtmEvents: UtmEvent[] = [
+  {
+    id: "1",
+    event_type: "signup",
+    user_id: "user_1",
+    user_name: "علی محمدی",
+    user_phone: "09123456789",
+    payment_id: null,
+    utm_params: {
+      source: "google",
+      medium: "cpc",
+      campaign: "summer2024",
+    },
+    source: "google",
+    medium: "cpc",
+    campaign: "summer2024",
+    createdAt: "2024-01-15T10:00:00Z",
+  },
+  {
+    id: "2",
+    event_type: "purchase",
+    user_id: "user_1",
+    user_name: "علی محمدی",
+    user_phone: "09123456789",
+    payment_id: "payment_1",
+    utm_params: {
+      source: "instagram",
+      medium: "social",
+      campaign: "influencer",
+    },
+    source: "instagram",
+    medium: "social",
+    campaign: "influencer",
+    createdAt: "2024-01-16T11:00:00Z",
+  },
+  {
+    id: "3",
+    event_type: "signin",
+    user_id: "user_2",
+    user_name: "فاطمه احمدی",
+    user_phone: "09123456790",
+    payment_id: null,
+    utm_params: {
+      source: "direct",
+      medium: "none",
+      campaign: null,
+    },
+    source: "direct",
+    medium: "none",
+    campaign: null,
+    createdAt: "2024-01-17T09:00:00Z",
+  },
+];

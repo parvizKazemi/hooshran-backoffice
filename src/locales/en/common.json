@@ -39,7 +39,17 @@
     "notifications": "Notifications",
     "paymentGateways": "Payment Gateways",
     "transactions": "Transactions",
-    "tickets": "Tickets"
+    "tickets": "Tickets",
+    "apiServices": "API Services",
+    "serviceRequests": "Service Requests",
+    "categories": "Categories",
+    "userCredits": "User Credits",
+    "packages": "Packages",
+    "plans": "Plans",
+    "referrals": "Referrals",
+    "media": "Media",
+    "payments": "Payments",
+    "utmAnalytics": "UTM Analytics"
   },
   "documents": {
     "dataLibrary": "Data Library",
@@ -328,5 +338,433 @@
   },
   "contactUs": {
     "title": "Contact Us"
+  },
+  "apiServices": {
+    "title": "API Services",
+    "description": "Manage and view all available API services",
+    "search": "Search services...",
+    "category": "Category",
+    "status": "Status",
+    "allCategories": "All categories",
+    "allStatuses": "All statuses",
+    "addService": "Add Service",
+    "editService": "Edit Service",
+    "addNewService": "Add New Service",
+    "editServiceInfo": "Edit service information",
+    "addServiceInfo": "Enter new service information",
+    "confirmDelete": "Are you sure you want to delete this service?",
+    "noResults": "No results found",
+    "selectedRows": "{{selected}} of {{total}} rows selected",
+    "page": "Page",
+    "of": "of",
+    "items": "items",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "name": "Name",
+      "category": "Category",
+      "endpoint": "Endpoint",
+      "status": "Status"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "openMenu": "Open menu"
+    },
+    "form": {
+      "name": "Service Name",
+      "namePlaceholder": "Enter service name",
+      "englishName": "English Name",
+      "englishNamePlaceholder": "Service English name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter service description",
+      "endpoint": "API Endpoint",
+      "endpointPlaceholder": "https://api.example.com/endpoint",
+      "slug": "Slug",
+      "slugPlaceholder": "service-slug",
+      "category": "Category",
+      "selectCategory": "Select category",
+      "noCategory": "No category",
+      "defaultCreditCost": "Default Credit Cost",
+      "defaultCreditCostPlaceholder": "0",
+      "isActive": "Active",
+      "parameters": "Parameters",
+      "addParameter": "Add Parameter",
+      "noParameters": "No parameters defined",
+      "parameter": "Parameter",
+      "parameterName": "Parameter Name",
+      "parameterNamePlaceholder": "Parameter name",
+      "parameterType": "Parameter Type",
+      "options": "Options",
+      "optionsPlaceholder": "option1, option2, option3",
+      "optionsHint": "Separate options with commas",
+      "required": "Required",
+      "priority": "Priority",
+      "defaultValue": "Default Value",
+      "defaultValuePlaceholder": "Default value",
+      "saveChanges": "Save Changes",
+      "createService": "Create Service",
+      "cancel": "Cancel"
+    }
+  },
+  "serviceRequests": {
+    "title": "Service Requests",
+    "description": "View and manage user requests for API services",
+    "search": "Search requests...",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "credit": "credit",
+    "noResults": "No results found",
+    "selectedRows": "{{selected}} of {{total}} rows selected",
+    "page": "Page",
+    "of": "of",
+    "items": "items",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "id": "ID",
+      "user": "User",
+      "service": "Service",
+      "status": "Status",
+      "cost": "Cost",
+      "rating": "Rating",
+      "date": "Date"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "success": "Success",
+      "failed": "Failed"
+    },
+    "actions": {
+      "view": "View",
+      "openMenu": "Open menu"
+    },
+    "detail": {
+      "title": "Request Details",
+      "basicInfo": "Basic Information",
+      "user": "User",
+      "service": "Service",
+      "status": "Status",
+      "cost": "Cost",
+      "rating": "Rating",
+      "inputParams": "Input Parameters",
+      "output": "Output",
+      "error": "Error",
+      "timestamps": "Timestamps",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Manage API service categories",
+    "search": "Search categories...",
+    "allStatuses": "All statuses",
+    "addCategory": "Add Category",
+    "editCategory": "Edit Category",
+    "addNewCategory": "Add New Category",
+    "editCategoryInfo": "Edit category information",
+    "addCategoryInfo": "Enter new category information",
+    "confirmDelete": "Are you sure you want to delete this category?",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "status": "Status"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "slug": "Slug",
+      "slugPlaceholder": "category-slug",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter category description",
+      "isActive": "Active",
+      "saveChanges": "Save Changes",
+      "createCategory": "Create Category",
+      "cancel": "Cancel"
+    }
+  },
+  "userCredits": {
+    "title": "User Credits",
+    "description": "View and manage user credit balances",
+    "search": "Search users...",
+    "source": "Source",
+    "allSources": "All sources",
+    "credit": "credit",
+    "rial": "Rials",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "user": "User",
+      "amount": "Amount",
+      "source": "Source",
+      "paidAmount": "Paid Amount",
+      "expiresAt": "Expires At"
+    },
+    "sources": {
+      "purchase": "Purchase",
+      "gift": "Gift",
+      "referral": "Referral",
+      "system": "System",
+      "admin": "Admin"
+    },
+    "types": {
+      "increase": "Increase",
+      "decrease": "Decrease",
+      "subscription": "Subscription"
+    },
+    "actions": {
+      "viewLogs": "View Logs"
+    },
+    "logs": {
+      "title": "Credit History",
+      "description": "View all credit changes for user",
+      "noResults": "No logs found",
+      "table": {
+        "type": "Type",
+        "amount": "Amount",
+        "source": "Source",
+        "description": "Description",
+        "date": "Date"
+      }
+    }
+  },
+  "packages": {
+    "title": "Credit Packages",
+    "description": "Manage credit purchase packages",
+    "search": "Search packages...",
+    "allTypes": "All types",
+    "allStatuses": "All statuses",
+    "credit": "credit",
+    "rial": "Rials",
+    "days": "days",
+    "addPackage": "Add Package",
+    "editPackage": "Edit Package",
+    "addNewPackage": "Add New Package",
+    "editPackageInfo": "Edit package information",
+    "addPackageInfo": "Enter new package information",
+    "confirmDelete": "Are you sure you want to delete this package?",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "creditAmount": "Credit Amount",
+      "price": "Price",
+      "type": "Type",
+      "duration": "Duration",
+      "status": "Status"
+    },
+    "types": {
+      "permanent": "Permanent",
+      "subscription": "Subscription"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "creditAmount": "Credit Amount",
+      "creditAmountPlaceholder": "Enter credit amount",
+      "price": "Price (Rials)",
+      "pricePlaceholder": "Enter price",
+      "type": "Package Type",
+      "durationDays": "Duration (Days)",
+      "durationDaysPlaceholder": "Enter duration in days",
+      "isActive": "Active",
+      "saveChanges": "Save Changes",
+      "createPackage": "Create Package",
+      "cancel": "Cancel"
+    }
+  },
+  "plans": {
+    "title": "Subscription Plans",
+    "description": "Manage subscription plans",
+    "search": "Search plans...",
+    "allStatuses": "All statuses",
+    "rial": "Rials",
+    "days": "days",
+    "addPlan": "Add Plan",
+    "editPlan": "Edit Plan",
+    "addNewPlan": "Add New Plan",
+    "editPlanInfo": "Edit plan information",
+    "addPlanInfo": "Enter new plan information",
+    "confirmDelete": "Are you sure you want to delete this plan?",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "name": "Name",
+      "price": "Price",
+      "duration": "Duration",
+      "maxUsage": "Max Usage",
+      "discount": "Discount",
+      "status": "Status"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "name": "Plan Name",
+      "namePlaceholder": "Enter plan name",
+      "price": "Price (Rials)",
+      "pricePlaceholder": "Enter price",
+      "durationDays": "Duration (Days)",
+      "durationDaysPlaceholder": "Enter duration in days",
+      "maxUsage": "Max Usage",
+      "maxUsagePlaceholder": "Enter max usage",
+      "discount": "Discount (%)",
+      "discountPlaceholder": "Enter discount",
+      "isActive": "Active",
+      "saveChanges": "Save Changes",
+      "createPlan": "Create Plan",
+      "cancel": "Cancel"
+    }
+  },
+  "referrals": {
+    "title": "Referral System",
+    "description": "View referral rewards",
+    "search": "Search referrals...",
+    "allTypes": "All types",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "referrer": "Referrer",
+      "referred": "Referred",
+      "type": "Reward Type",
+      "amount": "Amount",
+      "receivedAt": "Received At"
+    },
+    "types": {
+      "credit": "Credit",
+      "point": "Point"
+    },
+    "actions": {
+      "view": "View"
+    }
+  },
+  "media": {
+    "title": "Media Management",
+    "description": "View and manage uploaded files",
+    "search": "Search files...",
+    "allTypes": "All types",
+    "confirmDelete": "Are you sure you want to delete this file?",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "name": "File Name",
+      "type": "Type",
+      "extension": "Extension",
+      "size": "Size",
+      "bucket": "Bucket"
+    },
+    "types": {
+      "image": "Image",
+      "video": "Video"
+    },
+    "actions": {
+      "download": "Download",
+      "delete": "Delete"
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "description": "View and manage payments",
+    "search": "Search payments...",
+    "allStatuses": "All statuses",
+    "allTypes": "All types",
+    "rial": "Rials",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "id": "ID",
+      "user": "User",
+      "amount": "Amount",
+      "status": "Status",
+      "type": "Type",
+      "paidAt": "Paid At"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "success": "Success",
+      "failed": "Failed"
+    },
+    "types": {
+      "package": "Package",
+      "service": "Service"
+    },
+    "actions": {
+      "view": "View"
+    }
+  },
+  "utmAnalytics": {
+    "title": "UTM Analytics",
+    "description": "Analyze user sources and conversions",
+    "search": "Search...",
+    "allEventTypes": "All event types",
+    "noResults": "No results found",
+    "page": "Page",
+    "of": "of",
+    "prev": "Previous",
+    "next": "Next",
+    "table": {
+      "eventType": "Event Type",
+      "user": "User",
+      "source": "Source",
+      "medium": "Medium",
+      "campaign": "Campaign",
+      "date": "Date"
+    },
+    "eventTypes": {
+      "signup": "Signup",
+      "signin": "Signin",
+      "purchase": "Purchase"
+    },
+    "actions": {
+      "view": "View"
+    }
   }
 }

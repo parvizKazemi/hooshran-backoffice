@@ -7,6 +7,15 @@ import {
   IconReport,
   IconSettings,
   IconUsers,
+  IconApi,
+  IconPackage,
+  IconCoins,
+  IconFileText,
+  IconUserCheck,
+  IconChartBar,
+  IconPhoto,
+  IconReceipt,
+  IconFolder,
 } from "@tabler/icons-react";
 import i18next from "i18next";
 import * as React from "react";
@@ -64,6 +73,56 @@ function useSidebarData() {
         title: t("nav.transactions"),
         url: "/transactions",
         icon: IconReport,
+      },
+      {
+        title: t("nav.apiServices"),
+        url: "/api-services",
+        icon: IconApi,
+      },
+      {
+        title: t("nav.serviceRequests"),
+        url: "/service-requests",
+        icon: IconFileText,
+      },
+      {
+        title: t("nav.categories"),
+        url: "/categories",
+        icon: IconFolder,
+      },
+      {
+        title: t("nav.userCredits"),
+        url: "/user-credits",
+        icon: IconCoins,
+      },
+      {
+        title: t("nav.packages"),
+        url: "/packages",
+        icon: IconPackage,
+      },
+      {
+        title: t("nav.plans"),
+        url: "/plans",
+        icon: IconCreditCard,
+      },
+      {
+        title: t("nav.referrals"),
+        url: "/referrals",
+        icon: IconUserCheck,
+      },
+      {
+        title: t("nav.media"),
+        url: "/media",
+        icon: IconPhoto,
+      },
+      {
+        title: t("nav.payments"),
+        url: "/payments",
+        icon: IconReceipt,
+      },
+      {
+        title: t("nav.utmAnalytics"),
+        url: "/utm-analytics",
+        icon: IconChartBar,
       },
     ],
 

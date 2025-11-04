@@ -1,0 +1,50 @@
+import { Package } from "./types";
+
+export const mockPackages: Package[] = [
+  {
+    id: "1",
+    credit_amount: 100,
+    price: 10000,
+    type: "PERMANENT",
+    duration_days: null,
+    is_active: true,
+    createdAt: "2024-01-15T10:00:00Z",
+    updatedAt: "2024-01-20T15:30:00Z",
+  },
+  {
+    id: "2",
+    credit_amount: 500,
+    price: 45000,
+    type: "PERMANENT",
+    duration_days: null,
+    is_active: true,
+    createdAt: "2024-01-16T11:00:00Z",
+  },
+  {
+    id: "3",
+    credit_amount: 1000,
+    price: 80000,
+    type: "PERMANENT",
+    duration_days: null,
+    is_active: true,
+    createdAt: "2024-01-17T09:00:00Z",
+  },
+  {
+    id: "4",
+    credit_amount: 200,
+    price: 15000,
+    type: "SUBSCRIPTION",
+    duration_days: 30,
+    is_active: true,
+    createdAt: "2024-01-18T12:00:00Z",
+  },
+  {
+    id: "5",
+    credit_amount: 500,
+    price: 35000,
+    type: "SUBSCRIPTION",
+    duration_days: 90,
+    is_active: false,
+    createdAt: "2024-01-19T08:00:00Z",
+  },
+];

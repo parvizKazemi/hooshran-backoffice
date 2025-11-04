@@ -39,7 +39,17 @@
     "notifications": "اعلانات",
     "paymentGateways": "درگاه پرداخت",
     "transactions": "تراکنش‌ها",
-    "tickets": "تیکت‌ها"
+    "tickets": "تیکت‌ها",
+    "apiServices": "سرویس‌های API",
+    "serviceRequests": "درخواست‌های سرویس",
+    "categories": "دسته‌بندی‌ها",
+    "userCredits": "موجودی اعتبار",
+    "packages": "پکیج‌ها",
+    "plans": "پلن‌ها",
+    "referrals": "ارجاع",
+    "media": "فایل‌ها",
+    "payments": "پرداخت‌ها",
+    "utmAnalytics": "تحلیل بازاریابی"
   },
   "documents": {
     "dataLibrary": "کتابخانه داده",
@@ -328,5 +338,433 @@
   },
   "contactUs": {
     "title": "تماس با ما"
+  },
+  "apiServices": {
+    "title": "سرویس‌های API",
+    "description": "مدیریت و مشاهده تمام سرویس‌های API موجود",
+    "search": "جستجوی سرویس...",
+    "category": "دسته‌بندی",
+    "status": "وضعیت",
+    "allCategories": "همه دسته‌بندی‌ها",
+    "allStatuses": "همه وضعیت‌ها",
+    "addService": "افزودن سرویس",
+    "editService": "ویرایش سرویس",
+    "addNewService": "افزودن سرویس جدید",
+    "editServiceInfo": "اطلاعات سرویس را ویرایش کنید",
+    "addServiceInfo": "اطلاعات سرویس جدید را وارد کنید",
+    "confirmDelete": "آیا از حذف این سرویس اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "selectedRows": "{{selected}} از {{total}} ردیف انتخاب شده",
+    "page": "صفحه",
+    "of": "از",
+    "items": "مورد",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "name": "نام",
+      "category": "دسته‌بندی",
+      "endpoint": "آدرس",
+      "status": "وضعیت"
+    },
+    "statuses": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "openMenu": "باز کردن منو"
+    },
+    "form": {
+      "name": "نام سرویس",
+      "namePlaceholder": "نام سرویس را وارد کنید",
+      "englishName": "نام انگلیسی",
+      "englishNamePlaceholder": "نام انگلیسی سرویس",
+      "description": "توضیحات",
+      "descriptionPlaceholder": "توضیحات سرویس را وارد کنید",
+      "endpoint": "آدرس API",
+      "endpointPlaceholder": "https://api.example.com/endpoint",
+      "slug": "اسلاگ",
+      "slugPlaceholder": "service-slug",
+      "category": "دسته‌بندی",
+      "selectCategory": "انتخاب دسته‌بندی",
+      "noCategory": "بدون دسته‌بندی",
+      "defaultCreditCost": "هزینه اعتبار پیش‌فرض",
+      "defaultCreditCostPlaceholder": "0",
+      "isActive": "فعال",
+      "parameters": "پارامترها",
+      "addParameter": "افزودن پارامتر",
+      "noParameters": "هیچ پارامتری تعریف نشده است",
+      "parameter": "پارامتر",
+      "parameterName": "نام پارامتر",
+      "parameterNamePlaceholder": "نام پارامتر",
+      "parameterType": "نوع پارامتر",
+      "options": "گزینه‌ها",
+      "optionsPlaceholder": "گزینه1, گزینه2, گزینه3",
+      "optionsHint": "گزینه‌ها را با کاما جدا کنید",
+      "required": "الزامی",
+      "priority": "اولویت",
+      "defaultValue": "مقدار پیش‌فرض",
+      "defaultValuePlaceholder": "مقدار پیش‌فرض",
+      "saveChanges": "ذخیره تغییرات",
+      "createService": "ایجاد سرویس",
+      "cancel": "لغو"
+    }
+  },
+  "serviceRequests": {
+    "title": "درخواست‌های سرویس",
+    "description": "مشاهده و مدیریت درخواست‌های کاربران برای سرویس‌های API",
+    "search": "جستجوی درخواست...",
+    "status": "وضعیت",
+    "allStatuses": "همه وضعیت‌ها",
+    "credit": "اعتبار",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "selectedRows": "{{selected}} از {{total}} ردیف انتخاب شده",
+    "page": "صفحه",
+    "of": "از",
+    "items": "مورد",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "id": "شناسه",
+      "user": "کاربر",
+      "service": "سرویس",
+      "status": "وضعیت",
+      "cost": "هزینه",
+      "rating": "امتیاز",
+      "date": "تاریخ"
+    },
+    "statuses": {
+      "pending": "در انتظار",
+      "processing": "در حال پردازش",
+      "success": "موفق",
+      "failed": "ناموفق"
+    },
+    "actions": {
+      "view": "مشاهده",
+      "openMenu": "باز کردن منو"
+    },
+    "detail": {
+      "title": "جزئیات درخواست",
+      "basicInfo": "اطلاعات پایه",
+      "user": "کاربر",
+      "service": "سرویس",
+      "status": "وضعیت",
+      "cost": "هزینه",
+      "rating": "امتیاز",
+      "inputParams": "پارامترهای ورودی",
+      "output": "خروجی",
+      "error": "خطا",
+      "timestamps": "زمان‌بندی",
+      "createdAt": "تاریخ ایجاد",
+      "updatedAt": "تاریخ بروزرسانی"
+    }
+  },
+  "categories": {
+    "title": "دسته‌بندی‌ها",
+    "description": "مدیریت دسته‌بندی سرویس‌های API",
+    "search": "جستجوی دسته‌بندی...",
+    "allStatuses": "همه وضعیت‌ها",
+    "addCategory": "افزودن دسته‌بندی",
+    "editCategory": "ویرایش دسته‌بندی",
+    "addNewCategory": "افزودن دسته‌بندی جدید",
+    "editCategoryInfo": "اطلاعات دسته‌بندی را ویرایش کنید",
+    "addCategoryInfo": "اطلاعات دسته‌بندی جدید را وارد کنید",
+    "confirmDelete": "آیا از حذف این دسته‌بندی اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "name": "نام",
+      "slug": "اسلاگ",
+      "description": "توضیحات",
+      "status": "وضعیت"
+    },
+    "statuses": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف"
+    },
+    "form": {
+      "name": "نام دسته‌بندی",
+      "namePlaceholder": "نام دسته‌بندی را وارد کنید",
+      "slug": "اسلاگ",
+      "slugPlaceholder": "category-slug",
+      "description": "توضیحات",
+      "descriptionPlaceholder": "توضیحات دسته‌بندی را وارد کنید",
+      "isActive": "فعال",
+      "saveChanges": "ذخیره تغییرات",
+      "createCategory": "ایجاد دسته‌بندی",
+      "cancel": "لغو"
+    }
+  },
+  "userCredits": {
+    "title": "موجودی اعتبار کاربران",
+    "description": "مشاهده و مدیریت موجودی اعتبار کاربران",
+    "search": "جستجوی کاربر...",
+    "source": "منبع",
+    "allSources": "همه منابع",
+    "credit": "اعتبار",
+    "rial": "ریال",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "user": "کاربر",
+      "amount": "مقدار",
+      "source": "منبع",
+      "paidAmount": "مبلغ پرداخت",
+      "expiresAt": "تاریخ انقضا"
+    },
+    "sources": {
+      "purchase": "خرید",
+      "gift": "هدیه",
+      "referral": "ارجاع",
+      "system": "سیستم",
+      "admin": "ادمین"
+    },
+    "types": {
+      "increase": "افزایش",
+      "decrease": "کاهش",
+      "subscription": "اشتراک"
+    },
+    "actions": {
+      "viewLogs": "مشاهده لاگ‌ها"
+    },
+    "logs": {
+      "title": "تاریخچه تغییرات اعتبار",
+      "description": "مشاهده تمام تغییرات اعتبار کاربر",
+      "noResults": "لاگی یافت نشد",
+      "table": {
+        "type": "نوع",
+        "amount": "مقدار",
+        "source": "منبع",
+        "description": "توضیحات",
+        "date": "تاریخ"
+      }
+    }
+  },
+  "packages": {
+    "title": "پکیج‌های اعتباری",
+    "description": "مدیریت پکیج‌های خرید اعتبار",
+    "search": "جستجوی پکیج...",
+    "allTypes": "همه انواع",
+    "allStatuses": "همه وضعیت‌ها",
+    "credit": "اعتبار",
+    "rial": "ریال",
+    "days": "روز",
+    "addPackage": "افزودن پکیج",
+    "editPackage": "ویرایش پکیج",
+    "addNewPackage": "افزودن پکیج جدید",
+    "editPackageInfo": "اطلاعات پکیج را ویرایش کنید",
+    "addPackageInfo": "اطلاعات پکیج جدید را وارد کنید",
+    "confirmDelete": "آیا از حذف این پکیج اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "creditAmount": "مقدار اعتبار",
+      "price": "قیمت",
+      "type": "نوع",
+      "duration": "مدت",
+      "status": "وضعیت"
+    },
+    "types": {
+      "permanent": "دائمی",
+      "subscription": "اشتراکی"
+    },
+    "statuses": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف"
+    },
+    "form": {
+      "creditAmount": "مقدار اعتبار",
+      "creditAmountPlaceholder": "مقدار اعتبار را وارد کنید",
+      "price": "قیمت (ریال)",
+      "pricePlaceholder": "قیمت را وارد کنید",
+      "type": "نوع پکیج",
+      "durationDays": "مدت اعتبار (روز)",
+      "durationDaysPlaceholder": "مدت اعتبار را وارد کنید",
+      "isActive": "فعال",
+      "saveChanges": "ذخیره تغییرات",
+      "createPackage": "ایجاد پکیج",
+      "cancel": "لغو"
+    }
+  },
+  "plans": {
+    "title": "پلن‌های اشتراکی",
+    "description": "مدیریت پلن‌های اشتراکی",
+    "search": "جستجوی پلن...",
+    "allStatuses": "همه وضعیت‌ها",
+    "rial": "ریال",
+    "days": "روز",
+    "addPlan": "افزودن پلن",
+    "editPlan": "ویرایش پلن",
+    "addNewPlan": "افزودن پلن جدید",
+    "editPlanInfo": "اطلاعات پلن را ویرایش کنید",
+    "addPlanInfo": "اطلاعات پلن جدید را وارد کنید",
+    "confirmDelete": "آیا از حذف این پلن اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "name": "نام",
+      "price": "قیمت",
+      "duration": "مدت",
+      "maxUsage": "حداکثر استفاده",
+      "discount": "تخفیف",
+      "status": "وضعیت"
+    },
+    "statuses": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف"
+    },
+    "form": {
+      "name": "نام پلن",
+      "namePlaceholder": "نام پلن را وارد کنید",
+      "price": "قیمت (ریال)",
+      "pricePlaceholder": "قیمت را وارد کنید",
+      "durationDays": "مدت (روز)",
+      "durationDaysPlaceholder": "مدت را وارد کنید",
+      "maxUsage": "حداکثر استفاده",
+      "maxUsagePlaceholder": "حداکثر استفاده را وارد کنید",
+      "discount": "تخفیف (%)",
+      "discountPlaceholder": "تخفیف را وارد کنید",
+      "isActive": "فعال",
+      "saveChanges": "ذخیره تغییرات",
+      "createPlan": "ایجاد پلن",
+      "cancel": "لغو"
+    }
+  },
+  "referrals": {
+    "title": "سیستم ارجاع",
+    "description": "مشاهده پاداش‌های ارجاع",
+    "search": "جستجوی ارجاع...",
+    "allTypes": "همه انواع",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "referrer": "کاربر معرف",
+      "referred": "کاربر معرفی‌شده",
+      "type": "نوع پاداش",
+      "amount": "مقدار",
+      "receivedAt": "تاریخ دریافت"
+    },
+    "types": {
+      "credit": "اعتبار",
+      "point": "امتیاز"
+    },
+    "actions": {
+      "view": "مشاهده"
+    }
+  },
+  "media": {
+    "title": "مدیریت فایل‌ها",
+    "description": "مشاهده و مدیریت فایل‌های آپلود شده",
+    "search": "جستجوی فایل...",
+    "allTypes": "همه انواع",
+    "confirmDelete": "آیا از حذف این فایل اطمینان دارید؟",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "name": "نام فایل",
+      "type": "نوع",
+      "extension": "پسوند",
+      "size": "حجم",
+      "bucket": "باکت"
+    },
+    "types": {
+      "image": "تصویر",
+      "video": "ویدیو"
+    },
+    "actions": {
+      "download": "دانلود",
+      "delete": "حذف"
+    }
+  },
+  "payments": {
+    "title": "پرداخت‌ها",
+    "description": "مشاهده و مدیریت پرداخت‌ها",
+    "search": "جستجوی پرداخت...",
+    "allStatuses": "همه وضعیت‌ها",
+    "allTypes": "همه انواع",
+    "rial": "ریال",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "id": "شناسه",
+      "user": "کاربر",
+      "amount": "مبلغ",
+      "status": "وضعیت",
+      "type": "نوع",
+      "paidAt": "تاریخ پرداخت"
+    },
+    "statuses": {
+      "pending": "در انتظار",
+      "success": "موفق",
+      "failed": "ناموفق"
+    },
+    "types": {
+      "package": "پکیج",
+      "service": "سرویس"
+    },
+    "actions": {
+      "view": "مشاهده"
+    }
+  },
+  "utmAnalytics": {
+    "title": "تحلیل بازاریابی",
+    "description": "تحلیل منبع کاربران و تبدیل",
+    "search": "جستجو...",
+    "allEventTypes": "همه انواع رویداد",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "page": "صفحه",
+    "of": "از",
+    "prev": "قبلی",
+    "next": "بعدی",
+    "table": {
+      "eventType": "نوع رویداد",
+      "user": "کاربر",
+      "source": "منبع",
+      "medium": "رسانه",
+      "campaign": "کمپین",
+      "date": "تاریخ"
+    },
+    "eventTypes": {
+      "signup": "ثبت‌نام",
+      "signin": "ورود",
+      "purchase": "خرید"
+    },
+    "actions": {
+      "view": "مشاهده"
+    }
   }
 }
