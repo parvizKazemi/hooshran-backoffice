@@ -1,43 +1,128 @@
+## Admin Panel
+
+پنل مدیریت برای مدیریت محتوای وب‌سایت و عملیات کسب‌وکار. این پروژه با React 19، TypeScript، Vite و Tailwind توسعه داده شده است و معماری feature-based دارد. تمرکز اصلی بر روی ماژولار بودن فیچرها، مدیریت وضعیت با React Query، و بین‌المللی‌سازی (i18n) است.
+
+### Requirements
+
+- **Node.js**: 18.x یا 20.x (LTS پیشنهاد می‌شود)
+- **Package manager**: pnpm 8+
+- **Git**: برای کلون کردن مخزن
+
+### Getting Started
+
+1. کلون کردن مخزن:
+
+```bash
+git clone <repo-url>
+cd admin-panel
 ```
-src/                          # پوشه اصلی منبع کد
-├── assets/                   # تصاویر، فونت‌ها، آیکون‌ها (فایل‌های استاتیک)
-│   ├── images/               # تصاویر پروژه
-│   └── icons/                # آیکون‌ها (SVG یا PNG)
-├── components/               # کامپوننت‌های reusable (اتم‌ها/مولکول‌ها)
-│   ├── common/               # کامپوننت‌های عمومی مثل Button, Input, Modal
-│   ├── layout/               # کامپوننت‌های مثل Header, Footer, Sidebar
-│   └── ui/                   # wrapper برای لایبرری‌های سوم (مثل react-select)
-├── features/                 # فیچرها یا صفحات (هر فیچر کاملاً جدا)
-│   ├── auth/                 # مثال: فیچر احراز هویت
-│   │   ├── Login.tsx         # صفحه لاگین
-│   │   ├── Register.tsx      # صفحه ثبت‌نام
-│   │   └── authSlice.ts      # اسلایس Redux (اگر استفاده می‌کنید)
-│   ├── dashboard/            # مثال: داشبورد
-│   │   ├── Dashboard.tsx     # صفحه اصلی داشبورد
-│   │   └── components/       # کامپوننت‌های اختصاصی داشبورد
-│   └── user/                 # مثال: مدیریت کاربر
-├── hooks/                    # هوک‌های سفارشی
-│   ├── useAuth.ts            # هوک احراز هویت
-│   └── useFetch.ts           # هوک fetch داده
-├── services/                 # فراخوانی API (wrapper برای axios/fetch)
-│   ├── api.ts                # تنظیمات پایه API
-│   └── authService.ts        # سرویس‌های مرتبط با auth
-├── store/                    # مدیریت حالت (Redux/Zustand/Recoil)
-│   ├── slices/               # اسلایس‌های جداگانه
-│   └── index.ts              # store اصلی
-├── utils/                    # توابع کمکی (format، validator و غیره)
-│   └── helpers.ts            # توابع عمومی
-├── styles/                   # استایل‌های گلوبال و Tailwind
-│   ├── globals.css           # CSS گلوبال
-│   └── tailwind.config.js    # (معمولاً خارج src در Vite – اما گاهی داخل)
-├── routes/                   # روتینگ (یا AppRouter.tsx)
-│   └── PrivateRoute.tsx      # روت‌های محافظت‌شده
-├── types/                    # اینترفیس‌های TypeScript
-│   └── index.ts              # export همه تایپ‌ها
-├── constants/                # ثابت‌ها (API_URL، enumها)
-├── contexts/                 # Contextهای React
-│   └── ThemeContext.tsx      # مثال: تم اپ
-├── App.tsx                   # کامپوننت روت اصلی اپ
-├── main.tsx                  # نقطه ورود (ReactDOM.render)
-└── index.html                # (معمولاً خارج src در Vite/CRA)
+
+2. نصب وابستگی‌ها:
+
+```bash
+pnpm install
 ```
+
+3. پیکربندی متغیرهای محیطی:
+   فایل `.env` را در روت پروژه ایجاد کنید و مقدار پایه API را تنظیم کنید.
+
+```bash
+echo "VITE_API_BASE_URL=http://localhost:3000" > .env
+```
+
+4. اجرای محیط توسعه:
+
+```bash
+pnpm dev
+```
+
+5. بیلد و پیش‌نمایش:
+
+```bash
+pnpm build
+pnpm preview
+```
+
+### Common Scripts
+
+- **pnpm dev**: اجرا در حالت توسعه روی پورت 5173
+- **pnpm build**: بیلد تولید با TypeScript build و Vite
+- **pnpm preview**: پیش‌نمایش خروجی بیلد
+- **pnpm lint**: اجرای ESLint روی `src`
+- **pnpm lint:fix**: اصلاح خودکار خطاهای lint
+- **pnpm format**: اجرای Prettier برای فرمت کد
+- **pnpm type-check**: بررسی تایپ‌ها بدون خروجی بیلد
+
+### Environment Variables
+
+- `VITE_API_BASE_URL`: آدرس پایه API (پیش‌فرض: `http://localhost:3000`)
+
+### Tech Stack
+
+- React 19, TypeScript, Vite 7
+- Tailwind CSS 4
+- React Router 7، React Query (TanStack Query)
+- i18next برای i18n
+
+### Project Structure
+
+```
+.
+├── index.html
+├── package.json
+├── pnpm-lock.yaml
+├── public/
+│   ├── favicon.svg
+│   ├── fonts/
+│   └── images/
+├── src/
+│   ├── assets/                 # Static assets (icons, images)
+│   ├── components/
+│   │   ├── common/             # App-wide common components (toggles, etc.)
+│   │   ├── layout/             # Layout-level components (sidebar, header)
+│   │   └── ui/                 # Reusable UI primitives (buttons, cards, inputs)
+│   ├── constants/              # App-wide constants
+│   ├── contexts/               # React contexts (auth, notifications)
+│   ├── features/               # Feature-based modules (fully isolated)
+│   │   ├── auth/               # Authentication pages, forms, hooks
+│   │   ├── dashboard/          # Dashboard overview and data
+│   │   ├── users/              # Users management
+│   │   ├── categories/         # Categories management
+│   │   ├── packages/           # Packages management
+│   │   ├── payments/           # Payments listing and details
+│   │   ├── payment-gateways/   # Payment gateways configuration
+│   │   ├── plans/              # Plans management
+│   │   ├── media/              # Media manager
+│   │   ├── notifications/      # In-app notifications
+│   │   ├── transactions/       # Transactions listing
+│   │   ├── tickets/            # Support tickets
+│   │   ├── user-credits/       # Users' credits management
+│   │   ├── referrals/          # Referral program
+│   │   ├── utm-analytics/      # UTM analytics
+│   │   ├── service-requests/   # Users' service requests
+│   │   └── api-services/       # 3rd-party API services
+│   ├── hooks/                  # App-level custom hooks
+│   ├── i18n/                   # i18next initialization
+│   ├── lib/                    # Utilities (non-React specific)
+│   ├── locales/                # Translation resources
+│   ├── routes/                 # App routing and guards
+│   ├── services/               # API client and service wrappers
+│   ├── store/                  # State slices (if any)
+│   ├── styles/                 # Global styles and theme
+│   ├── types/                  # Shared TypeScript types
+│   ├── globals.css             # Global CSS entry
+│   ├── main.tsx                # App entry point
+│   └── vite-env.d.ts           # Vite ambient types
+├── tailwind.config.js
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+└── vite.config.ts
+```
+
+### Conventions
+
+- **Feature-first**: هر فیچر در پوشه‌ی خودش شامل `components/`, `hooks/`, `types.ts`, و فایل صفحه است.
+- **Reusable UI**: کامپوننت‌های خالص UI در `src/components/ui` نگهداری می‌شوند.
+- **API Access**: تمام فراخوانی‌ها از طریق `src/services/api.ts` انجام می‌شود؛ `VITE_API_BASE_URL` نقطه ورود است.
+- **i18n**: منابع در `src/locales/*` و کانفیگ در `src/i18n/index.ts` قرار دارد.
