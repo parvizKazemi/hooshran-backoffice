@@ -7,10 +7,13 @@
  * - Automatic error handling
  * - Token management
  * - Request/Response interceptors
+ *
+ * Environment configuration:
+ * - Reads base URL from VITE_API_BASE_URL defined in .env / .env.example
  */
 
 // Base API URL - can be overridden via environment variables
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Standard headers for all requests
 const getDefaultHeaders = (): HeadersInit => {
