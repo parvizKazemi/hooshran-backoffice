@@ -17,7 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createUserSchema, CreateUserInput, User } from "../types";
+import {
+  createUserSchema,
+  CreateUserInput,
+  UpdateUserInput,
+  User,
+} from "../types";
 import { useCreateUser, useUpdateUser } from "../hooks/use-users";
 
 type UserFormProps = {
@@ -33,26 +38,39 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
 
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: user
+    defaultValues: (user
       ? {
+          fullName: user.fullName || user.name || "",
           name: user.name,
           email: user.email,
           phone: user.phone || "",
+          phoneNumber: user.phoneNumber || "",
           role: user.role,
           status: user.status,
+          isActive: user.isActive,
         }
       : {
+          fullName: "",
           name: "",
           email: "",
           phone: "",
+          phoneNumber: "",
           role: "user",
           status: "active",
-        },
+          isActive: true,
+        }) as CreateUserInput,
   });
 
   const onSubmit = async (data: CreateUserInput) => {
-    if (isEditing && user) {
-      await updateUser.mutateAsync({ ...data, id: user.id });
+    if (isEditing && user && user.uuid) {
+      const updateData: UpdateUserInput = {
+        uuid: user.uuid,
+        fullName: data.fullName,
+        phoneNumber: data.phoneNumber,
+        role: data.role,
+        isActive: data.isActive,
+      };
+      await updateUser.mutateAsync(updateData);
     } else {
       await createUser.mutateAsync(data);
     }
@@ -68,16 +86,16 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="name">نام</FieldLabel>
+          <FieldLabel htmlFor="fullName">نام</FieldLabel>
           <Input
-            id="name"
-            {...form.register("name")}
+            id="fullName"
+            {...form.register("fullName")}
             placeholder="نام کاربر را وارد کنید"
             disabled={isLoading}
           />
-          {form.formState.errors.name && (
+          {form.formState.errors.fullName && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.name.message}
+              {form.formState.errors.fullName.message}
             </FieldDescription>
           )}
         </Field>

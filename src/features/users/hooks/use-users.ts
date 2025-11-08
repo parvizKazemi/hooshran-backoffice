@@ -1,14 +1,14 @@
+import { ApiError, apiGet } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
   CreateUserInput,
+  PaginatedResponse,
   UpdateUserInput,
   User,
   UsersQueryParams,
-  PaginatedResponse,
 } from "../types";
-import { apiGet, ApiError } from "@/services/api";
 
 // Build query string from params
 const buildQueryString = (params: UsersQueryParams): string => {
@@ -32,7 +32,7 @@ const buildQueryString = (params: UsersQueryParams): string => {
 // Fetch users from API
 export const useUsers = (params: UsersQueryParams = {}) => {
   const queryString = buildQueryString(params);
-  const endpoint = `/admin/user${queryString ? `?${queryString}` : ""}`;
+  const endpoint = `/admin/users${queryString ? `?${queryString}` : ""}`;
 
   return useQuery({
     queryKey: ["users", params],
@@ -47,8 +47,7 @@ export const useUsers = (params: UsersQueryParams = {}) => {
         throw error;
       }
     },
-    retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -59,13 +58,13 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: async (data: CreateUserInput): Promise<User> => {
       // TODO: Implement API call when endpoint is available
-      // const user = await apiPost<User>("/admin/user", data);
+      // const user = await apiPost<User>("/admin/users", data);
       // return user;
 
       // Temporary mock implementation
       const newUser: User = {
         ...data,
-        id: Date.now().toString(),
+        uuid: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -92,7 +91,7 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: async (data: UpdateUserInput): Promise<User> => {
       // TODO: Implement API call when endpoint is available
-      // const user = await apiPut<User>(`/admin/user/${data.id}`, data);
+      // const user = await apiPut<User>(`/admin/users/${data.uuid}`, data);
       // return user;
 
       // Temporary mock implementation
@@ -121,12 +120,12 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string): Promise<void> => {
+    mutationFn: async (uuid: string): Promise<void> => {
       // TODO: Implement API call when endpoint is available
-      // await apiDelete(`/admin/user/${id}`);
+      // await apiDelete(`/admin/users/${uuid}`);
 
       // Temporary - just for now
-      void id;
+      void uuid;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

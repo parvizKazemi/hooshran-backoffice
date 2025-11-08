@@ -171,11 +171,12 @@ export function UsersTable({
       enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "fullName",
       header: t("users.name"),
       cell: ({ row }) => {
         const user = row.original;
-        const name = user.name || user.phoneNumber || t("users.noName");
+        const name =
+          user.fullName || user.name || user.phoneNumber || t("users.noName");
         const initials =
           name
             .split(" ")
@@ -295,8 +296,9 @@ export function UsersTable({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
+                  if (!user.uuid) return;
                   if (confirm(t("users.confirmDelete"))) {
-                    deleteUser.mutate(user.id, {
+                    deleteUser.mutate(user.uuid, {
                       onSuccess: () => {
                         onRefresh?.();
                       },

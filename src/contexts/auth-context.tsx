@@ -28,15 +28,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Check if we're in development mode
+const isDevelopment = import.meta.env.DEV;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authData, setAuthDataState] = useState<AuthData | null>(() => {
-    // Try to load from localStorage on mount
-    const stored = localStorage.getItem("authData");
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return null;
+    // In development: try to load from localStorage on mount
+    // In production: don't use localStorage, rely on cookies
+    if (isDevelopment) {
+      const stored = localStorage.getItem("authData");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return null;
+        }
       }
     }
     return null;
@@ -44,19 +50,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setAuthDataState(null);
-    localStorage.removeItem("authData");
-    localStorage.removeItem("isAuthUser");
+    // In development: clear localStorage
+    // In production: cookies are cleared by server
+    if (isDevelopment) {
+      localStorage.removeItem("authData");
+      localStorage.removeItem("isAuthUser");
+    }
     sessionStorage.removeItem("otpPhone");
   };
 
   const setAuthData = (data: AuthData | null) => {
     setAuthDataState(data);
-    if (data) {
-      localStorage.setItem("authData", JSON.stringify(data));
-      localStorage.setItem("isAuthUser", "true");
-    } else {
-      localStorage.removeItem("authData");
-      localStorage.removeItem("isAuthUser");
+    // In development: save to localStorage
+    // In production: don't save to localStorage, rely on cookies set by server
+    if (isDevelopment) {
+      if (data) {
+        localStorage.setItem("authData", JSON.stringify(data));
+        localStorage.setItem("isAuthUser", "true");
+      } else {
+        localStorage.removeItem("authData");
+        localStorage.removeItem("isAuthUser");
+      }
     }
   };
 

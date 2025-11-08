@@ -1,15 +1,17 @@
 import { z } from "zod";
 
 export const userSchema = z.object({
-  id: z.string().min(1),
-  uuid: z.string().optional(),
-  name: z.string().min(2, "نام باید حداقل 2 کاراکتر باشد"),
-  email: z.string().email("ایمیل معتبر نیست").optional(),
-  phone: z.string().optional(),
+  uuid: z.string().min(1),
+  fullName: z.string().min(2, "نام باید حداقل 2 کاراکتر باشد"),
   phoneNumber: z.string().optional(),
   role: z.enum(["admin", "user", "moderator", "USER", "ADMIN"]).optional(),
-  status: z.enum(["active", "inactive", "suspended"]).optional(),
   isActive: z.boolean().optional(),
+  // Legacy fields for backward compatibility
+  id: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().email("ایمیل معتبر نیست").optional(),
+  phone: z.string().optional(),
+  status: z.enum(["active", "inactive", "suspended"]).optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });
@@ -36,12 +38,13 @@ export interface UsersQueryParams {
 }
 
 export const createUserSchema = userSchema.omit({
+  uuid: true,
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const updateUserSchema = userSchema.partial().required({ id: true });
+export const updateUserSchema = userSchema.partial().required({ uuid: true });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;

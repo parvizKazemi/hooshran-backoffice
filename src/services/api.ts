@@ -22,18 +22,21 @@ const getDefaultHeaders = (): HeadersInit => {
     Accept: "application/json",
   };
 
-  // Add authorization token if available
-  const authData = localStorage.getItem("authData");
-  if (authData) {
-    try {
-      const parsed = JSON.parse(authData);
-      if (parsed?.token?.accessToken) {
-        headers.Authorization = `Bearer ${parsed.token.accessToken}`;
-      }
-    } catch {
-      // Ignore parse errors
-    }
-  }
+  // In development: add authorization token from localStorage
+  // In production: rely on cookies set by server (credentials: "include" handles this)
+  // if (isDevelopment) {
+  //   const authData = localStorage.getItem("authData");
+  //   if (authData) {
+  //     try {
+  //       const parsed = JSON.parse(authData);
+  //       if (parsed?.token?.accessToken) {
+  //         headers.Authorization = `Bearer ${parsed.token.accessToken}`;
+  //       }
+  //     } catch {
+  //       // Ignore parse errors
+  //     }
+  //   }
+  // }
 
   return headers;
 };
@@ -41,7 +44,7 @@ const getDefaultHeaders = (): HeadersInit => {
 // Custom error class for API errors
 export class ApiError extends Error {
   constructor(
-    public message: string,
+    public override message: string,
     public statusCode?: number,
     public error?: string,
     public originalError?: unknown
@@ -109,6 +112,9 @@ const makeRequest = async <T>(
 
   const config: RequestInit = {
     ...options,
+    // Always include credentials for cookie-based auth in production
+    // In development, this also works but we use token headers
+    credentials: "include",
     headers: {
       ...getDefaultHeaders(),
       ...options.headers,
