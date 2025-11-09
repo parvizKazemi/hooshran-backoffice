@@ -16,7 +16,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -90,6 +90,12 @@ export function UsersTable({
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   // Local filter states
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
   const [roleFilter, setRoleFilter] = useState(filters.role || "");
@@ -109,15 +115,18 @@ export function UsersTable({
   }, [filters]);
 
   // Apply filters to API
-  const applyFilters = (newFilters: Partial<UsersQueryParams>) => {
-    if (onFiltersChange) {
-      onFiltersChange({
-        ...filters,
-        ...newFilters,
-        page: 1, // Reset to first page when filtering
-      });
-    }
-  };
+  const applyFilters = useCallback(
+    (newFilters: Partial<UsersQueryParams>) => {
+      if (onFiltersChange) {
+        onFiltersChange({
+          ...filtersRef.current,
+          ...newFilters,
+          page: 1, // Reset to first page when filtering
+        });
+      }
+    },
+    [onFiltersChange]
+  );
 
   // Handle search with debounce (apply after typing stops)
   useEffect(() => {
@@ -141,181 +150,186 @@ export function UsersTable({
   useEffect(() => {
     if (onFiltersChange && orderParam !== undefined) {
       onFiltersChange({
-        ...filters,
+        ...filtersRef.current,
         order: orderParam,
       });
     }
-  }, [orderParam, onFiltersChange, filters]);
+  }, [orderParam, onFiltersChange]);
 
-  const columns: ColumnDef<User>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "fullName",
-      header: t("users.name"),
-      cell: ({ row }) => {
-        const user = row.original;
-        const name =
-          user.fullName || user.name || user.phoneNumber || t("users.noName");
-        const initials =
-          name
-            .split(" ")
-            .map((n) => n?.[0] || "")
-            .filter(Boolean)
-            .join("")
-            .toUpperCase()
-            .slice(0, 2) || "N/A";
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="font-medium">{name}</span>
-              {user.email && (
-                <span className="text-muted-foreground text-sm">
-                  {user.email}
-                </span>
-              )}
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "fullName",
+        header: t("users.name"),
+        cell: ({ row }) => {
+          const user = row.original;
+          const name =
+            user.fullName || user.name || user.phoneNumber || t("users.noName");
+          const initials =
+            name
+              .split(" ")
+              .map((n) => n?.[0] || "")
+              .filter(Boolean)
+              .join("")
+              .toUpperCase()
+              .slice(0, 2) || "N/A";
+          return (
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="font-medium">{name}</span>
+                {user.email && (
+                  <span className="text-muted-foreground text-sm">
+                    {user.email}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        );
+          );
+        },
       },
-    },
-    {
-      accessorKey: "phone",
-      header: t("users.phone"),
-      cell: ({ row }) => {
-        const phone = row.original.phoneNumber || row.original.phone;
-        return phone || "-";
+      {
+        accessorKey: "phone",
+        header: t("users.phone"),
+        cell: ({ row }) => {
+          const phone = row.original.phoneNumber || row.original.phone;
+          return phone || "-";
+        },
       },
-    },
-    {
-      accessorKey: "role",
-      header: t("users.role"),
-      cell: ({ row }) => {
-        const role = row.original.role || "user";
-        const roleLabels: Record<string, string> = {
-          admin: t("users.roles.admin"),
-          ADMIN: t("users.roles.ADMIN"),
-          moderator: t("users.roles.moderator"),
-          user: t("users.roles.user"),
-          USER: t("users.roles.USER"),
-        };
-        const roleVariants: Record<
-          string,
-          "default" | "secondary" | "outline"
-        > = {
-          admin: "default",
-          ADMIN: "default",
-          moderator: "secondary",
-          user: "outline",
-          USER: "outline",
-        };
-        return (
-          <Badge variant={roleVariants[role] || "outline"}>
-            {roleLabels[role] || role}
-          </Badge>
-        );
+      {
+        accessorKey: "role",
+        header: t("users.role"),
+        cell: ({ row }) => {
+          const role = row.original.role || "user";
+          const roleLabels: Record<string, string> = {
+            admin: t("users.roles.admin"),
+            ADMIN: t("users.roles.ADMIN"),
+            moderator: t("users.roles.moderator"),
+            user: t("users.roles.user"),
+            USER: t("users.roles.USER"),
+          };
+          const roleVariants: Record<
+            string,
+            "default" | "secondary" | "outline"
+          > = {
+            admin: "default",
+            ADMIN: "default",
+            moderator: "secondary",
+            user: "outline",
+            USER: "outline",
+          };
+          return (
+            <Badge variant={roleVariants[role] || "outline"}>
+              {roleLabels[role] || role}
+            </Badge>
+          );
+        },
       },
-    },
-    {
-      accessorKey: "status",
-      header: t("users.status"),
-      cell: ({ row }) => {
-        const user = row.original;
-        // Use isActive if available, otherwise fall back to status
-        const isActive =
-          user.isActive !== undefined
-            ? user.isActive
-            : user.status === "active";
-        const status = user.status || (isActive ? "active" : "inactive");
+      {
+        accessorKey: "status",
+        header: t("users.status"),
+        cell: ({ row }) => {
+          const user = row.original;
+          // Use isActive if available, otherwise fall back to status
+          const isActive =
+            user.isActive !== undefined
+              ? user.isActive
+              : user.status === "active";
+          const status = user.status || (isActive ? "active" : "inactive");
 
-        const statusLabels: Record<string, string> = {
-          active: t("users.statuses.active"),
-          inactive: t("users.statuses.inactive"),
-          suspended: t("users.statuses.suspended"),
-        };
-        const statusVariants: Record<
-          string,
-          "default" | "secondary" | "destructive" | "outline"
-        > = {
-          active: "default",
-          inactive: "secondary",
-          suspended: "destructive",
-        };
-        return (
-          <Badge variant={statusVariants[status] || "outline"}>
-            {statusLabels[status] || status}
-          </Badge>
-        );
+          const statusLabels: Record<string, string> = {
+            active: t("users.statuses.active"),
+            inactive: t("users.statuses.inactive"),
+            suspended: t("users.statuses.suspended"),
+          };
+          const statusVariants: Record<
+            string,
+            "default" | "secondary" | "destructive" | "outline"
+          > = {
+            active: "default",
+            inactive: "secondary",
+            suspended: "destructive",
+          };
+          return (
+            <Badge variant={statusVariants[status] || "outline"}>
+              {statusLabels[status] || status}
+            </Badge>
+          );
+        },
       },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const user = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <IconDotsVertical className="size-4" />
-                <span className="sr-only">{t("users.actions.openMenu")}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={() => {
-                  setEditingUser(user);
-                  setIsDrawerOpen(true);
-                }}
-              >
-                <IconEdit className="mr-2 size-4" />
-                {t("users.actions.edit")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  if (!user.uuid) return;
-                  if (confirm(t("users.confirmDelete"))) {
-                    deleteUser.mutate(user.uuid, {
-                      onSuccess: () => {
-                        onRefresh?.();
-                      },
-                    });
-                  }
-                }}
-                className="text-destructive"
-              >
-                <IconTrash className="mr-2 size-4" />
-                {t("users.actions.delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <IconDotsVertical className="size-4" />
+                  <span className="sr-only">{t("users.actions.openMenu")}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditingUser(user);
+                    setIsDrawerOpen(true);
+                  }}
+                >
+                  <IconEdit className="mr-2 size-4" />
+                  {t("users.actions.edit")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!user.uuid) return;
+                    if (confirm(t("users.confirmDelete"))) {
+                      deleteUser.mutate(user.uuid, {
+                        onSuccess: () => {
+                          onRefresh?.();
+                        },
+                      });
+                    }
+                  }}
+                  className="text-destructive"
+                >
+                  <IconTrash className="mr-2 size-4" />
+                  {t("users.actions.delete")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
       },
-    },
-  ];
+    ],
+    [t, deleteUser, onRefresh, setEditingUser, setIsDrawerOpen]
+  );
 
   const table = useReactTable({
     data,
