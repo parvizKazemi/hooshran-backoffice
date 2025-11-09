@@ -50,7 +50,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeletePlan } from "../hooks/use-plans";
 import { Plan, PlansQueryParams } from "../types";
@@ -90,6 +90,12 @@ export const PlansTable = memo(function PlansTable({
     filters.is_active !== undefined ? String(filters.is_active) : ""
   );
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   useEffect(() => {
     setSearchQuery(filters.q || "");
     setIsActiveFilter(
@@ -97,13 +103,17 @@ export const PlansTable = memo(function PlansTable({
     );
   }, [filters]);
 
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<PlansQueryParams>) => {
+  const applyFilters = useCallback(
+    (newFilters: Partial<PlansQueryParams>) => {
       if (onFiltersChange) {
-        onFiltersChange({ ...filters, ...newFilters, page: 1 });
+        onFiltersChange({
+          ...filtersRef.current,
+          ...newFilters,
+          page: 1,
+        });
       }
     },
-    [filters, onFiltersChange]
+    [onFiltersChange]
   );
 
   useEffect(() => {
@@ -220,7 +230,7 @@ export const PlansTable = memo(function PlansTable({
         },
       },
     ],
-    [t, deletePlan, onRefresh]
+    [t, deletePlan, onRefresh, setEditingPlan, setIsDrawerOpen]
   );
 
   const table = useReactTable({
@@ -380,7 +390,10 @@ export const PlansTable = memo(function PlansTable({
                 size="sm"
                 onClick={() => {
                   if (onFiltersChange && pagination.page > 1) {
-                    onFiltersChange({ ...filters, page: pagination.page - 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page - 1,
+                    });
                   }
                 }}
                 disabled={pagination.page <= 1}
@@ -395,7 +408,10 @@ export const PlansTable = memo(function PlansTable({
                     onFiltersChange &&
                     pagination.page < pagination.totalPages
                   ) {
-                    onFiltersChange({ ...filters, page: pagination.page + 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page + 1,
+                    });
                   }
                 }}
                 disabled={pagination.page >= pagination.totalPages}

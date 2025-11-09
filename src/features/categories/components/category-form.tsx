@@ -1,9 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader2 } from "@tabler/icons-react";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { memo } from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldDescription,
@@ -12,9 +8,13 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { createCategorySchema, CreateCategoryInput, Category } from "../types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IconLoader2 } from "@tabler/icons-react";
+import { memo, useCallback, useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useCreateCategory, useUpdateCategory } from "../hooks/use-categories";
+import { Category, CreateCategoryInput, createCategorySchema } from "../types";
 
 type CategoryFormProps = {
   category?: Category;
@@ -32,39 +32,69 @@ export const CategoryForm = memo(function CategoryForm({
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
 
+  const defaultValues = useMemo(
+    () =>
+      category
+        ? {
+            name: category.name,
+            slug: category.slug || "",
+            description: category.description || "",
+            is_active: category.is_active ?? true,
+          }
+        : {
+            name: "",
+            slug: "",
+            description: "",
+            is_active: true,
+          },
+    [category]
+  );
+
   const form = useForm<CreateCategoryInput>({
     // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createCategorySchema),
-    defaultValues: category
-      ? {
-          name: category.name,
-          slug: category.slug || "",
-          description: category.description || "",
-          is_active: category.is_active ?? true,
-        }
-      : {
-          name: "",
-          slug: "",
-          description: "",
-          is_active: true,
-        },
+    defaultValues,
   });
 
-  const onSubmit = async (data: CreateCategoryInput) => {
-    if (isEditing && category) {
-      const { id, ...updateData } = { ...data, id: category.id };
-      await updateCategory.mutateAsync({ ...updateData, id });
-    } else {
-      await createCategory.mutateAsync(data);
-    }
-    onSuccess?.();
-    if (!isEditing) form.reset();
-  };
+  // Reset form when category changes
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [form, defaultValues]);
+
+  const onSubmit = useCallback(
+    async (data: CreateCategoryInput) => {
+      if (isEditing && category) {
+        await updateCategory.mutateAsync({
+          ...data,
+          id: category.id,
+        } as Parameters<typeof updateCategory.mutateAsync>[0]);
+      } else {
+        await createCategory.mutateAsync(data);
+      }
+      onSuccess?.();
+      if (!isEditing) {
+        form.reset(defaultValues);
+      }
+    },
+    [
+      isEditing,
+      category,
+      updateCategory,
+      createCategory,
+      onSuccess,
+      form,
+      defaultValues,
+    ]
+  );
 
   const isLoading = createCategory.isPending || updateCategory.isPending;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      // @ts-expect-error - form data type inference
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-6"
+    >
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="name">

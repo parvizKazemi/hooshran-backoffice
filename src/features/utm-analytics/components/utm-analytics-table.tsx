@@ -36,7 +36,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UtmAnalyticsQueryParams, UtmEvent } from "../types";
 
@@ -70,6 +70,12 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
     "signup" | "signin" | "purchase" | "all"
   >((filters.event_type as "signup" | "signin" | "purchase" | "all") || "all");
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   useEffect(() => {
     setSearchQuery(filters.q || "");
     setEventTypeFilter(
@@ -77,13 +83,17 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
     );
   }, [filters]);
 
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<UtmAnalyticsQueryParams>) => {
+  const applyFilters = useCallback(
+    (newFilters: Partial<UtmAnalyticsQueryParams>) => {
       if (onFiltersChange) {
-        onFiltersChange({ ...filters, ...newFilters, page: 1 });
+        onFiltersChange({
+          ...filtersRef.current,
+          ...newFilters,
+          page: 1,
+        });
       }
     },
-    [filters, onFiltersChange]
+    [onFiltersChange]
   );
 
   useEffect(() => {
@@ -324,7 +334,10 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
               size="sm"
               onClick={() => {
                 if (onFiltersChange && pagination.page > 1) {
-                  onFiltersChange({ ...filters, page: pagination.page - 1 });
+                  onFiltersChange({
+                    ...filtersRef.current,
+                    page: pagination.page - 1,
+                  });
                 }
               }}
               disabled={pagination.page <= 1}
@@ -339,7 +352,10 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
                   onFiltersChange &&
                   pagination.page < pagination.totalPages
                 ) {
-                  onFiltersChange({ ...filters, page: pagination.page + 1 });
+                  onFiltersChange({
+                    ...filtersRef.current,
+                    page: pagination.page + 1,
+                  });
                 }
               }}
               disabled={pagination.page >= pagination.totalPages}

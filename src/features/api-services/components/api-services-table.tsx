@@ -1,9 +1,9 @@
 import {
   IconDotsVertical,
   IconEdit,
+  IconLink,
   IconPlus,
   IconTrash,
-  IconLink,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -17,7 +17,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -56,9 +56,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDeleteApiService } from "../hooks/use-api-services";
+import { mockCategories } from "../mock-data";
 import { ApiService, ApiServicesQueryParams } from "../types";
 import { ApiServiceForm } from "./api-service-form";
-import { mockCategories } from "../mock-data";
 
 type ApiServicesTableProps = {
   data: ApiService[];
@@ -91,6 +91,12 @@ export const ApiServicesTable = memo(function ApiServicesTable({
   const [editingService, setEditingService] = useState<ApiService | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   // Local filter states
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
   const [categoryFilter, setCategoryFilter] = useState(
@@ -110,17 +116,17 @@ export const ApiServicesTable = memo(function ApiServicesTable({
   }, [filters]);
 
   // Apply filters to API
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<ApiServicesQueryParams>) => {
+  const applyFilters = useCallback(
+    (newFilters: Partial<ApiServicesQueryParams>) => {
       if (onFiltersChange) {
         onFiltersChange({
-          ...filters,
+          ...filtersRef.current,
           ...newFilters,
           page: 1, // Reset to first page when filtering
         });
       }
     },
-    [filters, onFiltersChange]
+    [onFiltersChange]
   );
 
   // Handle search with debounce (apply after typing stops)
@@ -145,11 +151,11 @@ export const ApiServicesTable = memo(function ApiServicesTable({
   useEffect(() => {
     if (onFiltersChange && orderParam !== undefined) {
       onFiltersChange({
-        ...filters,
+        ...filtersRef.current,
         order: orderParam,
       });
     }
-  }, [orderParam, onFiltersChange, filters]);
+  }, [orderParam, onFiltersChange]);
 
   const columns: ColumnDef<ApiService>[] = useMemo(
     () => [
@@ -286,7 +292,7 @@ export const ApiServicesTable = memo(function ApiServicesTable({
         },
       },
     ],
-    [t, deleteApiService, onRefresh]
+    [t, deleteApiService, onRefresh, setEditingService, setIsDrawerOpen]
   );
 
   const table = useReactTable({
@@ -495,7 +501,7 @@ export const ApiServicesTable = memo(function ApiServicesTable({
                   onClick={() => {
                     if (onFiltersChange && pagination.page > 1) {
                       onFiltersChange({
-                        ...filters,
+                        ...filtersRef.current,
                         page: pagination.page - 1,
                       });
                     }
@@ -518,7 +524,7 @@ export const ApiServicesTable = memo(function ApiServicesTable({
                       pagination.page < pagination.totalPages
                     ) {
                       onFiltersChange({
-                        ...filters,
+                        ...filtersRef.current,
                         page: pagination.page + 1,
                       });
                     }
@@ -532,7 +538,7 @@ export const ApiServicesTable = memo(function ApiServicesTable({
                   onValueChange={(value) => {
                     if (onFiltersChange) {
                       onFiltersChange({
-                        ...filters,
+                        ...filtersRef.current,
                         take: Number(value),
                         page: 1,
                       });

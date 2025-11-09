@@ -50,7 +50,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeletePackage } from "../hooks/use-packages";
 import { Package, PackagesQueryParams } from "../types";
@@ -93,6 +93,12 @@ export const PackagesTable = memo(function PackagesTable({
     filters.is_active !== undefined ? String(filters.is_active) : ""
   );
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   useEffect(() => {
     setSearchQuery(filters.q || "");
     setTypeFilter(
@@ -103,13 +109,17 @@ export const PackagesTable = memo(function PackagesTable({
     );
   }, [filters]);
 
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<PackagesQueryParams>) => {
+  const applyFilters = useCallback(
+    (newFilters: Partial<PackagesQueryParams>) => {
       if (onFiltersChange) {
-        onFiltersChange({ ...filters, ...newFilters, page: 1 });
+        onFiltersChange({
+          ...filtersRef.current,
+          ...newFilters,
+          page: 1,
+        });
       }
     },
-    [filters, onFiltersChange]
+    [onFiltersChange]
   );
 
   useEffect(() => {
@@ -237,7 +247,7 @@ export const PackagesTable = memo(function PackagesTable({
         },
       },
     ],
-    [t, deletePackage, onRefresh]
+    [t, deletePackage, onRefresh, setEditingPackage, setIsDrawerOpen]
   );
 
   const table = useReactTable({
@@ -428,7 +438,10 @@ export const PackagesTable = memo(function PackagesTable({
                 size="sm"
                 onClick={() => {
                   if (onFiltersChange && pagination.page > 1) {
-                    onFiltersChange({ ...filters, page: pagination.page - 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page - 1,
+                    });
                   }
                 }}
                 disabled={pagination.page <= 1}
@@ -443,7 +456,10 @@ export const PackagesTable = memo(function PackagesTable({
                     onFiltersChange &&
                     pagination.page < pagination.totalPages
                   ) {
-                    onFiltersChange({ ...filters, page: pagination.page + 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page + 1,
+                    });
                   }
                 }}
                 disabled={pagination.page >= pagination.totalPages}

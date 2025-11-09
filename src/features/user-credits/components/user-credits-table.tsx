@@ -43,7 +43,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserCreditLogs } from "../hooks/use-user-credits";
 import { UserCredit, UserCreditsQueryParams } from "../types";
@@ -89,6 +89,12 @@ export const UserCreditsTable = memo(function UserCreditsTable({
       | "SYSTEM") || "all"
   );
 
+  // Keep latest filters in ref to avoid infinite loops
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   const { data: logsData } = useUserCreditLogs({
     user_id: selectedUser || undefined,
     page: 1,
@@ -108,13 +114,17 @@ export const UserCreditsTable = memo(function UserCreditsTable({
     );
   }, [filters]);
 
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<UserCreditsQueryParams>) => {
+  const applyFilters = useCallback(
+    (newFilters: Partial<UserCreditsQueryParams>) => {
       if (onFiltersChange) {
-        onFiltersChange({ ...filters, ...newFilters, page: 1 });
+        onFiltersChange({
+          ...filtersRef.current,
+          ...newFilters,
+          page: 1,
+        });
       }
     },
-    [filters, onFiltersChange]
+    [onFiltersChange]
   );
 
   useEffect(() => {
@@ -240,7 +250,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         },
       },
     ],
-    [t, sourceLabels]
+    [t, sourceLabels, setSelectedUser, setIsDrawerOpen]
   );
 
   const table = useReactTable({
@@ -385,7 +395,10 @@ export const UserCreditsTable = memo(function UserCreditsTable({
                 size="sm"
                 onClick={() => {
                   if (onFiltersChange && pagination.page > 1) {
-                    onFiltersChange({ ...filters, page: pagination.page - 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page - 1,
+                    });
                   }
                 }}
                 disabled={pagination.page <= 1}
@@ -400,7 +413,10 @@ export const UserCreditsTable = memo(function UserCreditsTable({
                     onFiltersChange &&
                     pagination.page < pagination.totalPages
                   ) {
-                    onFiltersChange({ ...filters, page: pagination.page + 1 });
+                    onFiltersChange({
+                      ...filtersRef.current,
+                      page: pagination.page + 1,
+                    });
                   }
                 }}
                 disabled={pagination.page >= pagination.totalPages}
