@@ -53,6 +53,7 @@ import { ServiceRequestDetail } from "./service-request-detail";
 type ServiceRequestsTableProps = {
   data: ServiceRequest[];
   isLoading?: boolean;
+  onRefresh?: () => void;
   filters?: ServiceRequestsQueryParams;
   onFiltersChange?: (filters: ServiceRequestsQueryParams) => void;
   pagination?: {
@@ -82,12 +83,28 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
 
   // Local filter states
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [statusFilter, setStatusFilter] = useState(filters.status || "all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "PENDING" | "SUCCESS" | "FAILED" | "PROCESSING"
+  >(
+    (filters.status as
+      | "all"
+      | "PENDING"
+      | "SUCCESS"
+      | "FAILED"
+      | "PROCESSING") || "all"
+  );
 
   // Update filters when props change
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setStatusFilter(filters.status || "all");
+    setStatusFilter(
+      (filters.status as
+        | "all"
+        | "PENDING"
+        | "SUCCESS"
+        | "FAILED"
+        | "PROCESSING") || "all"
+    );
   }, [filters]);
 
   // Apply filters to API
@@ -303,7 +320,14 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
             <Select
               value={statusFilter}
               onValueChange={(value) => {
-                setStatusFilter(value);
+                setStatusFilter(
+                  value as
+                    | "all"
+                    | "PENDING"
+                    | "SUCCESS"
+                    | "FAILED"
+                    | "PROCESSING"
+                );
                 applyFilters({
                   status:
                     value === "all"

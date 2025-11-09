@@ -32,6 +32,7 @@ export const PlanForm = memo(function PlanForm({
   const updatePlan = useUpdatePlan();
 
   const form = useForm<CreatePlanInput>({
+    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createPlanSchema),
     defaultValues: plan
       ? {
@@ -54,7 +55,8 @@ export const PlanForm = memo(function PlanForm({
 
   const onSubmit = async (data: CreatePlanInput) => {
     if (isEditing && plan) {
-      await updatePlan.mutateAsync({ ...data, id: plan.id });
+      const { id, ...updateData } = { ...data, id: plan.id };
+      await updatePlan.mutateAsync({ ...updateData, id });
     } else {
       await createPlan.mutateAsync(data);
     }

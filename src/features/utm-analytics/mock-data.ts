@@ -45,11 +45,11 @@ export const mockUtmEvents: UtmEvent[] = [
     utm_params: {
       source: "direct",
       medium: "none",
-      campaign: null,
+      campaign: undefined,
     },
     source: "direct",
     medium: "none",
-    campaign: null,
+    campaign: undefined,
     createdAt: "2024-01-17T09:00:00Z",
   },
 ];

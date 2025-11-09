@@ -1,10 +1,10 @@
 import {
+  IconAlertTriangle,
   IconBell,
   IconInfoCircle,
-  IconAlertTriangle,
-  IconUser,
-  IconSettings,
   IconPlus,
+  IconSettings,
+  IconUser,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -211,6 +211,17 @@ export function NotificationsList({
                           >
                             {typeLabels[notification.type] || notification.type}
                           </Badge>
+                          {notification.metaData.type && (
+                            <Badge variant="outline" className="text-xs">
+                              {notification.metaData.type}
+                            </Badge>
+                          )}
+                          {notification.isPopup && (
+                            <Badge variant="outline" className="text-xs">
+                              {t("notifications.popup")} دارد
+                            </Badge>
+                          )}
+
                           {notification.user && (
                             <span className="text-muted-foreground text-sm">
                               {t("notifications.user")}:{" "}
@@ -218,7 +229,11 @@ export function NotificationsList({
                             </span>
                           )}
                         </div>
-                        <p className="text-sm">{notification.message}</p>
+                        <p className="text-sm">
+                          {notification.metaData?.data ||
+                            notification.message ||
+                            ""}
+                        </p>
                         <p className="text-muted-foreground text-xs">
                           {formatDate(notification.createdAt)}
                         </p>

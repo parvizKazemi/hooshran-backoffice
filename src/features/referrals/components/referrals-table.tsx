@@ -1,17 +1,3 @@
-import { IconDotsVertical } from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,11 +24,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { IconDotsVertical } from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ReferralReward, ReferralsQueryParams } from "../types";
 
 type ReferralsTableProps = {
   data: ReferralReward[];
   isLoading?: boolean;
+  onRefresh?: () => void;
   filters?: ReferralsQueryParams;
   onFiltersChange?: (filters: ReferralsQueryParams) => void;
   pagination?: {
@@ -65,11 +66,13 @@ export const ReferralsTable = memo(function ReferralsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [typeFilter, setTypeFilter] = useState(filters.reward_type || "all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "CREDIT" | "POINT">(
+    (filters.reward_type as "all" | "CREDIT" | "POINT") || "all"
+  );
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setTypeFilter(filters.reward_type || "all");
+    setTypeFilter((filters.reward_type as "all" | "CREDIT" | "POINT") || "all");
   }, [filters]);
 
   const applyFilters = useMemo(
@@ -235,12 +238,13 @@ export const ReferralsTable = memo(function ReferralsTable({
           <Select
             value={typeFilter}
             onValueChange={(value) => {
-              setTypeFilter(value);
+              const typedValue = value as "all" | "CREDIT" | "POINT";
+              setTypeFilter(typedValue);
               applyFilters({
                 reward_type:
-                  value === "all"
+                  typedValue === "all"
                     ? undefined
-                    : (value as ReferralReward["reward_type"]),
+                    : (typedValue as ReferralReward["reward_type"]),
               });
             }}
           >
@@ -266,7 +270,7 @@ export const ReferralsTable = memo(function ReferralsTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-start">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

@@ -1,3 +1,4 @@
+import { ApiError, apiGet, apiPost } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -6,7 +7,6 @@ import {
   NotificationsQueryParams,
   PaginatedResponse,
 } from "../types";
-import { apiGet, apiPost, ApiError } from "@/services/api";
 
 // Build query string from params
 const buildQueryString = (params: NotificationsQueryParams): string => {
@@ -44,8 +44,7 @@ export const useNotifications = (params: NotificationsQueryParams = {}) => {
         throw error;
       }
     },
-    retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
 };
 

@@ -249,7 +249,8 @@
     "of": "of",
     "items": "items",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "popup": "Popup"
   },
   "paymentGateways": {
     "title": "Payment Gateway Management",

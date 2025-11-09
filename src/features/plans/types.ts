@@ -38,7 +38,7 @@ export const createPlanSchema = PlanSchema.omit({
 
 export const updatePlanSchema = createPlanSchema
   .partial()
-  .required({ id: true });
+  .extend({ id: z.string().min(1) });
 
 export type CreatePlanInput = z.infer<typeof createPlanSchema>;
 export type UpdatePlanInput = z.infer<typeof updatePlanSchema>;

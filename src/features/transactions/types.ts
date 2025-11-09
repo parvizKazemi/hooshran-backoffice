@@ -28,8 +28,8 @@ export const mockTransactions: Transaction[] = Array.from({ length: 125 }).map(
   (_, i) => {
     const gateways = ["zarinpal", "idpay", "saman", "mellat", "parsian"];
     const statuses: Transaction["status"][] = ["success", "failed", "pending"];
-    const g = gateways[i % gateways.length];
-    const s = statuses[i % statuses.length];
+    const g = gateways[i % gateways.length]!;
+    const s = statuses[i % statuses.length]!;
     return {
       id: `trx_${100000 + i}`,
       refId: `R${900000 + i}`,

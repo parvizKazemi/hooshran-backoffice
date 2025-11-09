@@ -27,7 +27,7 @@ export type TicketsFilters = {
 
 export const mockTickets: Ticket[] = Array.from({ length: 40 }).map((_, i) => {
   const statuses: Ticket["status"][] = ["open", "pending", "closed"];
-  const s = statuses[i % statuses.length];
+  const s = statuses[i % statuses.length]!;
   return {
     id: `t_${1000 + i}`,
     subject: `مشکل شماره ${i + 1}`,

@@ -1,22 +1,3 @@
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,6 +33,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  IconDotsVertical,
+  IconEdit,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDeletePackage } from "../hooks/use-packages";
 import { Package, PackagesQueryParams } from "../types";
 import { PackageForm } from "./package-form";
@@ -86,14 +86,18 @@ export const PackagesTable = memo(function PackagesTable({
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [typeFilter, setTypeFilter] = useState(filters.type || "all");
+  const [typeFilter, setTypeFilter] = useState<
+    "all" | "SUBSCRIPTION" | "PERMANENT"
+  >((filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all");
   const [isActiveFilter, setIsActiveFilter] = useState<string>(
     filters.is_active !== undefined ? String(filters.is_active) : ""
   );
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setTypeFilter(filters.type || "all");
+    setTypeFilter(
+      (filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all"
+    );
     setIsActiveFilter(
       filters.is_active !== undefined ? String(filters.is_active) : ""
     );
@@ -274,10 +278,16 @@ export const PackagesTable = memo(function PackagesTable({
             <Select
               value={typeFilter}
               onValueChange={(value) => {
-                setTypeFilter(value);
+                const typedValue = value as
+                  | "all"
+                  | "SUBSCRIPTION"
+                  | "PERMANENT";
+                setTypeFilter(typedValue);
                 applyFilters({
                   type:
-                    value === "all" ? undefined : (value as Package["type"]),
+                    typedValue === "all"
+                      ? undefined
+                      : (typedValue as Package["type"]),
                 });
               }}
             >
@@ -363,7 +373,7 @@ export const PackagesTable = memo(function PackagesTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-start">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

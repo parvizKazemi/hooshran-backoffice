@@ -84,11 +84,13 @@ export const MediaTable = memo(function MediaTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [typeFilter, setTypeFilter] = useState(filters.type || "all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "IMAGE" | "VIDEO">(
+    (filters.type as "all" | "IMAGE" | "VIDEO") || "all"
+  );
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setTypeFilter(filters.type || "all");
+    setTypeFilter((filters.type as "all" | "IMAGE" | "VIDEO") || "all");
   }, [filters]);
 
   const applyFilters = useMemo(
@@ -263,9 +265,13 @@ export const MediaTable = memo(function MediaTable({
           <Select
             value={typeFilter}
             onValueChange={(value) => {
-              setTypeFilter(value);
+              const typedValue = value as "all" | "IMAGE" | "VIDEO";
+              setTypeFilter(typedValue);
               applyFilters({
-                type: value === "all" ? undefined : (value as Media["type"]),
+                type:
+                  typedValue === "all"
+                    ? undefined
+                    : (typedValue as Media["type"]),
               });
             }}
           >
@@ -287,7 +293,7 @@ export const MediaTable = memo(function MediaTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-start">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

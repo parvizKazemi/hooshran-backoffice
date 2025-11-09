@@ -47,7 +47,7 @@ export const useUsers = (params: UsersQueryParams = {}) => {
         throw error;
       }
     },
-    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 

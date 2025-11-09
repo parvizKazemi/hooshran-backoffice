@@ -1,17 +1,3 @@
-import { IconDotsVertical } from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,11 +24,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UtmEvent, UtmAnalyticsQueryParams } from "../types";
+import { IconDotsVertical } from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { UtmAnalyticsQueryParams, UtmEvent } from "../types";
 
 type UtmAnalyticsTableProps = {
   data: UtmEvent[];
   isLoading?: boolean;
+  onRefresh?: () => void;
   filters?: UtmAnalyticsQueryParams;
   onFiltersChange?: (filters: UtmAnalyticsQueryParams) => void;
   pagination?: {
@@ -65,13 +66,15 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [eventTypeFilter, setEventTypeFilter] = useState(
-    filters.event_type || "all"
-  );
+  const [eventTypeFilter, setEventTypeFilter] = useState<
+    "signup" | "signin" | "purchase" | "all"
+  >((filters.event_type as "signup" | "signin" | "purchase" | "all") || "all");
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setEventTypeFilter(filters.event_type || "all");
+    setEventTypeFilter(
+      (filters.event_type as "signup" | "signin" | "purchase" | "all") || "all"
+    );
   }, [filters]);
 
   const applyFilters = useMemo(
@@ -228,7 +231,9 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
           <Select
             value={eventTypeFilter}
             onValueChange={(value) => {
-              setEventTypeFilter(value);
+              setEventTypeFilter(
+                value as "signup" | "signin" | "purchase" | "all"
+              );
               applyFilters({
                 event_type:
                   value === "all"
@@ -264,7 +269,7 @@ export const UtmAnalyticsTable = memo(function UtmAnalyticsTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-start">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

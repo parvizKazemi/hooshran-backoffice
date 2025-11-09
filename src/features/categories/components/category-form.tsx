@@ -33,6 +33,7 @@ export const CategoryForm = memo(function CategoryForm({
   const updateCategory = useUpdateCategory();
 
   const form = useForm<CreateCategoryInput>({
+    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createCategorySchema),
     defaultValues: category
       ? {
@@ -51,7 +52,8 @@ export const CategoryForm = memo(function CategoryForm({
 
   const onSubmit = async (data: CreateCategoryInput) => {
     if (isEditing && category) {
-      await updateCategory.mutateAsync({ ...data, id: category.id });
+      const { id, ...updateData } = { ...data, id: category.id };
+      await updateCategory.mutateAsync({ ...updateData, id });
     } else {
       await createCategory.mutateAsync(data);
     }

@@ -149,7 +149,7 @@ export const mockApiServices: ApiService[] = [
 
 export const mockApiServiceDetails: Record<string, ApiServiceDetail> = {
   "1": {
-    ...mockApiServices[0],
+    ...mockApiServices[0]!,
     parameters: [
       {
         id: "1",
@@ -177,7 +177,7 @@ export const mockApiServiceDetails: Record<string, ApiServiceDetail> = {
     ],
   },
   "2": {
-    ...mockApiServices[1],
+    ...mockApiServices[1]!,
     parameters: [
       {
         id: "3",
@@ -205,7 +205,7 @@ export const mockApiServiceDetails: Record<string, ApiServiceDetail> = {
     ],
   },
   "3": {
-    ...mockApiServices[2],
+    ...mockApiServices[2]!,
     parameters: [
       {
         id: "5",

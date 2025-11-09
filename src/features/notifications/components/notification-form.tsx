@@ -1,6 +1,3 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -17,9 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateNotificationInput } from "../types";
-import { notificationSchema } from "../types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { useCreateNotification } from "../hooks/use-notifications";
+import { CreateNotificationInput, notificationSchema } from "../types";
 
 type NotificationFormProps = {
   onSuccess?: () => void;
@@ -39,10 +38,15 @@ export function NotificationForm({
     watch,
     formState: { errors },
   } = useForm<CreateNotificationInput>({
+    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(notificationSchema),
     defaultValues: {
       type: "system",
-      message: "",
+      metaData: {
+        data: "",
+        type: "text",
+      },
+      isPopup: false,
       userId: undefined,
     },
   });
@@ -51,7 +55,8 @@ export function NotificationForm({
 
   const onSubmit = async (data: CreateNotificationInput) => {
     try {
-      await createNotification.mutateAsync(data);
+      // @ts-expect-error - form data type inference
+      await createNotification.mutateAsync(data as CreateNotificationInput);
       onSuccess?.();
     } catch {
       // Error is handled in the hook
@@ -88,21 +93,41 @@ export function NotificationForm({
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="message">پیام</FieldLabel>
+          <FieldLabel htmlFor="metaData.data">محتوا</FieldLabel>
           <Textarea
-            id="message"
+            id="metaData.data"
             placeholder="متن نوتیفیکیشن را وارد کنید..."
-            {...register("message")}
+            {...register("metaData.data")}
             disabled={createNotification.isPending}
             rows={5}
           />
-          {errors.message && (
+          {errors.metaData?.data && (
             <FieldDescription className="text-destructive">
-              {errors.message.message}
+              {errors.metaData.data.message}
             </FieldDescription>
           )}
           <FieldDescription>
-            پیام نوتیفیکیشن باید واضح و کامل باشد
+            محتوای نوتیفیکیشن باید واضح و کامل باشد
+          </FieldDescription>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="isPopup">نمایش به صورت پاپ‌آپ</FieldLabel>
+          <Select
+            value={watch("isPopup") ? "true" : "false"}
+            onValueChange={(value) => setValue("isPopup", value === "true")}
+            disabled={createNotification.isPending}
+          >
+            <SelectTrigger id="isPopup">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="false">خیر</SelectItem>
+              <SelectItem value="true">بله</SelectItem>
+            </SelectContent>
+          </Select>
+          <FieldDescription>
+            در صورت فعال بودن، نوتیفیکیشن به صورت پاپ‌آپ نمایش داده می‌شود
           </FieldDescription>
         </Field>
 

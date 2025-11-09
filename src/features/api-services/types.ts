@@ -48,7 +48,7 @@ export const ApiServiceSchema = z.object({
   media_id: z.string().optional().nullable(),
   slug: z.string().optional(),
   english_name: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   is_active: z.boolean().default(true),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -95,7 +95,7 @@ export const createApiServiceSchema = ApiServiceSchema.omit({
 
 export const updateApiServiceSchema = createApiServiceSchema
   .partial()
-  .required({ id: true });
+  .extend({ id: z.string().min(1) });
 
 export type CreateApiServiceInput = z.infer<typeof createApiServiceSchema>;
 export type UpdateApiServiceInput = z.infer<typeof updateApiServiceSchema>;

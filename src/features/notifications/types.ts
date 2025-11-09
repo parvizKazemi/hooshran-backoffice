@@ -10,12 +10,20 @@ export interface User {
   profile: Record<string, unknown>;
 }
 
+export interface NotificationMetaData {
+  data: string;
+  type: "text" | string;
+}
+
 export interface Notification {
   uuid: string;
   createdAt: string;
   updatedAt: string;
   type: "system" | "user" | "admin" | "alert" | "info";
-  message: string;
+  metaData: NotificationMetaData;
+  isPopup: boolean;
+  // Legacy fields for backward compatibility
+  message?: string;
   user?: User;
 }
 
@@ -33,14 +41,16 @@ export interface NotificationsQueryParams {
   type?: string;
 }
 
-export interface CreateNotificationInput {
-  type: "system" | "user" | "admin" | "alert" | "info";
-  message: string;
-  userId?: string;
-}
-
 export const notificationSchema = z.object({
   type: z.enum(["system", "user", "admin", "alert", "info"]),
-  message: z.string().min(1, "پیام الزامی است"),
+  metaData: z.object({
+    data: z.string().min(1, "محتوا الزامی است"),
+    type: z.string().default("text"),
+  }),
+  isPopup: z.boolean().optional(),
   userId: z.string().uuid().optional(),
+  // Legacy field for backward compatibility
+  message: z.string().optional(),
 });
+
+export type CreateNotificationInput = z.infer<typeof notificationSchema>;

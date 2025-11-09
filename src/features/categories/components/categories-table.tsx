@@ -1,22 +1,3 @@
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,8 +33,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  IconDotsVertical,
+  IconEdit,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDeleteCategory } from "../hooks/use-categories";
-import { Category, CategoriesQueryParams } from "../types";
+import { CategoriesQueryParams, Category } from "../types";
 import { CategoryForm } from "./category-form";
 
 type CategoriesTableProps = {
@@ -314,7 +314,7 @@ export const CategoriesTable = memo(function CategoriesTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-start">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

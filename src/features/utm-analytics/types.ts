@@ -10,7 +10,7 @@ export const UtmEventSchema = z.object({
   user_name: z.string().optional(),
   user_phone: z.string().optional(),
   payment_id: z.string().optional().nullable(),
-  utm_params: z.record(z.unknown()),
+  utm_params: z.record(z.string(), z.unknown()),
   source: z.string().optional(),
   medium: z.string().optional(),
   campaign: z.string().optional(),

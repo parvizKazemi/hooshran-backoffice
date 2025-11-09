@@ -41,7 +41,7 @@ export const createPackageSchema = PackageSchema.omit({
 
 export const updatePackageSchema = createPackageSchema
   .partial()
-  .required({ id: true });
+  .extend({ id: z.string().min(1) });
 
 export type CreatePackageInput = z.infer<typeof createPackageSchema>;
 export type UpdatePackageInput = z.infer<typeof updatePackageSchema>;

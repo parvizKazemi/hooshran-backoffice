@@ -11,25 +11,6 @@ import {
 import { ApiError } from "@/services/api";
 import { mockApiServices, mockApiServiceDetails } from "../mock-data";
 
-// Build query string from params
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const buildQueryString = (params: ApiServicesQueryParams): string => {
-  const searchParams = new URLSearchParams();
-
-  if (params.order) searchParams.append("order", params.order);
-  if (params.page !== undefined)
-    searchParams.append("page", params.page.toString());
-  if (params.take !== undefined)
-    searchParams.append("take", params.take.toString());
-  if (params.q) searchParams.append("q", params.q);
-  if (params.category_id)
-    searchParams.append("category_id", params.category_id);
-  if (params.is_active !== undefined)
-    searchParams.append("is_active", params.is_active.toString());
-
-  return searchParams.toString();
-};
-
 // Fetch API services from API
 export const useApiServices = (params: ApiServicesQueryParams = {}) => {
   // const queryString = buildQueryString(params);
@@ -175,8 +156,10 @@ export const useUpdateApiService = () => {
       // return service;
 
       // Temporary mock implementation
+      const { id, ...updateData } = data;
       const updatedService: ApiService = {
-        ...data,
+        ...updateData,
+        id,
         updatedAt: new Date().toISOString(),
       } as ApiService;
       return updatedService;

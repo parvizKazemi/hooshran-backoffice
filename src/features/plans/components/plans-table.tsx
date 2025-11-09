@@ -1,22 +1,3 @@
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,6 +33,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  IconDotsVertical,
+  IconEdit,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDeletePlan } from "../hooks/use-plans";
 import { Plan, PlansQueryParams } from "../types";
 import { PlanForm } from "./plan-form";
@@ -325,7 +325,7 @@ export const PlansTable = memo(function PlansTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-start">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

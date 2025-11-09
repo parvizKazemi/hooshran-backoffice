@@ -1,17 +1,3 @@
-import { IconDotsVertical, IconEye } from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,13 +31,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserCredit, UserCreditsQueryParams } from "../types";
+import { IconDotsVertical, IconEye } from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUserCreditLogs } from "../hooks/use-user-credits";
+import { UserCredit, UserCreditsQueryParams } from "../types";
 import { UserCreditLogsTable } from "./user-credit-logs-table";
 
 type UserCreditsTableProps = {
   data: UserCredit[];
   isLoading?: boolean;
+  onRefresh?: () => void;
   filters?: UserCreditsQueryParams;
   onFiltersChange?: (filters: UserCreditsQueryParams) => void;
   pagination?: {
@@ -76,7 +77,17 @@ export const UserCreditsTable = memo(function UserCreditsTable({
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [sourceFilter, setSourceFilter] = useState(filters.source || "all");
+  const [sourceFilter, setSourceFilter] = useState<
+    "all" | "ADMIN" | "PURCHASE" | "GIFT" | "REFERRAL" | "SYSTEM"
+  >(
+    (filters.source as
+      | "all"
+      | "ADMIN"
+      | "PURCHASE"
+      | "GIFT"
+      | "REFERRAL"
+      | "SYSTEM") || "all"
+  );
 
   const { data: logsData } = useUserCreditLogs({
     user_id: selectedUser || undefined,
@@ -86,7 +97,15 @@ export const UserCreditsTable = memo(function UserCreditsTable({
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setSourceFilter(filters.source || "all");
+    setSourceFilter(
+      (filters.source as
+        | "all"
+        | "ADMIN"
+        | "PURCHASE"
+        | "GIFT"
+        | "REFERRAL"
+        | "SYSTEM") || "all"
+    );
   }, [filters]);
 
   const applyFilters = useMemo(
@@ -262,12 +281,19 @@ export const UserCreditsTable = memo(function UserCreditsTable({
             <Select
               value={sourceFilter}
               onValueChange={(value) => {
-                setSourceFilter(value);
+                const typedValue = value as
+                  | "all"
+                  | "ADMIN"
+                  | "PURCHASE"
+                  | "GIFT"
+                  | "REFERRAL"
+                  | "SYSTEM";
+                setSourceFilter(typedValue);
                 applyFilters({
                   source:
-                    value === "all"
+                    typedValue === "all"
                       ? undefined
-                      : (value as UserCredit["source"]),
+                      : (typedValue as UserCredit["source"]),
                 });
               }}
             >
@@ -304,7 +330,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-start">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

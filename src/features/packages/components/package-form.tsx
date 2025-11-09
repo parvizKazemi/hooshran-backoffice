@@ -39,6 +39,7 @@ export const PackageForm = memo(function PackageForm({
   const updatePackage = useUpdatePackage();
 
   const form = useForm<CreatePackageInput>({
+    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createPackageSchema),
     defaultValues: pkg
       ? {
@@ -61,7 +62,8 @@ export const PackageForm = memo(function PackageForm({
 
   const onSubmit = async (data: CreatePackageInput) => {
     if (isEditing && pkg) {
-      await updatePackage.mutateAsync({ ...data, id: pkg.id });
+      const { id, ...updateData } = { ...data, id: pkg.id };
+      await updatePackage.mutateAsync({ ...updateData, id });
     } else {
       await createPackage.mutateAsync(data);
     }

@@ -25,6 +25,7 @@ import {
   createApiServiceSchema,
   CreateApiServiceInput,
   ApiService,
+  ApiServiceParameterType,
 } from "../types";
 import {
   useCreateApiService,
@@ -59,6 +60,7 @@ export const ApiServiceForm = memo(function ApiServiceForm({
   const updateService = useUpdateApiService();
 
   const form = useForm<CreateApiServiceInput>({
+    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createApiServiceSchema),
     defaultValues: service
       ? {
@@ -92,7 +94,8 @@ export const ApiServiceForm = memo(function ApiServiceForm({
 
   const onSubmit = async (data: CreateApiServiceInput) => {
     if (isEditing && service) {
-      await updateService.mutateAsync({ ...data, id: service.id });
+      const { id, ...updateData } = { ...data, id: service.id };
+      await updateService.mutateAsync({ ...updateData, id });
     } else {
       await createService.mutateAsync(data);
     }
@@ -348,7 +351,7 @@ export const ApiServiceForm = memo(function ApiServiceForm({
                   onValueChange={(value) =>
                     form.setValue(
                       `parameters.${index}.type`,
-                      value as CreateApiServiceInput["parameters"][0]["type"]
+                      value as ApiServiceParameterType
                     )
                   }
                   disabled={isLoading}

@@ -1,17 +1,3 @@
-import { IconDotsVertical, IconEye } from "@tabler/icons-react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,11 +24,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { IconDotsVertical, IconEye } from "@tabler/icons-react";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Payment, PaymentsQueryParams } from "../types";
 
 type PaymentsTableProps = {
   data: Payment[];
   isLoading?: boolean;
+  onRefresh?: () => void;
   filters?: PaymentsQueryParams;
   onFiltersChange?: (filters: PaymentsQueryParams) => void;
   pagination?: {
@@ -65,13 +66,19 @@ export const PaymentsTable = memo(function PaymentsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [statusFilter, setStatusFilter] = useState(filters.status || "all");
-  const [typeFilter, setTypeFilter] = useState(filters.type || "all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "PENDING" | "SUCCESS" | "FAILED"
+  >((filters.status as "all" | "PENDING" | "SUCCESS" | "FAILED") || "all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "PACKAGE" | "SERVICE">(
+    (filters.type as "all" | "PACKAGE" | "SERVICE") || "all"
+  );
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setStatusFilter(filters.status || "all");
-    setTypeFilter(filters.type || "all");
+    setStatusFilter(
+      (filters.status as "all" | "PENDING" | "SUCCESS" | "FAILED") || "all"
+    );
+    setTypeFilter((filters.type as "all" | "PACKAGE" | "SERVICE") || "all");
   }, [filters]);
 
   const applyFilters = useMemo(
@@ -257,10 +264,17 @@ export const PaymentsTable = memo(function PaymentsTable({
           <Select
             value={statusFilter}
             onValueChange={(value) => {
-              setStatusFilter(value);
+              const typedValue = value as
+                | "all"
+                | "PENDING"
+                | "SUCCESS"
+                | "FAILED";
+              setStatusFilter(typedValue);
               applyFilters({
                 status:
-                  value === "all" ? undefined : (value as Payment["status"]),
+                  typedValue === "all"
+                    ? undefined
+                    : (typedValue as Payment["status"]),
               });
             }}
           >
@@ -283,9 +297,13 @@ export const PaymentsTable = memo(function PaymentsTable({
           <Select
             value={typeFilter}
             onValueChange={(value) => {
-              setTypeFilter(value);
+              const typedValue = value as "all" | "PACKAGE" | "SERVICE";
+              setTypeFilter(typedValue);
               applyFilters({
-                type: value === "all" ? undefined : (value as Payment["type"]),
+                type:
+                  typedValue === "all"
+                    ? undefined
+                    : (typedValue as Payment["type"]),
               });
             }}
           >
@@ -311,7 +329,7 @@ export const PaymentsTable = memo(function PaymentsTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-start">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

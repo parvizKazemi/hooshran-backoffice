@@ -36,7 +36,7 @@ export const createCategorySchema = CategorySchema.omit({
 
 export const updateCategorySchema = createCategorySchema
   .partial()
-  .required({ id: true });
+  .extend({ id: z.string().min(1) });
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
