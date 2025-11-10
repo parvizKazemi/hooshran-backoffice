@@ -16,7 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useCreateNotification } from "../hooks/use-notifications";
 import { CreateNotificationInput, notificationSchema } from "../types";
 
@@ -53,10 +53,9 @@ export function NotificationForm({
 
   const notificationType = watch("type");
 
-  const onSubmit = async (data: CreateNotificationInput) => {
+  const onSubmit: SubmitHandler<CreateNotificationInput> = async (data) => {
     try {
-      // @ts-expect-error - form data type inference
-      await createNotification.mutateAsync(data as CreateNotificationInput);
+      await createNotification.mutateAsync(data);
       onSuccess?.();
     } catch {
       // Error is handled in the hook
@@ -64,7 +63,8 @@ export function NotificationForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <form onSubmit={handleSubmit(onSubmit as any)}>
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="type">نوع نوتیفیکیشن</FieldLabel>

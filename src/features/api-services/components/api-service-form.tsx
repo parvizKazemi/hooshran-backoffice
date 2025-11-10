@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
 
@@ -92,7 +92,7 @@ export const ApiServiceForm = memo(function ApiServiceForm({
     name: "parameters",
   });
 
-  const onSubmit = async (data: CreateApiServiceInput) => {
+  const onSubmit: SubmitHandler<CreateApiServiceInput> = async (data) => {
     if (isEditing && service) {
       const { id, ...updateData } = { ...data, id: service.id };
       await updateService.mutateAsync({ ...updateData, id });
@@ -121,7 +121,8 @@ export const ApiServiceForm = memo(function ApiServiceForm({
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="name">

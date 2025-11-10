@@ -1,9 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader2 } from "@tabler/icons-react";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { memo } from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldDescription,
@@ -11,9 +7,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { createPlanSchema, CreatePlanInput, Plan } from "../types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IconLoader2 } from "@tabler/icons-react";
+import { memo } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useCreatePlan, useUpdatePlan } from "../hooks/use-plans";
+import { CreatePlanInput, createPlanSchema, Plan } from "../types";
 
 type PlanFormProps = {
   plan?: Plan;
@@ -53,7 +53,7 @@ export const PlanForm = memo(function PlanForm({
         },
   });
 
-  const onSubmit = async (data: CreatePlanInput) => {
+  const onSubmit: SubmitHandler<CreatePlanInput> = async (data) => {
     if (isEditing && plan) {
       const { id, ...updateData } = { ...data, id: plan.id };
       await updatePlan.mutateAsync({ ...updateData, id });
@@ -67,7 +67,8 @@ export const PlanForm = memo(function PlanForm({
   const isLoading = createPlan.isPending || updatePlan.isPending;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="name">

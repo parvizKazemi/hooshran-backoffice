@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export const PackageForm = memo(function PackageForm({
 
   const packageType = form.watch("type");
 
-  const onSubmit = async (data: CreatePackageInput) => {
+  const onSubmit: SubmitHandler<CreatePackageInput> = async (data) => {
     if (isEditing && pkg) {
       const { id, ...updateData } = { ...data, id: pkg.id };
       await updatePackage.mutateAsync({ ...updateData, id });
@@ -74,7 +74,8 @@ export const PackageForm = memo(function PackageForm({
   const isLoading = createPackage.isPending || updatePackage.isPending;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="credit_amount">
