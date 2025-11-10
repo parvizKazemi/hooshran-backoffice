@@ -1,6 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import fs from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
@@ -15,14 +14,14 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
-  server: {
-    port: 5173,
-    https: {
-      key: fs.readFileSync(resolve(__dirname, "./certs/localhost-key.pem")),
-      cert: fs.readFileSync(resolve(__dirname, "./certs/localhost-cert.pem")),
-    },
-    open: true,
-  },
+  // server: {
+  //   port: 5173,
+  //   https: {
+  //     key: fs.readFileSync(resolve(__dirname, "./certs/localhost-key.pem")),
+  //     cert: fs.readFileSync(resolve(__dirname, "./certs/localhost-cert.pem")),
+  //   },
+  //   open: true,
+  // },
   build: {
     outDir: "dist",
     minify: "terser",
