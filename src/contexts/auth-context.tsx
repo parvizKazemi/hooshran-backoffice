@@ -1,3 +1,4 @@
+import { getCookie, removeCookie, setCookie } from "@/lib/cookies";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 export interface TokenData {
@@ -15,7 +16,7 @@ export interface UserData {
 }
 
 export interface AuthData {
-  token: TokenData;
+  token?: TokenData; // Token is optional - stored in cookie by server
   user: UserData;
 }
 
@@ -28,21 +29,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Check if we're in development mode
-const isDevelopment = import.meta.env.DEV;
+// Cookie name for storing user data
+const USER_DATA_COOKIE = "userData";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authData, setAuthDataState] = useState<AuthData | null>(() => {
-    // In development: try to load from localStorage on mount
-    // In production: don't use localStorage, rely on cookies
-    if (isDevelopment) {
-      const stored = localStorage.getItem("authData");
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          return null;
-        }
+    // Load user data from cookie on mount
+    // Token is stored in cookie by server, we don't need to store it
+    const userDataCookie = getCookie(USER_DATA_COOKIE);
+    if (userDataCookie) {
+      try {
+        const userData: UserData = JSON.parse(userDataCookie);
+        // Return auth data with only user (token is in server cookie)
+        return { user: userData };
+      } catch {
+        return null;
       }
     }
     return null;
@@ -50,27 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setAuthDataState(null);
-    // In development: clear localStorage
-    // In production: cookies are cleared by server
-    if (isDevelopment) {
-      localStorage.removeItem("authData");
-      localStorage.removeItem("isAuthUser");
-    }
+    // Remove user data cookie
+    // Token cookie is cleared by server on logout
+    removeCookie(USER_DATA_COOKIE);
     sessionStorage.removeItem("otpPhone");
   };
 
   const setAuthData = (data: AuthData | null) => {
     setAuthDataState(data);
-    // In development: save to localStorage
-    // In production: don't save to localStorage, rely on cookies set by server
-    if (isDevelopment) {
-      if (data) {
-        localStorage.setItem("authData", JSON.stringify(data));
-        localStorage.setItem("isAuthUser", "true");
-      } else {
-        localStorage.removeItem("authData");
-        localStorage.removeItem("isAuthUser");
-      }
+    // Store only user data in cookie (token is stored by server in its own cookie)
+    if (data?.user) {
+      setCookie(USER_DATA_COOKIE, JSON.stringify(data.user), 7); // 7 days
+    } else {
+      removeCookie(USER_DATA_COOKIE);
     }
   };
 
