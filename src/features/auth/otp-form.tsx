@@ -23,7 +23,15 @@ import { useOtp } from "./hooks/use-otp";
 
 export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
   const { t } = useTranslation("common");
-  const { otp, setOtp, loading, handleVerify } = useOtp();
+  const {
+    otp,
+    setOtp,
+    loading,
+    handleVerify,
+    handleResend,
+    countdownFormatted,
+    canResend,
+  } = useOtp();
   return (
     <Card {...props}>
       <CardHeader>
@@ -57,15 +65,31 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldDescription>{t("otp.codeHelp")}</FieldDescription>
             </Field>
             <FieldGroup>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full">
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("otp.verifying")}
+                  </>
                 ) : (
                   t("otp.verify")
                 )}
               </Button>
               <FieldDescription className="text-center">
-                {t("otp.notReceived")} <a href="#">{t("otp.resend")}</a>
+                {t("otp.notReceived")}{" "}
+                {canResend ? (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    {t("otp.resend")}
+                  </button>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {t("otp.resend")} ({countdownFormatted})
+                  </span>
+                )}
               </FieldDescription>
             </FieldGroup>
           </FieldGroup>
