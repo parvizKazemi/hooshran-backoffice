@@ -1,4 +1,6 @@
 import {
+  IconChevronDown,
+  IconChevronUp,
   IconDotsVertical,
   IconEdit,
   IconPlus,
@@ -19,7 +21,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -102,6 +104,7 @@ export function UsersTable({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -412,73 +415,30 @@ export function UsersTable({
     <>
       <div className="space-y-4">
         <div className="flex flex-col gap-4">
-          {/* Search and Quick Filters Row */}
+          {/* Search Row */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Input
-              placeholder={t("users.search")}
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              className="max-w-sm"
-            />
-            <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2">
               <Input
-                placeholder={t("users.phonePlaceholder")}
-                value={phoneFilter}
-                onChange={(event) => {
-                  setPhoneFilter(event.target.value);
-                  applyFilters({
-                    phoneNumber: event.target.value || undefined,
-                  });
-                }}
-                className="w-32"
+                placeholder={t("users.search")}
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                className="max-w-sm"
               />
-              <Select
-                value={roleFilter || "all"}
-                onValueChange={(value) => {
-                  setRoleFilter(value === "all" ? "" : value);
-                  applyFilters({ role: value === "all" ? undefined : value });
-                }}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="gap-2"
               >
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder={t("users.role")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("users.allRoles")}</SelectItem>
-                  <SelectItem value="USER">{t("users.roles.USER")}</SelectItem>
-                  <SelectItem value="ADMIN">
-                    {t("users.roles.ADMIN")}
-                  </SelectItem>
-                  <SelectItem value="admin">
-                    {t("users.roles.admin")}
-                  </SelectItem>
-                  <SelectItem value="moderator">
-                    {t("users.roles.moderator")}
-                  </SelectItem>
-                  <SelectItem value="user">{t("users.roles.user")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={isActiveFilter || "all"}
-                onValueChange={(value) => {
-                  setIsActiveFilter(value === "all" ? "" : value);
-                  applyFilters({
-                    isActive: value === "all" ? undefined : value === "true",
-                  });
-                }}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder={t("users.status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("users.allStatuses")}</SelectItem>
-                  <SelectItem value="true">
-                    {t("users.statuses.active")}
-                  </SelectItem>
-                  <SelectItem value="false">
-                    {t("users.statuses.inactive")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                جستجوی پیشرفته
+                {showAdvancedFilters ? (
+                  <IconChevronUp className="size-4" />
+                ) : (
+                  <IconChevronDown className="size-4" />
+                )}
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
               <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                 <DrawerTrigger asChild>
                   <Button onClick={handleCreateUser}>
@@ -511,58 +471,132 @@ export function UsersTable({
             </div>
           </div>
 
-          {/* Advanced Filters Row */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Input
-              type="text"
-              placeholder="جستجو (q)"
-              value={qQuery}
-              onChange={(event) => setQQuery(event.target.value)}
-              className="max-w-sm"
-            />
-            <Input
-              type="date"
-              placeholder="از تاریخ"
-              value={dateFrom}
-              onChange={(event) => {
-                setDateFrom(event.target.value);
-                applyFilters({
-                  dateFrom: event.target.value || undefined,
-                });
-              }}
-              className="w-40"
-            />
-            <Input
-              type="date"
-              placeholder="تا تاریخ"
-              value={dateTo}
-              onChange={(event) => {
-                setDateTo(event.target.value);
-                applyFilters({
-                  dateTo: event.target.value || undefined,
-                });
-              }}
-              className="w-40"
-            />
-            <Select
-              value={sortBy || "all"}
-              onValueChange={(value) => {
-                setSortBy(value === "all" ? "" : value);
-                applyFilters({ sortBy: value === "all" ? undefined : value });
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="مرتب‌سازی بر اساس" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">همه</SelectItem>
-                <SelectItem value="createdAt">تاریخ ایجاد</SelectItem>
-                <SelectItem value="updatedAt">تاریخ به‌روزرسانی</SelectItem>
-                <SelectItem value="phoneNumber">شماره تلفن</SelectItem>
-                <SelectItem value="full_name">نام</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Advanced Filters Row - Collapsible */}
+          {showAdvancedFilters && (
+            <div className="bg-muted/30 animate-in slide-in-from-top-2 flex flex-col gap-4 rounded-md border p-4 duration-200">
+              <div className="flex flex-wrap gap-4">
+                <Input
+                  type="text"
+                  placeholder="جستجو (q)"
+                  value={qQuery}
+                  onChange={(event) => setQQuery(event.target.value)}
+                  className="min-w-[200px] flex-1"
+                />
+                <Input
+                  placeholder={t("users.phonePlaceholder")}
+                  value={phoneFilter}
+                  onChange={(event) => {
+                    setPhoneFilter(event.target.value);
+                    applyFilters({
+                      phoneNumber: event.target.value || undefined,
+                    });
+                  }}
+                  className="min-w-[200px] flex-1"
+                />
+                <Select
+                  value={roleFilter || "all"}
+                  onValueChange={(value) => {
+                    setRoleFilter(value === "all" ? "" : value);
+                    applyFilters({
+                      role: value === "all" ? undefined : value,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="min-w-[200px]">
+                    <SelectValue placeholder={t("users.role")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("users.allRoles")}</SelectItem>
+                    <SelectItem value="USER">
+                      {t("users.roles.USER")}
+                    </SelectItem>
+                    <SelectItem value="ADMIN">
+                      {t("users.roles.ADMIN")}
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      {t("users.roles.admin")}
+                    </SelectItem>
+                    <SelectItem value="moderator">
+                      {t("users.roles.moderator")}
+                    </SelectItem>
+                    <SelectItem value="user">
+                      {t("users.roles.user")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={isActiveFilter || "all"}
+                  onValueChange={(value) => {
+                    setIsActiveFilter(value === "all" ? "" : value);
+                    applyFilters({
+                      isActive: value === "all" ? undefined : value === "true",
+                    });
+                  }}
+                >
+                  <SelectTrigger className="min-w-[200px]">
+                    <SelectValue placeholder={t("users.status")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("users.allStatuses")}
+                    </SelectItem>
+                    <SelectItem value="true">
+                      {t("users.statuses.active")}
+                    </SelectItem>
+                    <SelectItem value="false">
+                      {t("users.statuses.inactive")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Input
+                  type="date"
+                  placeholder="از تاریخ"
+                  value={dateFrom}
+                  onChange={(event) => {
+                    setDateFrom(event.target.value);
+                    applyFilters({
+                      dateFrom: event.target.value || undefined,
+                    });
+                  }}
+                  className="min-w-[200px]"
+                />
+                <Input
+                  type="date"
+                  placeholder="تا تاریخ"
+                  value={dateTo}
+                  onChange={(event) => {
+                    setDateTo(event.target.value);
+                    applyFilters({
+                      dateTo: event.target.value || undefined,
+                    });
+                  }}
+                  className="min-w-[200px]"
+                />
+                <Select
+                  value={sortBy || "all"}
+                  onValueChange={(value) => {
+                    setSortBy(value === "all" ? "" : value);
+                    applyFilters({
+                      sortBy: value === "all" ? undefined : value,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="min-w-[200px]">
+                    <SelectValue placeholder="مرتب‌سازی بر اساس" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">همه</SelectItem>
+                    <SelectItem value="createdAt">تاریخ ایجاد</SelectItem>
+                    <SelectItem value="updatedAt">تاریخ به‌روزرسانی</SelectItem>
+                    <SelectItem value="phoneNumber">شماره تلفن</SelectItem>
+                    <SelectItem value="full_name">نام</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="rounded-md border">
