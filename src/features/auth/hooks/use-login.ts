@@ -1,8 +1,8 @@
+import { ApiError, apiPost } from "@/services/api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { apiPost, ApiError } from "@/services/api";
 
 export function useLogin() {
   const { t } = useTranslation("common");
@@ -21,7 +21,7 @@ export function useLogin() {
     setLoading(true);
     try {
       const result = await apiPost<boolean | string>(
-        "/auth/sendLoginOtp",
+        "/admin/auth/sendOtp",
         { phone: phone.trim() },
         {
           headers: {
