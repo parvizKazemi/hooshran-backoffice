@@ -63,6 +63,54 @@ interface ErrorResponse {
 }
 
 /**
+ * Convert error value to string safely
+ */
+const errorToString = (value: unknown): string => {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (typeof item === "object" && item !== null) {
+          // Handle validation error objects like {target, value, property, constraints}
+          if (
+            "constraints" in item &&
+            typeof item.constraints === "object" &&
+            item.constraints !== null
+          ) {
+            return Object.values(item.constraints).join(", ");
+          }
+          if ("message" in item && typeof item.message === "string") {
+            return item.message;
+          }
+          return JSON.stringify(item);
+        }
+        return String(item);
+      })
+      .join(", ");
+  }
+  if (typeof value === "object" && value !== null) {
+    // Handle validation error objects
+    if (
+      "constraints" in value &&
+      typeof value.constraints === "object" &&
+      value.constraints !== null
+    ) {
+      return Object.values(value.constraints).join(", ");
+    }
+    if ("message" in value && typeof value.message === "string") {
+      return value.message;
+    }
+    // For other objects, stringify but limit length
+    const str = JSON.stringify(value);
+    return str.length > 200 ? str.substring(0, 200) + "..." : str;
+  }
+  return String(value);
+};
+
+/**
  * Handle error response and extract error message
  * This is where all error handling logic is centralized
  */
@@ -88,15 +136,16 @@ const handleError = async (response: Response): Promise<never> => {
   }
 
   // Extract error message with priority: message > error > statusCode
+  // Convert to string safely to handle objects and arrays
   const errorMessage =
-    errorData.message ||
-    errorData.error ||
+    errorToString(errorData.message) ||
+    errorToString(errorData.error) ||
     `خطا: ${errorData.statusCode || response.status}`;
 
   throw new ApiError(
     errorMessage,
     errorData.statusCode || response.status,
-    errorData.error,
+    typeof errorData.error === "string" ? errorData.error : undefined,
     errorData
   );
 };
