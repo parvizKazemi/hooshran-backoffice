@@ -1,30 +1,55 @@
 import { z } from "zod";
 
+export const userProfileSchema = z.object({
+  id: z.number(),
+  uuid: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+  user_id: z.number(),
+  full_name: z.string().nullable(),
+  avatar_id: z.string().nullable(),
+  bio: z.string().nullable(),
+  social_links: z.unknown().nullable(),
+  achievements: z.unknown().nullable(),
+  level: z.number(),
+});
+
 export const userSchema = z.object({
-  uuid: z.string().min(1),
-  fullName: z.string().min(2, "نام باید حداقل 2 کاراکتر باشد"),
-  phoneNumber: z.string().optional(),
+  uuid: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  registrationSource: z.string().nullable(),
+  referralCode: z.string(),
+  phoneNumber: z.string(),
+  profile: userProfileSchema,
+  // Legacy fields for backward compatibility
+  fullName: z.string().optional(),
   role: z.enum(["admin", "user", "moderator", "USER", "ADMIN"]).optional(),
   isActive: z.boolean().optional(),
-  // Legacy fields for backward compatibility
   id: z.string().optional(),
   name: z.string().optional(),
   email: z.string().email("ایمیل معتبر نیست").optional(),
   phone: z.string().optional(),
   status: z.enum(["active", "inactive", "suspended"]).optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
 });
 
 export type User = z.infer<typeof userSchema>;
+export type UserProfile = z.infer<typeof userProfileSchema>;
 
 // API Response types
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
+export interface PaginationMeta {
   page: number;
   take: number;
-  totalPages: number;
+  itemCount: number;
+  pageCount: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
 }
 
 export interface UsersQueryParams {
@@ -32,7 +57,11 @@ export interface UsersQueryParams {
   page?: number;
   take?: number;
   q?: string;
+  search?: string;
   role?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
   phoneNumber?: string;
   isActive?: boolean;
 }

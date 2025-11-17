@@ -40,14 +40,15 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
     resolver: zodResolver(createUserSchema),
     defaultValues: (user
       ? {
-          fullName: user.fullName || user.name || "",
+          fullName: user.profile?.full_name || user.fullName || user.name || "",
           name: user.name,
           email: user.email,
           phone: user.phone || "",
           phoneNumber: user.phoneNumber || "",
-          role: user.role,
+          role: user.role || "USER",
           status: user.status,
-          isActive: user.isActive,
+          isActive: user.isActive ?? true,
+          registrationSource: user.registrationSource || "",
         }
       : {
           fullName: "",
@@ -55,9 +56,10 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
           email: "",
           phone: "",
           phoneNumber: "",
-          role: "user",
+          role: "USER",
           status: "active",
           isActive: true,
+          registrationSource: "",
         }) as CreateUserInput,
   });
 
@@ -65,10 +67,11 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
     if (isEditing && user && user.uuid) {
       const updateData: UpdateUserInput = {
         uuid: user.uuid,
-        fullName: data.fullName,
-        phoneNumber: data.phoneNumber,
-        role: data.role,
-        isActive: data.isActive,
+        phoneNumber: data.phoneNumber || user.phoneNumber,
+        role: data.role || "USER",
+        isActive: data.isActive ?? true,
+        registrationSource:
+          data.registrationSource || user.registrationSource || undefined,
       };
       await updateUser.mutateAsync(updateData);
     } else {
@@ -117,26 +120,51 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="phone">شماره تماس (اختیاری)</FieldLabel>
+          <FieldLabel htmlFor="phoneNumber">
+            شماره تماس <span className="text-destructive">*</span>
+          </FieldLabel>
           <Input
-            id="phone"
-            {...form.register("phone")}
-            placeholder="09123456789"
+            id="phoneNumber"
+            {...form.register("phoneNumber")}
+            placeholder="+989392285590"
             disabled={isLoading}
+            required
           />
-          {form.formState.errors.phone && (
+          {form.formState.errors.phoneNumber && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.phone.message}
+              {form.formState.errors.phoneNumber.message}
             </FieldDescription>
           )}
         </Field>
 
+        {isEditing && (
+          <Field>
+            <FieldLabel htmlFor="registrationSource">منبع ثبت‌نام</FieldLabel>
+            <Input
+              id="registrationSource"
+              {...form.register("registrationSource")}
+              placeholder="web, mobile, etc."
+              disabled={isLoading}
+            />
+            {form.formState.errors.registrationSource && (
+              <FieldDescription className="text-destructive">
+                {form.formState.errors.registrationSource.message}
+              </FieldDescription>
+            )}
+          </Field>
+        )}
+
         <Field>
-          <FieldLabel htmlFor="role">نقش</FieldLabel>
+          <FieldLabel htmlFor="role">
+            نقش <span className="text-destructive">*</span>
+          </FieldLabel>
           <Select
-            value={form.watch("role")}
+            value={form.watch("role") || "USER"}
             onValueChange={(value) =>
-              form.setValue("role", value as "admin" | "user" | "moderator")
+              form.setValue(
+                "role",
+                value as "admin" | "user" | "moderator" | "USER" | "ADMIN"
+              )
             }
             disabled={isLoading}
           >
@@ -144,9 +172,11 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
               <SelectValue placeholder="انتخاب نقش" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">مدیر</SelectItem>
+              <SelectItem value="USER">کاربر</SelectItem>
+              <SelectItem value="ADMIN">مدیر</SelectItem>
+              <SelectItem value="admin">مدیر (legacy)</SelectItem>
               <SelectItem value="moderator">ناظر</SelectItem>
-              <SelectItem value="user">کاربر</SelectItem>
+              <SelectItem value="user">کاربر (legacy)</SelectItem>
             </SelectContent>
           </Select>
           {form.formState.errors.role && (
@@ -157,29 +187,27 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="status">وضعیت</FieldLabel>
+          <FieldLabel htmlFor="isActive">
+            وضعیت <span className="text-destructive">*</span>
+          </FieldLabel>
           <Select
-            value={form.watch("status")}
+            value={form.watch("isActive") ? "true" : "false"}
             onValueChange={(value) =>
-              form.setValue(
-                "status",
-                value as "active" | "inactive" | "suspended"
-              )
+              form.setValue("isActive", value === "true")
             }
             disabled={isLoading}
           >
-            <SelectTrigger id="status">
+            <SelectTrigger id="isActive">
               <SelectValue placeholder="انتخاب وضعیت" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="active">فعال</SelectItem>
-              <SelectItem value="inactive">غیرفعال</SelectItem>
-              <SelectItem value="suspended">معلق</SelectItem>
+              <SelectItem value="true">فعال</SelectItem>
+              <SelectItem value="false">غیرفعال</SelectItem>
             </SelectContent>
           </Select>
-          {form.formState.errors.status && (
+          {form.formState.errors.isActive && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.status.message}
+              {form.formState.errors.isActive.message}
             </FieldDescription>
           )}
         </Field>

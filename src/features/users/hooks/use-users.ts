@@ -1,4 +1,4 @@
-import { ApiError, apiGet } from "@/services/api";
+import { ApiError, apiDelete, apiGet, apiPost, apiPut } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -20,7 +20,11 @@ const buildQueryString = (params: UsersQueryParams): string => {
   if (params.take !== undefined)
     searchParams.append("take", params.take.toString());
   if (params.q) searchParams.append("q", params.q);
+  if (params.search) searchParams.append("search", params.search);
   if (params.role) searchParams.append("role", params.role);
+  if (params.dateFrom) searchParams.append("dateFrom", params.dateFrom);
+  if (params.dateTo) searchParams.append("dateTo", params.dateTo);
+  if (params.sortBy) searchParams.append("sortBy", params.sortBy);
   if (params.phoneNumber)
     searchParams.append("phoneNumber", params.phoneNumber);
   if (params.isActive !== undefined)
@@ -51,24 +55,40 @@ export const useUsers = (params: UsersQueryParams = {}) => {
   });
 };
 
+// Get user by ID
+export const useUser = (userId: string) => {
+  return useQuery({
+    queryKey: ["user", userId],
+    queryFn: async (): Promise<User> => {
+      try {
+        const response = await apiGet<User>(`/admin/users/${userId}`);
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    enabled: !!userId,
+  });
+};
+
 // Create user
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: CreateUserInput): Promise<User> => {
-      // TODO: Implement API call when endpoint is available
-      // const user = await apiPost<User>("/admin/users", data);
-      // return user;
-
-      // Temporary mock implementation
-      const newUser: User = {
-        ...data,
-        uuid: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      return newUser;
+      try {
+        const user = await apiPost<User>("/admin/users", data);
+        return user;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -90,19 +110,22 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async (data: UpdateUserInput): Promise<User> => {
-      // TODO: Implement API call when endpoint is available
-      // const user = await apiPut<User>(`/admin/users/${data.uuid}`, data);
-      // return user;
-
-      // Temporary mock implementation
-      const updatedUser: User = {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      } as User;
-      return updatedUser;
+      try {
+        if (!data.uuid) {
+          throw new ApiError("UUID کاربر الزامی است");
+        }
+        const user = await apiPut<User>(`/admin/users/${data.uuid}`, data);
+        return user;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("کاربر با موفقیت به‌روزرسانی شد");
     },
     onError: (error) => {
@@ -121,11 +144,14 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (uuid: string): Promise<void> => {
-      // TODO: Implement API call when endpoint is available
-      // await apiDelete(`/admin/users/${uuid}`);
-
-      // Temporary - just for now
-      void uuid;
+      try {
+        await apiDelete<void>(`/admin/users/${uuid}`);
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

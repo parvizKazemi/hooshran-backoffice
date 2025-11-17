@@ -20,6 +20,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -55,6 +65,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useDeleteUser } from "../hooks/use-users";
 import { User, UsersQueryParams } from "../types";
 import { UserForm } from "./user-form";
@@ -89,6 +100,8 @@ export function UsersTable({
   const [rowSelection, setRowSelection] = useState({});
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -97,21 +110,35 @@ export function UsersTable({
   }, [filters]);
 
   // Local filter states
-  const [searchQuery, setSearchQuery] = useState(filters.q || "");
+  const [searchQuery, setSearchQuery] = useState(
+    filters.search || filters.q || ""
+  );
+  const [qQuery, setQQuery] = useState(filters.q || "");
   const [roleFilter, setRoleFilter] = useState(filters.role || "");
   const [phoneFilter, setPhoneFilter] = useState(filters.phoneNumber || "");
   const [isActiveFilter, setIsActiveFilter] = useState<string>(
     filters.isActive !== undefined ? String(filters.isActive) : ""
   );
+  const [dateFrom, setDateFrom] = useState(filters.dateFrom || "");
+  const [dateTo, setDateTo] = useState(filters.dateTo || "");
+  const [sortBy, setSortBy] = useState(filters.sortBy || "");
+
+  // Debounce search query (1 second)
+  const debouncedSearch = useDebounce(searchQuery, 1000);
+  const debouncedQ = useDebounce(qQuery, 1000);
 
   // Update filters when props change
   useEffect(() => {
-    setSearchQuery(filters.q || "");
+    setSearchQuery(filters.search || filters.q || "");
+    setQQuery(filters.q || "");
     setRoleFilter(filters.role || "");
     setPhoneFilter(filters.phoneNumber || "");
     setIsActiveFilter(
       filters.isActive !== undefined ? String(filters.isActive) : ""
     );
+    setDateFrom(filters.dateFrom || "");
+    setDateTo(filters.dateTo || "");
+    setSortBy(filters.sortBy || "");
   }, [filters]);
 
   // Apply filters to API
@@ -128,14 +155,15 @@ export function UsersTable({
     [onFiltersChange]
   );
 
-  // Handle search with debounce (apply after typing stops)
+  // Handle debounced search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ q: searchQuery || undefined });
-    }, 500);
+    applyFilters({ search: debouncedSearch || undefined });
+  }, [debouncedSearch, applyFilters]);
 
-    return () => clearTimeout(timer);
-  }, [searchQuery, applyFilters]);
+  // Handle debounced q query
+  useEffect(() => {
+    applyFilters({ q: debouncedQ || undefined });
+  }, [debouncedQ, applyFilters]);
 
   // Convert sorting to order parameter
   const orderParam = useMemo(() => {
@@ -188,7 +216,11 @@ export function UsersTable({
         cell: ({ row }) => {
           const user = row.original;
           const name =
-            user.fullName || user.name || user.phoneNumber || t("users.noName");
+            user.profile?.full_name ||
+            user.fullName ||
+            user.name ||
+            user.phoneNumber ||
+            t("users.noName");
           const initials =
             name
               .split(" ")
@@ -309,13 +341,8 @@ export function UsersTable({
                 <DropdownMenuItem
                   onClick={() => {
                     if (!user.uuid) return;
-                    if (confirm(t("users.confirmDelete"))) {
-                      deleteUser.mutate(user.uuid, {
-                        onSuccess: () => {
-                          onRefresh?.();
-                        },
-                      });
-                    }
+                    setUserToDelete(user);
+                    setDeleteDialogOpen(true);
                   }}
                   className="text-destructive"
                 >
@@ -384,95 +411,157 @@ export function UsersTable({
   return (
     <>
       <div className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Input
-            placeholder={t("users.search")}
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="max-w-sm"
-          />
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-4">
+          {/* Search and Quick Filters Row */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Input
-              placeholder={t("users.phonePlaceholder")}
-              value={phoneFilter}
+              placeholder={t("users.search")}
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="max-w-sm"
+            />
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder={t("users.phonePlaceholder")}
+                value={phoneFilter}
+                onChange={(event) => {
+                  setPhoneFilter(event.target.value);
+                  applyFilters({
+                    phoneNumber: event.target.value || undefined,
+                  });
+                }}
+                className="w-32"
+              />
+              <Select
+                value={roleFilter || "all"}
+                onValueChange={(value) => {
+                  setRoleFilter(value === "all" ? "" : value);
+                  applyFilters({ role: value === "all" ? undefined : value });
+                }}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder={t("users.role")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("users.allRoles")}</SelectItem>
+                  <SelectItem value="USER">{t("users.roles.USER")}</SelectItem>
+                  <SelectItem value="ADMIN">
+                    {t("users.roles.ADMIN")}
+                  </SelectItem>
+                  <SelectItem value="admin">
+                    {t("users.roles.admin")}
+                  </SelectItem>
+                  <SelectItem value="moderator">
+                    {t("users.roles.moderator")}
+                  </SelectItem>
+                  <SelectItem value="user">{t("users.roles.user")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={isActiveFilter || "all"}
+                onValueChange={(value) => {
+                  setIsActiveFilter(value === "all" ? "" : value);
+                  applyFilters({
+                    isActive: value === "all" ? undefined : value === "true",
+                  });
+                }}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder={t("users.status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("users.allStatuses")}</SelectItem>
+                  <SelectItem value="true">
+                    {t("users.statuses.active")}
+                  </SelectItem>
+                  <SelectItem value="false">
+                    {t("users.statuses.inactive")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                <DrawerTrigger asChild>
+                  <Button onClick={handleCreateUser}>
+                    <IconPlus className="mr-2 size-4" />
+                    {t("users.addUser")}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>
+                      {editingUser
+                        ? t("users.editUser")
+                        : t("users.addNewUser")}
+                    </DrawerTitle>
+                    <DrawerDescription>
+                      {editingUser
+                        ? t("users.editUserInfo")
+                        : t("users.addUserInfo")}
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="p-4">
+                    <UserForm
+                      user={editingUser || undefined}
+                      onSuccess={handleFormSuccess}
+                      onCancel={handleDrawerClose}
+                    />
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            </div>
+          </div>
+
+          {/* Advanced Filters Row */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <Input
+              type="text"
+              placeholder="جستجو (q)"
+              value={qQuery}
+              onChange={(event) => setQQuery(event.target.value)}
+              className="max-w-sm"
+            />
+            <Input
+              type="date"
+              placeholder="از تاریخ"
+              value={dateFrom}
               onChange={(event) => {
-                setPhoneFilter(event.target.value);
+                setDateFrom(event.target.value);
                 applyFilters({
-                  phoneNumber: event.target.value || undefined,
+                  dateFrom: event.target.value || undefined,
                 });
               }}
-              className="w-32"
+              className="w-40"
+            />
+            <Input
+              type="date"
+              placeholder="تا تاریخ"
+              value={dateTo}
+              onChange={(event) => {
+                setDateTo(event.target.value);
+                applyFilters({
+                  dateTo: event.target.value || undefined,
+                });
+              }}
+              className="w-40"
             />
             <Select
-              value={roleFilter || "all"}
+              value={sortBy || "all"}
               onValueChange={(value) => {
-                setRoleFilter(value === "all" ? "" : value);
-                applyFilters({ role: value === "all" ? undefined : value });
+                setSortBy(value === "all" ? "" : value);
+                applyFilters({ sortBy: value === "all" ? undefined : value });
               }}
             >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder={t("users.role")} />
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="مرتب‌سازی بر اساس" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("users.allRoles")}</SelectItem>
-                <SelectItem value="USER">{t("users.roles.USER")}</SelectItem>
-                <SelectItem value="ADMIN">{t("users.roles.ADMIN")}</SelectItem>
-                <SelectItem value="admin">{t("users.roles.admin")}</SelectItem>
-                <SelectItem value="moderator">
-                  {t("users.roles.moderator")}
-                </SelectItem>
-                <SelectItem value="user">{t("users.roles.user")}</SelectItem>
+                <SelectItem value="all">همه</SelectItem>
+                <SelectItem value="createdAt">تاریخ ایجاد</SelectItem>
+                <SelectItem value="updatedAt">تاریخ به‌روزرسانی</SelectItem>
+                <SelectItem value="phoneNumber">شماره تلفن</SelectItem>
+                <SelectItem value="full_name">نام</SelectItem>
               </SelectContent>
             </Select>
-            <Select
-              value={isActiveFilter || "all"}
-              onValueChange={(value) => {
-                setIsActiveFilter(value === "all" ? "" : value);
-                applyFilters({
-                  isActive: value === "all" ? undefined : value === "true",
-                });
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder={t("users.status")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("users.allStatuses")}</SelectItem>
-                <SelectItem value="true">
-                  {t("users.statuses.active")}
-                </SelectItem>
-                <SelectItem value="false">
-                  {t("users.statuses.inactive")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button onClick={handleCreateUser}>
-                  <IconPlus className="mr-2 size-4" />
-                  {t("users.addUser")}
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>
-                    {editingUser ? t("users.editUser") : t("users.addNewUser")}
-                  </DrawerTitle>
-                  <DrawerDescription>
-                    {editingUser
-                      ? t("users.editUserInfo")
-                      : t("users.addUserInfo")}
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="p-4">
-                  <UserForm
-                    user={editingUser || undefined}
-                    onSuccess={handleFormSuccess}
-                    onCancel={handleDrawerClose}
-                  />
-                </div>
-              </DrawerContent>
-            </Drawer>
           </div>
         </div>
 
@@ -645,6 +734,48 @@ export function UsersTable({
           </DrawerContent>
         </Drawer>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف کاربر</AlertDialogTitle>
+            <AlertDialogDescription>
+              آیا از حذف کاربر{" "}
+              <strong>
+                {userToDelete?.profile?.full_name ||
+                  userToDelete?.fullName ||
+                  userToDelete?.phoneNumber ||
+                  "این کاربر"}
+              </strong>{" "}
+              اطمینان دارید؟ این عمل غیرقابل بازگشت است.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>لغو</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (userToDelete?.uuid) {
+                  deleteUser.mutate(userToDelete.uuid, {
+                    onSuccess: () => {
+                      setDeleteDialogOpen(false);
+                      setUserToDelete(null);
+                      onRefresh?.();
+                    },
+                    onError: () => {
+                      setDeleteDialogOpen(false);
+                      setUserToDelete(null);
+                    },
+                  });
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

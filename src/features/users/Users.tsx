@@ -27,9 +27,10 @@ function UsersContent() {
 
   const { data, isLoading, refetch } = useUsers(filters);
   const users = data?.data || [];
-  const total = data?.total || 0;
-  const currentPage = data?.page || 1;
-  const totalPages = data?.totalPages || 1;
+  const meta = data?.meta;
+  const total = meta?.itemCount || 0;
+  const currentPage = meta?.page || 1;
+  const totalPages = meta?.pageCount || 1;
 
   return (
     <SidebarProvider
@@ -63,7 +64,7 @@ function UsersContent() {
                     page: currentPage,
                     total: total,
                     totalPages: totalPages,
-                    take: filters.take || 10,
+                    take: meta?.take || filters.take || 10,
                   }}
                 />
               </div>
