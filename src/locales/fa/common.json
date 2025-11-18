@@ -66,6 +66,7 @@
     "codeLabel": "کد تأیید",
     "codeHelp": "کد ۵ رقمی ارسال‌شده به شماره موبایل خود را وارد کنید.",
     "verify": "تأیید",
+    "verifying": "در حال تأیید...",
     "notReceived": "کدی دریافت نکردید؟",
     "resend": "ارسال مجدد"
   },
@@ -231,7 +232,10 @@
     "of": "از",
     "items": "مورد",
     "prev": "قبلی",
-    "next": "بعدی"
+    "next": "بعدی",
+    "filters": {
+      "showAdvanced": "جستجوی پیشرفته"
+    }
   },
   "notifications": {
     "title": "مدیریت اعلانات",
@@ -240,6 +244,8 @@
     "allTypes": "همه انواع",
     "types": {
       "system": "سیستمی",
+      "notification": "نوتیفیکیشن",
+      "information": "اطلاعیه",
       "user": "کاربر",
       "admin": "مدیر",
       "alert": "هشدار",
@@ -255,7 +261,89 @@
     "items": "مورد",
     "prev": "قبلی",
     "next": "بعدی",
-    "popup": "پاپ آپ"
+    "popup": "پاپ آپ",
+    "actions": {
+      "view": "مشاهده",
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "stats": "آمار"
+    },
+    "table": {
+      "uuid": "UUID",
+      "type": "نوع",
+      "templateType": "نوع تمپلیت",
+      "title": "عنوان",
+      "recipients": "گیرندگان",
+      "readUnread": "خوانده/نخوانده",
+      "createdAt": "تاریخ ایجاد",
+      "actions": "عملیات",
+      "selectAll": "انتخاب همه",
+      "selectRow": "انتخاب ردیف",
+      "noTitle": "بدون عنوان",
+      "unread": "خوانده نشده",
+      "yes": "بله",
+      "no": "خیر"
+    },
+    "filters": {
+      "searchPlaceholder": "جستجو در metadata...",
+      "showAdvanced": "جستجوی پیشرفته",
+      "hideAdvanced": "مخفی کردن فیلترهای پیشرفته",
+      "type": "نوع",
+      "allTypes": "همه انواع",
+      "templateType": "نوع تمپلیت",
+      "allTemplates": "همه تمپلیت‌ها",
+      "popup": "پاپ‌آپ",
+      "all": "همه",
+      "dateFrom": "از تاریخ",
+      "dateTo": "تا تاریخ",
+      "sortBy": "مرتب‌سازی",
+      "sortCreatedAt": "تاریخ ایجاد",
+      "sortUpdatedAt": "تاریخ به‌روزرسانی",
+      "sortType": "نوع",
+      "sortRecipients": "تعداد گیرندگان",
+      "order": "ترتیب",
+      "ascending": "صعودی",
+      "descending": "نزولی"
+    },
+    "deleteDialog": {
+      "title": "حذف نوتیفیکیشن",
+      "description": "آیا مطمئن هستید که می‌خواهید این نوتیفیکیشن را حذف کنید؟ این عمل قابل بازگشت نیست.",
+      "cancel": "انصراف",
+      "delete": "حذف",
+      "deleting": "در حال حذف..."
+    },
+    "form": {
+      "type": "نوع نوتیفیکیشن",
+      "typeRequired": "نوع نوتیفیکیشن *",
+      "templateType": "نوع تمپلیت",
+      "templateTypeRequired": "نوع تمپلیت *",
+      "systemCannotHaveUserId": "نوع 'system' نمی‌تواند userId داشته باشد",
+      "popup": "نمایش به صورت پاپ‌آپ",
+      "popupDescription": "در صورت فعال بودن، نوتیفیکیشن به صورت پاپ‌آپ نمایش داده می‌شود",
+      "userId": "شناسه کاربر (اختیاری)",
+      "userIdPlaceholder": "UUID کاربر (اختیاری)",
+      "userIdDescription": "در صورت خالی بودن، نوتیفیکیشن برای همه کاربران ارسال می‌شود",
+      "create": "ایجاد نوتیفیکیشن",
+      "creating": "در حال ارسال...",
+      "cancel": "انصراف",
+      "fieldPlaceholder": "{{label}} را وارد کنید...",
+      "fields": {
+        "title": "عنوان",
+        "message": "پیام",
+        "result": "نتیجه",
+        "amount": "مبلغ",
+        "alertType": "نوع هشدار",
+        "link": "لینک"
+      }
+    },
+    "templates": {
+      "service_result": "نتیجه سرویس",
+      "payment_success": "پرداخت موفق",
+      "security_alert": "هشدار امنیتی",
+      "promotional": "تبلیغاتی",
+      "dynamic": "پویا",
+      "simple": "ساده"
+    }
   },
   "paymentGateways": {
     "title": "مدیریت درگاه‌های پرداخت",
