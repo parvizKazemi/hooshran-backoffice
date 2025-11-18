@@ -1,21 +1,21 @@
 import {
+  IconApi,
   IconBell,
+  IconChartBar,
+  IconCoins,
   IconCreditCard,
   IconDashboard,
+  IconFileText,
+  IconFolder,
   IconInnerShadowTop,
   IconMessage,
-  IconReport,
-  IconSettings,
-  IconUsers,
-  IconApi,
   IconPackage,
-  IconCoins,
-  IconFileText,
-  IconUserCheck,
-  IconChartBar,
   IconPhoto,
   IconReceipt,
-  IconFolder,
+  IconReport,
+  IconSettings,
+  IconUserCheck,
+  IconUsers,
 } from "@tabler/icons-react";
 import i18next from "i18next";
 import * as React from "react";
@@ -167,7 +167,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain
           items={data.navMain}
           badges={{
-            "/tickets": data.unreadCount,
+            "/users": 1, //data.unreadCount,
+            "/notifications": 1,
           }}
         />
         {/* <NavDocuments items={data.documents} /> */}
