@@ -10,11 +10,13 @@ import { UserActionsCell } from "./user-actions-cell";
 type UseUsersTableColumnsProps = {
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
+  onResetPassword: (user: User) => void;
 };
 
 export function useUsersTableColumns({
   onEdit,
   onDelete,
+  onResetPassword,
 }: UseUsersTableColumnsProps): ColumnDef<User>[] {
   const { t } = useTranslation("common");
 
@@ -71,6 +73,7 @@ export function useUsersTableColumns({
           user={row.original}
           onEdit={onEdit}
           onDelete={onDelete}
+          onResetPassword={onResetPassword}
         />
       ),
     },

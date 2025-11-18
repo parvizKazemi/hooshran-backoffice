@@ -1,4 +1,9 @@
-import { IconDotsVertical, IconEdit, IconTrash } from "@tabler/icons-react";
+import {
+  IconDotsVertical,
+  IconEdit,
+  IconTrash,
+  IconKey,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +19,14 @@ type UserActionsCellProps = {
   user: User;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
+  onResetPassword: (user: User) => void;
 };
 
 export function UserActionsCell({
   user,
   onEdit,
   onDelete,
+  onResetPassword,
 }: UserActionsCellProps) {
   const { t } = useTranslation("common");
 
@@ -35,6 +42,10 @@ export function UserActionsCell({
         <DropdownMenuItem onClick={() => onEdit(user)}>
           <IconEdit className="mr-2 size-4" />
           {t("users.actions.edit")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onResetPassword(user)}>
+          <IconKey className="mr-2 size-4" />
+          {t("users.actions.resetPassword")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

@@ -49,7 +49,11 @@
     "referrals": "ارجاع",
     "media": "فایل‌ها",
     "payments": "پرداخت‌ها",
-    "utmAnalytics": "تحلیل بازاریابی"
+    "utmAnalytics": "تحلیل بازاریابی",
+    "form": {
+      "saveChanges": "ذخیره تغییرات",
+      "createUser": "ایجاد کاربر"
+    }
   },
   "documents": {
     "dataLibrary": "کتابخانه داده",
@@ -217,6 +221,7 @@
     "actions": {
       "edit": "ویرایش",
       "delete": "حذف",
+      "resetPassword": "ریست پسورد",
       "openMenu": "باز کردن منو"
     },
     "confirmDelete": "آیا از حذف این کاربر اطمینان دارید؟",

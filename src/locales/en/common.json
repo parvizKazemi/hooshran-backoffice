@@ -186,6 +186,10 @@
     "message": "Page not found"
   },
   "users": {
+    "form": {
+      "saveChanges": "Save Changes",
+      "createUser": "Create User"
+    },
     "title": "User Management",
     "description": "Manage and view all system users",
     "search": "Search users...",
@@ -217,6 +221,7 @@
     "actions": {
       "edit": "Edit",
       "delete": "Delete",
+      "resetPassword": "Reset Password",
       "openMenu": "Open menu"
     },
     "confirmDelete": "Are you sure you want to delete this user?",

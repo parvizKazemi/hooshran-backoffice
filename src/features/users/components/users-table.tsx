@@ -86,10 +86,17 @@ export function UsersTable({
     }
   }, [orderParam, onFiltersChange, filters]);
 
+  const handleResetPassword = useCallback((user: User) => {
+    const userName =
+      user.profile?.full_name || user.fullName || user.phoneNumber || "کاربر";
+    alert(`ریست پسورد برای کاربر "${userName}" انجام خواهد شد.`);
+  }, []);
+
   // Table columns
   const columns = useUsersTableColumns({
     onEdit: tableState.handleEditUser,
     onDelete: tableState.handleDeleteUser,
+    onResetPassword: handleResetPassword,
   });
 
   // React Table instance
