@@ -1,11 +1,11 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
-import { Checkbox } from "@/components/ui/checkbox";
 import { User } from "../../types";
+import { UserActionsCell } from "./user-actions-cell";
 import { UserNameCell } from "./user-name-cell";
 import { UserRoleCell } from "./user-role-cell";
 import { UserStatusCell } from "./user-status-cell";
-import { UserActionsCell } from "./user-actions-cell";
 
 type UseUsersTableColumnsProps = {
   onEdit: (user: User) => void;
@@ -68,6 +68,7 @@ export function useUsersTableColumns({
     },
     {
       id: "actions",
+      header: t("users.actions.title"),
       cell: ({ row }) => (
         <UserActionsCell
           user={row.original}

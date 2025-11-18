@@ -1,18 +1,6 @@
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconTrash,
-  IconKey,
-} from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { IconEdit, IconKey, IconTrash } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { User } from "../../types";
 
 type UserActionsCellProps = {
@@ -31,31 +19,34 @@ export function UserActionsCell({
   const { t } = useTranslation("common");
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <IconDotsVertical className="size-4" />
-          <span className="sr-only">{t("users.actions.openMenu")}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={() => onEdit(user)}>
-          <IconEdit className="mr-2 size-4" />
-          {t("users.actions.edit")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onResetPassword(user)}>
-          <IconKey className="mr-2 size-4" />
-          {t("users.actions.resetPassword")}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => onDelete(user)}
-          className="text-destructive"
-        >
-          <IconTrash className="mr-2 size-4" />
-          {t("users.actions.delete")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8"
+        onClick={() => onEdit(user)}
+        title={t("users.actions.edit")}
+      >
+        <IconEdit className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8"
+        onClick={() => onResetPassword(user)}
+        title={t("users.actions.resetPassword")}
+      >
+        <IconKey className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-destructive hover:text-destructive size-8"
+        onClick={() => onDelete(user)}
+        title={t("users.actions.delete")}
+      >
+        <IconTrash className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }
