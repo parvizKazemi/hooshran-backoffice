@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { IconChevronDown } from "@tabler/icons-react";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -33,12 +34,10 @@ export const UsersSearchBar = memo(function UsersSearchBar({
         onClick={onToggleAdvancedFilters}
         className="gap-2"
       >
-        جستجوی پیشرفته
-        {showAdvancedFilters ? (
-          <IconChevronUp className="size-4" />
-        ) : (
-          <IconChevronDown className="size-4" />
-        )}
+        {t("users.filters.showAdvanced")}
+        <IconChevronDown
+          className={cn("size-4", showAdvancedFilters ? "rotate-180" : "")}
+        />
       </Button>
     </div>
   );
