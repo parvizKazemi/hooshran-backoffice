@@ -10,7 +10,7 @@ export interface UserData {
   createdAt: string;
   updatedAt: string;
   uuid: string;
-  registrationSource: string | null;
+  registrationSource?: string | null;
   referralCode: string;
   phoneNumber: string;
 }
