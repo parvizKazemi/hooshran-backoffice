@@ -17,16 +17,17 @@ export const userProfileSchema = z.object({
 
 export const userSchema = z.object({
   uuid: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  registrationSource: z.string().nullable(),
-  referralCode: z.string(),
   phoneNumber: z.string(),
+  role: z.enum(["USER", "ADMIN"]), // Only USER or ADMIN per backend API
+  isActive: z.boolean(),
+  registrationSource: z.string().optional(),
+  referralCode: z.string(),
   profile: userProfileSchema,
+  // Optional timestamp fields (may not be present in all responses)
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
   // Legacy fields for backward compatibility
   fullName: z.string().optional(),
-  role: z.enum(["admin", "user", "moderator", "USER", "ADMIN"]).optional(),
-  isActive: z.boolean().optional(),
   id: z.string().optional(),
   name: z.string().optional(),
   email: z.string().email("ایمیل معتبر نیست").optional(),
@@ -66,14 +67,22 @@ export interface UsersQueryParams {
   isActive?: boolean;
 }
 
-export const createUserSchema = userSchema.omit({
-  uuid: true,
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Create user schema - only allows creating with specific fields per API DTO
+export const createUserSchema = z.object({
+  phoneNumber: z.string().min(1, "شماره تماس الزامی است"),
+  role: z.enum(["USER", "ADMIN"]).optional(), // Optional, default handled in form
+  registrationSource: z.string().optional(),
 });
 
-export const updateUserSchema = userSchema.partial().required({ uuid: true });
+// Update user schema - only allows updating specific fields per API DTO
+// All fields are optional as per API documentation (partial updates are allowed)
+export const updateUserSchema = z.object({
+  uuid: z.string(), // Required for identification, but excluded from body
+  phoneNumber: z.string().optional(),
+  role: z.enum(["USER", "ADMIN"]).optional(), // Only USER or ADMIN per API DTO
+  isActive: z.boolean().optional(),
+  registrationSource: z.string().optional(),
+});
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
