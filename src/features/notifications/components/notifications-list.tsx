@@ -125,6 +125,7 @@ export function NotificationsList({
 }: NotificationsListProps) {
   const { t } = useTranslation("common");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<AdminNotification | null>(null);
@@ -193,8 +194,15 @@ export function NotificationsList({
 
   const handleFormSuccess = useCallback(() => {
     setIsDrawerOpen(false);
+    setIsEditDrawerOpen(false);
+    setSelectedNotification(null);
     onRefresh?.();
   }, [onRefresh]);
+
+  const handleEdit = useCallback((notification: AdminNotification) => {
+    setSelectedNotification(notification);
+    setIsEditDrawerOpen(true);
+  }, []);
 
   // Table columns
   const columns = useMemo<ColumnDef<AdminNotification>[]>(() => {
@@ -357,39 +365,36 @@ export function NotificationsList({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="size-8 hover:scale-105"
                 onClick={() => {
                   // View notification details
                   // You can implement a detail view here
                 }}
               >
-                <IconEye className="h-4 w-4" />
+                <IconEye className="size-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
-                onClick={() => {
-                  // Edit notification
-                  // You can implement edit functionality here
-                }}
+                className="size-8 hover:scale-105"
+                onClick={() => handleEdit(notification)}
               >
-                <IconEdit className="h-4 w-4" />
+                <IconEdit className="size-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="text-destructive hover:text-destructive size-8 hover:scale-105"
                 onClick={() => handleDelete(notification)}
               >
-                <IconTrash className="h-4 w-4" />
+                <IconTrash className="size-4" />
               </Button>
             </div>
           );
         },
       },
     ];
-  }, [handleDelete, typeLabels, t]);
+  }, [handleDelete, handleEdit, typeLabels, t]);
 
   const table = useReactTable({
     data,
@@ -739,6 +744,30 @@ export function NotificationsList({
           </div>
         )}
       </div>
+
+      {/* Edit Drawer */}
+      <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{t("notifications.editTitle")}</DrawerTitle>
+            <DrawerDescription>
+              {t("notifications.editDescription")}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="p-4">
+            {selectedNotification && (
+              <NotificationForm
+                notification={selectedNotification}
+                onSuccess={handleFormSuccess}
+                onCancel={() => {
+                  setIsEditDrawerOpen(false);
+                  setSelectedNotification(null);
+                }}
+              />
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* Delete Dialog */}
       <AlertDialog

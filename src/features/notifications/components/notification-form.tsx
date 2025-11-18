@@ -18,14 +18,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useCreateNotification } from "../hooks/use-notifications";
 import {
+  useCreateNotification,
+  useUpdateNotification,
+} from "../hooks/use-notifications";
+import {
+  AdminNotification,
   CreateNotificationInput,
   createNotificationSchema,
   TEMPLATE_TYPES,
+  UpdateNotificationInput,
+  updateNotificationSchema,
 } from "../types";
 
 type NotificationFormProps = {
+  notification?: AdminNotification;
   onSuccess?: () => void;
   onCancel?: () => void;
 };
@@ -128,12 +135,15 @@ const getTemplateFields = (
 });
 
 export function NotificationForm({
+  notification,
   onSuccess,
   onCancel,
 }: NotificationFormProps) {
   const { t } = useTranslation("common");
   const createNotification = useCreateNotification();
+  const updateNotification = useUpdateNotification();
   const templateFields = getTemplateFields(t);
+  const isEditing = !!notification;
 
   const {
     register,
@@ -141,18 +151,31 @@ export function NotificationForm({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<CreateNotificationInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(createNotificationSchema) as any,
-    defaultValues: {
-      type: "system",
-      metaData: {
-        type: "simple",
-        data: {} as Record<string, unknown>,
-      },
-      isPopup: false,
-      userId: undefined,
-    },
+  } = useForm<CreateNotificationInput | UpdateNotificationInput>({
+    resolver: zodResolver(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (isEditing ? updateNotificationSchema : createNotificationSchema) as any
+    ),
+    mode: "onSubmit", // Validate only on submit, not on change
+    defaultValues: notification
+      ? {
+          type: notification.type,
+          metaData: {
+            type: notification.metaData.type,
+            data: (notification.metaData.data || {}) as Record<string, unknown>,
+          },
+          isPopup: notification.isPopup,
+          userId: notification.user?.uuid,
+        }
+      : {
+          type: "system",
+          metaData: {
+            type: "simple",
+            data: {} as Record<string, unknown>,
+          },
+          isPopup: false,
+          userId: undefined,
+        },
   });
 
   const notificationType = watch("type");
@@ -162,26 +185,60 @@ export function NotificationForm({
   const currentTemplateFields =
     templateFields[templateType || "simple"] || templateFields.simple;
 
-  const onSubmit: SubmitHandler<CreateNotificationInput> = async (data) => {
+  const onSubmit: SubmitHandler<
+    CreateNotificationInput | UpdateNotificationInput
+  > = async (data) => {
     try {
-      // Ensure data object is properly structured
-      const payload: CreateNotificationInput = {
-        type: data.type,
-        metaData: {
-          type: data.metaData.type,
-          data: (data.metaData.data || {}) as Record<string, unknown>,
-        },
-        isPopup: data.isPopup ?? false,
-        ...(data.userId && { userId: data.userId }),
-      };
+      if (isEditing && notification) {
+        // Update mode
+        const payload: UpdateNotificationInput = {
+          ...(data.type && { type: data.type }),
+          ...(data.metaData && {
+            metaData: {
+              ...(data.metaData.type && { type: data.metaData.type }),
+              ...(data.metaData.data && {
+                data: data.metaData.data as Record<string, unknown>,
+              }),
+            },
+          }),
+          ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
+          ...(data.userId && { userId: data.userId }),
+        };
 
-      // Remove userId if type is 'system'
-      if (payload.type === "system") {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { userId, ...rest } = payload;
-        await createNotification.mutateAsync(rest);
+        // Remove userId if type is 'system'
+        if (payload.type === "system") {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { userId, ...rest } = payload;
+          await updateNotification.mutateAsync({
+            notificationId: notification.uuid,
+            data: rest,
+          });
+        } else {
+          await updateNotification.mutateAsync({
+            notificationId: notification.uuid,
+            data: payload,
+          });
+        }
       } else {
-        await createNotification.mutateAsync(payload);
+        // Create mode
+        const payload: CreateNotificationInput = {
+          type: data.type as "system" | "notification" | "information",
+          metaData: {
+            type: data.metaData?.type || "simple",
+            data: (data.metaData?.data || {}) as Record<string, unknown>,
+          },
+          isPopup: data.isPopup ?? false,
+          ...(data.userId && { userId: data.userId }),
+        };
+
+        // Remove userId if type is 'system'
+        if (payload.type === "system") {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { userId, ...rest } = payload;
+          await createNotification.mutateAsync(rest);
+        } else {
+          await createNotification.mutateAsync(payload);
+        }
       }
       onSuccess?.();
     } catch {
@@ -291,7 +348,9 @@ export function NotificationForm({
                   onChange={(e) =>
                     updateMetaDataField(field.name, e.target.value)
                   }
-                  disabled={createNotification.isPending}
+                  disabled={
+                    createNotification.isPending || updateNotification.isPending
+                  }
                   rows={4}
                 />
               ) : (
@@ -307,7 +366,9 @@ export function NotificationForm({
                   onChange={(e) =>
                     updateMetaDataField(field.name, e.target.value)
                   }
-                  disabled={createNotification.isPending}
+                  disabled={
+                    createNotification.isPending || updateNotification.isPending
+                  }
                 />
               )}
             </Field>
@@ -320,7 +381,9 @@ export function NotificationForm({
           <Select
             value={watch("isPopup") ? "true" : "false"}
             onValueChange={(value) => setValue("isPopup", value === "true")}
-            disabled={createNotification.isPending}
+            disabled={
+              createNotification.isPending || updateNotification.isPending
+            }
           >
             <SelectTrigger id="isPopup">
               <SelectValue />
@@ -349,7 +412,9 @@ export function NotificationForm({
               type="text"
               placeholder={t("notifications.form.userIdPlaceholder")}
               {...register("userId")}
-              disabled={createNotification.isPending}
+              disabled={
+                createNotification.isPending || updateNotification.isPending
+              }
             />
             {errors.userId && (
               <FieldDescription className="text-destructive">
@@ -366,14 +431,20 @@ export function NotificationForm({
           <div className="flex gap-2">
             <Button
               type="submit"
-              disabled={createNotification.isPending}
+              disabled={
+                createNotification.isPending || updateNotification.isPending
+              }
               className="flex-1"
             >
-              {createNotification.isPending ? (
+              {createNotification.isPending || updateNotification.isPending ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
-                  {t("notifications.form.creating")}
+                  {isEditing
+                    ? t("notifications.form.updating")
+                    : t("notifications.form.creating")}
                 </>
+              ) : isEditing ? (
+                t("notifications.form.update")
               ) : (
                 t("notifications.form.create")
               )}
@@ -383,7 +454,9 @@ export function NotificationForm({
                 type="button"
                 variant="outline"
                 onClick={onCancel}
-                disabled={createNotification.isPending}
+                disabled={
+                  createNotification.isPending || updateNotification.isPending
+                }
               >
                 {t("notifications.form.cancel")}
               </Button>

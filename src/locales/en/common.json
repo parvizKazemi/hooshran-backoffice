@@ -220,6 +220,7 @@
       "suspended": "Suspended"
     },
     "actions": {
+      "title": "Actions",
       "edit": "Edit",
       "delete": "Delete",
       "resetPassword": "Reset Password",
@@ -254,6 +255,8 @@
     "sendNew": "Send New Notification",
     "sendNewTitle": "Send New Notification",
     "sendNewDescription": "Set message and notification type",
+    "editTitle": "Edit Notification",
+    "editDescription": "Edit notification information",
     "user": "User",
     "noResults": "No notifications found",
     "page": "Page",
@@ -325,6 +328,8 @@
       "userIdDescription": "If left empty, the notification will be sent to all users",
       "create": "Create Notification",
       "creating": "Sending...",
+      "update": "Update Notification",
+      "updating": "Updating...",
       "cancel": "Cancel",
       "fieldPlaceholder": "Enter {{label}}...",
       "fields": {
