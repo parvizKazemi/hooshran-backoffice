@@ -17,13 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCreateUser, useUpdateUser } from "../hooks/use-users";
 import {
-  createUserSchema,
   CreateUserInput,
+  createUserSchema,
   UpdateUserInput,
+  updateUserSchema,
   User,
 } from "../types";
-import { useCreateUser, useUpdateUser } from "../hooks/use-users";
 
 type UserFormProps = {
   user?: User;
@@ -36,135 +37,190 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
 
-  const form = useForm<CreateUserInput>({
+  // Create form
+  const createForm = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: (user
+    defaultValues: {
+      phoneNumber: "",
+      role: "USER",
+      registrationSource: "",
+    },
+  });
+
+  // Update form
+  const updateForm = useForm<UpdateUserInput>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: user
       ? {
-          fullName: user.profile?.full_name || user.fullName || user.name || "",
-          name: user.name,
-          email: user.email,
-          phone: user.phone || "",
+          uuid: user.uuid,
           phoneNumber: user.phoneNumber || "",
           role: user.role || "USER",
-          status: user.status,
           isActive: user.isActive ?? true,
           registrationSource: user.registrationSource || "",
         }
       : {
-          fullName: "",
-          name: "",
-          email: "",
-          phone: "",
+          uuid: "",
           phoneNumber: "",
           role: "USER",
-          status: "active",
           isActive: true,
           registrationSource: "",
-        }) as CreateUserInput,
+        },
   });
 
-  const onSubmit = async (data: CreateUserInput) => {
-    if (isEditing && user && user.uuid) {
-      const updateData: UpdateUserInput = {
-        uuid: user.uuid,
-        phoneNumber: data.phoneNumber || user.phoneNumber,
-        role: data.role || "USER",
-        isActive: data.isActive ?? true,
-        registrationSource:
-          data.registrationSource || user.registrationSource || undefined,
-      };
-      await updateUser.mutateAsync(updateData);
-    } else {
-      await createUser.mutateAsync(data);
+  const onCreateSubmit = async (data: CreateUserInput) => {
+    // Build payload according to API DTO: phoneNumber (required), role (optional), registrationSource (optional)
+    const payload: Record<string, unknown> = {
+      phoneNumber: data.phoneNumber,
+    };
+    // Only include role if it's explicitly set (default is "USER" on server)
+    if (data.role) {
+      payload.role = data.role;
     }
+    // Only include registrationSource if it's not empty
+    if (data.registrationSource && data.registrationSource.trim() !== "") {
+      payload.registrationSource = data.registrationSource.trim();
+    }
+    await createUser.mutateAsync(payload as CreateUserInput);
     onSuccess?.();
-    if (!isEditing) {
-      form.reset();
-    }
+    createForm.reset();
+  };
+
+  const onUpdateSubmit = async (data: UpdateUserInput) => {
+    await updateUser.mutateAsync(data);
+    onSuccess?.();
   };
 
   const isLoading = createUser.isPending || updateUser.isPending;
 
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="fullName">نام</FieldLabel>
-          <Input
-            id="fullName"
-            {...form.register("fullName")}
-            placeholder="نام کاربر را وارد کنید"
-            disabled={isLoading}
-          />
-          {form.formState.errors.fullName && (
-            <FieldDescription className="text-destructive">
-              {form.formState.errors.fullName.message}
-            </FieldDescription>
-          )}
-        </Field>
+  // Render create form
+  if (!isEditing) {
+    return (
+      <form
+        onSubmit={createForm.handleSubmit(onCreateSubmit)}
+        className="space-y-6"
+      >
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="phoneNumber">
+              شماره تماس <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="phoneNumber"
+              {...createForm.register("phoneNumber")}
+              placeholder="09123456789"
+              disabled={isLoading}
+              required
+            />
+            {createForm.formState.errors.phoneNumber && (
+              <FieldDescription className="text-destructive">
+                {createForm.formState.errors.phoneNumber.message}
+              </FieldDescription>
+            )}
+          </Field>
 
-        <Field>
-          <FieldLabel htmlFor="email">ایمیل</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            {...form.register("email")}
-            placeholder="email@example.com"
-            disabled={isLoading}
-          />
-          {form.formState.errors.email && (
-            <FieldDescription className="text-destructive">
-              {form.formState.errors.email.message}
-            </FieldDescription>
-          )}
-        </Field>
+          <Field>
+            <FieldLabel htmlFor="role">نقش</FieldLabel>
+            <Select
+              value={createForm.watch("role") || "USER"}
+              onValueChange={(value) =>
+                createForm.setValue("role", value as "USER" | "ADMIN")
+              }
+              disabled={isLoading}
+            >
+              <SelectTrigger id="role">
+                <SelectValue placeholder="انتخاب نقش (پیش‌فرض: کاربر)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USER">کاربر</SelectItem>
+                <SelectItem value="ADMIN">مدیر</SelectItem>
+              </SelectContent>
+            </Select>
+            {createForm.formState.errors.role && (
+              <FieldDescription className="text-destructive">
+                {createForm.formState.errors.role.message}
+              </FieldDescription>
+            )}
+          </Field>
 
-        <Field>
-          <FieldLabel htmlFor="phoneNumber">
-            شماره تماس <span className="text-destructive">*</span>
-          </FieldLabel>
-          <Input
-            id="phoneNumber"
-            {...form.register("phoneNumber")}
-            placeholder="+989392285590"
-            disabled={isLoading}
-            required
-          />
-          {form.formState.errors.phoneNumber && (
-            <FieldDescription className="text-destructive">
-              {form.formState.errors.phoneNumber.message}
-            </FieldDescription>
-          )}
-        </Field>
-
-        {isEditing && (
           <Field>
             <FieldLabel htmlFor="registrationSource">منبع ثبت‌نام</FieldLabel>
             <Input
               id="registrationSource"
-              {...form.register("registrationSource")}
-              placeholder="web, mobile, etc."
+              {...createForm.register("registrationSource")}
+              placeholder="web-app, mobile-app, admin-panel, etc."
               disabled={isLoading}
             />
-            {form.formState.errors.registrationSource && (
+            {createForm.formState.errors.registrationSource && (
               <FieldDescription className="text-destructive">
-                {form.formState.errors.registrationSource.message}
+                {createForm.formState.errors.registrationSource.message}
               </FieldDescription>
             )}
           </Field>
-        )}
+        </FieldGroup>
+
+        <div className="flex gap-2">
+          <Button type="submit" disabled={isLoading} className="flex-1">
+            {isLoading && <IconLoader2 className="mr-2 size-4 animate-spin" />}
+            ایجاد کاربر
+          </Button>
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
+              لغو
+            </Button>
+          )}
+        </div>
+      </form>
+    );
+  }
+
+  // Render update form
+  return (
+    <form
+      onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
+      className="space-y-6"
+    >
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="phoneNumber">شماره تماس</FieldLabel>
+          <Input
+            id="phoneNumber"
+            {...updateForm.register("phoneNumber")}
+            placeholder="+989392285590"
+            disabled={isLoading}
+          />
+          {updateForm.formState.errors.phoneNumber && (
+            <FieldDescription className="text-destructive">
+              {updateForm.formState.errors.phoneNumber.message}
+            </FieldDescription>
+          )}
+        </Field>
 
         <Field>
-          <FieldLabel htmlFor="role">
-            نقش <span className="text-destructive">*</span>
-          </FieldLabel>
+          <FieldLabel htmlFor="registrationSource">منبع ثبت‌نام</FieldLabel>
+          <Input
+            id="registrationSource"
+            {...updateForm.register("registrationSource")}
+            placeholder="web, mobile, etc."
+            disabled={isLoading}
+          />
+          {updateForm.formState.errors.registrationSource && (
+            <FieldDescription className="text-destructive">
+              {updateForm.formState.errors.registrationSource.message}
+            </FieldDescription>
+          )}
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="role">نقش</FieldLabel>
           <Select
-            value={form.watch("role") || "USER"}
+            value={updateForm.watch("role") || "USER"}
             onValueChange={(value) =>
-              form.setValue(
-                "role",
-                value as "admin" | "user" | "moderator" | "USER" | "ADMIN"
-              )
+              updateForm.setValue("role", value as "USER" | "ADMIN")
             }
             disabled={isLoading}
           >
@@ -174,26 +230,21 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
             <SelectContent>
               <SelectItem value="USER">کاربر</SelectItem>
               <SelectItem value="ADMIN">مدیر</SelectItem>
-              <SelectItem value="admin">مدیر (legacy)</SelectItem>
-              <SelectItem value="moderator">ناظر</SelectItem>
-              <SelectItem value="user">کاربر (legacy)</SelectItem>
             </SelectContent>
           </Select>
-          {form.formState.errors.role && (
+          {updateForm.formState.errors.role && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.role.message}
+              {updateForm.formState.errors.role.message}
             </FieldDescription>
           )}
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="isActive">
-            وضعیت <span className="text-destructive">*</span>
-          </FieldLabel>
+          <FieldLabel htmlFor="isActive">وضعیت</FieldLabel>
           <Select
-            value={form.watch("isActive") ? "true" : "false"}
+            value={updateForm.watch("isActive") ? "true" : "false"}
             onValueChange={(value) =>
-              form.setValue("isActive", value === "true")
+              updateForm.setValue("isActive", value === "true")
             }
             disabled={isLoading}
           >
@@ -205,9 +256,9 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
               <SelectItem value="false">غیرفعال</SelectItem>
             </SelectContent>
           </Select>
-          {form.formState.errors.isActive && (
+          {updateForm.formState.errors.isActive && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.isActive.message}
+              {updateForm.formState.errors.isActive.message}
             </FieldDescription>
           )}
         </Field>
@@ -216,7 +267,7 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
       <div className="flex gap-2">
         <Button type="submit" disabled={isLoading} className="flex-1">
           {isLoading && <IconLoader2 className="mr-2 size-4 animate-spin" />}
-          {isEditing ? "ذخیره تغییرات" : "ایجاد کاربر"}
+          ذخیره تغییرات
         </Button>
         {onCancel && (
           <Button

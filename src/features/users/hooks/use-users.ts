@@ -114,7 +114,23 @@ export const useUpdateUser = () => {
         if (!data.uuid) {
           throw new ApiError("UUID کاربر الزامی است");
         }
-        const user = await apiPut<User>(`/admin/users/${data.uuid}`, data);
+        // Extract uuid from data and exclude it from body
+        const { uuid, ...updatePayload } = data;
+        // Only send fields that are defined (remove undefined values)
+        const cleanPayload: Record<string, unknown> = {};
+        if (updatePayload.phoneNumber !== undefined) {
+          cleanPayload.phoneNumber = updatePayload.phoneNumber;
+        }
+        if (updatePayload.role !== undefined) {
+          cleanPayload.role = updatePayload.role;
+        }
+        if (updatePayload.isActive !== undefined) {
+          cleanPayload.isActive = updatePayload.isActive;
+        }
+        if (updatePayload.registrationSource !== undefined) {
+          cleanPayload.registrationSource = updatePayload.registrationSource;
+        }
+        const user = await apiPut<User>(`/admin/users/${uuid}`, cleanPayload);
         return user;
       } catch (error) {
         if (error instanceof ApiError) {
