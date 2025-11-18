@@ -38,13 +38,10 @@ export function getRoleLabel(
   t: (key: string) => string
 ): string {
   const roleLabels: Record<string, string> = {
-    admin: t("users.roles.admin"),
-    ADMIN: t("users.roles.ADMIN"),
-    moderator: t("users.roles.moderator"),
-    user: t("users.roles.user"),
-    USER: t("users.roles.USER"),
+    ADMIN: t("users.roles.admin"),
+    USER: t("users.roles.user"),
   };
-  return roleLabels[role || "user"] || role || "user";
+  return roleLabels[role || "USER"] || role || "USER";
 }
 
 /**
@@ -54,13 +51,10 @@ export function getRoleVariant(
   role: string | undefined
 ): "default" | "secondary" | "outline" {
   const roleVariants: Record<string, "default" | "secondary" | "outline"> = {
-    admin: "default",
     ADMIN: "default",
-    moderator: "secondary",
-    user: "outline",
     USER: "outline",
   };
-  return roleVariants[role || "user"] || "outline";
+  return roleVariants[role || "USER"] || "outline";
 }
 
 /**

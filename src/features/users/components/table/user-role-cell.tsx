@@ -9,7 +9,7 @@ type UserRoleCellProps = {
 
 export function UserRoleCell({ user }: UserRoleCellProps) {
   const { t } = useTranslation("common");
-  const role = user.role || "user";
+  const role = user.role || "USER";
   const label = getRoleLabel(role, t);
   const variant = getRoleVariant(role);
 

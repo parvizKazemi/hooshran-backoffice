@@ -76,9 +76,6 @@ export const AdvancedFiltersSection = memo(function AdvancedFiltersSection({
           <SelectContent>
             <SelectItem value="all">{t("users.allRoles")}</SelectItem>
             <SelectItem value="ADMIN">{t("users.roles.admin")}</SelectItem>
-            <SelectItem value="MODERATOR">
-              {t("users.roles.moderator")}
-            </SelectItem>
             <SelectItem value="USER">{t("users.roles.user")}</SelectItem>
           </SelectContent>
         </Select>
