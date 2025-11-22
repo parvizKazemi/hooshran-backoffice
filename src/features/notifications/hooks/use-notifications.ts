@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   AdminNotification,
+  BasicNotification,
   CreateNotificationInput,
   NotificationStats,
   NotificationsQueryParams,
@@ -99,9 +100,9 @@ export const useCreateNotification = () => {
   return useMutation({
     mutationFn: async (
       data: CreateNotificationInput
-    ): Promise<AdminNotification> => {
+    ): Promise<BasicNotification> => {
       try {
-        const response = await apiPost<AdminNotification>(
+        const response = await apiPost<BasicNotification>(
           "/admin/notification",
           data
         );

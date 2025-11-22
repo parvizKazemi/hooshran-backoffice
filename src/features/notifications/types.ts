@@ -38,9 +38,21 @@ export interface AdminNotification {
   isPopup: boolean;
   isPublic: boolean;
   user?: UserDto;
-  recipientCount: number;
-  readCount: number;
-  unreadCount: number;
+  recipientCount?: number;
+  readCount?: number;
+  unreadCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Basic notification response from create/update endpoints
+export interface BasicNotification {
+  uuid: string;
+  type: NotificationType;
+  metaData: NotificationMetaData;
+  isPopup: boolean;
+  isPublic: boolean;
+  user?: UserDto;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,7 +82,7 @@ export interface NotificationsQueryParams {
 
 // Create Notification DTO
 export const createNotificationSchema = z.object({
-  type: z.enum(["notification", "information"], {
+  type: z.enum(NOTIFICATION_TYPES, {
     message: "نوع نوتیفیکیشن الزامی است",
   }),
   metaData: z.object({
@@ -99,7 +111,7 @@ export type CreateNotificationInput = Omit<
 // Update Notification DTO
 export const updateNotificationSchema = z.object({
   type: z
-    .enum(["notification", "information"], {
+    .enum(NOTIFICATION_TYPES, {
       message: "نوع نوتیفیکیشن معتبر نیست",
     })
     .optional(),
