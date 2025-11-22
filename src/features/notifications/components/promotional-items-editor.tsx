@@ -52,11 +52,8 @@ export function PromotionalItemsEditor({
     const newItems = [...items];
     const item = newItems[index];
     if (item) {
-      if (field === "list" && typeof fieldValue === "string") {
-        item[field] = fieldValue.split("\n").filter((item) => item.trim());
-      } else {
-        (item as unknown as Record<string, unknown>)[field] = fieldValue;
-      }
+      // برای list فقط string رو ذخیره می‌کنیم
+      (item as unknown as Record<string, unknown>)[field] = fieldValue;
       onChange(newItems);
     }
   };
@@ -67,164 +64,198 @@ export function PromotionalItemsEditor({
         <span className="text-sm font-medium">
           {t("notifications.promotionalItems.title")}
         </span>
-        <Button type="button" variant="outline" size="sm" onClick={addItem}>
-          <Plus className="ml-2 h-4 w-4" />
-          {t("notifications.promotionalItems.addItem")}
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={addItem}>
+            <Plus className="ml-2 h-4 w-4" />
+            {t("notifications.promotionalItems.addItem")}
+          </Button>
+        </div>
       </div>
 
-      {items.map((item, index) => (
-        <Card key={index} className="relative">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">
-                {t("notifications.promotionalItems.itemNumber", {
-                  number: index + 1,
-                })}
-              </CardTitle>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeItem(index)}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Field>
-              <FieldLabel>
-                {t("notifications.promotionalItems.media")}
-              </FieldLabel>
-              <FileUploader
-                value={item.featured_media}
-                onChange={(url) => updateItem(index, "featured_media", url)}
-              />
-            </Field>
+      {items.map((item, index) => {
+        // برای نمایش، اگر list یک array است، به string تبدیل می‌کنیم
+        const listValue = Array.isArray(item.list)
+          ? item.list.join("\n")
+          : (item.list as unknown as string) || "";
 
-            <Field>
-              <FieldLabel>
-                {t("notifications.promotionalItems.title")}
-              </FieldLabel>
-              <Input
-                value={item.title}
-                onChange={(e) => updateItem(index, "title", e.target.value)}
-                placeholder={t("notifications.form.fieldPlaceholder", {
-                  label: t(
-                    "notifications.promotionalItems.title"
-                  ).toLowerCase(),
-                })}
-              />
-            </Field>
+        // برای پیش‌نمایش زنده
+        const listItems = listValue.split("\n").filter((line) => line.trim());
 
-            <Field>
-              <FieldLabel>
-                {t("notifications.promotionalItems.description")}
-              </FieldLabel>
-              <Textarea
-                value={item.description}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= 200) {
-                    updateItem(index, "description", value);
-                  }
-                }}
-                placeholder={t("notifications.form.fieldPlaceholder", {
-                  label: t(
-                    "notifications.promotionalItems.description"
-                  ).toLowerCase(),
-                })}
-                rows={3}
-                maxLength={200}
-              />
-              <FieldDescription className="text-muted-foreground text-xs">
-                {item.description?.length || 0}/200 کاراکتر
-              </FieldDescription>
-            </Field>
-
-            <div className="grid grid-cols-2 gap-4">
+        return (
+          <Card key={index} className="relative">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm">
+                  {t("notifications.promotionalItems.itemNumber", {
+                    number: index + 1,
+                  })}
+                </CardTitle>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeItem(index)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <Field>
                 <FieldLabel>
-                  {t("notifications.promotionalItems.referenceLabel")}
+                  {t("notifications.promotionalItems.media")}
+                </FieldLabel>
+                <FileUploader
+                  value={item.featured_media}
+                  onChange={(url) => updateItem(index, "featured_media", url)}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel>
+                  {t("notifications.promotionalItems.title")}
                 </FieldLabel>
                 <Input
-                  value={item.reference_label || ""}
-                  onChange={(e) =>
-                    updateItem(index, "reference_label", e.target.value)
-                  }
+                  value={item.title}
+                  onChange={(e) => updateItem(index, "title", e.target.value)}
                   placeholder={t("notifications.form.fieldPlaceholder", {
                     label: t(
-                      "notifications.promotionalItems.referenceLabel"
+                      "notifications.promotionalItems.title"
                     ).toLowerCase(),
                   })}
                 />
               </Field>
+
               <Field>
                 <FieldLabel>
-                  {t("notifications.promotionalItems.referenceLink")}
+                  {t("notifications.promotionalItems.description")}
                 </FieldLabel>
-                <Input
-                  value={item.reference_link || ""}
-                  onChange={(e) =>
-                    updateItem(index, "reference_link", e.target.value)
-                  }
-                  placeholder="https://..."
-                />
-              </Field>
-            </div>
-
-            <Field>
-              <FieldLabel>
-                {t("notifications.promotionalItems.listItems")}
-              </FieldLabel>
-              <Textarea
-                value={item.list?.join("\n") || ""}
-                onChange={(e) => updateItem(index, "list", e.target.value)}
-                placeholder={t("notifications.form.fieldPlaceholder", {
-                  label: t(
-                    "notifications.promotionalItems.listItems"
-                  ).toLowerCase(),
-                })}
-                rows={4}
-                style={{ whiteSpace: "pre-wrap" }}
-              />
-            </Field>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Field>
-                <FieldLabel>
-                  {t("notifications.promotionalItems.ctaLabel")}
-                </FieldLabel>
-                <Input
-                  value={item.cta_label || ""}
-                  onChange={(e) =>
-                    updateItem(index, "cta_label", e.target.value)
-                  }
+                <Textarea
+                  value={item.description}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value.length <= 200) {
+                      updateItem(index, "description", value);
+                    }
+                  }}
                   placeholder={t("notifications.form.fieldPlaceholder", {
                     label: t(
-                      "notifications.promotionalItems.ctaLabel"
+                      "notifications.promotionalItems.description"
                     ).toLowerCase(),
                   })}
+                  rows={3}
+                  maxLength={200}
                 />
+                <FieldDescription className="text-muted-foreground text-xs">
+                  {item.description?.length || 0}/200 کاراکتر
+                </FieldDescription>
               </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel>
+                    {t("notifications.promotionalItems.referenceLabel")}
+                  </FieldLabel>
+                  <Input
+                    value={item.reference_label || ""}
+                    onChange={(e) =>
+                      updateItem(index, "reference_label", e.target.value)
+                    }
+                    placeholder={t("notifications.form.fieldPlaceholder", {
+                      label: t(
+                        "notifications.promotionalItems.referenceLabel"
+                      ).toLowerCase(),
+                    })}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    {t("notifications.promotionalItems.referenceLink")}
+                  </FieldLabel>
+                  <Input
+                    value={item.reference_link || ""}
+                    dir="ltr"
+                    type="url"
+                    onChange={(e) =>
+                      updateItem(index, "reference_link", e.target.value)
+                    }
+                    placeholder="https://..."
+                  />
+                </Field>
+              </div>
+
               <Field>
                 <FieldLabel>
-                  {t("notifications.promotionalItems.ctaLink")}
+                  {t("notifications.promotionalItems.listItems")}
                 </FieldLabel>
-                <Input
-                  value={item.cta_link || ""}
-                  onChange={(e) =>
-                    updateItem(index, "cta_link", e.target.value)
-                  }
-                  placeholder="https://..."
+                <Textarea
+                  value={listValue}
+                  onChange={(e) => updateItem(index, "list", e.target.value)}
+                  placeholder={t("notifications.form.fieldPlaceholder", {
+                    label: t(
+                      "notifications.promotionalItems.listItems"
+                    ).toLowerCase(),
+                  })}
+                  rows={4}
                 />
+                <FieldDescription className="text-muted-foreground text-xs">
+                  هر خط یک آیتم جداگانه
+                </FieldDescription>
+
+                {/* پیش‌نمایش زنده لیست */}
+                {listItems.length > 0 && (
+                  <div className="bg-muted mt-2 rounded-md p-3">
+                    <div className="mb-2 text-xs font-medium">
+                      پیش‌نمایش لیست:
+                    </div>
+                    <ul className="list-inside list-disc space-y-1 text-sm">
+                      {listItems.map((listItem, i) => (
+                        <li key={i} className="text-muted-foreground">
+                          {listItem}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </Field>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel>
+                    {t("notifications.promotionalItems.ctaLabel")}
+                  </FieldLabel>
+                  <Input
+                    value={item.cta_label || ""}
+                    onChange={(e) =>
+                      updateItem(index, "cta_label", e.target.value)
+                    }
+                    placeholder={t("notifications.form.fieldPlaceholder", {
+                      label: t(
+                        "notifications.promotionalItems.ctaLabel"
+                      ).toLowerCase(),
+                    })}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    {t("notifications.promotionalItems.ctaLink")}
+                  </FieldLabel>
+                  <Input
+                    value={item.cta_link || ""}
+                    onChange={(e) =>
+                      updateItem(index, "cta_link", e.target.value)
+                    }
+                    placeholder="https://..."
+                    dir="ltr"
+                    type="url"
+                  />
+                </Field>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
 
       {items.length === 0 && (
         <div className="text-muted-foreground py-8 text-center">

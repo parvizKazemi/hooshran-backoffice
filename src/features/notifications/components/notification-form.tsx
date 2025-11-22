@@ -164,13 +164,13 @@ export function NotificationForm({
         });
 
         // Send notification if it's not public (needs user recipients)
-        if (data.type !== "information") {
-          // TODO: Get user UUIDs from somewhere (maybe from a separate field or modal)
-          // For now, skip sending
-          console.warn(
-            "Notification updated but not sent - needs user selection"
-          );
-        }
+        // if (data.type !== "information") {
+        //   // TODO: Get user UUIDs from somewhere (maybe from a separate field or modal)
+        //   // For now, skip sending
+        //   console.warn(
+        //     "Notification updated but not sent - needs user selection"
+        //   );
+        // }
       } else {
         // Create mode
         const isPromotional = data.metaData?.type === "promotional";
@@ -185,18 +185,17 @@ export function NotificationForm({
           userId: authData?.user.uuid, // Send admin UUID
         };
 
-        const createdNotification = (await createNotification.mutateAsync(
-          payload
-        )) as BasicNotification;
+        // const createdNotification = (await createNotification.mutateAsync(
+        (await createNotification.mutateAsync(payload)) as BasicNotification;
 
-        // Send notification if it's not public (needs user recipients)
-        if (data.type !== "information" && createdNotification?.uuid) {
-          // TODO: Get user UUIDs from somewhere (maybe from a separate field or modal)
-          // For now, skip sending
-          console.warn(
-            "Notification created but not sent - needs user selection"
-          );
-        }
+        // // Send notification if it's not public (needs user recipients)
+        // if (data.type !== "information" && createdNotification?.uuid) {
+        //   // TODO: Get user UUIDs from somewhere (maybe from a separate field or modal)
+        //   // For now, skip sending
+        //   console.warn(
+        //     "Notification created but not sent - needs user selection"
+        //   );
+        // }
       }
       onSuccess?.();
     } catch {
