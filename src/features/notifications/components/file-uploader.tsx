@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { getCookie } from "@/lib/cookies";
 
 interface FileUploaderProps {
   value?: string;
@@ -20,6 +22,7 @@ export function FileUploader({
   showFileName = true,
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const { authData } = useAuth();
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -29,19 +32,33 @@ export function FileUploader({
 
     setIsUploading(true);
     try {
+      // تشخیص نوع فایل بر اساس MIME type
+      let fileType = 1; // پیش‌فرض برای تصویر و ویدیو
+      if (file.type.startsWith("audio/")) {
+        fileType = 2; // صدا
+      }
+
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("type", fileType.toString());
 
-      const response = await fetch("/upload", {
+      const baseURL = import.meta.env.VITE_API_BASE_URL;
+      const url = `${baseURL}/upload`;
+
+      const response = await fetch(url, {
         method: "POST",
-        body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${authData?.token?.accessToken || getCookie("accessToken")}`,
+          // Content-Type را حذف می‌کنیم تا browser خودش multipart/form-data را تنظیم کند
         },
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `خطا در آپلود فایل: ${response.status}`
+        );
       }
 
       const data = await response.json();

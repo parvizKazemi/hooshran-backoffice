@@ -178,15 +178,31 @@ export function PromotionalItemsEditor({
                   </FieldLabelWithRequired>
                   {item.featured_media && (
                     <div className="mb-3">
-                      <img
-                        src={item.featured_media}
-                        alt="پیش‌نمایش رسانه"
-                        className="max-h-32 max-w-full rounded-md border object-cover"
-                        onError={(e) => {
-                          // Hide image if it fails to load
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
+                      {item.featured_media.match(
+                        /\.(mp4|webm|ogg|avi|mov|wmv|flv|m4v)$/i
+                      ) || item.featured_media.includes("video") ? (
+                        <video
+                          src={item.featured_media}
+                          controls
+                          className="max-h-32 max-w-full rounded-md border"
+                          onError={(e) => {
+                            // Hide video if it fails to load
+                            e.currentTarget.style.display = "none";
+                          }}
+                        >
+                          مرورگر شما از نمایش ویدیو پشتیبانی نمی‌کند.
+                        </video>
+                      ) : (
+                        <img
+                          src={item.featured_media}
+                          alt="پیش‌نمایش رسانه"
+                          className="max-h-32 max-w-full rounded-md border object-cover"
+                          onError={(e) => {
+                            // Hide image if it fails to load
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                   <FileUploader
