@@ -8,12 +8,16 @@ interface FileUploaderProps {
   onChange: (url: string) => void;
   accept?: string;
   placeholder?: string;
+  showUrlInput?: boolean;
+  showFileName?: boolean;
 }
 
 export function FileUploader({
   value,
   onChange,
   accept = "image/*,video/*",
+  showUrlInput = true,
+  showFileName = true,
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -73,13 +77,13 @@ export function FileUploader({
           <Upload className="ml-2 h-4 w-4" />
           {isUploading ? "در حال آپلود..." : "انتخاب فایل"}
         </Button>
-        {value && (
+        {value && showFileName && (
           <span className="text-muted-foreground max-w-xs truncate text-sm">
             {value.split("/").pop()}
           </span>
         )}
       </div>
-      {value && (
+      {value && showUrlInput && (
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}

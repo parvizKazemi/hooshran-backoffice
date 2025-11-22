@@ -34,13 +34,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -487,28 +487,30 @@ export function NotificationsList({
                 />
               </>
             </Button>
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
+            <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <DialogTrigger asChild>
                 <Button className="mr-auto">
                   <IconPlus className="mr-2 h-4 w-4" />
                   {t("notifications.sendNew")}
                 </Button>
-              </DrawerTrigger>
-              <DrawerContent className="max-h-[85vh]">
-                <DrawerHeader>
-                  <DrawerTitle>{t("notifications.sendNewTitle")}</DrawerTitle>
-                  <DrawerDescription>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-center">
+                    {t("notifications.sendNewTitle")}
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
                     {t("notifications.sendNewDescription")}
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="flex-1 overflow-y-auto p-4">
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4">
                   <NotificationForm
                     onSuccess={handleFormSuccess}
                     onCancel={() => setIsDrawerOpen(false)}
                   />
                 </div>
-              </DrawerContent>
-            </Drawer>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Advanced Filters */}
@@ -799,16 +801,18 @@ export function NotificationsList({
         )}
       </div>
 
-      {/* Edit Drawer */}
-      <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
-        <DrawerContent className="max-h-[85vh]">
-          <DrawerHeader>
-            <DrawerTitle>{t("notifications.editTitle")}</DrawerTitle>
-            <DrawerDescription>
+      {/* Edit Dialog */}
+      <Dialog open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {t("notifications.editTitle")}
+            </DialogTitle>
+            <DialogDescription className="text-center">
               {t("notifications.editDescription")}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="flex-1 overflow-y-auto p-4">
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
             {selectedNotification && (
               <NotificationForm
                 notification={selectedNotification}
@@ -820,8 +824,8 @@ export function NotificationsList({
               />
             )}
           </div>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Dialog */}
       <AlertDialog
