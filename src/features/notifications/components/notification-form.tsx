@@ -82,6 +82,7 @@ export function NotificationForm({
             data: (notification.metaData.data || {}) as Record<string, unknown>,
           },
           isPopup: notification.isPopup,
+          isPublic: notification.isPublic,
         }
       : {
           type: "information" as NotificationType,
@@ -152,8 +153,6 @@ export function NotificationForm({
             },
           }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
-          // Set isPublic based on type
-          isPublic: data.type === "information" ? true : false,
           // Send admin UUID
           userId: authData?.user.uuid,
         };
