@@ -226,6 +226,17 @@
       "resetPassword": "Reset Password",
       "openMenu": "Open menu"
     },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "This feature is for users who are unable to receive SMS for any reason and their identity has been verified by an admin. Are you sure you want to set a new password?",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "passwordGenerated": "New password has been generated successfully:",
+      "copyPassword": "Copy Password",
+      "copied": "Copied",
+      "copyError": "Error copying password",
+      "success": "Password has been reset successfully"
+    },
     "confirmDelete": "Are you sure you want to delete this user?",
     "noResults": "No results found",
     "selectedRows": "{{selected}} of {{total}} rows selected",

@@ -20,11 +20,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDeleteUser } from "../hooks/use-users";
+import { useDeleteUser, useResetUserPassword } from "../hooks/use-users";
 import { User, UsersQueryParams } from "../types";
 import { UserCreateDrawer } from "./dialogs/user-create-drawer";
 import { UserDeleteDialog } from "./dialogs/user-delete-dialog";
 import { UserEditDrawer } from "./dialogs/user-edit-drawer";
+import { UserResetPasswordDialog } from "./dialogs/user-reset-password-dialog";
 import { UsersTableFilters } from "./filters/users-table-filters";
 import { useUsersFilters } from "./hooks/use-users-filters";
 import { useUsersTableState } from "./hooks/use-users-table-state";
@@ -56,6 +57,7 @@ export function UsersTable({
 }: UsersTableProps) {
   const { t } = useTranslation("common");
   const deleteUser = useDeleteUser();
+  const resetPassword = useResetUserPassword();
 
   // Table state
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -86,11 +88,12 @@ export function UsersTable({
     }
   }, [orderParam, onFiltersChange, filters]);
 
-  const handleResetPassword = useCallback((user: User) => {
-    const userName =
-      user.profile?.full_name || user.fullName || user.phoneNumber || "کاربر";
-    alert(`ریست پسورد برای کاربر "${userName}" انجام خواهد شد.`);
-  }, []);
+  const handleResetPassword = useCallback(
+    (user: User) => {
+      tableState.handleResetPasswordDialogOpen(user);
+    },
+    [tableState]
+  );
 
   // Table columns
   const columns = useUsersTableColumns({
@@ -137,6 +140,13 @@ export function UsersTable({
       });
     }
   }, [tableState, deleteUser, onRefresh]);
+
+  const handleResetPasswordConfirm = useCallback(async () => {
+    if (tableState.userToResetPassword?.uuid) {
+      return resetPassword.mutateAsync(tableState.userToResetPassword.uuid);
+    }
+    throw new Error("User UUID is required");
+  }, [tableState, resetPassword]);
 
   const handleToggleAdvancedFilters = useCallback(() => {
     filtersState.setShowAdvancedFilters((prev) => !prev);
@@ -252,6 +262,13 @@ export function UsersTable({
         onOpenChange={tableState.setDeleteDialogOpen}
         user={tableState.userToDelete}
         onConfirm={handleDeleteConfirm}
+      />
+
+      <UserResetPasswordDialog
+        open={tableState.resetPasswordDialogOpen}
+        onOpenChange={tableState.setResetPasswordDialogOpen}
+        user={tableState.userToResetPassword}
+        onConfirm={handleResetPasswordConfirm}
       />
     </>
   );

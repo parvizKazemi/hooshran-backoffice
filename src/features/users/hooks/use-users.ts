@@ -183,6 +183,38 @@ export const useDeleteUser = () => {
   });
 };
 
+// Reset password for user (admin action)
+export const useResetUserPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (uuid: string): Promise<{ password: string }> => {
+      try {
+        const response = await apiPost<{ password: string }>(
+          `/admin/users/${uuid}/reset-password`
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ریست پسورد");
+      }
+    },
+  });
+};
+
 // Hook for managing selected users
 export const useSelectedUsers = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);

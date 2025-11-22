@@ -6,6 +6,10 @@ export function useUsersTableState() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [userToResetPassword, setUserToResetPassword] = useState<User | null>(
+    null
+  );
 
   const handleCreateUser = () => {
     setEditingUser(null);
@@ -33,6 +37,17 @@ export function useUsersTableState() {
     setUserToDelete(null);
   };
 
+  const handleResetPasswordDialogOpen = (user: User) => {
+    if (!user.uuid) return;
+    setUserToResetPassword(user);
+    setResetPasswordDialogOpen(true);
+  };
+
+  const handleResetPasswordDialogClose = () => {
+    setResetPasswordDialogOpen(false);
+    setUserToResetPassword(null);
+  };
+
   return {
     editingUser,
     isDrawerOpen,
@@ -40,10 +55,15 @@ export function useUsersTableState() {
     deleteDialogOpen,
     setDeleteDialogOpen,
     userToDelete,
+    resetPasswordDialogOpen,
+    setResetPasswordDialogOpen,
+    userToResetPassword,
     handleCreateUser,
     handleDrawerClose,
     handleEditUser,
     handleDeleteUser,
     handleDeleteDialogClose,
+    handleResetPasswordDialogOpen,
+    handleResetPasswordDialogClose,
   };
 }
