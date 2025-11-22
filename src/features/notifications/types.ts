@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+// Notification Types
+export type NotificationType = "notification" | "information";
+
+export const NOTIFICATION_TYPES: readonly NotificationType[] = [
+  "notification",
+  "information",
+] as const;
+
 // User DTO (simplified, matches backend structure)
 export interface UserDto {
   uuid: string;
@@ -25,7 +33,7 @@ export interface NotificationMetaData {
 // AdminNotificationDto (response from GET /admin/notification)
 export interface AdminNotification {
   uuid: string;
-  type: "system" | "notification" | "information";
+  type: NotificationType;
   metaData: NotificationMetaData;
   isPopup: boolean;
   user?: UserDto;
@@ -51,7 +59,7 @@ export interface NotificationsQueryParams {
   take?: number; // Default: 10, Max: 50
   order?: "ASC" | "DESC"; // Default: 'DESC'
   search?: string; // Search in metadata
-  type?: "system" | "notification" | "information";
+  type?: NotificationType;
   templateType?: string; // e.g., 'payment_success', 'service_result'
   isPopup?: boolean;
   dateFrom?: string; // ISO 8601 format
@@ -61,7 +69,7 @@ export interface NotificationsQueryParams {
 
 // Create Notification DTO
 export const createNotificationSchema = z.object({
-  type: z.enum(["system", "notification", "information"], {
+  type: z.enum(["notification", "information"], {
     message: "نوع نوتیفیکیشن الزامی است",
   }),
   metaData: z.object({
@@ -79,15 +87,16 @@ export const createNotificationSchema = z.object({
 
 export type CreateNotificationInput = Omit<
   z.infer<typeof createNotificationSchema>,
-  "isPopup"
+  "isPopup" | "type"
 > & {
+  type: NotificationType;
   isPopup: boolean;
 };
 
 // Update Notification DTO
 export const updateNotificationSchema = z.object({
   type: z
-    .enum(["system", "notification", "information"], {
+    .enum(["notification", "information"], {
       message: "نوع نوتیفیکیشن معتبر نیست",
     })
     .optional(),

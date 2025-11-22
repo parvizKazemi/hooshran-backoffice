@@ -26,6 +26,8 @@ import {
   AdminNotification,
   CreateNotificationInput,
   createNotificationSchema,
+  NOTIFICATION_TYPES,
+  NotificationType,
   TEMPLATE_TYPES,
   UpdateNotificationInput,
   updateNotificationSchema,
@@ -168,7 +170,7 @@ export function NotificationForm({
           userId: notification.user?.uuid,
         }
       : {
-          type: "system",
+          type: "information" as NotificationType,
           metaData: {
             type: "simple",
             data: {} as Record<string, unknown>,
@@ -205,24 +207,14 @@ export function NotificationForm({
           ...(data.userId && { userId: data.userId }),
         };
 
-        // Remove userId if type is 'system'
-        if (payload.type === "system") {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { userId, ...rest } = payload;
-          await updateNotification.mutateAsync({
-            notificationId: notification.uuid,
-            data: rest,
-          });
-        } else {
-          await updateNotification.mutateAsync({
-            notificationId: notification.uuid,
-            data: payload,
-          });
-        }
+        await updateNotification.mutateAsync({
+          notificationId: notification.uuid,
+          data: payload,
+        });
       } else {
         // Create mode
         const payload: CreateNotificationInput = {
-          type: data.type as "system" | "notification" | "information",
+          type: data.type as NotificationType,
           metaData: {
             type: data.metaData?.type || "simple",
             data: (data.metaData?.data || {}) as Record<string, unknown>,
@@ -231,14 +223,7 @@ export function NotificationForm({
           ...(data.userId && { userId: data.userId }),
         };
 
-        // Remove userId if type is 'system'
-        if (payload.type === "system") {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { userId, ...rest } = payload;
-          await createNotification.mutateAsync(rest);
-        } else {
-          await createNotification.mutateAsync(payload);
-        }
+        await createNotification.mutateAsync(payload);
       }
       onSuccess?.();
     } catch {
@@ -265,22 +250,18 @@ export function NotificationForm({
           <Select
             value={notificationType}
             onValueChange={(value) =>
-              setValue("type", value as CreateNotificationInput["type"])
+              setValue("type", value as NotificationType)
             }
           >
             <SelectTrigger id="type">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="system">
-                {t("notifications.types.system")}
-              </SelectItem>
-              <SelectItem value="notification">
-                {t("notifications.types.notification")}
-              </SelectItem>
-              <SelectItem value="information">
-                {t("notifications.types.information")}
-              </SelectItem>
+              {NOTIFICATION_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {t(`notifications.types.${type}`)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.type && (
@@ -288,9 +269,6 @@ export function NotificationForm({
               {errors.type.message}
             </FieldDescription>
           )}
-          <FieldDescription>
-            {t("notifications.form.systemCannotHaveUserId")}
-          </FieldDescription>
         </Field>
 
         <Field>
@@ -402,30 +380,28 @@ export function NotificationForm({
           </FieldDescription>
         </Field>
 
-        {notificationType !== "system" && (
-          <Field>
-            <FieldLabel htmlFor="userId">
-              {t("notifications.form.userId")}
-            </FieldLabel>
-            <Input
-              id="userId"
-              type="text"
-              placeholder={t("notifications.form.userIdPlaceholder")}
-              {...register("userId")}
-              disabled={
-                createNotification.isPending || updateNotification.isPending
-              }
-            />
-            {errors.userId && (
-              <FieldDescription className="text-destructive">
-                {errors.userId.message}
-              </FieldDescription>
-            )}
-            <FieldDescription>
-              {t("notifications.form.userIdDescription")}
+        <Field>
+          <FieldLabel htmlFor="userId">
+            {t("notifications.form.userId")}
+          </FieldLabel>
+          <Input
+            id="userId"
+            type="text"
+            placeholder={t("notifications.form.userIdPlaceholder")}
+            {...register("userId")}
+            disabled={
+              createNotification.isPending || updateNotification.isPending
+            }
+          />
+          {errors.userId && (
+            <FieldDescription className="text-destructive">
+              {errors.userId.message}
             </FieldDescription>
-          </Field>
-        )}
+          )}
+          <FieldDescription>
+            {t("notifications.form.userIdDescription")}
+          </FieldDescription>
+        </Field>
 
         <Field>
           <div className="flex gap-2">
