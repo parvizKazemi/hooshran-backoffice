@@ -36,6 +36,7 @@ export interface AdminNotification {
   type: NotificationType;
   metaData: NotificationMetaData;
   isPopup: boolean;
+  isPublic: boolean;
   user?: UserDto;
   recipientCount: number;
   readCount: number;
@@ -83,14 +84,16 @@ export const createNotificationSchema = z.object({
   }),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional().default(false),
+  isPublic: z.boolean().optional().default(false),
 });
 
 export type CreateNotificationInput = Omit<
   z.infer<typeof createNotificationSchema>,
-  "isPopup" | "type"
+  "isPopup" | "isPublic" | "type"
 > & {
   type: NotificationType;
   isPopup: boolean;
+  isPublic: boolean;
 };
 
 // Update Notification DTO
@@ -108,6 +111,7 @@ export const updateNotificationSchema = z.object({
     .optional(),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional(),
+  isPublic: z.boolean().optional(),
 });
 
 export type UpdateNotificationInput = z.infer<typeof updateNotificationSchema>;
@@ -124,12 +128,12 @@ export interface NotificationStats {
 
 // Template Types
 export const TEMPLATE_TYPES = [
-  "service_result",
-  "payment_success",
-  "security_alert",
+  "simple",
   "promotional",
   "dynamic",
-  "simple",
+  // "service_result",
+  // "payment_success",
+  // "security_alert",
 ] as const;
 
 export type TemplateType = (typeof TEMPLATE_TYPES)[number];

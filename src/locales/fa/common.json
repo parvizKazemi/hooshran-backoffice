@@ -349,14 +349,41 @@
         "result": "نتیجه",
         "amount": "مبلغ",
         "alertType": "نوع هشدار",
-        "link": "لینک"
-      }
+        "link": "لینک",
+        "serviceName": "نام سرویس",
+        "actionLabel": "عنوان اقدام",
+        "actionLink": "لینک اقدام",
+        "isSuccess": "موفقیت",
+        "receiptLink": "لینک رسید",
+        "receiptLabel": "عنوان رسید",
+        "transactionId": "شناسه تراکنش",
+        "securityLink": "لینک امنیتی",
+        "securityLabel": "عنوان امنیتی",
+        "ipAddress": "آدرس IP",
+        "deviceInfo": "اطلاعات دستگاه",
+        "changelog": "لیست تغییرات"
+      },
+      "promotionalNotificationTypeWarning": "نوع نوتیفیکیشن به صورت خودکار به اطلاعیه تغییر کرده است"
+    },
+    "promotionalItems": {
+      "title": "آیتم‌های اسلایدر",
+      "addItem": "افزودن اسلاید",
+      "itemNumber": "اسلاید {{number}}",
+      "media": "رسانه (عکس/ویدیو)",
+      "title": "عنوان",
+      "description": "توضیحات",
+      "referenceLabel": "عنوان مرجع",
+      "referenceLink": "لینک مرجع",
+      "listItems": "لیست (هر خط یک آیتم از لیست)",
+      "ctaLabel": "عنوان دکمه CTA",
+      "ctaLink": "لینک دکمه CTA",
+      "noItems": "هیچ آیتمی اضافه نشده. روی \"افزودن آیتم\" کلیک کنید."
     },
     "templates": {
       "service_result": "نتیجه سرویس",
       "payment_success": "پرداخت موفق",
       "security_alert": "هشدار امنیتی",
-      "promotional": "تبلیغاتی",
+      "promotional": "بروزرسانی",
       "dynamic": "پویا",
       "simple": "ساده"
     }
@@ -430,11 +457,6 @@
       "amount": "مبلغ (تومان)",
       "status": "وضعیت",
       "date": "تاریخ"
-    },
-    "statuses": {
-      "success": "موفق",
-      "failed": "ناموفق",
-      "pending": "در انتظار"
     },
     "noResults": "موردی یافت نشد",
     "page": "صفحه",

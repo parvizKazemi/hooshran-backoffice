@@ -60,6 +60,7 @@ import { cn } from "@/lib/utils";
 import { useDeleteNotification } from "../hooks/use-notifications";
 import {
   AdminNotification,
+  NotificationType,
   NotificationsQueryParams,
   TEMPLATE_TYPES,
 } from "../types";
@@ -438,14 +439,14 @@ export function NotificationsList({
                   {t("notifications.sendNew")}
                 </Button>
               </DrawerTrigger>
-              <DrawerContent>
+              <DrawerContent className="max-h-[85vh]">
                 <DrawerHeader>
                   <DrawerTitle>{t("notifications.sendNewTitle")}</DrawerTitle>
                   <DrawerDescription>
                     {t("notifications.sendNewDescription")}
                   </DrawerDescription>
                 </DrawerHeader>
-                <div className="p-4">
+                <div className="flex-1 overflow-y-auto p-4">
                   <NotificationForm
                     onSuccess={handleFormSuccess}
                     onCancel={() => setIsDrawerOpen(false)}
@@ -464,9 +465,7 @@ export function NotificationsList({
                   setTypeFilter(value === "all" ? "" : value);
                   handleFilterChange({
                     type:
-                      value === "all"
-                        ? undefined
-                        : (value as "system" | "notification" | "information"),
+                      value === "all" ? undefined : (value as NotificationType),
                   });
                 }}
               >
@@ -747,14 +746,14 @@ export function NotificationsList({
 
       {/* Edit Drawer */}
       <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
-        <DrawerContent>
+        <DrawerContent className="max-h-[85vh]">
           <DrawerHeader>
             <DrawerTitle>{t("notifications.editTitle")}</DrawerTitle>
             <DrawerDescription>
               {t("notifications.editDescription")}
             </DrawerDescription>
           </DrawerHeader>
-          <div className="p-4">
+          <div className="flex-1 overflow-y-auto p-4">
             {selectedNotification && (
               <NotificationForm
                 notification={selectedNotification}
