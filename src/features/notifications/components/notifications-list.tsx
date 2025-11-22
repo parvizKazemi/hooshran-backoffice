@@ -6,6 +6,8 @@ import {
   IconEye,
   IconInfoCircle,
   IconPlus,
+  IconSend,
+  IconSendOff,
   IconSettings,
   IconTrash,
 } from "@tabler/icons-react";
@@ -57,7 +59,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { useDeleteNotification } from "../hooks/use-notifications";
+import {
+  useDeleteNotification,
+  useSendNotification,
+} from "../hooks/use-notifications";
 import {
   AdminNotification,
   NotificationType,
@@ -131,8 +136,11 @@ export function NotificationsList({
   const [selectedNotification, setSelectedNotification] =
     useState<AdminNotification | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
+  const [userIdsToSend, setUserIdsToSend] = useState<string>("");
 
   const deleteNotification = useDeleteNotification();
+  const sendNotification = useSendNotification();
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(filters.search || "");
@@ -204,6 +212,38 @@ export function NotificationsList({
     setSelectedNotification(notification);
     setIsEditDrawerOpen(true);
   }, []);
+
+  const handleSend = useCallback((notification: AdminNotification) => {
+    setSelectedNotification(notification);
+    setIsSendDialogOpen(true);
+  }, []);
+
+  const handleSendConfirm = useCallback(async () => {
+    if (selectedNotification && userIdsToSend.trim()) {
+      try {
+        const userIds = userIdsToSend
+          .split(",")
+          .map((id) => id.trim())
+          .filter((id) => id.length > 0);
+
+        if (userIds.length === 0) {
+          return;
+        }
+
+        await sendNotification.mutateAsync({
+          notificationId: selectedNotification.uuid,
+          userIds,
+        });
+
+        setIsSendDialogOpen(false);
+        setSelectedNotification(null);
+        setUserIdsToSend("");
+        onRefresh?.();
+      } catch (error) {
+        console.error("Failed to send notification:", error);
+      }
+    }
+  }, [selectedNotification, userIdsToSend, sendNotification, onRefresh]);
 
   // Table columns
   const columns = useMemo<ColumnDef<AdminNotification>[]>(() => {
@@ -382,6 +422,21 @@ export function NotificationsList({
               >
                 <IconEdit className="size-4" />
               </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 hover:scale-105"
+                onClick={() => handleSend(notification)}
+                disabled={notification.isPublic}
+              >
+                {!notification.isPublic ? (
+                  <IconSend className="size-4 rotate-270" />
+                ) : (
+                  <IconSendOff className="size-4 rotate-270" />
+                )}
+              </Button>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -395,7 +450,7 @@ export function NotificationsList({
         },
       },
     ];
-  }, [handleDelete, handleEdit, typeLabels, t]);
+  }, [handleDelete, handleEdit, handleSend, typeLabels, t]);
 
   const table = useReactTable({
     data,
@@ -793,6 +848,52 @@ export function NotificationsList({
               {deleteNotification.isPending
                 ? t("notifications.deleteDialog.deleting")
                 : t("notifications.deleteDialog.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Send Dialog */}
+      <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("notifications.sendDialog.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("notifications.sendDialog.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium">
+              {t("notifications.sendDialog.userIdsLabel")}
+            </label>
+            <Input
+              value={userIdsToSend}
+              onChange={(e) => setUserIdsToSend(e.target.value)}
+              placeholder={t("notifications.sendDialog.userIdsPlaceholder")}
+              className="mt-2"
+            />
+            <p className="text-muted-foreground mt-2 text-xs">
+              {t("notifications.sendDialog.userIdsHelp")}
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setUserIdsToSend("");
+                setSelectedNotification(null);
+              }}
+            >
+              {t("notifications.sendDialog.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSendConfirm}
+              disabled={sendNotification.isPending || !userIdsToSend.trim()}
+            >
+              {sendNotification.isPending
+                ? t("notifications.sendDialog.sending")
+                : t("notifications.sendDialog.send")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -326,11 +326,21 @@
       "delete": "حذف",
       "deleting": "در حال حذف..."
     },
+    "sendDialog": {
+      "title": "ارسال نوتیفیکیشن",
+      "description": "این نوتیفیکیشن را برای کاربران انتخاب شده ارسال کنید",
+      "userIdsLabel": "UUID های کاربران",
+      "userIdsPlaceholder": "UUID های کاربران را با کاما جدا کنید",
+      "userIdsHelp": "مثال: uuid1, uuid2, uuid3",
+      "cancel": "انصراف",
+      "send": "ارسال",
+      "sending": "در حال ارسال..."
+    },
     "form": {
       "type": "نوع نوتیفیکیشن",
-      "typeRequired": "نوع نوتیفیکیشن *",
+      "typeRequired": "نوع نوتیفیکیشن",
       "templateType": "نوع تمپلیت",
-      "templateTypeRequired": "نوع تمپلیت *",
+      "templateTypeRequired": "نوع تمپلیت",
       "systemCannotHaveUserId": "نوع 'system' نمی‌تواند userId داشته باشد",
       "popup": "نمایش به صورت پاپ‌آپ",
       "popupDescription": "در صورت فعال بودن، نوتیفیکیشن به صورت پاپ‌آپ نمایش داده می‌شود",
