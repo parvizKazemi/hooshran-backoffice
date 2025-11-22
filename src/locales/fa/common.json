@@ -379,15 +379,18 @@
       "title": "آیتم‌های اسلایدر",
       "addItem": "افزودن اسلاید",
       "itemNumber": "اسلاید {{number}}",
-      "media": "رسانه (عکس/ویدیو)",
-      "title": "عنوان",
+      "media": "رسانه (تصویر/ویدیو شاخص)",
+      "fieldTitle": "عنوان",
       "description": "توضیحات",
       "referenceLabel": "عنوان مرجع",
       "referenceLink": "لینک مرجع",
       "listItems": "لیست (هر خط یک آیتم از لیست)",
       "ctaLabel": "عنوان دکمه CTA",
       "ctaLink": "لینک دکمه CTA",
-      "noItems": "هیچ آیتمی اضافه نشده. روی \"افزودن آیتم\" کلیک کنید."
+      "noItems": "هیچ آیتمی اضافه نشده. روی \"افزودن آیتم\" کلیک کنید.",
+      "titleRequired": "عنوان الزامی است",
+      "descriptionRequired": "توضیحات الزامی است",
+      "characters": "کاراکتر"
     },
     "templates": {
       "service_result": "نتیجه سرویس",

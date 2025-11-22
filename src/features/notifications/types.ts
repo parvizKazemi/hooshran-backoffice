@@ -142,7 +142,7 @@ export interface NotificationStats {
 export const TEMPLATE_TYPES = [
   "simple",
   "promotional",
-  "dynamic",
+  // "dynamic",
   // "service_result",
   // "payment_success",
   // "security_alert",

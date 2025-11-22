@@ -44,19 +44,19 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       name: "action_label",
       label: "notifications.form.fields.actionLabel",
       type: "text",
-      required: true,
+      required: false,
     },
     {
       name: "action_link",
       label: "notifications.form.fields.actionLink",
       type: "text",
-      required: true,
+      required: false,
     },
     {
       name: "is_success",
       label: "notifications.form.fields.isSuccess",
       type: "boolean",
-      required: false,
+      required: true,
     },
   ],
   payment_success: [
@@ -67,15 +67,15 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       required: true,
     },
     {
-      name: "amount",
-      label: "notifications.form.fields.amount",
-      type: "text",
-      required: true,
-    },
-    {
       name: "message",
       label: "notifications.form.fields.message",
       type: "textarea",
+      required: true,
+    },
+    {
+      name: "amount",
+      label: "notifications.form.fields.amount",
+      type: "text",
       required: true,
     },
     {
@@ -152,8 +152,8 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       name: "message",
       label: "notifications.form.fields.message",
       type: "textarea",
-      required: true,
-      maxLength: 200,
+      required: false,
+      maxLength: 50,
     },
     // Note: changelog field is handled by PromotionalItemsEditor component
   ],

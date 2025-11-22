@@ -8,6 +8,38 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FileUploader } from "./file-uploader";
 
+const MAX_DESCRIPTION_LENGTH = 200;
+
+// فیلدهای required برای هر آیتم promotional
+const PROMOTIONAL_ITEM_REQUIRED_FIELDS = {
+  title: true,
+  description: true,
+  featured_media: false,
+  reference_label: false,
+  reference_link: false,
+  list: false,
+  cta_label: false,
+  cta_link: false,
+};
+
+// Helper component برای نمایش label با علامت *
+function FieldLabelWithRequired({
+  fieldKey,
+  children,
+}: {
+  fieldKey: keyof typeof PROMOTIONAL_ITEM_REQUIRED_FIELDS;
+  children: React.ReactNode;
+}) {
+  return (
+    <FieldLabel>
+      {children}
+      {PROMOTIONAL_ITEM_REQUIRED_FIELDS[fieldKey] && (
+        <span className="text-destructive"> *</span>
+      )}
+    </FieldLabel>
+  );
+}
+
 export interface PromotionalItem {
   featured_media?: string;
   title: string;
@@ -104,8 +136,8 @@ export function PromotionalItemsEditor({
         const listItems = listValue.split("\n").filter((line) => line.trim());
 
         return (
-          <Card key={index} className="relative">
-            <CardHeader className="pb-3">
+          <Card key={index} className="relative p-2 pb-0">
+            <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
@@ -141,9 +173,9 @@ export function PromotionalItemsEditor({
             {expandedItems.has(index) && (
               <CardContent className="space-y-4">
                 <Field>
-                  <FieldLabel>
+                  <FieldLabelWithRequired fieldKey="featured_media">
                     {t("notifications.promotionalItems.media")}
-                  </FieldLabel>
+                  </FieldLabelWithRequired>
                   {item.featured_media && (
                     <div className="mb-3">
                       <img
@@ -166,29 +198,35 @@ export function PromotionalItemsEditor({
                 </Field>
 
                 <Field>
-                  <FieldLabel>
-                    {t("notifications.promotionalItems.title")}
-                  </FieldLabel>
+                  <FieldLabelWithRequired fieldKey="title">
+                    {t("notifications.promotionalItems.fieldTitle")}
+                  </FieldLabelWithRequired>
                   <Input
                     value={item.title}
                     onChange={(e) => updateItem(index, "title", e.target.value)}
                     placeholder={t("notifications.form.fieldPlaceholder", {
                       label: t(
-                        "notifications.promotionalItems.title"
+                        "notifications.promotionalItems.fieldTitle"
                       ).toLowerCase(),
                     })}
                   />
+                  {PROMOTIONAL_ITEM_REQUIRED_FIELDS.title &&
+                    !item.title?.trim() && (
+                      <FieldDescription className="text-destructive text-xs">
+                        {t("notifications.promotionalItems.titleRequired")}
+                      </FieldDescription>
+                    )}
                 </Field>
 
                 <Field>
-                  <FieldLabel>
+                  <FieldLabelWithRequired fieldKey="description">
                     {t("notifications.promotionalItems.description")}
-                  </FieldLabel>
+                  </FieldLabelWithRequired>
                   <Textarea
                     value={item.description}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value.length <= 200) {
+                      if (value.length <= MAX_DESCRIPTION_LENGTH) {
                         updateItem(index, "description", value);
                       }
                     }}
@@ -198,18 +236,27 @@ export function PromotionalItemsEditor({
                       ).toLowerCase(),
                     })}
                     rows={3}
-                    maxLength={200}
+                    maxLength={MAX_DESCRIPTION_LENGTH}
                   />
                   <FieldDescription className="text-muted-foreground text-xs">
-                    {item.description?.length || 0}/200 کاراکتر
+                    {item.description?.length || 0}/{MAX_DESCRIPTION_LENGTH}{" "}
+                    {t("notifications.promotionalItems.characters")}
                   </FieldDescription>
+                  {PROMOTIONAL_ITEM_REQUIRED_FIELDS.description &&
+                    !item.description?.trim() && (
+                      <FieldDescription className="text-destructive text-xs">
+                        {t(
+                          "notifications.promotionalItems.descriptionRequired"
+                        )}
+                      </FieldDescription>
+                    )}
                 </Field>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
-                    <FieldLabel>
+                    <FieldLabelWithRequired fieldKey="reference_label">
                       {t("notifications.promotionalItems.referenceLabel")}
-                    </FieldLabel>
+                    </FieldLabelWithRequired>
                     <Input
                       value={item.reference_label || ""}
                       onChange={(e) =>
@@ -223,9 +270,9 @@ export function PromotionalItemsEditor({
                     />
                   </Field>
                   <Field>
-                    <FieldLabel>
+                    <FieldLabelWithRequired fieldKey="reference_link">
                       {t("notifications.promotionalItems.referenceLink")}
-                    </FieldLabel>
+                    </FieldLabelWithRequired>
                     <Input
                       value={item.reference_link || ""}
                       dir="ltr"
@@ -239,9 +286,9 @@ export function PromotionalItemsEditor({
                 </div>
 
                 <Field>
-                  <FieldLabel>
+                  <FieldLabelWithRequired fieldKey="list">
                     {t("notifications.promotionalItems.listItems")}
-                  </FieldLabel>
+                  </FieldLabelWithRequired>
                   <Textarea
                     value={listValue}
                     onChange={(e) => updateItem(index, "list", e.target.value)}
@@ -273,11 +320,11 @@ export function PromotionalItemsEditor({
                   )}
                 </Field>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="mb-3 grid grid-cols-2 gap-4">
                   <Field>
-                    <FieldLabel>
+                    <FieldLabelWithRequired fieldKey="cta_label">
                       {t("notifications.promotionalItems.ctaLabel")}
-                    </FieldLabel>
+                    </FieldLabelWithRequired>
                     <Input
                       value={item.cta_label || ""}
                       onChange={(e) =>
@@ -291,9 +338,9 @@ export function PromotionalItemsEditor({
                     />
                   </Field>
                   <Field>
-                    <FieldLabel>
+                    <FieldLabelWithRequired fieldKey="cta_link">
                       {t("notifications.promotionalItems.ctaLink")}
-                    </FieldLabel>
+                    </FieldLabelWithRequired>
                     <Input
                       value={item.cta_link || ""}
                       onChange={(e) =>
