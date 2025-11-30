@@ -1,24 +1,24 @@
-version: '3.8'
 services:
   backoffice:
     build:
       context: .
       dockerfile: Dockerfile
     networks:
-      - web
+      - traefik_proxy
     dns:
       - 8.8.8.8
       - 8.8.4.4
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
       - "traefik.http.routers.backoffice.rule=Host(`admin.metacheetah.ir`)"
       - "traefik.http.routers.backoffice.entrypoints=websecure"
-      - "traefik.http.routers.backoffice.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.backoffice.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.backoffice-gzip.compress=true"
-      - "traefik.http.routers.backoffice.middlewares=backoffice-gzip"
+      - "traefik.http.routers.backoffice.tls=true"
+      - "traefik.http.routers.backoffice.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backoffice.service=backoffice-svc"
+      - "traefik.http.services.backoffice-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.backoffice.middlewares=compress@file"
     restart: unless-stopped
 networks:
-  web:
+  traefik_proxy:
     external: true
-    name: web
