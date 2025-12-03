@@ -62,6 +62,35 @@ interface ErrorResponse {
   [key: string]: unknown;
 }
 
+// New backend response pattern: { code, message, data }
+interface ApiEnvelope<D = unknown> {
+  code: string;
+  message: string;
+  data: D;
+}
+
+// Type guard to check envelope structure
+function isApiEnvelope(obj: unknown): obj is ApiEnvelope {
+  return (
+    obj !== null &&
+    typeof obj === "object" &&
+    "code" in obj &&
+    "data" in obj &&
+    typeof obj.code === "string"
+  );
+}
+
+// Utility function to process JSON response with envelope
+function processApiResponse<T>(json: unknown): T {
+  // If response is envelope, return only data
+  if (isApiEnvelope(json)) {
+    return (json.data ?? json) as T;
+  }
+
+  // Otherwise return raw json (previous behavior)
+  return json as T;
+}
+
 /**
  * Convert error value to string safely
  */
@@ -197,7 +226,8 @@ const makeRequest = async <T>(
       }
     }
 
-    return await response.json();
+    const json = await response.json();
+    return processApiResponse<T>(json);
   } catch (error) {
     // Handle network errors and other exceptions
     if (error instanceof ApiError) {
