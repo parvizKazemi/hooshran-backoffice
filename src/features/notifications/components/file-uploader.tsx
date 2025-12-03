@@ -3,7 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { getCookie } from "@/lib/cookies";
+import { apiUpload } from "@/services/api";
+
+interface UploadResponse {
+  uuid: string;
+  createdAt: string;
+  updatedAt: string;
+  fileExtension: string;
+  mediaType: number;
+  fileSize: number;
+  url: string;
+}
 
 interface FileUploaderProps {
   value?: string;
@@ -42,26 +52,12 @@ export function FileUploader({
       formData.append("file", file);
       formData.append("type", fileType.toString());
 
-      const baseURL = import.meta.env.VITE_API_BASE_URL;
-      const url = `${baseURL}/upload`;
-
-      const response = await fetch(url, {
-        method: "POST",
+      const data = await apiUpload<UploadResponse>("/upload", formData, {
         headers: {
-          Authorization: `Bearer ${authData?.token?.accessToken || getCookie("accessToken")}`,
-          // Content-Type را حذف می‌کنیم تا browser خودش multipart/form-data را تنظیم کند
+          Authorization: `Bearer ${authData?.token?.accessToken}`,
         },
-        body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `خطا در آپلود فایل: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
       onChange(data.url);
     } catch (error) {
       console.error("Upload failed:", error);
