@@ -62,6 +62,35 @@ interface ErrorResponse {
   [key: string]: unknown;
 }
 
+// New backend response pattern: { code, message, data }
+interface ApiEnvelope<D = unknown> {
+  code: string;
+  message: string;
+  data: D;
+}
+
+// Type guard to check envelope structure
+function isApiEnvelope(obj: unknown): obj is ApiEnvelope {
+  return (
+    obj !== null &&
+    typeof obj === "object" &&
+    "code" in obj &&
+    "data" in obj &&
+    typeof obj.code === "string"
+  );
+}
+
+// Utility function to process JSON response with envelope
+function processApiResponse<T>(json: unknown): T {
+  // If response is envelope, return only data
+  if (isApiEnvelope(json)) {
+    return (json.data ?? json) as T;
+  }
+
+  // Otherwise return raw json (previous behavior)
+  return json as T;
+}
+
 /**
  * Convert error value to string safely
  */
@@ -197,7 +226,8 @@ const makeRequest = async <T>(
       }
     }
 
-    return await response.json();
+    const json = await response.json();
+    return processApiResponse<T>(json);
   } catch (error) {
     // Handle network errors and other exceptions
     if (error instanceof ApiError) {
@@ -286,6 +316,70 @@ export const apiDelete = <T>(
 };
 
 /**
+ * Upload file with FormData
+ * Special handling for multipart/form-data requests
+ */
+export const apiUpload = async <T>(
+  endpoint: string,
+  formData: FormData,
+  options?: RequestInit
+): Promise<T> => {
+  const url = `${BASE_URL}${endpoint}`;
+
+  const config: RequestInit = {
+    ...options,
+    method: "POST",
+    credentials: "include",
+    headers: {
+      // Remove Content-Type to let browser set multipart/form-data boundary
+      ...options?.headers,
+    },
+    body: formData,
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    // Handle non-OK responses (error handling is centralized here)
+    if (!response.ok) {
+      await handleError(response);
+    }
+
+    // Handle empty responses
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      // For responses that return plain text
+      const text = await response.text();
+      if (!text) {
+        return {} as T;
+      }
+      // Try to parse as JSON anyway
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        return text as T;
+      }
+    }
+
+    const json = await response.json();
+    return processApiResponse<T>(json);
+  } catch (error) {
+    // Handle network errors and other exceptions
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    // Network errors or other fetch errors
+    throw new ApiError(
+      error instanceof Error ? error.message : "خطا در اتصال به سرور",
+      undefined,
+      "NetworkError",
+      error
+    );
+  }
+};
+
+/**
  * Export the API client instance for advanced usage
  */
 export const apiClient = {
@@ -294,4 +388,5 @@ export const apiClient = {
   put: apiPut,
   patch: apiPatch,
   delete: apiDelete,
+  upload: apiUpload,
 };
