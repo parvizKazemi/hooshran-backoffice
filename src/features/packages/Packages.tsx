@@ -21,7 +21,7 @@ function PackagesContent() {
   const { t } = useTranslation("common");
   const [filters, setFilters] = useState<PackagesQueryParams>({
     page: 1,
-    take: 10,
+    limit: 50,
   });
 
   const { data, isLoading, refetch } = usePackages(filters);
@@ -62,7 +62,7 @@ function PackagesContent() {
                     page: currentPage,
                     total: total,
                     totalPages: totalPages,
-                    take: filters.take || 10,
+                    limit: filters.limit || 50,
                   }}
                 />
               </div>

@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createPackageSchema, CreatePackageInput, Package } from "../types";
 import { useCreatePackage, useUpdatePackage } from "../hooks/use-packages";
 
@@ -43,18 +42,18 @@ export const PackageForm = memo(function PackageForm({
     resolver: zodResolver(createPackageSchema),
     defaultValues: pkg
       ? {
-          credit_amount: pkg.credit_amount,
+          name: pkg.name,
+          creditAmount: pkg.creditAmount,
           price: pkg.price,
           type: pkg.type,
-          duration_days: pkg.duration_days || undefined,
-          is_active: pkg.is_active ?? true,
+          durationDays: pkg.durationDays || undefined,
         }
       : {
-          credit_amount: 0,
+          name: "",
+          creditAmount: 0,
           price: 0,
           type: "PERMANENT",
-          duration_days: undefined,
-          is_active: true,
+          durationDays: undefined,
         },
   });
 
@@ -62,8 +61,7 @@ export const PackageForm = memo(function PackageForm({
 
   const onSubmit: SubmitHandler<CreatePackageInput> = async (data) => {
     if (isEditing && pkg) {
-      const { id, ...updateData } = { ...data, id: pkg.id };
-      await updatePackage.mutateAsync({ ...updateData, id });
+      await updatePackage.mutateAsync({ ...data, uuid: pkg.uuid });
     } else {
       await createPackage.mutateAsync(data);
     }
@@ -78,21 +76,40 @@ export const PackageForm = memo(function PackageForm({
     <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="credit_amount">
+          <FieldLabel htmlFor="name">
+            {t("packages.form.name")}{" "}
+            <span className="text-destructive">*</span>
+          </FieldLabel>
+          <Input
+            id="name"
+            type="text"
+            {...form.register("name")}
+            placeholder={t("packages.form.namePlaceholder")}
+            disabled={isLoading}
+          />
+          {form.formState.errors.name && (
+            <FieldDescription className="text-destructive">
+              {form.formState.errors.name.message}
+            </FieldDescription>
+          )}
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="creditAmount">
             {t("packages.form.creditAmount")}{" "}
             <span className="text-destructive">*</span>
           </FieldLabel>
           <Input
-            id="credit_amount"
+            id="creditAmount"
             type="number"
             min="1"
-            {...form.register("credit_amount", { valueAsNumber: true })}
+            {...form.register("creditAmount", { valueAsNumber: true })}
             placeholder={t("packages.form.creditAmountPlaceholder")}
             disabled={isLoading}
           />
-          {form.formState.errors.credit_amount && (
+          {form.formState.errors.creditAmount && (
             <FieldDescription className="text-destructive">
-              {form.formState.errors.credit_amount.message}
+              {form.formState.errors.creditAmount.message}
             </FieldDescription>
           )}
         </Field>
@@ -150,41 +167,25 @@ export const PackageForm = memo(function PackageForm({
 
         {packageType === "SUBSCRIPTION" && (
           <Field>
-            <FieldLabel htmlFor="duration_days">
+            <FieldLabel htmlFor="durationDays">
               {t("packages.form.durationDays")}{" "}
               <span className="text-destructive">*</span>
             </FieldLabel>
             <Input
-              id="duration_days"
+              id="durationDays"
               type="number"
               min="1"
-              {...form.register("duration_days", { valueAsNumber: true })}
+              {...form.register("durationDays", { valueAsNumber: true })}
               placeholder={t("packages.form.durationDaysPlaceholder")}
               disabled={isLoading}
             />
-            {form.formState.errors.duration_days && (
+            {form.formState.errors.durationDays && (
               <FieldDescription className="text-destructive">
-                {form.formState.errors.duration_days?.message}
+                {form.formState.errors.durationDays?.message}
               </FieldDescription>
             )}
           </Field>
         )}
-
-        <Field>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="is_active"
-              checked={form.watch("is_active") ?? true}
-              onCheckedChange={(checked) =>
-                form.setValue("is_active", checked as boolean)
-              }
-              disabled={isLoading}
-            />
-            <FieldLabel htmlFor="is_active" className="cursor-pointer">
-              {t("packages.form.isActive")}
-            </FieldLabel>
-          </div>
-        </Field>
       </FieldGroup>
 
       <div className="flex gap-2">

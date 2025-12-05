@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 import { User } from "../../types";
 import { UserForm } from "../user-form";
 
@@ -28,17 +28,18 @@ export function UserEditDrawer({
 
   if (!user) return null;
 
+  // convert drawer to dialog
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>{t("users.editUser")}</DrawerTitle>
-          <DrawerDescription>{t("users.editUserInfo")}</DrawerDescription>
-        </DrawerHeader>
-        <div className="p-4">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("users.editUser")}</DialogTitle>
+          <DialogDescription>{t("users.editUserInfo")}</DialogDescription>
+        </DialogHeader>
+        <div className="mt-4">
           <UserForm user={user} onSuccess={onSuccess} onCancel={onCancel} />
         </div>
-      </DrawerContent>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   );
 }

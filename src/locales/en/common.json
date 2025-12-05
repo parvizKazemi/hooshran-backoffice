@@ -686,7 +686,8 @@
       "price": "Price",
       "type": "Type",
       "duration": "Duration",
-      "status": "Status"
+      "status": "Status",
+      "name": "Name"
     },
     "types": {
       "permanent": "Permanent",

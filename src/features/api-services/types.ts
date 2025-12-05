@@ -99,3 +99,59 @@ export const updateApiServiceSchema = createApiServiceSchema
 
 export type CreateApiServiceInput = z.infer<typeof createApiServiceSchema>;
 export type UpdateApiServiceInput = z.infer<typeof updateApiServiceSchema>;
+
+// Service Review Types
+export const ServiceReviewMetadataSchema = z
+  .object({
+    result_url: z.string().url().optional(),
+  })
+  .passthrough(); // Allow additional fields
+
+export const ServiceReviewSchema = z.object({
+  uuid: z.string(),
+  serviceRequestId: z.number(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().optional().nullable(),
+  reviewMetadata: ServiceReviewMetadataSchema.optional().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+});
+
+export type ServiceReview = z.infer<typeof ServiceReviewSchema>;
+export type ServiceReviewMetadata = z.infer<typeof ServiceReviewMetadataSchema>;
+
+// Service Reviews Pagination Meta (matches API response)
+export interface ServiceReviewsPaginationMeta {
+  page: number;
+  take: number;
+  itemCount: number;
+  pageCount: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+// Service Reviews Paginated Response (matches API response structure)
+export interface ServiceReviewsPaginatedResponse {
+  data: ServiceReview[];
+  meta: ServiceReviewsPaginationMeta;
+}
+
+// Service Reviews Query Params
+export interface ServiceReviewsQueryParams {
+  page?: number;
+  take?: number;
+  q?: string;
+  order?: string;
+}
+
+// Update Service Review Input
+export const updateServiceReviewSchema = z.object({
+  uuid: z.string(), // Required for identification, but excluded from body
+  rating: z.number().int().min(1).max(5).optional(),
+  comment: z.string().optional(),
+  reviewMetadata: ServiceReviewMetadataSchema.optional(),
+});
+
+export type UpdateServiceReviewInput = z.infer<
+  typeof updateServiceReviewSchema
+>;

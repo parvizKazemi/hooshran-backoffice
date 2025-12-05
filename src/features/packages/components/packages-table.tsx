@@ -2,13 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,7 +44,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -66,7 +65,7 @@ type PackagesTableProps = {
     page: number;
     total: number;
     totalPages: number;
-    take: number;
+    limit: number;
   };
 };
 
@@ -89,9 +88,6 @@ export const PackagesTable = memo(function PackagesTable({
   const [typeFilter, setTypeFilter] = useState<
     "all" | "SUBSCRIPTION" | "PERMANENT"
   >((filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all");
-  const [isActiveFilter, setIsActiveFilter] = useState<string>(
-    filters.is_active !== undefined ? String(filters.is_active) : ""
-  );
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -103,9 +99,6 @@ export const PackagesTable = memo(function PackagesTable({
     setSearchQuery(filters.q || "");
     setTypeFilter(
       (filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all"
-    );
-    setIsActiveFilter(
-      filters.is_active !== undefined ? String(filters.is_active) : ""
     );
   }, [filters]);
 
@@ -156,11 +149,18 @@ export const PackagesTable = memo(function PackagesTable({
         enableHiding: false,
       },
       {
-        accessorKey: "credit_amount",
+        accessorKey: "name",
+        header: t("packages.table.name"),
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "creditAmount",
         header: t("packages.table.creditAmount"),
         cell: ({ row }) => (
           <span className="font-medium">
-            {row.original.credit_amount} {t("packages.credit")}
+            {row.original.creditAmount} {t("packages.credit")}
           </span>
         ),
       },
@@ -188,23 +188,12 @@ export const PackagesTable = memo(function PackagesTable({
         },
       },
       {
-        accessorKey: "duration_days",
+        accessorKey: "durationDays",
         header: t("packages.table.duration"),
         cell: ({ row }) => {
-          const days = row.original.duration_days;
+          const days = row.original.durationDays;
           return days ? `${days} ${t("packages.days")}` : "-";
         },
-      },
-      {
-        accessorKey: "is_active",
-        header: t("packages.table.status"),
-        cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? "default" : "secondary"}>
-            {row.original.is_active
-              ? t("packages.statuses.active")
-              : t("packages.statuses.inactive")}
-          </Badge>
-        ),
       },
       {
         id: "actions",
@@ -231,7 +220,7 @@ export const PackagesTable = memo(function PackagesTable({
                 <DropdownMenuItem
                   onClick={() => {
                     if (confirm(t("packages.confirmDelete"))) {
-                      deletePackage.mutate(pkg.id, {
+                      deletePackage.mutate(pkg.uuid, {
                         onSuccess: () => onRefresh?.(),
                       });
                     }
@@ -260,7 +249,7 @@ export const PackagesTable = memo(function PackagesTable({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // getPaginationRowModel: getPaginationRowModel(),
   });
 
   if (isLoading) {
@@ -314,30 +303,8 @@ export const PackagesTable = memo(function PackagesTable({
                 </SelectItem>
               </SelectContent>
             </Select>
-            <Select
-              value={isActiveFilter || "all"}
-              onValueChange={(value) => {
-                setIsActiveFilter(value === "all" ? "" : value);
-                applyFilters({
-                  is_active: value === "all" ? undefined : value === "true",
-                });
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("packages.allStatuses")}</SelectItem>
-                <SelectItem value="true">
-                  {t("packages.statuses.active")}
-                </SelectItem>
-                <SelectItem value="false">
-                  {t("packages.statuses.inactive")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
+            <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <DialogTrigger asChild>
                 <Button
                   onClick={() => {
                     setEditingPackage(null);
@@ -347,21 +314,21 @@ export const PackagesTable = memo(function PackagesTable({
                   <IconPlus className="mr-2 size-4" />
                   {t("packages.addPackage")}
                 </Button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
                     {editingPackage
                       ? t("packages.editPackage")
                       : t("packages.addNewPackage")}
-                  </DrawerTitle>
-                  <DrawerDescription>
+                  </DialogTitle>
+                  <DialogDescription>
                     {editingPackage
                       ? t("packages.editPackageInfo")
                       : t("packages.addPackageInfo")}
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="p-4">
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4">
                   <PackageForm
                     package={editingPackage || undefined}
                     onSuccess={() => {
@@ -372,8 +339,8 @@ export const PackagesTable = memo(function PackagesTable({
                     onCancel={() => setIsDrawerOpen(false)}
                   />
                 </div>
-              </DrawerContent>
-            </Drawer>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -397,21 +364,23 @@ export const PackagesTable = memo(function PackagesTable({
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  return (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell

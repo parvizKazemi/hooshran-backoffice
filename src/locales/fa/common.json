@@ -721,7 +721,8 @@
       "price": "قیمت",
       "type": "نوع",
       "duration": "مدت",
-      "status": "وضعیت"
+      "status": "وضعیت",
+      "name": "نام"
     },
     "types": {
       "permanent": "دائمی",
