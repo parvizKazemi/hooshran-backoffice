@@ -1,7 +1,3 @@
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiServicesTable } from "./components/api-services-table";
@@ -10,17 +6,7 @@ import { useApiServices } from "./hooks/use-api-services";
 import { useServiceReviews } from "./hooks/use-service-reviews";
 import { ApiServicesQueryParams, ServiceReviewsQueryParams } from "./types";
 
-// Create a query client instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
-function ApiServicesContent() {
+export default function ApiServices() {
   const { t } = useTranslation("common");
   const [filters, setFilters] = useState<ApiServicesQueryParams>({
     page: 1,
@@ -52,77 +38,48 @@ function ApiServicesContent() {
   const reviewsTake = reviewsMeta?.take || reviewFilters.take || 10;
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" side="right" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="flex flex-col gap-4 px-4 lg:px-6">
-                <div className="mb-4">
-                  <h1 className="text-2xl font-bold">
-                    {t("apiServices.title")}
-                  </h1>
-                  <p className="text-muted-foreground mt-3 text-sm">
-                    {t("apiServices.description")}
-                  </p>
-                </div>
-                <ApiServicesTable
-                  data={services}
-                  isLoading={isLoading}
-                  onRefresh={() => refetch()}
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  pagination={{
-                    page: currentPage,
-                    total: total,
-                    totalPages: totalPages,
-                    take: filters.take || 10,
-                  }}
-                />
+    <div className="flex flex-col gap-4 px-4 lg:px-6">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold">{t("apiServices.title")}</h1>
+        <p className="text-muted-foreground mt-3 text-sm">
+          {t("apiServices.description")}
+        </p>
+      </div>
+      <ApiServicesTable
+        data={services}
+        isLoading={isLoading}
+        onRefresh={() => refetch()}
+        filters={filters}
+        onFiltersChange={setFilters}
+        pagination={{
+          page: currentPage,
+          total: total,
+          totalPages: totalPages,
+          take: filters.take || 10,
+        }}
+      />
 
-                <div className="mt-8">
-                  <div className="mb-4">
-                    <h2 className="text-xl font-bold">بررسی‌های سرویس</h2>
-                    <p className="text-muted-foreground mt-2 text-sm">
-                      مدیریت و ویرایش بررسی‌های کاربران برای سرویس‌ها
-                    </p>
-                  </div>
-                  <ServiceReviewsTable
-                    data={reviews}
-                    isLoading={isReviewsLoading}
-                    onRefresh={() => refetchReviews()}
-                    filters={reviewFilters}
-                    onFiltersChange={setReviewFilters}
-                    pagination={{
-                      page: reviewsCurrentPage,
-                      total: reviewsTotal,
-                      totalPages: reviewsTotalPages,
-                      take: reviewsTake,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">بررسی‌های سرویس</h2>
+          <p className="text-muted-foreground mt-2 text-sm">
+            مدیریت و ویرایش بررسی‌های کاربران برای سرویس‌ها
+          </p>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
-  );
-}
-
-export default function ApiServices() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ApiServicesContent />
-    </QueryClientProvider>
+        <ServiceReviewsTable
+          data={reviews}
+          isLoading={isReviewsLoading}
+          onRefresh={() => refetchReviews()}
+          filters={reviewFilters}
+          onFiltersChange={setReviewFilters}
+          pagination={{
+            page: reviewsCurrentPage,
+            total: reviewsTotal,
+            totalPages: reviewsTotalPages,
+            take: reviewsTake,
+          }}
+        />
+      </div>
+    </div>
   );
 }

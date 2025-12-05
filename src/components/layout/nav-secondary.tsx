@@ -8,10 +8,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export function NavSecondary({
   items,
+  onItemClick,
   ...props
 }: {
   items: readonly {
@@ -19,6 +21,7 @@ export function NavSecondary({
     readonly url: string;
     readonly icon: Icon;
   }[];
+  onItemClick?: (item: { title: string; url: string; icon: Icon }) => void;
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,19 +35,32 @@ export function NavSecondary({
     return location.pathname === url || location.pathname.startsWith(url + "/");
   };
 
+  const handleClick = (item: { title: string; url: string; icon: Icon }) => {
+    if (onItemClick) {
+      onItemClick(item);
+    } else {
+      navigate(item.url);
+    }
+  };
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
             const active = isActive(item.url);
+            const isLogout = item.url === "/logout";
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   tooltip={item.title}
-                  onClick={() => navigate(item.url)}
+                  onClick={() => handleClick(item)}
                   isActive={active}
-                  className="cursor-pointer"
+                  className={cn(
+                    "cursor-pointer",
+                    isLogout &&
+                      "text-destructive hover:text-destructive hover:bg-destructive/10 [&>svg]:text-destructive"
+                  )}
                 >
                   <item.icon />
                   <span>{item.title}</span>

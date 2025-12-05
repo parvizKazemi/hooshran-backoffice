@@ -49,7 +49,10 @@
     "referrals": "Referrals",
     "media": "Media",
     "payments": "Payments",
-    "utmAnalytics": "UTM Analytics"
+    "utmAnalytics": "UTM Analytics",
+    "logout": "Logout",
+    "logoutConfirm": "Confirm Logout",
+    "logoutConfirmDescription": "Are you sure you want to logout?"
   },
   "documents": {
     "dataLibrary": "Data Library",
@@ -712,7 +715,9 @@
       "isActive": "Active",
       "saveChanges": "Save Changes",
       "createPackage": "Create Package",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "name": "Name",
+      "namePlaceholder": "Enter package name"
     }
   },
   "plans": {
