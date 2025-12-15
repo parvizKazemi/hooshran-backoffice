@@ -3,7 +3,6 @@ import {
   IconChevronDown,
   IconCopy,
   IconEdit,
-  IconEye,
   IconInfoCircle,
   IconPlus,
   IconSend,
@@ -403,7 +402,7 @@ export function NotificationsList({
           const notification = row.original;
           return (
             <div className="flex items-center gap-2">
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 className="size-8 hover:scale-105"
@@ -413,7 +412,7 @@ export function NotificationsList({
                 }}
               >
                 <IconEye className="size-4" />
-              </Button>
+              </Button> */}
               <Button
                 variant="ghost"
                 size="icon"
