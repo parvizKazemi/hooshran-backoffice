@@ -59,10 +59,20 @@ pnpm preview
 
 ### Tech Stack
 
-- React 19, TypeScript, Vite 7
-- Tailwind CSS 4
-- React Router 7، React Query (TanStack Query)
-- i18next برای i18n
+- **React 19**: فریمورک اصلی رابط کاربری
+- **TypeScript**: تایپ‌چکینگ و امنیت نوع
+- **Vite 7**: بیلد تول و توسعه سریع
+- **Tailwind CSS 4**: استایل‌دهی utility-first
+- **React Router 7**: مدیریت مسیریابی و ناوبری
+- **TanStack Query**: مدیریت وضعیت سرور، کش و همگام‌سازی داده
+- **TanStack Table**: ساخت جداول پیشرفته با قابلیت‌های sort، filter و pagination
+- **React Hook Form**: مدیریت فرم‌ها با عملکرد بالا
+- **Zod**: اعتبارسنجی schema-based برای فرم‌ها و API
+- **i18next**: بین‌المللی‌سازی و پشتیبانی چندزبانه
+- **Radix UI**: کامپوننت‌های دسترسی‌پذیر و بدون استایل
+- **Sonner**: سیستم نوتیفیکیشن toast
+- **Recharts**: کتابخانه نمودار و تجسم داده
+- **@dnd-kit**: قابلیت drag and drop برای رابط کاربری
 
 ### Project Structure
 

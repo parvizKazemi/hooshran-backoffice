@@ -1,46 +1,71 @@
+import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   CreatePackageInput,
-  UpdatePackageInput,
   Package,
   PackagesQueryParams,
   PaginatedResponse,
+  UpdatePackageInput,
 } from "../types";
-import { ApiError } from "@/services/api";
-import { mockPackages } from "../mock-data";
 
+// Build query string from params
+const buildQueryString = (params: PackagesQueryParams): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.order) searchParams.append("order", params.order);
+  if (params.page !== undefined)
+    searchParams.append("page", params.page.toString());
+  if (params.limit !== undefined)
+    searchParams.append("limit", params.limit.toString());
+  if (params.q) searchParams.append("q", params.q);
+  if (params.type && params.type !== "all")
+    searchParams.append("type", params.type);
+
+  return searchParams.toString();
+};
+
+// Fetch packages from API
 export const usePackages = (params: PackagesQueryParams = {}) => {
+  const queryString = buildQueryString(params);
+  const endpoint = `/package${queryString ? `?${queryString}` : ""}`;
+
   return useQuery({
     queryKey: ["packages", params],
     queryFn: async (): Promise<PaginatedResponse<Package>> => {
       try {
-        // TODO: Replace with actual API call
-        let filtered = [...mockPackages];
+        // API returns a simple array, convert to PaginatedResponse
+        const response = await apiGet<Package[]>(endpoint);
+
+        // Apply client-side filtering if needed (for search, type, etc.)
+        let filtered = [...response];
+
         if (params.q) {
           const query = params.q.toLowerCase();
-          filtered = filtered.filter((pkg) =>
-            pkg.id.toLowerCase().includes(query)
+          filtered = filtered.filter(
+            (pkg) =>
+              pkg.name.toLowerCase().includes(query) ||
+              pkg.uuid.toLowerCase().includes(query)
           );
         }
+
         if (params.type && params.type !== "all") {
           filtered = filtered.filter((pkg) => pkg.type === params.type);
         }
-        if (params.is_active !== undefined) {
-          filtered = filtered.filter(
-            (pkg) => pkg.is_active === params.is_active
-          );
-        }
+
+        // Apply pagination
         const page = params.page || 1;
-        const take = params.take || 10;
-        const start = (page - 1) * take;
-        const end = start + take;
+        const limit = params.limit || 50;
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        const paginatedData = filtered.slice(start, end);
+
         return {
-          data: filtered.slice(start, end),
+          data: paginatedData,
           total: filtered.length,
           page,
-          take,
-          totalPages: Math.ceil(filtered.length / take),
+          limit,
+          totalPages: Math.ceil(filtered.length / limit),
         };
       } catch (error) {
         if (error instanceof ApiError) {
@@ -49,23 +74,24 @@ export const usePackages = (params: PackagesQueryParams = {}) => {
         throw error;
       }
     },
-    retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
 };
 
 export const useCreatePackage = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: CreatePackageInput): Promise<Package> => {
-      // TODO: Implement API call
-      const newPackage: Package = {
-        ...data,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      return newPackage;
+      try {
+        const pkg = await apiPost<Package>("/package", data);
+        return pkg;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["packages"] });
@@ -83,14 +109,46 @@ export const useCreatePackage = () => {
 
 export const useUpdatePackage = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: UpdatePackageInput): Promise<Package> => {
-      // TODO: Implement API call
-      const updatedPackage: Package = {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      } as Package;
-      return updatedPackage;
+      try {
+        if (!data.uuid) {
+          throw new ApiError("UUID پکیج الزامی است");
+        }
+        // Extract uuid from data and exclude it from body
+        const { uuid, ...updatePayload } = data;
+
+        // Build payload with all required fields
+        // durationDays can be null for PERMANENT type
+        const payload: {
+          name: string;
+          creditAmount: number;
+          price: number;
+          type: "PERMANENT" | "SUBSCRIPTION";
+          durationDays?: number | null;
+        } = {
+          name: updatePayload.name ?? "",
+          creditAmount: updatePayload.creditAmount ?? 0,
+          price: updatePayload.price ?? 0,
+          type: updatePayload.type ?? "PERMANENT",
+        };
+
+        // Add durationDays if provided, or set to null if type is PERMANENT
+        if (updatePayload.durationDays !== undefined) {
+          payload.durationDays = updatePayload.durationDays;
+        } else if (updatePayload.type === "PERMANENT") {
+          payload.durationDays = null;
+        }
+
+        const pkg = await apiPatch<Package>(`/package/${uuid}`, payload);
+        return pkg;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["packages"] });
@@ -108,10 +166,17 @@ export const useUpdatePackage = () => {
 
 export const useDeletePackage = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (id: string): Promise<void> => {
-      // TODO: Implement API call
-      void id;
+    mutationFn: async (uuid: string): Promise<void> => {
+      try {
+        await apiDelete<void>(`/package/${uuid}`);
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["packages"] });

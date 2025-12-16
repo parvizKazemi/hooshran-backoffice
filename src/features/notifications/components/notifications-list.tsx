@@ -802,12 +802,10 @@ export function NotificationsList({
 
       {/* Edit Dialog */}
       <Dialog open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-center">
-              {t("notifications.editTitle")}
-            </DialogTitle>
-            <DialogDescription className="text-center">
+            <DialogTitle>{t("notifications.editTitle")}</DialogTitle>
+            <DialogDescription>
               {t("notifications.editDescription")}
             </DialogDescription>
           </DialogHeader>
