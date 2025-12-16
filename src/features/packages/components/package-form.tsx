@@ -38,7 +38,6 @@ export const PackageForm = memo(function PackageForm({
   const updatePackage = useUpdatePackage();
 
   const form = useForm<CreatePackageInput>({
-    // @ts-expect-error - zod schema type inference issue with optional default values
     resolver: zodResolver(createPackageSchema),
     defaultValues: pkg
       ? {
