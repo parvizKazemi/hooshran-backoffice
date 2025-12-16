@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiUpload } from "@/services/api";
 
@@ -33,6 +33,7 @@ export function FileUploader({
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const { authData } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -73,19 +74,19 @@ export function FileUploader({
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <Input
+          ref={fileInputRef}
           type="file"
           accept={accept}
           onChange={handleFileChange}
           disabled={isUploading}
           className="hidden"
-          id="file-upload"
         />
         <Button
           type="button"
           variant="outline"
           size="sm"
           disabled={isUploading}
-          onClick={() => document.getElementById("file-upload")?.click()}
+          onClick={() => fileInputRef.current?.click()}
         >
           <Upload className="ml-2 h-4 w-4" />
           {isUploading ? "در حال آپلود..." : "انتخاب فایل"}
