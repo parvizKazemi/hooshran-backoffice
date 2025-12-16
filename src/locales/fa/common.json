@@ -50,6 +50,9 @@
     "media": "فایل‌ها",
     "payments": "پرداخت‌ها",
     "utmAnalytics": "تحلیل بازاریابی",
+    "logout": "خروج",
+    "logoutConfirm": "تایید خروج",
+    "logoutConfirmDescription": "آیا از خروج از حساب کاربری خود اطمینان دارید؟",
     "form": {
       "saveChanges": "ذخیره تغییرات",
       "createUser": "ایجاد کاربر"
@@ -721,7 +724,8 @@
       "price": "قیمت",
       "type": "نوع",
       "duration": "مدت",
-      "status": "وضعیت"
+      "status": "وضعیت",
+      "name": "نام"
     },
     "types": {
       "permanent": "دائمی",
@@ -746,7 +750,9 @@
       "isActive": "فعال",
       "saveChanges": "ذخیره تغییرات",
       "createPackage": "ایجاد پکیج",
-      "cancel": "لغو"
+      "cancel": "لغو",
+      "namePlaceholder": "نام پکیج را وارد کنید",
+      "name": "نام"
     }
   },
   "plans": {

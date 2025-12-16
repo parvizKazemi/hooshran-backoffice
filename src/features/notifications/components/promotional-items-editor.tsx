@@ -3,7 +3,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Plus, ChevronDown, ChevronUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FileUploader } from "./file-uploader";
@@ -177,31 +177,59 @@ export function PromotionalItemsEditor({
                     {t("notifications.promotionalItems.media")}
                   </FieldLabelWithRequired>
                   {item.featured_media && (
-                    <div className="mb-3">
+                    <div className="relative mb-3 inline-block">
                       {item.featured_media.match(
                         /\.(mp4|webm|ogg|avi|mov|wmv|flv|m4v)$/i
                       ) || item.featured_media.includes("video") ? (
-                        <video
-                          src={item.featured_media}
-                          controls
-                          className="max-h-32 max-w-full rounded-md border"
-                          onError={(e) => {
-                            // Hide video if it fails to load
-                            e.currentTarget.style.display = "none";
-                          }}
-                        >
-                          مرورگر شما از نمایش ویدیو پشتیبانی نمی‌کند.
-                        </video>
+                        <div className="relative">
+                          <video
+                            src={item.featured_media}
+                            controls
+                            className="max-h-32 max-w-full rounded-md border"
+                            onError={(e) => {
+                              // Hide video if it fails to load
+                              e.currentTarget.style.display = "none";
+                            }}
+                          >
+                            مرورگر شما از نمایش ویدیو پشتیبانی نمی‌کند.
+                          </video>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              updateItem(index, "featured_media", undefined)
+                            }
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            title="حذف ویدیو"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       ) : (
-                        <img
-                          src={item.featured_media}
-                          alt="پیش‌نمایش رسانه"
-                          className="max-h-32 max-w-full rounded-md border object-cover"
-                          onError={(e) => {
-                            // Hide image if it fails to load
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
+                        <div className="relative">
+                          <img
+                            src={item.featured_media}
+                            alt="پیش‌نمایش رسانه"
+                            className="max-h-32 max-w-full rounded-md border object-cover"
+                            onError={(e) => {
+                              // Hide image if it fails to load
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              updateItem(index, "featured_media", undefined)
+                            }
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            title="حذف تصویر"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   )}

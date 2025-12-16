@@ -42,7 +42,7 @@ export function UserDeleteDialog({
           <AlertDialogCancel>لغو</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-accent hover:bg-destructive/90"
           >
             حذف
           </AlertDialogAction>
