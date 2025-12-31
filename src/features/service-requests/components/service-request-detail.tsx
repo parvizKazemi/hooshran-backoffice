@@ -35,10 +35,11 @@ export const ServiceRequestDetail = memo(function ServiceRequestDetail({
               <span className="text-muted-foreground text-sm">
                 {t("serviceRequests.detail.user")}:
               </span>
-              <p className="font-medium">{request.user_name || "-"}</p>
-              {request.user_phone && (
+              <p className="font-medium">{request.user?.phoneNumber || "-"}</p>
+              {request.user?.referralCode && (
                 <p className="text-muted-foreground text-sm">
-                  {request.user_phone}
+                  {t("serviceRequests.detail.referralCode")}:{" "}
+                  {request.user.referralCode}
                 </p>
               )}
             </div>
@@ -46,7 +47,12 @@ export const ServiceRequestDetail = memo(function ServiceRequestDetail({
               <span className="text-muted-foreground text-sm">
                 {t("serviceRequests.detail.service")}:
               </span>
-              <p className="font-medium">{request.api_service_name || "-"}</p>
+              <p className="font-medium">{request.apiService?.name || "-"}</p>
+              {request.apiService?.description && (
+                <p className="text-muted-foreground text-sm">
+                  {request.apiService.description}
+                </p>
+              )}
             </div>
             <div>
               <span className="text-muted-foreground text-sm">
@@ -65,56 +71,58 @@ export const ServiceRequestDetail = memo(function ServiceRequestDetail({
                 {t("serviceRequests.detail.cost")}:
               </span>
               <p className="font-medium">
-                {request.credit_cost || 0} {t("serviceRequests.credit")}
+                {request.creditCost || 0} {t("serviceRequests.credit")}
               </p>
+              {request.paidWithGems && (
+                <p className="text-muted-foreground text-sm">
+                  {t("serviceRequests.detail.paidWithGems")}: {request.gemsUsed}
+                </p>
+              )}
             </div>
-            {request.rating && (
-              <div>
-                <span className="text-muted-foreground text-sm">
-                  {t("serviceRequests.detail.rating")}:
-                </span>
-                <p className="font-medium">{"⭐".repeat(request.rating)}</p>
-              </div>
-            )}
+            <div>
+              <span className="text-muted-foreground text-sm">
+                {t("serviceRequests.detail.taskId")}:
+              </span>
+              <p className="font-mono text-sm">{request.taskId}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground text-sm">
+                {t("serviceRequests.detail.uuid")}:
+              </span>
+              <p className="font-mono text-sm">{request.uuid}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {request.input_params && (
+      {request.parameters && Object.keys(request.parameters).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>{t("serviceRequests.detail.inputParams")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <pre className="bg-muted rounded-md p-4 text-sm">
-              {JSON.stringify(request.input_params, null, 2)}
+            <pre
+              className="bg-muted overflow-auto rounded-md p-4 text-left text-sm"
+              dir="ltr"
+            >
+              {JSON.stringify(request.parameters, null, 2)}
             </pre>
           </CardContent>
         </Card>
       )}
 
-      {request.output && (
+      {request.responseData && (
         <Card>
           <CardHeader>
             <CardTitle>{t("serviceRequests.detail.output")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <pre className="bg-muted rounded-md p-4 text-sm">
-              {JSON.stringify(request.output, null, 2)}
+            <pre
+              className="bg-muted overflow-auto rounded-md p-4 text-left text-sm"
+              dir="ltr"
+            >
+              {JSON.stringify(request.responseData, null, 2)}
             </pre>
-          </CardContent>
-        </Card>
-      )}
-
-      {request.error_message && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-destructive">
-              {t("serviceRequests.detail.error")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-destructive">{request.error_message}</p>
           </CardContent>
         </Card>
       )}
@@ -130,14 +138,6 @@ export const ServiceRequestDetail = memo(function ServiceRequestDetail({
             </span>
             <p>{new Date(request.createdAt).toLocaleString("fa-IR")}</p>
           </div>
-          {request.updatedAt && (
-            <div>
-              <span className="text-muted-foreground text-sm">
-                {t("serviceRequests.detail.updatedAt")}:
-              </span>
-              <p>{new Date(request.updatedAt).toLocaleString("fa-IR")}</p>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

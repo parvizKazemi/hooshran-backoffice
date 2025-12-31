@@ -573,9 +573,32 @@
     "items": "مورد",
     "prev": "قبلی",
     "next": "بعدی",
+    "emptyState": {
+      "title": "هیچ درخواستی یافت نشد",
+      "description": "برای مشاهده درخواست‌های کاربر، شماره تلفن را وارد کنید"
+    },
+    "filter": {
+      "title": "جستجوی درخواست‌ها",
+      "description": "شماره تلفن کاربر را وارد کنید و فیلترهای مورد نظر را اعمال کنید",
+      "phoneNumber": "شماره تلفن",
+      "page": "شماره صفحه",
+      "take": "تعداد در هر صفحه",
+      "status": "وضعیت",
+      "dateFrom": "از تاریخ",
+      "dateTo": "تا تاریخ",
+      "dateFromPlaceholder": "انتخاب تاریخ شروع",
+      "dateToPlaceholder": "انتخاب تاریخ پایان",
+      "apply": "اعمال فیلتر",
+      "cancel": "لغو",
+      "reset": "پاک کردن فیلترها",
+      "searchByPhone": "جستجو بر اساس شماره تلفن",
+      "changeFilter": "تغییر فیلتر",
+      "currentPhone": "شماره تلفن فعلی"
+    },
     "table": {
       "id": "شناسه",
       "user": "کاربر",
+      "userPhone": "شماره کاربر",
       "service": "سرویس",
       "status": "وضعیت",
       "cost": "هزینه",
@@ -605,7 +628,11 @@
       "error": "خطا",
       "timestamps": "زمان‌بندی",
       "createdAt": "تاریخ ایجاد",
-      "updatedAt": "تاریخ بروزرسانی"
+      "updatedAt": "تاریخ بروزرسانی",
+      "referralCode": "کد معرف",
+      "paidWithGems": "پرداخت با گیم",
+      "taskId": "شناسه تسک",
+      "uuid": "UUID"
     }
   },
   "categories": {
