@@ -80,6 +80,11 @@ function useSidebarData() {
         icon: IconFileText,
       },
       {
+        title: t("nav.userCredits"),
+        url: "/user-credits",
+        icon: IconCoins,
+      },
+      {
         title: t("nav.plans"),
         url: "/plans",
         icon: IconCreditCard,
@@ -114,12 +119,6 @@ function useSidebarData() {
         url: "/categories",
         icon: IconFolder,
       },
-      {
-        title: t("nav.userCredits"),
-        url: "/user-credits",
-        icon: IconCoins,
-      },
-
       {
         title: t("nav.referrals"),
         url: "/referrals",
@@ -222,6 +221,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/service-requests",
               "/notifications",
               "/packages",
+              "/user-credits",
             ]}
             // badges={{
             //   "/service-requests": 1,

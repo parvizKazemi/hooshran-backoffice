@@ -434,11 +434,6 @@
       "status": "Status",
       "date": "Date"
     },
-    "statuses": {
-      "success": "Success",
-      "failed": "Failed",
-      "pending": "Pending"
-    },
     "noResults": "No items found",
     "page": "Page",
     "of": "of",
@@ -617,7 +612,7 @@
     }
   },
   "userCredits": {
-    "title": "User Credits",
+    "title": "User Credits Management",
     "description": "View and manage user credit balances",
     "search": "Search users...",
     "source": "Source",
@@ -629,12 +624,20 @@
     "of": "of",
     "prev": "Previous",
     "next": "Next",
+    "items": "items",
+    "selectedRows": "{{selected}} of {{total}} selected",
     "table": {
       "user": "User",
+      "userPhone": "User Phone",
       "amount": "Amount",
+      "creditBalance": "Remaining Balance",
+      "creditAmount": "Purchased Amount",
       "source": "Source",
       "paidAmount": "Paid Amount",
-      "expiresAt": "Expires At"
+      "expiresAt": "Expires At",
+      "type": "Type",
+      "purchaseTime": "Purchase Time",
+      "status": "Status"
     },
     "sources": {
       "purchase": "Purchase",
@@ -646,10 +649,65 @@
     "types": {
       "increase": "Increase",
       "decrease": "Decrease",
-      "subscription": "Subscription"
+      "subscription": "Subscription",
+      "purchase": "Purchase",
+      "gift": "Gift",
+      "referral": "Referral",
+      "system": "System",
+      "admin": "Admin"
+    },
+    "packageTypes": {
+      "subscription": "Subscription",
+      "transferred": "Transferred",
+      "permanent": "Permanent"
+    },
+    "allPackageTypes": "All Package Types",
+    "allTypes": "All Types",
+    "statuses": {
+      "active": "Active",
+      "used": "Used",
+      "expired": "Expired"
+    },
+    "allStatuses": "All Statuses",
+    "filter": {
+      "title": "Search by Phone Number",
+      "description": "Enter user phone number",
+      "phoneNumber": "Phone Number",
+      "packageType": "Package Type",
+      "type": "Type",
+      "status": "Status",
+      "searchByPhone": "Search by Phone Number",
+      "changeFilter": "Change Filter",
+      "currentPhone": "Current Phone",
+      "reset": "Reset Filters",
+      "cancel": "Cancel",
+      "apply": "Apply"
+    },
+    "emptyState": {
+      "title": "No data displayed",
+      "description": "Enter user phone number to view credit balances"
     },
     "actions": {
-      "viewLogs": "View Logs"
+      "viewLogs": "View Logs",
+      "openMenu": "Open menu",
+      "view": "View Details"
+    },
+    "detail": {
+      "title": "Credit Purchase Details",
+      "basicInfo": "Basic Information",
+      "userPhone": "User Phone",
+      "status": "Status",
+      "creditBalance": "Remaining Balance",
+      "creditAmount": "Purchased Amount",
+      "pricePaid": "Price Paid",
+      "type": "Type",
+      "packageType": "Package Type",
+      "packageUuid": "Package UUID",
+      "uuid": "UUID",
+      "userUuid": "User UUID",
+      "timestamps": "Timestamps",
+      "createdAt": "Created At",
+      "expiresAt": "Expires At"
     },
     "logs": {
       "title": "Credit History",
