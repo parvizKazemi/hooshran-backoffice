@@ -63,11 +63,7 @@ function useSidebarData() {
         icon: IconDashboard,
       },
       // add users link
-      {
-        title: t("nav.users"),
-        url: "/users",
-        icon: IconUsers,
-      },
+
       {
         title: t("nav.notifications"),
         url: "/notifications",
@@ -79,9 +75,19 @@ function useSidebarData() {
         icon: IconPackage,
       },
       {
+        title: t("nav.serviceRequests"),
+        url: "/service-requests",
+        icon: IconFileText,
+      },
+      {
         title: t("nav.plans"),
         url: "/plans",
         icon: IconCreditCard,
+      },
+      {
+        title: t("nav.users"),
+        url: "/users",
+        icon: IconUsers,
       },
       {
         title: t("nav.paymentGateways"),
@@ -102,11 +108,6 @@ function useSidebarData() {
         title: t("nav.apiServices"),
         url: "/api-services",
         icon: IconApi,
-      },
-      {
-        title: t("nav.serviceRequests"),
-        url: "/service-requests",
-        icon: IconFileText,
       },
       {
         title: t("nav.categories"),
@@ -217,11 +218,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent>
           <NavMain
             items={data.navMain}
-            badges={{
-              "/users": 1, //data.unreadCount,
-              "/notifications": 1,
-              "/packages": 1,
-            }}
+            completedItems={[
+              "/service-requests",
+              "/notifications",
+              "/packages",
+            ]}
+            // badges={{
+            //   "/service-requests": 1,
+            //   "/notifications": 1,
+            //   "/packages": 1,
+            // }}
           />
           {/* <NavDocuments items={data.documents} /> */}
           <NavSecondary

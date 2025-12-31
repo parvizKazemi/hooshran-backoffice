@@ -41,7 +41,7 @@
     "transactions": "تراکنش‌ها",
     "tickets": "تیکت‌ها",
     "apiServices": "سرویس‌های API",
-    "serviceRequests": "درخواست‌های سرویس",
+    "serviceRequests": "درخواست‌های کاربران",
     "categories": "دسته‌بندی‌ها",
     "userCredits": "موجودی اعتبار",
     "packages": "پکیج‌ها",
@@ -560,7 +560,7 @@
     }
   },
   "serviceRequests": {
-    "title": "درخواست‌های سرویس",
+    "title": "درخواست‌های کاربران",
     "description": "مشاهده و مدیریت درخواست‌های کاربران برای سرویس‌های API",
     "search": "جستجوی درخواست...",
     "status": "وضعیت",
