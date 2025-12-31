@@ -751,8 +751,21 @@
       "saveChanges": "ذخیره تغییرات",
       "createPackage": "ایجاد پکیج",
       "cancel": "لغو",
+      "displayParts": "قسمت‌های نمایشی برای کاربر",
+      "mainParts": "قسمت‌های اصلی پکیج ",
       "namePlaceholder": "نام پکیج را وارد کنید",
-      "name": "نام"
+      "name": "نام",
+      "mainPriceDisplay": "قیمت اصلی (تومان)",
+      "mainPriceDisplayPlaceholder": "قیمت اصلی که به کاربر نشان داده می‌شود",
+      "buyPriceDisplay": "قیمت خرید (تومان)",
+      "buyPriceDisplayPlaceholder": "قیمت خرید که به کاربر نشان داده می‌شود",
+      "properties": "ویژگی‌ها",
+      "transferLimit": "انتقال مانده",
+      "transferLimitPlaceholder": "انتقال مانده را وارد کنید",
+      "boughtLimit": "محدودیت تعداد خرید",
+      "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
+      "toolboxAccess": "دسترسی به جعبه ابزار",
+      "isSpecialOffer": "پیشنهاد ویژه"
     }
   },
   "plans": {

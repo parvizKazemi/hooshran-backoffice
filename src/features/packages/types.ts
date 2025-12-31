@@ -12,6 +12,12 @@ export const PackageSchema = z.object({
   durationDays: z.number().int().min(0).optional().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  properties: z.object({
+    transferLimit: z.number().int().min(0),
+    boughtLimit: z.number().int(),
+    isSpecialOffer: z.boolean().optional(),
+    toolboxAccess: z.boolean().optional(),
+  }),
 });
 
 export type Package = z.infer<typeof PackageSchema>;
@@ -37,11 +43,26 @@ export const createPackageSchema = PackageSchema.omit({
   uuid: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  properties: z.object({
+    transferLimit: z.number().int().min(0),
+    boughtLimit: z.number().int(),
+    isSpecialOffer: z.boolean().optional(),
+    toolboxAccess: z.boolean().optional(),
+  }),
 });
 
-export const updatePackageSchema = createPackageSchema
-  .partial()
-  .extend({ uuid: z.string().min(1) });
+export const updatePackageSchema = createPackageSchema.partial().extend({
+  uuid: z.string().min(1),
+  properties: z
+    .object({
+      transferLimit: z.number().int().min(0),
+      boughtLimit: z.number().int(),
+      isSpecialOffer: z.boolean().optional(),
+      toolboxAccess: z.boolean().optional(),
+    })
+    .optional(),
+});
 
 export type CreatePackageInput = z.infer<typeof createPackageSchema>;
 export type UpdatePackageInput = z.infer<typeof updatePackageSchema>;
