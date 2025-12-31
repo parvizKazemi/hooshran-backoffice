@@ -2,26 +2,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -31,23 +23,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { IconDotsVertical, IconEye } from "@tabler/icons-react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useUserCreditLogs } from "../hooks/use-user-credits";
 import { UserCredit, UserCreditsQueryParams } from "../types";
-import { UserCreditLogsTable } from "./user-credit-logs-table";
+import { UserCreditDetail } from "./user-credit-detail";
 
 type UserCreditsTableProps = {
   data: UserCredit[];
@@ -74,20 +71,8 @@ export const UserCreditsTable = memo(function UserCreditsTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [sourceFilter, setSourceFilter] = useState<
-    "all" | "ADMIN" | "PURCHASE" | "GIFT" | "REFERRAL" | "SYSTEM"
-  >(
-    (filters.source as
-      | "all"
-      | "ADMIN"
-      | "PURCHASE"
-      | "GIFT"
-      | "REFERRAL"
-      | "SYSTEM") || "all"
-  );
+  const [selectedCredit, setSelectedCredit] = useState<UserCredit | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -95,51 +80,27 @@ export const UserCreditsTable = memo(function UserCreditsTable({
     filtersRef.current = filters;
   }, [filters]);
 
-  const { data: logsData } = useUserCreditLogs({
-    user_id: selectedUser || undefined,
-    page: 1,
-    take: 50,
-  });
+  const statusLabels: Record<string, string> = {
+    active: t("userCredits.statuses.active"),
+    used: t("userCredits.statuses.used"),
+    expired: t("userCredits.statuses.expired"),
+  };
 
-  useEffect(() => {
-    setSearchQuery(filters.q || "");
-    setSourceFilter(
-      (filters.source as
-        | "all"
-        | "ADMIN"
-        | "PURCHASE"
-        | "GIFT"
-        | "REFERRAL"
-        | "SYSTEM") || "all"
-    );
-  }, [filters]);
+  const statusVariants: Record<
+    string,
+    "default" | "secondary" | "destructive" | "outline"
+  > = {
+    active: "default",
+    used: "secondary",
+    expired: "destructive",
+  };
 
-  const applyFilters = useCallback(
-    (newFilters: Partial<UserCreditsQueryParams>) => {
-      if (onFiltersChange) {
-        onFiltersChange({
-          ...filtersRef.current,
-          ...newFilters,
-          page: 1,
-        });
-      }
-    },
-    [onFiltersChange]
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ q: searchQuery || undefined });
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery, applyFilters]);
-
-  const sourceLabels: Record<string, string> = {
-    PURCHASE: t("userCredits.sources.purchase"),
-    GIFT: t("userCredits.sources.gift"),
-    REFERRAL: t("userCredits.sources.referral"),
-    SYSTEM: t("userCredits.sources.system"),
-    ADMIN: t("userCredits.sources.admin"),
+  const typeLabels: Record<string, string> = {
+    PURCHASE: t("userCredits.types.purchase"),
+    GIFT: t("userCredits.types.gift"),
+    REFERRAL: t("userCredits.types.referral"),
+    SYSTEM: t("userCredits.types.system"),
+    ADMIN: t("userCredits.types.admin"),
   };
 
   const columns: ColumnDef<UserCredit>[] = useMemo(
@@ -169,58 +130,84 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         enableHiding: false,
       },
       {
-        accessorKey: "user_name",
-        header: t("userCredits.table.user"),
+        accessorKey: "userPhoneNumber",
+        header: t("userCredits.table.userPhone"),
         cell: ({ row }) => {
           const credit = row.original;
           return (
+            <span className="font-mono text-sm">
+              {credit.userPhoneNumber || "-"}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "creditBalance",
+        header: t("userCredits.table.creditBalance"),
+        cell: ({ row }) => (
+          <span className="font-medium">
+            {row.original.creditBalance} {t("userCredits.credit")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "creditAmount",
+        header: t("userCredits.table.creditAmount"),
+        cell: ({ row }) => (
+          <span className="font-medium">
+            {row.original.creditAmount} {t("userCredits.credit")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "type",
+        header: t("userCredits.table.type"),
+        cell: ({ row }) => (
+          <Badge variant="secondary">
+            {typeLabels[row.original.type] || row.original.type}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: t("userCredits.table.purchaseTime"),
+        cell: ({ row }) => {
+          const date = new Date(row.original.createdAt);
+          return (
             <div className="flex flex-col">
-              <span className="font-medium">{credit.user_name || "-"}</span>
-              {credit.user_phone && (
-                <span className="text-muted-foreground text-xs">
-                  {credit.user_phone}
-                </span>
-              )}
+              <span>{date.toLocaleDateString("fa-IR")}</span>
+              <span className="text-muted-foreground text-xs">
+                {date.toLocaleTimeString("fa-IR")}
+              </span>
             </div>
           );
         },
       },
       {
-        accessorKey: "credit_amount",
-        header: t("userCredits.table.amount"),
-        cell: ({ row }) => (
-          <span className="font-medium">
-            {row.original.credit_amount} {t("userCredits.credit")}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "source",
-        header: t("userCredits.table.source"),
-        cell: ({ row }) => (
-          <Badge variant="secondary">
-            {sourceLabels[row.original.source] || row.original.source}
-          </Badge>
-        ),
-      },
-      {
-        accessorKey: "paid_amount",
-        header: t("userCredits.table.paidAmount"),
+        accessorKey: "expiresAt",
+        header: t("userCredits.table.expiresAt"),
         cell: ({ row }) => {
-          const amount = row.original.paid_amount;
-          return amount
-            ? `${amount.toLocaleString()} ${t("userCredits.rial")}`
-            : "-";
+          const date = new Date(row.original.expiresAt);
+          return (
+            <div className="flex flex-col">
+              <span>{date.toLocaleDateString("fa-IR")}</span>
+              <span className="text-muted-foreground text-xs">
+                {date.toLocaleTimeString("fa-IR")}
+              </span>
+            </div>
+          );
         },
       },
       {
-        accessorKey: "expires_at",
-        header: t("userCredits.table.expiresAt"),
+        accessorKey: "status",
+        header: t("userCredits.table.status"),
         cell: ({ row }) => {
-          const expiresAt = row.original.expires_at;
-          return expiresAt
-            ? new Date(expiresAt).toLocaleDateString("fa-IR")
-            : "-";
+          const status = row.original.status;
+          return (
+            <Badge variant={statusVariants[status] || "outline"}>
+              {statusLabels[status] || status}
+            </Badge>
+          );
         },
       },
       {
@@ -232,17 +219,20 @@ export const UserCreditsTable = memo(function UserCreditsTable({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <IconDotsVertical className="size-4" />
+                  <span className="sr-only">
+                    {t("userCredits.actions.openMenu")}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedUser(credit.user_id);
-                    setIsDrawerOpen(true);
+                    setSelectedCredit(credit);
+                    setIsDetailDialogOpen(true);
                   }}
                 >
                   <IconEye className="mr-2 size-4" />
-                  {t("userCredits.actions.viewLogs")}
+                  {t("userCredits.actions.view")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -250,29 +240,37 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         },
       },
     ],
-    [t, sourceLabels, setSelectedUser, setIsDrawerOpen]
+    [t, statusLabels, statusVariants, typeLabels]
   );
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, columnVisibility, rowSelection },
+    state: {
+      sorting,
+      columnVisibility,
+      rowSelection,
+    },
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-48" />
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -280,60 +278,6 @@ export const UserCreditsTable = memo(function UserCreditsTable({
   return (
     <>
       <div className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Input
-            placeholder={t("userCredits.search")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
-          <div className="flex items-center gap-2">
-            <Select
-              value={sourceFilter}
-              onValueChange={(value) => {
-                const typedValue = value as
-                  | "all"
-                  | "ADMIN"
-                  | "PURCHASE"
-                  | "GIFT"
-                  | "REFERRAL"
-                  | "SYSTEM";
-                setSourceFilter(typedValue);
-                applyFilters({
-                  source:
-                    typedValue === "all"
-                      ? undefined
-                      : (typedValue as UserCredit["source"]),
-                });
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder={t("userCredits.source")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {t("userCredits.allSources")}
-                </SelectItem>
-                <SelectItem value="PURCHASE">
-                  {t("userCredits.sources.purchase")}
-                </SelectItem>
-                <SelectItem value="GIFT">
-                  {t("userCredits.sources.gift")}
-                </SelectItem>
-                <SelectItem value="REFERRAL">
-                  {t("userCredits.sources.referral")}
-                </SelectItem>
-                <SelectItem value="SYSTEM">
-                  {t("userCredits.sources.system")}
-                </SelectItem>
-                <SelectItem value="ADMIN">
-                  {t("userCredits.sources.admin")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -383,64 +327,98 @@ export const UserCreditsTable = memo(function UserCreditsTable({
           </Table>
         </div>
 
-        {pagination && (
-          <div className="flex items-center justify-between px-2">
-            <div className="text-muted-foreground text-sm">
-              {t("userCredits.page")} {pagination.page} {t("userCredits.of")}{" "}
-              {pagination.totalPages}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (onFiltersChange && pagination.page > 1) {
-                    onFiltersChange({
-                      ...filtersRef.current,
-                      page: pagination.page - 1,
-                    });
-                  }
-                }}
-                disabled={pagination.page <= 1}
-              >
-                {t("userCredits.prev")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (
-                    onFiltersChange &&
-                    pagination.page < pagination.totalPages
-                  ) {
-                    onFiltersChange({
-                      ...filtersRef.current,
-                      page: pagination.page + 1,
-                    });
-                  }
-                }}
-                disabled={pagination.page >= pagination.totalPages}
-              >
-                {t("userCredits.next")}
-              </Button>
-            </div>
+        <div className="flex items-center justify-between px-2">
+          <div className="text-muted-foreground flex-1 text-sm">
+            {t("userCredits.selectedRows", {
+              selected: table.getFilteredSelectedRowModel().rows.length,
+              total:
+                pagination?.total || table.getFilteredRowModel().rows.length,
+            })}
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            {pagination && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (onFiltersChange && pagination.page > 1) {
+                      onFiltersChange({
+                        ...filtersRef.current,
+                        page: pagination.page - 1,
+                      });
+                    }
+                  }}
+                  disabled={pagination.page <= 1}
+                >
+                  {t("userCredits.prev")}
+                </Button>
+                <div className="text-muted-foreground text-sm">
+                  {t("userCredits.page")} {pagination.page}{" "}
+                  {t("userCredits.of")} {pagination.totalPages} (
+                  {pagination.total} {t("userCredits.items")})
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (
+                      onFiltersChange &&
+                      pagination.page < pagination.totalPages
+                    ) {
+                      onFiltersChange({
+                        ...filtersRef.current,
+                        page: pagination.page + 1,
+                      });
+                    }
+                  }}
+                  disabled={pagination.page >= pagination.totalPages}
+                >
+                  {t("userCredits.next")}
+                </Button>
+                <Select
+                  value={String(pagination.take)}
+                  onValueChange={(value) => {
+                    if (onFiltersChange) {
+                      onFiltersChange({
+                        ...filtersRef.current,
+                        take: Number(value),
+                        page: 1,
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 20, 30, 50, 100].map((size) => (
+                      <SelectItem key={size} value={String(size)}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader>
-            <DrawerTitle>{t("userCredits.logs.title")}</DrawerTitle>
-            <DrawerDescription>
-              {t("userCredits.logs.description")}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="overflow-y-auto p-4">
-            {logsData?.data && <UserCreditLogsTable data={logsData.data} />}
+      {/* Detail Dialog */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{t("userCredits.detail.title")}</DialogTitle>
+            <DialogDescription>
+              {selectedCredit?.uuid || selectedCredit?.userPhoneNumber}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
+            {selectedCredit && <UserCreditDetail credit={selectedCredit} />}
           </div>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </>
   );
 });
