@@ -240,7 +240,7 @@ export const PackagesTable = memo(function PackagesTable({
   );
 
   const table = useReactTable({
-    data,
+    data: data.reverse(),
     columns,
     state: { sorting, columnVisibility, rowSelection },
     onSortingChange: setSorting,
