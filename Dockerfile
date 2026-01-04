@@ -1,8 +1,11 @@
-# Build stage
+# ---------- Build stage ----------
 FROM node:20-alpine AS build
 
 # Install pnpm
 RUN npm install -g pnpm
+
+# Set pnpm registry to Runflare mirror
+RUN pnpm config set registry https://mirror-npm.runflare.com
 
 WORKDIR /app
 
@@ -16,13 +19,14 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
-# Production stage
+
+# ---------- Production stage ----------
 FROM nginx:alpine
 
 # Copy built files
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Simple nginx config
+# Nginx config
 RUN echo 'server { \
     listen 80; \
     root /usr/share/nginx/html; \
