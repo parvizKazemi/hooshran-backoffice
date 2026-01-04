@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -93,6 +92,12 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
       | "FAILED"
       | "PROCESSING") || "all"
   );
+  // Calculate take value from filters.take (user selection) or pagination.take (API response)
+  // Prioritize filters.take (user selection) over pagination.take (API response)
+  const takeValue = useMemo(() => {
+    const take = filters.take ?? pagination?.take ?? 10;
+    return take;
+  }, [filters.take, pagination?.take]);
 
   // Track the last applied search query to avoid resetting page unnecessarily
   const lastAppliedSearchRef = useRef<string>(filters.phoneNumber || "");
@@ -121,7 +126,7 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     if (newStatus !== statusFilter) {
       setStatusFilter(newStatus);
     }
-  }, [filters.phoneNumber, filters.status]); // Only depend on q and status, not entire filters object
+  }, [filters.phoneNumber, filters.status, statusFilter, searchQuery]); // Only depend on q and status, not entire filters object
 
   // Handle search with debounce - only reset page when search actually changes
   useEffect(() => {
@@ -292,7 +297,8 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Don't use getPaginationRowModel() because pagination is handled server-side
+    manualPagination: true,
   });
 
   if (isLoading) {
@@ -467,12 +473,13 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
                   {t("serviceRequests.next")}
                 </Button>
                 <Select
-                  value={String(pagination.take)}
+                  value={String(takeValue)}
                   onValueChange={(value) => {
+                    const newTake = Number(value);
                     if (onFiltersChange) {
                       onFiltersChange({
-                        ...filters,
-                        take: Number(value),
+                        ...filtersRef.current,
+                        take: newTake,
                         page: 1,
                       });
                     }
