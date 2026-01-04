@@ -158,6 +158,7 @@ export const ServiceRequestFilterDialog = memo(
                   id="phoneNumber"
                   type="tel"
                   dir="ltr"
+                  autoFocus={true}
                   className="text-left"
                   {...form.register("phoneNumber")}
                   placeholder="09123456789"
