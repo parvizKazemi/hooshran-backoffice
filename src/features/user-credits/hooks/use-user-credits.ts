@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   UserCredit,
@@ -8,7 +8,7 @@ import {
   PaginatedResponse,
   LegacyPaginatedResponse,
 } from "../types";
-import { ApiError, apiGet } from "@/services/api";
+import { ApiError, apiGet, apiPost, apiPatch } from "@/services/api";
 import { mockUserCreditLogs } from "../mock-data";
 
 // Build query string from params
@@ -117,5 +117,97 @@ export const useUserCreditLogs = (params: UserCreditLogsQueryParams = {}) => {
     },
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+};
+
+export interface CreateUserCreditInput {
+  creditAmount: number;
+  creditBalance: number;
+  packageUuid: string;
+  packageType: "SUBSCRIPTION" | "PERMANENT";
+  type: "PURCHASE";
+  expiresAt: string; // ISO datetime string
+  pricePaid: number;
+}
+
+export interface UpdateUserCreditInput {
+  creditAmount: number;
+  creditBalance: number;
+}
+
+export const useCreateUserCredit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      phoneNumber,
+      data,
+    }: {
+      phoneNumber: string;
+      data: CreateUserCreditInput;
+    }): Promise<UserCredit> => {
+      try {
+        const response = await apiPost<UserCredit>(
+          `/admin/subscriptions/user/${phoneNumber}`,
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      // Invalidate user credits queries for the phone number
+      queryClient.invalidateQueries({ queryKey: ["user-credits"] });
+      toast.success("اعتبار کاربر با موفقیت ایجاد شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ایجاد اعتبار کاربر");
+      }
+    },
+  });
+};
+
+export const useUpdateUserCredit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      creditUuid,
+      data,
+    }: {
+      creditUuid: string;
+      data: UpdateUserCreditInput;
+    }): Promise<UserCredit> => {
+      try {
+        const response = await apiPatch<UserCredit>(
+          `/admin/subscriptions/${creditUuid}`,
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-credits"] });
+      toast.success("اعتبار کاربر با موفقیت به‌روزرسانی شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در به‌روزرسانی اعتبار کاربر");
+      }
+    },
   });
 };

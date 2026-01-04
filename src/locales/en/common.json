@@ -626,6 +626,7 @@
     "next": "Next",
     "items": "items",
     "selectedRows": "{{selected}} of {{total}} selected",
+    "createCredit": "Create Credit",
     "table": {
       "user": "User",
       "userPhone": "User Phone",
@@ -659,7 +660,8 @@
     "packageTypes": {
       "subscription": "Subscription",
       "transferred": "Transferred",
-      "permanent": "Permanent"
+      "permanent": "Permanent",
+      "oneTime": "One Time"
     },
     "allPackageTypes": "All Package Types",
     "allTypes": "All Types",
@@ -690,7 +692,37 @@
     "actions": {
       "viewLogs": "View Logs",
       "openMenu": "Open menu",
-      "view": "View Details"
+      "view": "View Details",
+      "edit": "Edit"
+    },
+    "create": {
+      "title": "Create User Credit",
+      "description": "Create a new credit for the user"
+    },
+    "edit": {
+      "title": "Edit User Credit",
+      "description": "Edit user credit information"
+    },
+    "form": {
+      "phoneNumber": "Phone Number",
+      "package": "Package",
+      "creditAmount": "Credit Amount",
+      "creditBalance": "Credit Balance",
+      "pricePaid": "Price Paid",
+      "expiresAt": "Expires At",
+      "type": "Type",
+      "packageType": "Package Type",
+      "readOnlyFields": "Read-only Fields",
+      "selectPackage": "Select Package",
+      "selectPackageDescription": "Select a package from the table below",
+      "changePackage": "Change Package",
+      "selectExpiryDate": "Select Expiry Date",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "createCredit": "Create Credit",
+      "period": "Period",
+      "periodMonthly": "Monthly",
+      "periodYearly": "Yearly"
     },
     "detail": {
       "title": "Credit Purchase Details",

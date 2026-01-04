@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { IconDotsVertical, IconEye } from "@tabler/icons-react";
+import { IconDotsVertical, IconEye, IconEdit } from "@tabler/icons-react";
 import {
   ColumnDef,
   flexRender,
@@ -45,6 +45,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserCredit, UserCreditsQueryParams } from "../types";
 import { UserCreditDetail } from "./user-credit-detail";
+import { UserCreditForm } from "./user-credit-form";
 
 type UserCreditsTableProps = {
   data: UserCredit[];
@@ -73,6 +74,8 @@ export const UserCreditsTable = memo(function UserCreditsTable({
   const [rowSelection, setRowSelection] = useState({});
   const [selectedCredit, setSelectedCredit] = useState<UserCredit | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [editingCredit, setEditingCredit] = useState<UserCredit | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -233,6 +236,15 @@ export const UserCreditsTable = memo(function UserCreditsTable({
                 >
                   <IconEye className="mr-2 size-4" />
                   {t("userCredits.actions.view")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditingCredit(credit);
+                    setIsEditDialogOpen(true);
+                  }}
+                >
+                  <IconEdit className="mr-2 size-4" />
+                  {t("userCredits.actions.edit")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -416,6 +428,34 @@ export const UserCreditsTable = memo(function UserCreditsTable({
           </DialogHeader>
           <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
             {selectedCredit && <UserCreditDetail credit={selectedCredit} />}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("userCredits.edit.title")}</DialogTitle>
+            <DialogDescription>
+              {t("userCredits.edit.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            {editingCredit && (
+              <UserCreditForm
+                credit={editingCredit}
+                onSuccess={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingCredit(null);
+                  // onRefresh?.();
+                }}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingCredit(null);
+                }}
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>

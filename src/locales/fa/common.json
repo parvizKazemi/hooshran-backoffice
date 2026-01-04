@@ -693,6 +693,7 @@
     "next": "بعدی",
     "items": "آیتم",
     "selectedRows": "{{selected}} از {{total}} انتخاب شده",
+    "createCredit": "ایجاد اعتبار",
     "table": {
       "user": "کاربر",
       "userPhone": "شماره کاربر",
@@ -726,7 +727,8 @@
     "packageTypes": {
       "subscription": "اشتراک",
       "transferred": "انتقال داده شده",
-      "permanent": "دائمی"
+      "permanent": "دائمی",
+      "oneTime": "یک بار مصرف"
     },
     "allPackageTypes": "همه انواع پکیج",
     "allTypes": "همه انواع",
@@ -757,7 +759,37 @@
     "actions": {
       "viewLogs": "مشاهده لاگ‌ها",
       "openMenu": "باز کردن منو",
-      "view": "مشاهده جزئیات"
+      "view": "مشاهده جزئیات",
+      "edit": "ویرایش"
+    },
+    "create": {
+      "title": "ایجاد اعتبار کاربر",
+      "description": "اعتبار جدید برای کاربر ایجاد کنید"
+    },
+    "edit": {
+      "title": "ویرایش اعتبار کاربر",
+      "description": "اطلاعات اعتبار کاربر را ویرایش کنید"
+    },
+    "form": {
+      "phoneNumber": "شماره تلفن",
+      "package": "پکیج",
+      "creditAmount": "مقدار اعتبار",
+      "creditBalance": "موجودی اعتبار",
+      "pricePaid": "مبلغ پرداختی",
+      "expiresAt": "تاریخ انقضا",
+      "type": "نوع",
+      "packageType": "نوع پکیج",
+      "readOnlyFields": "فیلدهای فقط خواندنی",
+      "selectPackage": "انتخاب پکیج",
+      "selectPackageDescription": "پکیج مورد نظر را از جدول زیر انتخاب کنید",
+      "changePackage": "تغییر پکیج",
+      "selectExpiryDate": "انتخاب تاریخ انقضا",
+      "saveChanges": "ذخیره تغییرات",
+      "cancel": "لغو",
+      "createCredit": "ایجاد اعتبار",
+      "period": "دوره",
+      "periodMonthly": "ماهیانه",
+      "periodYearly": "سالیانه"
     },
     "detail": {
       "title": "جزئیات خرید اعتبار",

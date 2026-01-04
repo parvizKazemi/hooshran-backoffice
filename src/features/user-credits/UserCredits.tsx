@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { IconSearch } from "@tabler/icons-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { IconSearch, IconPlus } from "@tabler/icons-react";
 import { UserCreditsTable } from "./components/user-credits-table";
 import { UserCreditsFilterDialog } from "./components/user-credits-filter-dialog";
+import { UserCreditForm } from "./components/user-credit-form";
 import { useUserCredits } from "./hooks/use-user-credits";
 import { UserCreditsQueryParams } from "./types";
 
@@ -14,6 +22,7 @@ export default function UserCredits() {
     take: 10,
   });
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data, isLoading, refetch } = useUserCredits(filters);
   const credits = data?.data || [];
@@ -46,11 +55,22 @@ export default function UserCredits() {
             ? t("userCredits.filter.changeFilter")
             : t("userCredits.filter.searchByPhone")}
         </Button>
-        {filters.phoneNumber && (
-          <div className="text-muted-foreground text-sm">
-            {t("userCredits.filter.currentPhone")}: {filters.phoneNumber}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {filters.phoneNumber && (
+            <div className="text-muted-foreground text-sm">
+              {t("userCredits.filter.currentPhone")}: {filters.phoneNumber}
+            </div>
+          )}
+          {filters.phoneNumber && (
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <IconPlus className="mr-2 size-4" />
+              {t("userCredits.createCredit")}
+            </Button>
+          )}
+        </div>
       </div>
 
       {!filters.phoneNumber ? (
@@ -89,6 +109,28 @@ export default function UserCredits() {
         onFilter={setFilters}
         initialFilters={filters}
       />
+
+      {/* Create Credit Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("userCredits.create.title")}</DialogTitle>
+            <DialogDescription>
+              {t("userCredits.create.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <UserCreditForm
+              phoneNumber={filters.phoneNumber}
+              onSuccess={() => {
+                setIsCreateDialogOpen(false);
+                refetch();
+              }}
+              onCancel={() => setIsCreateDialogOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
