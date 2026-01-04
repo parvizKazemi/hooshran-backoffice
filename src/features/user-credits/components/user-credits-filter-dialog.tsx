@@ -164,107 +164,109 @@ export const UserCreditsFilterDialog = memo(function UserCreditsFilterDialog({
               )}
             </Field>
 
-            <Field>
-              <FieldLabel htmlFor="packageType">
-                {t("userCredits.filter.packageType")}
-              </FieldLabel>
-              <Select
-                value={form.watch("packageType") || "all"}
-                onValueChange={(value) =>
-                  form.setValue(
-                    "packageType",
-                    value === "all" ? undefined : (value as PackageType)
-                  )
-                }
-                disabled={form.formState.isSubmitting}
-              >
-                <SelectTrigger id="packageType">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("userCredits.allPackageTypes")}
-                  </SelectItem>
-                  <SelectItem value="SUBSCRIPTION">
-                    {t("userCredits.packageTypes.subscription")}
-                  </SelectItem>
-                  <SelectItem value="SUBSCRIPTION-TRANSFERED">
-                    {t("userCredits.packageTypes.transferred")}
-                  </SelectItem>
-                  <SelectItem value="PERMANENT">
-                    {t("userCredits.packageTypes.permanent")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+            <div className="flex items-center justify-between gap-2">
+              <Field>
+                <FieldLabel htmlFor="packageType">
+                  {t("userCredits.filter.packageType")}
+                </FieldLabel>
+                <Select
+                  value={form.watch("packageType") || "all"}
+                  onValueChange={(value) =>
+                    form.setValue(
+                      "packageType",
+                      value === "all" ? undefined : (value as PackageType)
+                    )
+                  }
+                  disabled={form.formState.isSubmitting}
+                >
+                  <SelectTrigger id="packageType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("userCredits.allPackageTypes")}
+                    </SelectItem>
+                    <SelectItem value="SUBSCRIPTION">
+                      {t("userCredits.packageTypes.subscription")}
+                    </SelectItem>
+                    <SelectItem value="SUBSCRIPTION-TRANSFERED">
+                      {t("userCredits.packageTypes.transferred")}
+                    </SelectItem>
+                    <SelectItem value="PERMANENT">
+                      {t("userCredits.packageTypes.permanent")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <Field>
-              <FieldLabel htmlFor="type">
-                {t("userCredits.filter.type")}
-              </FieldLabel>
-              <Select
-                value={form.watch("type") || "all"}
-                onValueChange={(value) =>
-                  form.setValue(
-                    "type",
-                    value === "all" ? undefined : (value as CreditType)
-                  )
-                }
-                disabled={form.formState.isSubmitting}
-              >
-                <SelectTrigger id="type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("userCredits.allTypes")}
-                  </SelectItem>
-                  <SelectItem value="PURCHASE">
-                    {t("userCredits.types.purchase")}
-                  </SelectItem>
-                  <SelectItem value="GIFT">
-                    {t("userCredits.types.gift")}
-                  </SelectItem>
-                  <SelectItem value="REFERRAL">
-                    {t("userCredits.types.referral")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+              <Field>
+                <FieldLabel htmlFor="type">
+                  {t("userCredits.filter.type")}
+                </FieldLabel>
+                <Select
+                  value={form.watch("type") || "all"}
+                  onValueChange={(value) =>
+                    form.setValue(
+                      "type",
+                      value === "all" ? undefined : (value as CreditType)
+                    )
+                  }
+                  disabled={form.formState.isSubmitting}
+                >
+                  <SelectTrigger id="type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("userCredits.allTypes")}
+                    </SelectItem>
+                    <SelectItem value="PURCHASE">
+                      {t("userCredits.types.purchase")}
+                    </SelectItem>
+                    <SelectItem value="GIFT">
+                      {t("userCredits.types.gift")}
+                    </SelectItem>
+                    <SelectItem value="REFERRAL">
+                      {t("userCredits.types.referral")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <Field>
-              <FieldLabel htmlFor="status">
-                {t("userCredits.filter.status")}
-              </FieldLabel>
-              <Select
-                value={form.watch("status") || "all"}
-                onValueChange={(value) =>
-                  form.setValue(
-                    "status",
-                    value === "all" ? undefined : (value as CreditStatus)
-                  )
-                }
-                disabled={form.formState.isSubmitting}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("userCredits.allStatuses")}
-                  </SelectItem>
-                  <SelectItem value="active">
-                    {t("userCredits.statuses.active")}
-                  </SelectItem>
-                  <SelectItem value="used">
-                    {t("userCredits.statuses.used")}
-                  </SelectItem>
-                  <SelectItem value="expired">
-                    {t("userCredits.statuses.expired")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+              <Field>
+                <FieldLabel htmlFor="status">
+                  {t("userCredits.filter.status")}
+                </FieldLabel>
+                <Select
+                  value={form.watch("status") || "all"}
+                  onValueChange={(value) =>
+                    form.setValue(
+                      "status",
+                      value === "all" ? undefined : (value as CreditStatus)
+                    )
+                  }
+                  disabled={form.formState.isSubmitting}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("userCredits.allStatuses")}
+                    </SelectItem>
+                    <SelectItem value="active">
+                      {t("userCredits.statuses.active")}
+                    </SelectItem>
+                    <SelectItem value="used">
+                      {t("userCredits.statuses.used")}
+                    </SelectItem>
+                    <SelectItem value="expired">
+                      {t("userCredits.statuses.expired")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
           </FieldGroup>
 
           <div className="flex justify-end gap-2">
