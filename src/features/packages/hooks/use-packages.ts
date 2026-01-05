@@ -28,7 +28,7 @@ const buildQueryString = (params: PackagesQueryParams): string => {
 // Fetch packages from API
 export const usePackages = (params: PackagesQueryParams = {}) => {
   const queryString = buildQueryString(params);
-  const endpoint = `/package${queryString ? `?${queryString}` : ""}`;
+  const endpoint = `/admin/packages${queryString ? `?${queryString}` : ""}`;
 
   return useQuery({
     queryKey: ["packages", params],
@@ -84,7 +84,7 @@ export const useCreatePackage = () => {
   return useMutation({
     mutationFn: async (data: CreatePackageInput): Promise<Package> => {
       try {
-        const pkg = await apiPost<Package>("/package", data);
+        const pkg = await apiPost<Package>("/admin/packages", data);
         return pkg;
       } catch (error) {
         if (error instanceof ApiError) {
@@ -127,11 +127,31 @@ export const useUpdatePackage = () => {
           price: number;
           type: "PERMANENT" | "SUBSCRIPTION";
           durationDays?: number | null;
+          properties: Package["properties"];
         } = {
           name: updatePayload.name ?? "",
           creditAmount: updatePayload.creditAmount ?? 0,
           price: updatePayload.price ?? 0,
           type: updatePayload.type ?? "PERMANENT",
+          properties: updatePayload.properties
+            ? {
+                transferLimit: updatePayload.properties.transferLimit ?? 0,
+                boughtLimit: updatePayload.properties.boughtLimit ?? 1,
+                toolboxAccess:
+                  updatePayload.properties.toolboxAccess !== undefined
+                    ? updatePayload.properties.toolboxAccess
+                    : false,
+                isSpecialOffer:
+                  updatePayload.properties.isSpecialOffer !== undefined
+                    ? updatePayload.properties.isSpecialOffer
+                    : false,
+              }
+            : {
+                transferLimit: 0,
+                boughtLimit: 1,
+                toolboxAccess: false,
+                isSpecialOffer: false,
+              },
         };
 
         // Add durationDays if provided, or set to null if type is PERMANENT
@@ -141,7 +161,7 @@ export const useUpdatePackage = () => {
           payload.durationDays = null;
         }
 
-        const pkg = await apiPatch<Package>(`/package/${uuid}`, payload);
+        const pkg = await apiPatch<Package>(`/admin/packages/${uuid}`, payload);
         return pkg;
       } catch (error) {
         if (error instanceof ApiError) {
@@ -170,7 +190,7 @@ export const useDeletePackage = () => {
   return useMutation({
     mutationFn: async (uuid: string): Promise<void> => {
       try {
-        await apiDelete<void>(`/package/${uuid}`);
+        await apiDelete<void>(`/admin/packages/${uuid}`);
       } catch (error) {
         if (error instanceof ApiError) {
           toast.error(error.message);

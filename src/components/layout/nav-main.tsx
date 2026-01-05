@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 export function NavMain({
   items,
   badges,
+  completedItems,
 }: {
   items: readonly {
     readonly title: string;
@@ -20,6 +21,7 @@ export function NavMain({
     readonly icon?: Icon;
   }[];
   badges?: Record<string, number>;
+  completedItems: string[];
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,6 +33,10 @@ export function NavMain({
     }
     // For other paths, match if pathname starts with the url
     return location.pathname === url || location.pathname.startsWith(url + "/");
+  };
+
+  const isCompleted = (url: string) => {
+    return completedItems.includes(url);
   };
 
   return (
@@ -59,6 +65,7 @@ export function NavMain({
           {items.map((item) => {
             const badgeCount = badges?.[item.url] || 0;
             const active = isActive(item.url);
+            const completed = isCompleted(item.url);
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
@@ -67,8 +74,24 @@ export function NavMain({
                   isActive={active}
                   className="relative cursor-pointer"
                 >
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  {item.icon && (
+                    <item.icon
+                      className={
+                        completed
+                          ? "text-blue-500 dark:text-emerald-500"
+                          : "text-black/40 dark:text-white/40"
+                      }
+                    />
+                  )}
+                  <span
+                    className={
+                      completed
+                        ? "text-black dark:text-white"
+                        : "text-black/40 dark:text-white/40"
+                    }
+                  >
+                    {item.title}
+                  </span>
                   {badgeCount > 0 && (
                     <Badge
                       variant="default"

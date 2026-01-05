@@ -10,23 +10,50 @@ export const ServiceRequestStatusSchema = z.enum([
 
 export type ServiceRequestStatus = z.infer<typeof ServiceRequestStatusSchema>;
 
-// Service Request Schema
-export const ServiceRequestSchema = z.object({
-  id: z.string().min(1),
-  user_id: z.string(),
-  user_phone: z.string().optional(),
-  user_name: z.string().optional(),
-  api_service_id: z.string(),
-  api_service_name: z.string().optional(),
-  input_params: z.record(z.string(), z.unknown()).optional(),
-  output: z.record(z.string(), z.unknown()).optional().nullable(),
-  error: z.string().optional().nullable(),
-  status: ServiceRequestStatusSchema,
-  credit_cost: z.number().int().min(0).optional(),
-  rating: z.number().int().min(1).max(5).optional().nullable(),
-  error_message: z.string().optional().nullable(),
+// User Schema
+export const UserSchema = z.object({
+  uuid: z.string(),
   createdAt: z.string(),
-  updatedAt: z.string().optional(),
+  updatedAt: z.string(),
+  registrationSource: z.string().nullable(),
+  referralCode: z.string(),
+  phoneNumber: z.string(),
+  profile: z.unknown().nullable(),
+});
+
+export type User = z.infer<typeof UserSchema>;
+
+// API Service Schema
+export const ApiServiceSchema = z.object({
+  uuid: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  name: z.string(),
+  description: z.string(),
+  endpoint: z.string(),
+  slug: z.string(),
+  templateName: z.string(),
+  serviceCreditCosts: z.array(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
+});
+
+export type ApiService = z.infer<typeof ApiServiceSchema>;
+
+// Service Request Schema (New API Structure)
+export const ServiceRequestSchema = z.object({
+  uuid: z.string(),
+  createdAt: z.string(),
+  parameters: z.record(z.string(), z.unknown()),
+  status: ServiceRequestStatusSchema,
+  responseData: z.record(z.string(), z.unknown()).nullable(),
+  creditCost: z.number().int().min(0),
+  paidWithGems: z.boolean(),
+  gemsUsed: z.number().int().min(0),
+  taskId: z.string(),
+  userUuid: z.string(),
+  apiServiceUuid: z.string(),
+  user: UserSchema,
+  apiService: ApiServiceSchema,
 });
 
 export type ServiceRequest = z.infer<typeof ServiceRequestSchema>;
@@ -34,20 +61,21 @@ export type ServiceRequest = z.infer<typeof ServiceRequestSchema>;
 // API Response types
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
-  page: number;
-  take: number;
-  totalPages: number;
+  meta: {
+    page: number;
+    take: number;
+    itemCount: number;
+    pageCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
 }
 
 export interface ServiceRequestsQueryParams {
-  order?: string;
+  phoneNumber?: string;
   page?: number;
   take?: number;
-  q?: string;
-  user_id?: string;
-  api_service_id?: string;
   status?: ServiceRequestStatus | "all";
-  start_date?: string;
-  end_date?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }

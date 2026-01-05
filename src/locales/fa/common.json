@@ -41,9 +41,9 @@
     "transactions": "تراکنش‌ها",
     "tickets": "تیکت‌ها",
     "apiServices": "سرویس‌های API",
-    "serviceRequests": "درخواست‌های سرویس",
+    "serviceRequests": "درخواست‌های کاربران",
     "categories": "دسته‌بندی‌ها",
-    "userCredits": "موجودی اعتبار",
+    "userCredits": "مدیریت اعتبار کاربران",
     "packages": "پکیج‌ها",
     "plans": "پلن‌ها",
     "referrals": "ارجاع",
@@ -560,7 +560,7 @@
     }
   },
   "serviceRequests": {
-    "title": "درخواست‌های سرویس",
+    "title": "درخواست‌های کاربران",
     "description": "مشاهده و مدیریت درخواست‌های کاربران برای سرویس‌های API",
     "search": "جستجوی درخواست...",
     "status": "وضعیت",
@@ -573,9 +573,32 @@
     "items": "مورد",
     "prev": "قبلی",
     "next": "بعدی",
+    "emptyState": {
+      "title": "هیچ درخواستی یافت نشد",
+      "description": "برای مشاهده درخواست‌های کاربر، شماره تلفن را وارد کنید"
+    },
+    "filter": {
+      "title": "جستجوی درخواست‌ها",
+      "description": "شماره تلفن کاربر را وارد کنید و فیلترهای مورد نظر را اعمال کنید",
+      "phoneNumber": "شماره تلفن",
+      "page": "شماره صفحه",
+      "take": "تعداد در هر صفحه",
+      "status": "وضعیت",
+      "dateFrom": "از تاریخ",
+      "dateTo": "تا تاریخ",
+      "dateFromPlaceholder": "انتخاب تاریخ شروع",
+      "dateToPlaceholder": "انتخاب تاریخ پایان",
+      "apply": "اعمال فیلتر",
+      "cancel": "لغو",
+      "reset": "پاک کردن فیلترها",
+      "searchByPhone": "جستجو بر اساس شماره تلفن",
+      "changeFilter": "تغییر فیلتر",
+      "currentPhone": "شماره تلفن فعلی"
+    },
     "table": {
       "id": "شناسه",
       "user": "کاربر",
+      "userPhone": "شماره کاربر",
       "service": "سرویس",
       "status": "وضعیت",
       "cost": "هزینه",
@@ -605,7 +628,11 @@
       "error": "خطا",
       "timestamps": "زمان‌بندی",
       "createdAt": "تاریخ ایجاد",
-      "updatedAt": "تاریخ بروزرسانی"
+      "updatedAt": "تاریخ بروزرسانی",
+      "referralCode": "کد معرف",
+      "paidWithGems": "پرداخت با گیم",
+      "taskId": "شناسه تسک",
+      "uuid": "UUID"
     }
   },
   "categories": {
@@ -652,8 +679,8 @@
     }
   },
   "userCredits": {
-    "title": "موجودی اعتبار کاربران",
-    "description": "مشاهده و مدیریت موجودی اعتبار کاربران",
+    "title": "مدیریت اعتبار کاربران",
+    "description": "مشاهده و مدیریت خرید و مصرف اعتبار کاربران",
     "search": "جستجوی کاربر...",
     "source": "منبع",
     "allSources": "همه منابع",
@@ -664,27 +691,122 @@
     "of": "از",
     "prev": "قبلی",
     "next": "بعدی",
+    "items": "آیتم",
+    "selectedRows": "{{selected}} از {{total}} انتخاب شده",
+    "createCredit": "ایجاد اعتبار",
     "table": {
       "user": "کاربر",
+      "userPhone": "شماره کاربر",
       "amount": "مقدار",
+      "creditBalance": "موجودی باقیمانده",
+      "creditAmount": "مقدار خریداری شده",
       "source": "منبع",
       "paidAmount": "مبلغ پرداخت",
-      "expiresAt": "تاریخ انقضا"
+      "expiresAt": "تاریخ انقضا",
+      "type": "نوع",
+      "purchaseTime": "زمان خرید",
+      "status": "وضعیت"
     },
     "sources": {
       "purchase": "خرید",
       "gift": "هدیه",
-      "referral": "ارجاع",
+      "referral": "رفرال",
       "system": "سیستم",
       "admin": "ادمین"
     },
     "types": {
       "increase": "افزایش",
       "decrease": "کاهش",
-      "subscription": "اشتراک"
+      "subscription": "اشتراک",
+      "purchase": "خرید",
+      "gift": "هدیه",
+      "referral": "رفرال",
+      "system": "سیستم",
+      "admin": "ادمین"
+    },
+    "packageTypes": {
+      "subscription": "اشتراک",
+      "transferred": "انتقال داده شده",
+      "permanent": "دائمی",
+      "oneTime": "یک بار مصرف"
+    },
+    "allPackageTypes": "همه انواع پکیج",
+    "allTypes": "همه انواع",
+    "statuses": {
+      "active": "فعال",
+      "used": "استفاده شده",
+      "expired": "منقضی شده"
+    },
+    "allStatuses": "همه وضعیت‌ها",
+    "filter": {
+      "title": "جستجو بر اساس شماره تلفن",
+      "description": "شماره تلفن کاربر را وارد کنید",
+      "phoneNumber": "شماره تلفن",
+      "packageType": "نوع پکیج",
+      "type": "نوع",
+      "status": "وضعیت",
+      "searchByPhone": "جستجو بر اساس شماره تلفن",
+      "changeFilter": "تغییر فیلتر",
+      "currentPhone": "شماره فعلی",
+      "reset": "پاک کردن فیلترها",
+      "cancel": "لغو",
+      "apply": "اعمال"
+    },
+    "emptyState": {
+      "title": "هیچ داده‌ای نمایش داده نشده است",
+      "description": "برای مشاهده موجودی اعتبار کاربران، شماره تلفن کاربر را وارد کنید"
     },
     "actions": {
-      "viewLogs": "مشاهده لاگ‌ها"
+      "viewLogs": "مشاهده لاگ‌ها",
+      "openMenu": "باز کردن منو",
+      "view": "مشاهده جزئیات",
+      "edit": "ویرایش"
+    },
+    "create": {
+      "title": "ایجاد اعتبار کاربر",
+      "description": "اعتبار جدید برای کاربر ایجاد کنید"
+    },
+    "edit": {
+      "title": "ویرایش اعتبار کاربر",
+      "description": "اطلاعات اعتبار کاربر را ویرایش کنید"
+    },
+    "form": {
+      "phoneNumber": "شماره تلفن",
+      "package": "پکیج",
+      "creditAmount": "مقدار اعتبار",
+      "creditBalance": "موجودی اعتبار",
+      "pricePaid": "مبلغ پرداختی",
+      "expiresAt": "تاریخ انقضا",
+      "type": "نوع",
+      "packageType": "نوع پکیج",
+      "readOnlyFields": "فیلدهای فقط خواندنی",
+      "selectPackage": "انتخاب پکیج",
+      "selectPackageDescription": "پکیج مورد نظر را از جدول زیر انتخاب کنید",
+      "changePackage": "تغییر پکیج",
+      "selectExpiryDate": "انتخاب تاریخ انقضا",
+      "saveChanges": "ذخیره تغییرات",
+      "cancel": "لغو",
+      "createCredit": "ایجاد اعتبار",
+      "period": "دوره",
+      "periodMonthly": "ماهیانه",
+      "periodYearly": "سالیانه"
+    },
+    "detail": {
+      "title": "جزئیات خرید اعتبار",
+      "basicInfo": "اطلاعات پایه",
+      "userPhone": "شماره تلفن کاربر",
+      "status": "وضعیت",
+      "creditBalance": "موجودی باقیمانده",
+      "creditAmount": "مقدار خریداری شده",
+      "pricePaid": "مبلغ پرداخت شده",
+      "type": "نوع",
+      "packageType": "نوع پکیج",
+      "packageUuid": "شناسه پکیج",
+      "uuid": "شناسه",
+      "userUuid": "شناسه کاربر",
+      "timestamps": "زمان‌ها",
+      "createdAt": "زمان ایجاد",
+      "expiresAt": "زمان انقضا"
     },
     "logs": {
       "title": "تاریخچه تغییرات اعتبار",
@@ -751,8 +873,21 @@
       "saveChanges": "ذخیره تغییرات",
       "createPackage": "ایجاد پکیج",
       "cancel": "لغو",
+      "displayParts": "قسمت‌های نمایشی برای کاربر",
+      "mainParts": "قسمت‌های اصلی پکیج ",
       "namePlaceholder": "نام پکیج را وارد کنید",
-      "name": "نام"
+      "name": "نام",
+      "mainPriceDisplay": "قیمت اصلی (تومان)",
+      "mainPriceDisplayPlaceholder": "قیمت اصلی که به کاربر نشان داده می‌شود",
+      "buyPriceDisplay": "قیمت خرید (تومان)",
+      "buyPriceDisplayPlaceholder": "قیمت خرید که به کاربر نشان داده می‌شود",
+      "properties": "ویژگی‌ها",
+      "transferLimit": "انتقال مانده",
+      "transferLimitPlaceholder": "انتقال مانده را وارد کنید",
+      "boughtLimit": "محدودیت تعداد خرید",
+      "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
+      "toolboxAccess": "دسترسی به جعبه ابزار",
+      "isSpecialOffer": "پیشنهاد ویژه"
     }
   },
   "plans": {

@@ -5,25 +5,24 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,10 +78,10 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
     null
   );
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   // Local filter states
-  const [searchQuery, setSearchQuery] = useState(filters.q || "");
+  const [searchQuery, setSearchQuery] = useState(filters.phoneNumber || "");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "PENDING" | "SUCCESS" | "FAILED" | "PROCESSING"
   >(
@@ -93,42 +92,63 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
       | "FAILED"
       | "PROCESSING") || "all"
   );
+  // Calculate take value from filters.take (user selection) or pagination.take (API response)
+  // Prioritize filters.take (user selection) over pagination.take (API response)
+  const takeValue = useMemo(() => {
+    const take = filters.take ?? pagination?.take ?? 10;
+    return take;
+  }, [filters.take, pagination?.take]);
 
-  // Update filters when props change
+  // Track the last applied search query to avoid resetting page unnecessarily
+  const lastAppliedSearchRef = useRef<string>(filters.phoneNumber || "");
+  // Keep a ref to latest filters to use in useEffect
+  const filtersRef = useRef(filters);
+
+  // Update filters ref when filters change
   useEffect(() => {
-    setSearchQuery(filters.q || "");
-    setStatusFilter(
+    filtersRef.current = filters;
+  }, [filters]);
+
+  // Update filters when props change (but don't reset local search/status if only pagination changed)
+  useEffect(() => {
+    // Only update local state if the actual filter values changed (not pagination)
+    if (filters.phoneNumber !== searchQuery) {
+      setSearchQuery(filters.phoneNumber || "");
+      lastAppliedSearchRef.current = filters.phoneNumber || "";
+    }
+    const newStatus =
       (filters.status as
         | "all"
         | "PENDING"
         | "SUCCESS"
         | "FAILED"
-        | "PROCESSING") || "all"
-    );
-  }, [filters]);
+        | "PROCESSING") || "all";
+    if (newStatus !== statusFilter) {
+      setStatusFilter(newStatus);
+    }
+  }, [filters.phoneNumber, filters.status, statusFilter, searchQuery]); // Only depend on q and status, not entire filters object
 
-  // Apply filters to API
-  const applyFilters = useMemo(
-    () => (newFilters: Partial<ServiceRequestsQueryParams>) => {
+  // Handle search with debounce - only reset page when search actually changes
+  useEffect(() => {
+    // Skip if searchQuery matches the last applied search (to avoid resetting page on pagination)
+    if (searchQuery === lastAppliedSearchRef.current) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
       if (onFiltersChange) {
+        lastAppliedSearchRef.current = searchQuery;
+        // Use filtersRef to get latest filters without causing re-renders
         onFiltersChange({
-          ...filters,
-          ...newFilters,
-          page: 1,
+          ...filtersRef.current,
+          phoneNumber: searchQuery || undefined,
+          page: 1, // Reset page only when search changes
         });
       }
-    },
-    [filters, onFiltersChange]
-  );
-
-  // Handle search with debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ q: searchQuery || undefined });
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, applyFilters]);
+  }, [searchQuery, onFiltersChange]); // Only depend on searchQuery and onFiltersChange
 
   const statusLabels: Record<string, string> = {
     PENDING: t("serviceRequests.statuses.pending"),
@@ -174,33 +194,24 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
         enableHiding: false,
       },
       {
-        accessorKey: "id",
-        header: t("serviceRequests.table.id"),
-        cell: ({ row }) => (
-          <span className="font-mono text-sm">{row.original.id}</span>
-        ),
-      },
-      {
-        accessorKey: "user_name",
-        header: t("serviceRequests.table.user"),
+        accessorKey: "user.phoneNumber",
+        header: t("serviceRequests.table.userPhone"),
         cell: ({ row }) => {
           const req = row.original;
           return (
-            <div className="flex flex-col">
-              <span className="font-medium">{req.user_name || "-"}</span>
-              {req.user_phone && (
-                <span className="text-muted-foreground text-xs">
-                  {req.user_phone}
-                </span>
-              )}
-            </div>
+            <span className="font-mono text-sm">
+              {req.user?.phoneNumber || "-"}
+            </span>
           );
         },
       },
       {
-        accessorKey: "api_service_name",
+        accessorKey: "apiService.name",
         header: t("serviceRequests.table.service"),
-        cell: ({ row }) => row.original.api_service_name || "-",
+        cell: ({ row }) => {
+          const req = row.original;
+          return <span>{req.apiService?.name || "-"}</span>;
+        },
       },
       {
         accessorKey: "status",
@@ -215,19 +226,11 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
         },
       },
       {
-        accessorKey: "credit_cost",
+        accessorKey: "creditCost",
         header: t("serviceRequests.table.cost"),
         cell: ({ row }) => {
-          const cost = row.original.credit_cost;
+          const cost = row.original.creditCost;
           return cost ? `${cost} ${t("serviceRequests.credit")}` : "-";
-        },
-      },
-      {
-        accessorKey: "rating",
-        header: t("serviceRequests.table.rating"),
-        cell: ({ row }) => {
-          const rating = row.original.rating;
-          return rating ? "⭐".repeat(rating) : "-";
         },
       },
       {
@@ -235,7 +238,14 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
         header: t("serviceRequests.table.date"),
         cell: ({ row }) => {
           const date = new Date(row.original.createdAt);
-          return date.toLocaleDateString("fa-IR");
+          return (
+            <div className="flex flex-col">
+              <span>{date.toLocaleDateString("fa-IR")}</span>
+              <span className="text-muted-foreground text-xs">
+                {date.toLocaleTimeString("fa-IR")}
+              </span>
+            </div>
+          );
         },
       },
       {
@@ -256,7 +266,7 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedRequest(request);
-                    setIsDrawerOpen(true);
+                    setIsDetailDialogOpen(true);
                   }}
                 >
                   <IconEye className="mr-2 size-4" />
@@ -287,7 +297,8 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Don't use getPaginationRowModel() because pagination is handled server-side
+    manualPagination: true,
   });
 
   if (isLoading) {
@@ -320,20 +331,23 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
             <Select
               value={statusFilter}
               onValueChange={(value) => {
-                setStatusFilter(
-                  value as
-                    | "all"
-                    | "PENDING"
-                    | "SUCCESS"
-                    | "FAILED"
-                    | "PROCESSING"
-                );
-                applyFilters({
-                  status:
-                    value === "all"
-                      ? undefined
-                      : (value as ServiceRequest["status"]),
-                });
+                const newStatus = value as
+                  | "all"
+                  | "PENDING"
+                  | "SUCCESS"
+                  | "FAILED"
+                  | "PROCESSING";
+                setStatusFilter(newStatus);
+                if (onFiltersChange) {
+                  onFiltersChange({
+                    ...filters,
+                    status:
+                      value === "all"
+                        ? undefined
+                        : (value as ServiceRequest["status"]),
+                    page: 1, // Reset page only when status changes
+                  });
+                }
               }}
             >
               <SelectTrigger className="w-40">
@@ -459,12 +473,13 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
                   {t("serviceRequests.next")}
                 </Button>
                 <Select
-                  value={String(pagination.take)}
+                  value={String(takeValue)}
                   onValueChange={(value) => {
+                    const newTake = Number(value);
                     if (onFiltersChange) {
                       onFiltersChange({
-                        ...filters,
-                        take: Number(value),
+                        ...filtersRef.current,
+                        take: newTake,
                         page: 1,
                       });
                     }
@@ -487,20 +502,22 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
         </div>
       </div>
 
-      {/* Detail Drawer */}
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader>
-            <DrawerTitle>{t("serviceRequests.detail.title")}</DrawerTitle>
-            <DrawerDescription>{selectedRequest?.id}</DrawerDescription>
-          </DrawerHeader>
-          <div className="overflow-y-auto p-4">
+      {/* Detail Dialog */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{t("serviceRequests.detail.title")}</DialogTitle>
+            <DialogDescription>
+              {selectedRequest?.uuid || selectedRequest?.taskId}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
             {selectedRequest && (
               <ServiceRequestDetail request={selectedRequest} />
             )}
           </div>
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </>
   );
 });

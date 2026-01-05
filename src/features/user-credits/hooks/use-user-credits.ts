@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   UserCredit,
@@ -6,47 +6,62 @@ import {
   UserCreditsQueryParams,
   UserCreditLogsQueryParams,
   PaginatedResponse,
+  LegacyPaginatedResponse,
 } from "../types";
-import { ApiError } from "@/services/api";
-import { mockUserCredits, mockUserCreditLogs } from "../mock-data";
+import { ApiError, apiGet, apiPost, apiPatch } from "@/services/api";
+import { mockUserCreditLogs } from "../mock-data";
+
+// Build query string from params
+const buildQueryString = (
+  params: Omit<UserCreditsQueryParams, "phoneNumber">
+): string => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page !== undefined) {
+    searchParams.append("page", params.page.toString());
+  }
+  if (params.take !== undefined) {
+    searchParams.append("take", params.take.toString());
+  }
+  if (params.packageType) {
+    searchParams.append("packageType", params.packageType);
+  }
+  if (params.type) {
+    searchParams.append("type", params.type);
+  }
+  if (params.status) {
+    searchParams.append("status", params.status);
+  }
+
+  return searchParams.toString();
+};
 
 export const useUserCredits = (params: UserCreditsQueryParams = {}) => {
   return useQuery({
     queryKey: ["user-credits", params],
     queryFn: async (): Promise<PaginatedResponse<UserCredit>> => {
       try {
-        // TODO: Replace with actual API call
-        let filtered = [...mockUserCredits];
-        if (params.q) {
-          const query = params.q.toLowerCase();
-          filtered = filtered.filter(
-            (credit) =>
-              credit.user_name?.toLowerCase().includes(query) ||
-              credit.user_phone?.toLowerCase().includes(query) ||
-              credit.user_id.toLowerCase().includes(query)
-          );
+        // Phone number is required
+        if (!params.phoneNumber) {
+          return {
+            data: [],
+            meta: {
+              page: 1,
+              take: 10,
+              itemCount: 0,
+              pageCount: 0,
+              hasPreviousPage: false,
+              hasNextPage: false,
+            },
+          };
         }
-        if (params.user_id) {
-          filtered = filtered.filter(
-            (credit) => credit.user_id === params.user_id
-          );
-        }
-        if (params.source && params.source !== "all") {
-          filtered = filtered.filter(
-            (credit) => credit.source === params.source
-          );
-        }
-        const page = params.page || 1;
-        const take = params.take || 10;
-        const start = (page - 1) * take;
-        const end = start + take;
-        return {
-          data: filtered.slice(start, end),
-          total: filtered.length,
-          page,
-          take,
-          totalPages: Math.ceil(filtered.length / take),
-        };
+
+        const { phoneNumber, ...queryParams } = params;
+        const queryString = buildQueryString(queryParams);
+        const endpoint = `/admin/subscriptions/credits${queryString ? `?phoneNumber=${encodeURIComponent(phoneNumber)}&${queryString}` : `?phoneNumber=${encodeURIComponent(phoneNumber)}`}`;
+
+        const response = await apiGet<PaginatedResponse<UserCredit>>(endpoint);
+        return response;
       } catch (error) {
         if (error instanceof ApiError) {
           toast.error(error.message);
@@ -54,6 +69,7 @@ export const useUserCredits = (params: UserCreditsQueryParams = {}) => {
         throw error;
       }
     },
+    enabled: !!params.phoneNumber, // Only fetch when phoneNumber is provided
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -62,7 +78,7 @@ export const useUserCredits = (params: UserCreditsQueryParams = {}) => {
 export const useUserCreditLogs = (params: UserCreditLogsQueryParams = {}) => {
   return useQuery({
     queryKey: ["user-credit-logs", params],
-    queryFn: async (): Promise<PaginatedResponse<UserCreditLog>> => {
+    queryFn: async (): Promise<LegacyPaginatedResponse<UserCreditLog>> => {
       try {
         // TODO: Replace with actual API call
         let filtered = [...mockUserCreditLogs];
@@ -101,5 +117,97 @@ export const useUserCreditLogs = (params: UserCreditLogsQueryParams = {}) => {
     },
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+};
+
+export interface CreateUserCreditInput {
+  creditAmount: number;
+  creditBalance: number;
+  packageUuid: string;
+  packageType: "SUBSCRIPTION" | "PERMANENT";
+  type: "PURCHASE";
+  expiresAt: string; // ISO datetime string
+  pricePaid: number;
+}
+
+export interface UpdateUserCreditInput {
+  creditAmount: number;
+  creditBalance: number;
+}
+
+export const useCreateUserCredit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      phoneNumber,
+      data,
+    }: {
+      phoneNumber: string;
+      data: CreateUserCreditInput;
+    }): Promise<UserCredit> => {
+      try {
+        const response = await apiPost<UserCredit>(
+          `/admin/subscriptions/user/${phoneNumber}`,
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      // Invalidate user credits queries for the phone number
+      queryClient.invalidateQueries({ queryKey: ["user-credits"] });
+      toast.success("اعتبار کاربر با موفقیت ایجاد شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ایجاد اعتبار کاربر");
+      }
+    },
+  });
+};
+
+export const useUpdateUserCredit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      creditUuid,
+      data,
+    }: {
+      creditUuid: string;
+      data: UpdateUserCreditInput;
+    }): Promise<UserCredit> => {
+      try {
+        const response = await apiPatch<UserCredit>(
+          `/admin/subscriptions/${creditUuid}`,
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-credits"] });
+      toast.success("اعتبار کاربر با موفقیت به‌روزرسانی شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در به‌روزرسانی اعتبار کاربر");
+      }
+    },
   });
 };

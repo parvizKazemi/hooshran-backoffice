@@ -10,6 +10,12 @@ export const mockPackages: Package[] = [
     durationDays: null,
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-20T15:30:00Z",
+    properties: {
+      transferLimit: 1000,
+      boughtLimit: 1,
+      toolboxAccess: true,
+      isSpecialOffer: false,
+    },
   },
   {
     uuid: "2",
@@ -20,6 +26,12 @@ export const mockPackages: Package[] = [
     durationDays: null,
     createdAt: "2024-01-16T11:00:00Z",
     updatedAt: "2024-01-21T16:45:00Z",
+    properties: {
+      transferLimit: 1000,
+      boughtLimit: 1,
+      toolboxAccess: true,
+      isSpecialOffer: false,
+    },
   },
   {
     uuid: "3",
@@ -30,6 +42,12 @@ export const mockPackages: Package[] = [
     durationDays: null,
     createdAt: "2024-01-17T09:00:00Z",
     updatedAt: "2024-01-22T18:20:00Z",
+    properties: {
+      transferLimit: 1000,
+      boughtLimit: 1,
+      toolboxAccess: true,
+      isSpecialOffer: false,
+    },
   },
   {
     uuid: "4",
@@ -40,6 +58,12 @@ export const mockPackages: Package[] = [
     durationDays: 30,
     createdAt: "2024-01-18T12:00:00Z",
     updatedAt: "2024-01-23T10:15:00Z",
+    properties: {
+      transferLimit: 1000,
+      boughtLimit: 1,
+      toolboxAccess: true,
+      isSpecialOffer: false,
+    },
   },
   {
     uuid: "5",
@@ -50,5 +74,11 @@ export const mockPackages: Package[] = [
     durationDays: 90,
     createdAt: "2024-01-19T08:00:00Z",
     updatedAt: "2024-01-24T14:30:00Z",
+    properties: {
+      transferLimit: 1000,
+      boughtLimit: 1,
+      toolboxAccess: true,
+      isSpecialOffer: false,
+    },
   },
 ];

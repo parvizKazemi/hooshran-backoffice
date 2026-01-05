@@ -11,6 +11,31 @@ export const CreditSourceSchema = z.enum([
 
 export type CreditSource = z.infer<typeof CreditSourceSchema>;
 
+// Credit Type (from API)
+export const CreditTypeSchema = z.enum([
+  "PURCHASE",
+  "GIFT",
+  "REFERRAL",
+  "SYSTEM",
+  "ADMIN",
+]);
+
+export type CreditType = z.infer<typeof CreditTypeSchema>;
+
+// Package Type
+export const PackageTypeSchema = z.enum([
+  "SUBSCRIPTION",
+  "SUBSCRIPTION-TRANSFERED",
+  "PERMANENT",
+]);
+
+export type PackageType = z.infer<typeof PackageTypeSchema>;
+
+// Credit Status
+export const CreditStatusSchema = z.enum(["active", "used", "expired"]);
+
+export type CreditStatus = z.infer<typeof CreditStatusSchema>;
+
 // Credit Log Type
 export const CreditLogTypeSchema = z.enum([
   "INCREASE",
@@ -20,8 +45,26 @@ export const CreditLogTypeSchema = z.enum([
 
 export type CreditLogType = z.infer<typeof CreditLogTypeSchema>;
 
-// User Credit Schema
+// User Credit Schema (API Response Structure)
 export const UserCreditSchema = z.object({
+  uuid: z.string(),
+  userUuid: z.string(),
+  userPhoneNumber: z.string(),
+  creditBalance: z.number().int().min(0),
+  creditAmount: z.number().int().min(0),
+  pricePaid: z.number().int().min(0),
+  type: CreditTypeSchema,
+  packageType: PackageTypeSchema,
+  packageUuid: z.string(),
+  expiresAt: z.string(),
+  createdAt: z.string(),
+  status: CreditStatusSchema,
+});
+
+export type UserCredit = z.infer<typeof UserCreditSchema>;
+
+// Legacy User Credit Schema (for backward compatibility)
+export const LegacyUserCreditSchema = z.object({
   id: z.string().min(1),
   user_id: z.string(),
   user_name: z.string().optional(),
@@ -34,7 +77,7 @@ export const UserCreditSchema = z.object({
   updatedAt: z.string().optional(),
 });
 
-export type UserCredit = z.infer<typeof UserCreditSchema>;
+export type LegacyUserCredit = z.infer<typeof LegacyUserCreditSchema>;
 
 // User Credit Log Schema
 export const UserCreditLogSchema = z.object({
@@ -56,6 +99,19 @@ export type UserCreditLog = z.infer<typeof UserCreditLogSchema>;
 // API Response types
 export interface PaginatedResponse<T> {
   data: T[];
+  meta: {
+    page: number;
+    take: number;
+    itemCount: number;
+    pageCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+// Legacy Paginated Response (for backward compatibility)
+export interface LegacyPaginatedResponse<T> {
+  data: T[];
   total: number;
   page: number;
   take: number;
@@ -63,9 +119,14 @@ export interface PaginatedResponse<T> {
 }
 
 export interface UserCreditsQueryParams {
-  order?: string;
   page?: number;
   take?: number;
+  phoneNumber?: string;
+  packageType?: PackageType;
+  type?: CreditType;
+  status?: CreditStatus;
+  // Legacy params
+  order?: string;
   q?: string;
   user_id?: string;
   source?: CreditSource | "all";
