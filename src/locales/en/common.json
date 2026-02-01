@@ -708,7 +708,7 @@
       "package": "Package",
       "creditAmount": "Credit Amount",
       "creditBalance": "Credit Balance",
-      "pricePaid": "Price Paid",
+      "pricePaid": "Price Paid (Rials)",
       "expiresAt": "Expires At",
       "type": "Type",
       "packageType": "Package Type",
