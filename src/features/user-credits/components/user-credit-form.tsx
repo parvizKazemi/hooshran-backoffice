@@ -153,7 +153,7 @@ export const UserCreditForm = memo(function UserCreditForm({
       creditBalance: data.creditBalance,
       packageUuid: data.packageUuid,
       packageType: "SUBSCRIPTION",
-      type: "PURCHASE",
+      type: "ADMIN",
       expiresAt: convertDateToISO(data.expiresAt),
       pricePaid: data.pricePaid,
     };

@@ -125,7 +125,7 @@ export interface CreateUserCreditInput {
   creditBalance: number;
   packageUuid: string;
   packageType: "SUBSCRIPTION" | "PERMANENT";
-  type: "PURCHASE";
+  type: "PURCHASE" | "ADMIN";
   expiresAt: string; // ISO datetime string
   pricePaid: number;
 }
