@@ -93,6 +93,16 @@ export const UserCreditForm = memo(function UserCreditForm({
     return packages.find((pkg) => pkg.uuid === packageUuid);
   }, [packageUuid, packages]);
 
+  // Format pricePaid for display
+  const pricePaidValue = createForm.watch("pricePaid");
+  const formattedPricePaid = useMemo(() => {
+    const numericValue = Number(pricePaidValue);
+    if (!isNaN(numericValue) && numericValue > 0) {
+      return numericValue.toLocaleString();
+    }
+    return null;
+  }, [pricePaidValue]);
+
   const updateForm = useForm<UpdateCreditFormData>({
     resolver: zodResolver(updateCreditSchema),
     defaultValues: credit
@@ -143,7 +153,7 @@ export const UserCreditForm = memo(function UserCreditForm({
       creditBalance: data.creditBalance,
       packageUuid: data.packageUuid,
       packageType: "SUBSCRIPTION",
-      type: "PURCHASE",
+      type: "ADMIN",
       expiresAt: convertDateToISO(data.expiresAt),
       pricePaid: data.pricePaid,
     };
@@ -410,7 +420,7 @@ export const UserCreditForm = memo(function UserCreditForm({
         </div> */}
 
         <div className="grid grid-cols-1 gap-4">
-          {/* <Field>
+          <Field>
             <FieldLabel htmlFor="pricePaid">
               {t("userCredits.form.pricePaid")}{" "}
               <span className="text-destructive">*</span>
@@ -419,19 +429,24 @@ export const UserCreditForm = memo(function UserCreditForm({
               id="pricePaid"
               className="text-left"
               dir="ltr"
-              type="number"
               min="0"
+              type="number"
               {...createForm.register("pricePaid", {
                 valueAsNumber: true,
               })}
-              disabled={isLoading || !!selectedPackage}
+              disabled={isLoading || !selectedPackage?.price}
             />
             {createForm.formState.errors.pricePaid && (
               <FieldDescription className="text-destructive">
                 {createForm.formState.errors.pricePaid.message}
               </FieldDescription>
             )}
-          </Field> */}
+            {formattedPricePaid && (
+              <FieldDescription className="text-muted-foreground text-left text-xs">
+                {formattedPricePaid} {t("packages.rial")}
+              </FieldDescription>
+            )}
+          </Field>
 
           <Field>
             <FieldLabel htmlFor="expiresAt">

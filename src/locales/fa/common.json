@@ -775,7 +775,7 @@
       "package": "پکیج",
       "creditAmount": "مقدار اعتبار",
       "creditBalance": "موجودی اعتبار",
-      "pricePaid": "مبلغ پرداختی",
+      "pricePaid": "مبلغ پرداختی (ریال)",
       "expiresAt": "تاریخ انقضا",
       "type": "نوع",
       "packageType": "نوع پکیج",
