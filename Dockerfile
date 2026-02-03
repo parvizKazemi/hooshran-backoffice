@@ -1,10 +1,13 @@
 # ---------- Build stage ----------
 FROM node:20-alpine AS build
 
-# Install pnpm
+# set npm registry first
+RUN npm config set registry https://mirror-npm.runflare.com
+
+# install pnpm using npm (from mirror)
 RUN npm install -g pnpm
 
-# Set pnpm registry to Runflare mirror
+# set pnpm registry as well
 RUN pnpm config set registry https://mirror-npm.runflare.com
 
 WORKDIR /app
