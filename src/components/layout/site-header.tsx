@@ -1,6 +1,7 @@
 import ThemeToggle from "@/components/common/ThemeToggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ServiceDomainsButton } from "@/features/service-domains/components/ServiceDomainsButton";
 import i18next from "i18next";
 import * as React from "react";
 
@@ -38,6 +39,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ServiceDomainsButton />
           <ThemeToggle />
           {/* <LanguageToggle /> */}
         </div>
