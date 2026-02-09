@@ -202,7 +202,6 @@ export function ServiceDomainsDialog({
           uuid: existingDomain.uuid,
           data: {
             domain: fullUrl,
-            type,
             isActive,
           },
         });
