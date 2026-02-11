@@ -190,12 +190,16 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         accessorKey: "expiresAt",
         header: t("userCredits.table.expiresAt"),
         cell: ({ row }) => {
-          const date = new Date(row.original.expiresAt);
+          const date = row.original.expiresAt
+            ? new Date(row.original.expiresAt)
+            : null;
           return (
             <div className="flex flex-col">
-              <span>{date.toLocaleDateString("fa-IR")}</span>
+              <span>
+                {date ? date.toLocaleDateString("fa-IR") : "بدون تاریخ انقضا"}
+              </span>
               <span className="text-muted-foreground text-xs">
-                {date.toLocaleTimeString("fa-IR")}
+                {date ? date.toLocaleTimeString("fa-IR") : "بدون زمان انقضا"}
               </span>
             </div>
           );
