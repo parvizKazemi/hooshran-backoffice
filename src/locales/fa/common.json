@@ -404,6 +404,44 @@
       "simple": "ساده"
     }
   },
+  "domains": {
+    "title": "مدیریت دامنه‌های سرویس",
+    "description": "دامنه‌های مجاز برای ارسال درخواست‌ها را مدیریت کنید",
+    "form": {
+      "addTitle": "افزودن دامنه جدید",
+      "editTitle": "ویرایش دامنه",
+      "domainLabel": "آدرس دامنه",
+      "domainHint": "آدرس کامل دامنه را وارد کنید (مثال: https://aiapi.hooshran.com)",
+      "activeLabel": "فعال",
+      "add": "افزودن دامنه",
+      "update": "بروزرسانی دامنه",
+      "cancel": "انصراف"
+    },
+    "table": {
+      "title": "لیست دامنه‌ها",
+      "empty": "هیچ دامنه‌ای ثبت نشده است. برای شروع، یک دامنه اضافه کنید.",
+      "domain": "دامنه",
+      "type": "نوع",
+      "status": "وضعیت",
+      "actions": "عملیات"
+    },
+    "status": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "test": "تست اتصال",
+      "edit": "ویرایش",
+      "delete": "حذف"
+    },
+    "errors": {
+      "invalidFormat": "فرمت دامنه نامعتبر است (مثال: https://aiapi.hooshran.com یا aiapi.hooshran.com)",
+      "required": "وارد کردن دامنه الزامی است",
+      "saveFailed": "خطا در ذخیره دامنه. لطفاً دوباره تلاش کنید."
+    },
+    "confirmDelete": "آیا از حذف این دامنه اطمینان دارید؟",
+    "testNotImplemented": "قابلیت تست دامنه به زودی فعال می‌شود"
+  },
   "paymentGateways": {
     "title": "مدیریت درگاه‌های پرداخت",
     "description": "مشاهده و مدیریت تمام درگاه‌های پرداخت موجود",

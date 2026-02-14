@@ -364,6 +364,44 @@
       "simple": "Simple"
     }
   },
+  "domains": {
+    "title": "Service Domains Management",
+    "description": "Manage allowed domains for sending requests",
+    "form": {
+      "addTitle": "Add New Domain",
+      "editTitle": "Edit Domain",
+      "domainLabel": "Domain Address",
+      "domainHint": "Enter the full domain address (example: https://aiapi.hooshran.com)",
+      "activeLabel": "Active",
+      "add": "Add Domain",
+      "update": "Update Domain",
+      "cancel": "Cancel"
+    },
+    "table": {
+      "title": "Domains List",
+      "empty": "No domains registered yet. Add a domain to get started.",
+      "domain": "Domain",
+      "type": "Type",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "test": "Test Connection",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "errors": {
+      "invalidFormat": "Invalid domain format (example: https://aiapi.hooshran.com or aiapi.hooshran.com)",
+      "required": "Domain is required",
+      "saveFailed": "Failed to save domain. Please try again."
+    },
+    "confirmDelete": "Are you sure you want to delete this domain?",
+    "testNotImplemented": "Domain testing feature will be available soon"
+  },
   "paymentGateways": {
     "title": "Payment Gateway Management",
     "description": "View and manage all available payment gateways",
