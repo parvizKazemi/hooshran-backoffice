@@ -1,4 +1,5 @@
 import ThemeToggle from "@/components/common/ThemeToggle";
+import { CacheRefreshButton } from "@/components/common/CacheRefreshButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ServiceDomainsButton } from "@/features/service-domains/components/ServiceDomainsButton";
@@ -40,6 +41,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <ServiceDomainsButton />
+          <CacheRefreshButton />
           <ThemeToggle />
           {/* <LanguageToggle /> */}
         </div>
