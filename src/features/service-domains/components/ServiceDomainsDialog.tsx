@@ -1,5 +1,14 @@
-import { IconLoader2, IconTrash, IconCheck } from "@tabler/icons-react";
-import { useState, useMemo, useEffect } from "react";
+import {
+  IconLoader2,
+  IconTrash,
+  IconPlus,
+  IconEdit,
+  IconCheck,
+  IconX,
+  IconActivity,
+} from "@tabler/icons-react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +32,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   useAllowedDomains,
   useCreateAllowedDomain,
@@ -30,6 +48,7 @@ import {
   useDeleteAllowedDomain,
 } from "../hooks/use-allowed-domains";
 import { AllowedDomain } from "../types";
+import { TFunction } from "i18next";
 
 // URL validation - validates full URL format (https://example.com or http://localhost:3000)
 const urlRegex =
@@ -40,13 +59,13 @@ const domainRegex =
   /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i;
 
 // Validate domain format
-const validateDomain = (value: string): string | null => {
+const validateDomain = (value: string, t: TFunction): string | null => {
   if (!value || value.trim() === "") return null;
   const trimmed = value.trim();
   const isDomain = domainRegex.test(trimmed);
   const isUrl = urlRegex.test(trimmed);
   if (!isDomain && !isUrl) {
-    return "فرمت دامنه نامعتبر است (مثال: https://aiapi.hooshran.com یا aiapi.hooshran.com)";
+    return t("domains.errors.invalidFormat");
   }
   return null;
 };
@@ -56,7 +75,7 @@ type ServiceDomainsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const DEFAULT_DOMAIN = "https://aiapi.hooshran.com";
+// const DEFAULT_DOMAIN = "https://aiapi.hooshran.com";
 
 // Extract domain part from URL for display (remove protocol and trailing slash)
 const extractDomain = (url: string): string => {
@@ -66,7 +85,7 @@ const extractDomain = (url: string): string => {
     .trim();
 };
 
-// Convert domain to full URL format (add https:// if missing)فعا
+// Convert domain to full URL format (add https:// if missing)
 const ensureFullUrl = (domain: string): string => {
   const trimmed = domain.trim();
   // If it already has protocol, return as is (but clean trailing slash)
@@ -81,7 +100,9 @@ export function ServiceDomainsDialog({
   open,
   onOpenChange,
 }: ServiceDomainsDialogProps) {
-  // Fetch all existing domains (both AD and SRU)
+  const { t } = useTranslation("common");
+
+  // Fetch all existing domains
   const {
     data: existingDomains,
     isLoading: isLoadingDomains,
@@ -103,447 +124,329 @@ export function ServiceDomainsDialog({
     });
   }, [existingDomains]);
 
-  // State for each domain input
-  const [domain1, setDomain1] = useState("");
-  const [domain2, setDomain2] = useState("");
-  const [domain3, setDomain3] = useState("");
-  const [type1, setType1] = useState<"AD" | "SRU">("SRU");
-  const [type2, setType2] = useState<"AD" | "SRU">("SRU");
-  const [type3, setType3] = useState<"AD" | "SRU">("SRU");
-  const [isActive1, setIsActive1] = useState(true);
-  const [isActive2, setIsActive2] = useState(true);
-  const [isActive3, setIsActive3] = useState(true);
-  const [domain1Error, setDomain1Error] = useState<string | null>(null);
-  const [domain2Error, setDomain2Error] = useState<string | null>(null);
-  const [domain3Error, setDomain3Error] = useState<string | null>(null);
+  // Form state
+  const [formDomain, setFormDomain] = useState("");
+  const [formType, setFormType] = useState<"AD" | "SRU">("SRU");
+  const [formIsActive, setFormIsActive] = useState(true);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [editingDomain, setEditingDomain] = useState<AllowedDomain | null>(
+    null
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize form values when domains are loaded
-  useEffect(() => {
-    if (open && sortedDomains.length > 0) {
-      const domain1Data = sortedDomains[0];
-      const domain2Data = sortedDomains[1];
-      const domain3Data = sortedDomains[2];
-
-      setDomain1(
-        domain1Data?.domain
-          ? extractDomain(domain1Data.domain)
-          : extractDomain(DEFAULT_DOMAIN)
-      );
-      setType1(domain1Data?.type || "SRU");
-      setIsActive1(domain1Data?.isActive ?? true);
-
-      setDomain2(domain2Data?.domain ? extractDomain(domain2Data.domain) : "");
-      setType2(domain2Data?.type || "SRU");
-      setIsActive2(domain2Data?.isActive ?? true);
-
-      setDomain3(domain3Data?.domain ? extractDomain(domain3Data.domain) : "");
-      setType3(domain3Data?.type || "SRU");
-      setIsActive3(domain3Data?.isActive ?? true);
-    } else if (open && sortedDomains.length === 0) {
-      // No domains exist, set default for domain1
-      setDomain1(extractDomain(DEFAULT_DOMAIN));
-      setType1("SRU");
-      setIsActive1(true);
-      setDomain2("");
-      setType2("SRU");
-      setIsActive2(true);
-      setDomain3("");
-      setType3("SRU");
-      setIsActive3(true);
-    }
-  }, [open, sortedDomains]);
-
-  // Get domain by index
-  const getDomainByIndex = (index: number): AllowedDomain | undefined => {
-    return sortedDomains[index];
+  // Reset form
+  const resetForm = () => {
+    setFormDomain("");
+    setFormType("SRU");
+    setFormIsActive(true);
+    setFormError(null);
+    setEditingDomain(null);
   };
 
-  // Handle save/update for a specific domain
-  const handleSaveDomain = async (
-    index: 1 | 2 | 3,
-    domainValue: string,
-    type: "AD" | "SRU",
-    isActive: boolean
-  ) => {
+  // Load domain into form for editing
+  const handleEditDomain = (domain: AllowedDomain) => {
+    setEditingDomain(domain);
+    setFormDomain(extractDomain(domain.domain));
+    setFormType(domain.type);
+    setFormIsActive(domain.isActive || false);
+    setFormError(null);
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    resetForm();
+  };
+
+  // Submit form (create or update)
+  const handleSubmit = async () => {
     // Validate
-    const error = validateDomain(domainValue);
-    if (index === 1 && error) {
-      setDomain1Error(error);
-      return;
-    }
-    if (index === 2 && error) {
-      setDomain2Error(error);
-      return;
-    }
-    if (index === 3 && error) {
-      setDomain3Error(error);
+    const error = validateDomain(formDomain, t);
+    if (error) {
+      setFormError(error);
       return;
     }
 
-    if (!domainValue || domainValue.trim() === "") {
-      if (index === 1) {
-        setDomain1Error("دامنه اول الزامی است");
-      }
+    if (!formDomain || formDomain.trim() === "") {
+      setFormError(t("domains.errors.required"));
       return;
     }
 
-    // Clear errors
-    if (index === 1) setDomain1Error(null);
-    if (index === 2) setDomain2Error(null);
-    if (index === 3) setDomain3Error(null);
+    setFormError(null);
+    setIsSubmitting(true);
 
-    const fullUrl = ensureFullUrl(domainValue.trim());
-    const existingDomain = getDomainByIndex(index - 1);
+    const fullUrl = ensureFullUrl(formDomain.trim());
 
     try {
-      if (existingDomain) {
+      if (editingDomain) {
         // Update existing domain
         await updateDomain.mutateAsync({
-          uuid: existingDomain.uuid,
+          uuid: editingDomain.uuid,
           data: {
             domain: fullUrl,
-            isActive,
+            type: formType,
+            isActive: formIsActive,
           },
         });
       } else {
         // Create new domain
         await createDomain.mutateAsync({
           domain: fullUrl,
-          type,
+          type: formType,
         });
       }
       // Refetch to update the list
       await refetch();
+      // Reset form
+      resetForm();
     } catch (error) {
-      // Error handling is done in the hooks
-      console.error(`Error saving domain ${index}:`, error);
+      console.error("Error saving domain:", error);
+      setFormError(t("domains.errors.saveFailed"));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Handle delete for a specific domain
-  const handleDeleteDomain = async (index: 1 | 2 | 3) => {
-    const existingDomain = getDomainByIndex(index - 1);
-    if (!existingDomain) return;
+  // Handle delete
+  const handleDeleteDomain = async (domain: AllowedDomain) => {
+    if (!confirm(t("domains.confirmDelete"))) return;
 
     try {
-      await deleteDomain.mutateAsync(existingDomain.uuid);
-      // Clear the input and reset state
-      if (index === 1) {
-        setDomain1("");
-        setType1("SRU");
-        setIsActive1(true);
-      }
-      if (index === 2) {
-        setDomain2("");
-        setType2("SRU");
-        setIsActive2(true);
-      }
-      if (index === 3) {
-        setDomain3("");
-        setType3("SRU");
-        setIsActive3(true);
-      }
-      // Refetch to update the list
+      await deleteDomain.mutateAsync(domain.uuid);
       await refetch();
+      // If we were editing this domain, reset form
+      if (editingDomain?.uuid === domain.uuid) {
+        resetForm();
+      }
     } catch (error) {
-      // Error handling is done in the hooks
-      console.error(`Error deleting domain ${index}:`, error);
+      console.error("Error deleting domain:", error);
     }
   };
 
-  const isLoading =
-    isLoadingDomains ||
-    createDomain.isPending ||
-    updateDomain.isPending ||
-    deleteDomain.isPending;
+  // Test domain connection (placeholder for future implementation)
+  const handleTestDomain = async (domain: AllowedDomain) => {
+    // TODO: Implement domain testing
+    // This will send a request to the domain and return:
+    // - Response status code
+    // - Response time
+    // - Any relevant info
+    console.warn("Testing domain:", domain.domain);
+    alert(t("domains.testNotImplemented"));
+  };
+
+  const isLoading = isLoadingDomains || isSubmitting;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>تنظیمات دامنه‌های سرویس</DialogTitle>
-          <DialogDescription>
-            دامنه‌های مورد استفاده برای درخواست به سرویس‌ها را تنظیم کنید. در
-            صورت خطای سرور (5xx) از دامنه بعدی استفاده می‌شود.
-          </DialogDescription>
+          <DialogTitle>{t("domains.title")}</DialogTitle>
+          <DialogDescription>{t("domains.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          <FieldGroup>
-            {/* Domain 1 */}
-            <Field>
-              <FieldLabel htmlFor="domain1">
-                دامنه اول <span className="text-destructive">*</span>
-              </FieldLabel>
-              <div className="space-y-2">
+          {/* Form Section */}
+          <div className="bg-muted/30 rounded-lg border p-4">
+            <h3 className="mb-4 text-sm font-medium">
+              {editingDomain
+                ? t("domains.form.editTitle")
+                : t("domains.form.addTitle")}
+            </h3>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="domain">
+                  {t("domains.form.domainLabel")}
+                </FieldLabel>
                 <div className="flex gap-2">
+                  <Select
+                    value={formType}
+                    onValueChange={(value: "AD" | "SRU") => setFormType(value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SRU">SRU</SelectItem>
+                      <SelectItem value="AD">AD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center gap-2 rounded-md border px-3">
+                    <span className="text-sm whitespace-nowrap">
+                      {t("domains.form.activeLabel")}:
+                    </span>
+                    <Switch
+                      dir="ltr"
+                      checked={formIsActive}
+                      onCheckedChange={setFormIsActive}
+                      disabled={isLoading}
+                    />
+                  </div>
                   <Input
-                    id="domain1"
+                    id="domain"
                     type="text"
                     dir="ltr"
                     className="flex-1 text-left"
                     placeholder="https://aiapi.hooshran.com"
-                    value={domain1}
+                    value={formDomain}
                     onChange={(e) => {
-                      setDomain1(e.target.value);
-                      setDomain1Error(null);
+                      setFormDomain(e.target.value);
+                      setFormError(null);
                     }}
                     disabled={isLoading}
                   />
-                  {getDomainByIndex(0) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleDeleteDomain(1)}
-                      disabled={isLoading}
-                      title="حذف دامنه"
-                    >
-                      <IconTrash className="size-4" />
-                    </Button>
-                  )}
+                </div>
+                {formError && (
+                  <FieldDescription className="text-destructive">
+                    {formError}
+                  </FieldDescription>
+                )}
+                <FieldDescription>
+                  {t("domains.form.domainHint")}
+                </FieldDescription>
+              </Field>
+
+              <div className="flex gap-2">
+                {editingDomain && (
                   <Button
                     type="button"
-                    onClick={() =>
-                      handleSaveDomain(1, domain1, type1, isActive1)
-                    }
-                    disabled={isLoading || !domain1.trim()}
-                    title={getDomainByIndex(0) ? "ویرایش" : "اضافه کردن"}
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={isLoading}
                   >
-                    {isLoading ? (
-                      <IconLoader2 className="size-4 animate-spin" />
-                    ) : (
-                      <IconCheck className="size-4" />
-                    )}
+                    <IconX className="mr-2 size-4" />
+                    {t("domains.form.cancel")}
                   </Button>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <FieldLabel htmlFor="type1" className="text-sm">
-                      نوع:
-                    </FieldLabel>
-                    <Select
-                      value={type1}
-                      onValueChange={(value: "AD" | "SRU") => setType1(value)}
-                      disabled={isLoading}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SRU">SRU</SelectItem>
-                        <SelectItem value="AD">AD</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FieldLabel htmlFor="isActive1" className="text-sm">
-                      فعال:
-                    </FieldLabel>
-                    <Switch
-                      dir="ltr"
-                      id="isActive1"
-                      checked={isActive1}
-                      onCheckedChange={setIsActive1}
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-              </div>
-              {domain1Error && (
-                <FieldDescription className="text-destructive">
-                  {domain1Error}
-                </FieldDescription>
-              )}
-              <FieldDescription>
-                دامنه اولیه برای ارسال درخواست‌ها (الزامی)
-              </FieldDescription>
-            </Field>
-
-            {/* Domain 2 */}
-            <Field>
-              <FieldLabel htmlFor="domain2">دامنه دوم (اختیاری)</FieldLabel>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Input
-                    id="domain2"
-                    type="text"
-                    dir="ltr"
-                    className="flex-1 text-left"
-                    placeholder="https://proxy.hooshran.com"
-                    value={domain2}
-                    onChange={(e) => {
-                      setDomain2(e.target.value);
-                      setDomain2Error(null);
-                    }}
-                    disabled={isLoading}
-                  />
-                  {getDomainByIndex(1) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleDeleteDomain(2)}
-                      disabled={isLoading}
-                      title="حذف دامنه"
-                    >
-                      <IconTrash className="size-4" />
-                    </Button>
-                  )}
-                  {domain2.trim() && (
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        handleSaveDomain(2, domain2, type2, isActive2)
-                      }
-                      disabled={isLoading}
-                      title={getDomainByIndex(1) ? "ویرایش" : "اضافه کردن"}
-                    >
-                      {isLoading ? (
-                        <IconLoader2 className="size-4 animate-spin" />
-                      ) : (
-                        <IconCheck className="size-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-                {domain2.trim() && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <FieldLabel htmlFor="type2" className="text-sm">
-                        نوع:
-                      </FieldLabel>
-                      <Select
-                        value={type2}
-                        onValueChange={(value: "AD" | "SRU") => setType2(value)}
-                        disabled={isLoading}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SRU">SRU</SelectItem>
-                          <SelectItem value="AD">AD</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FieldLabel htmlFor="isActive2" className="text-sm">
-                        فعال:
-                      </FieldLabel>
-                      <Switch
-                        dir="ltr"
-                        id="isActive2"
-                        checked={isActive2}
-                        onCheckedChange={setIsActive2}
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
                 )}
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isLoading || !formDomain.trim()}
+                >
+                  {isLoading ? (
+                    <IconLoader2 className="mr-2 size-4 animate-spin" />
+                  ) : editingDomain ? (
+                    <IconCheck className="mr-2 size-4" />
+                  ) : (
+                    <IconPlus className="mr-2 size-4" />
+                  )}
+                  {editingDomain
+                    ? t("domains.form.update")
+                    : t("domains.form.add")}
+                </Button>
               </div>
-              {domain2Error && (
-                <FieldDescription className="text-destructive">
-                  {domain2Error}
-                </FieldDescription>
-              )}
-              <FieldDescription>
-                در صورت خطای سرور از دامنه اول، از این دامنه استفاده می‌شود
-              </FieldDescription>
-            </Field>
+            </FieldGroup>
+          </div>
 
-            {/* Domain 3 */}
-            <Field>
-              <FieldLabel htmlFor="domain3">دامنه سوم (اختیاری)</FieldLabel>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Input
-                    id="domain3"
-                    type="text"
-                    dir="ltr"
-                    className="flex-1 text-left"
-                    placeholder="https://backup.hooshran.com"
-                    value={domain3}
-                    onChange={(e) => {
-                      setDomain3(e.target.value);
-                      setDomain3Error(null);
-                    }}
-                    disabled={isLoading}
-                  />
-                  {getDomainByIndex(2) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleDeleteDomain(3)}
-                      disabled={isLoading}
-                      title="حذف دامنه"
-                    >
-                      <IconTrash className="size-4" />
-                    </Button>
-                  )}
-                  {domain3.trim() && (
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        handleSaveDomain(3, domain3, type3, isActive3)
-                      }
-                      disabled={isLoading}
-                      title={getDomainByIndex(2) ? "ویرایش" : "اضافه کردن"}
-                    >
-                      {isLoading ? (
-                        <IconLoader2 className="size-4 animate-spin" />
-                      ) : (
-                        <IconCheck className="size-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-                {domain3.trim() && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <FieldLabel htmlFor="type3" className="text-sm">
-                        نوع:
-                      </FieldLabel>
-                      <Select
-                        value={type3}
-                        onValueChange={(value: "AD" | "SRU") => setType3(value)}
-                        disabled={isLoading}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SRU">SRU</SelectItem>
-                          <SelectItem value="AD">AD</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FieldLabel htmlFor="isActive3" className="text-sm">
-                        فعال:
-                      </FieldLabel>
-                      <Switch
-                        dir="ltr"
-                        id="isActive3"
-                        checked={isActive3}
-                        onCheckedChange={setIsActive3}
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-                )}
+          {/* Domains Table */}
+          <div>
+            <h3 className="mb-3 text-sm font-medium">
+              {t("domains.table.title")}
+            </h3>
+            {sortedDomains.length === 0 ? (
+              <div className="text-muted-foreground rounded-lg border py-8 text-center">
+                {t("domains.table.empty")}
               </div>
-              {domain3Error && (
-                <FieldDescription className="text-destructive">
-                  {domain3Error}
-                </FieldDescription>
-              )}
-              <FieldDescription>
-                در صورت خطای سرور از دامنه دوم، از این دامنه استفاده می‌شود
-              </FieldDescription>
-            </Field>
-          </FieldGroup>
+            ) : (
+              <div className="overflow-hidden rounded-lg border">
+                <Table>
+                  <TableHeader className="bg-muted/30">
+                    <TableRow>
+                      <TableHead className="text-center">
+                        {t("domains.table.domain")}
+                      </TableHead>
+                      <TableHead className="w-24 text-center">
+                        {t("domains.table.type")}
+                      </TableHead>
+                      <TableHead className="w-24 text-center">
+                        {t("domains.table.status")}
+                      </TableHead>
+                      <TableHead className="w-32 text-center">
+                        {t("domains.table.actions")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedDomains.map((domain) => (
+                      <TableRow
+                        key={domain.uuid}
+                        className={
+                          editingDomain?.uuid === domain.uuid
+                            ? "bg-primary/5"
+                            : ""
+                        }
+                      >
+                        <TableCell className="font-mono text-sm" dir="ltr">
+                          {domain.domain}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              domain.type === "SRU" ? "default" : "secondary"
+                            }
+                            className={
+                              domain.type === "SRU"
+                                ? "bg-blue-500 hover:bg-blue-600"
+                                : "bg-purple-500 hover:bg-purple-600"
+                            }
+                          >
+                            {domain.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={domain.isActive ? "default" : "outline"}
+                            className={
+                              domain.isActive
+                                ? "bg-green-500 hover:bg-green-600"
+                                : "bg-gray-400 hover:bg-gray-500"
+                            }
+                          >
+                            {domain.isActive
+                              ? t("domains.status.active")
+                              : t("domains.status.inactive")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleTestDomain(domain)}
+                              disabled={true} // Disabled for now
+                              title={t("domains.actions.test")}
+                            >
+                              <IconActivity className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditDomain(domain)}
+                              disabled={isLoading}
+                              title={t("domains.actions.edit")}
+                            >
+                              <IconEdit className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteDomain(domain)}
+                              disabled={isLoading}
+                              title={t("domains.actions.delete")}
+                            >
+                              <IconTrash className="text-destructive size-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
