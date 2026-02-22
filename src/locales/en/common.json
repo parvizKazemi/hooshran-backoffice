@@ -382,6 +382,10 @@
       "empty": "No domains registered yet. Add a domain to get started.",
       "domain": "Domain",
       "type": "Type",
+      "successfulRequests": "Success",
+      "failedRequests": "Failed",
+      "score": "Score",
+      "failedRate": "Failed Rate",
       "status": "Status",
       "actions": "Actions"
     },

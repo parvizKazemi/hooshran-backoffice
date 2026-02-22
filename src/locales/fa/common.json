@@ -422,6 +422,10 @@
       "empty": "هیچ دامنه‌ای ثبت نشده است. برای شروع، یک دامنه اضافه کنید.",
       "domain": "دامنه",
       "type": "نوع",
+      "successfulRequests": "موفق",
+      "failedRequests": "ناموفق",
+      "score": "نمره",
+      "failedRate": "نرخ خطا",
       "status": "وضعیت",
       "actions": "عملیات"
     },

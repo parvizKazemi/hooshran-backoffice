@@ -7,6 +7,11 @@ export interface AllowedDomain {
   domain: string;
   type: "AD" | "SRU";
   isActive?: boolean;
+  failedRate?: number | null;
+  totalRequests?: number | null;
+  failedRequests?: number | null;
+  avgResponseMs?: number | null;
+  lastResponseMs?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }

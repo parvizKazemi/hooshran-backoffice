@@ -96,6 +96,11 @@ const ensureFullUrl = (domain: string): string => {
   return `https://${trimmed}`;
 };
 
+const formatFixed2 = (value: number | null | undefined): string => {
+  if (value === null || value === undefined || Number.isNaN(value)) return "-";
+  return Number(value).toFixed(2);
+};
+
 export function ServiceDomainsDialog({
   open,
   onOpenChange,
@@ -237,7 +242,7 @@ export function ServiceDomainsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-[95vw] overflow-y-auto sm:max-w-6xl!">
         <DialogHeader>
           <DialogTitle>{t("domains.title")}</DialogTitle>
           <DialogDescription>{t("domains.description")}</DialogDescription>
@@ -357,6 +362,15 @@ export function ServiceDomainsDialog({
                       <TableHead className="w-24 text-center">
                         {t("domains.table.type")}
                       </TableHead>
+                      <TableHead className="w-28 text-center">
+                        {t("domains.table.successfulRequests")}
+                      </TableHead>
+                      <TableHead className="w-28 text-center">
+                        {t("domains.table.failedRequests")}
+                      </TableHead>
+                      <TableHead className="w-28 text-center">
+                        {t("domains.table.failedRate")}
+                      </TableHead>
                       <TableHead className="w-24 text-center">
                         {t("domains.table.status")}
                       </TableHead>
@@ -366,82 +380,100 @@ export function ServiceDomainsDialog({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedDomains.map((domain) => (
-                      <TableRow
-                        key={domain.uuid}
-                        className={
-                          editingDomain?.uuid === domain.uuid
-                            ? "bg-primary/5"
-                            : ""
-                        }
-                      >
-                        <TableCell className="font-mono text-sm" dir="ltr">
-                          {domain.domain}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              domain.type === "SRU" ? "default" : "secondary"
-                            }
-                            className={
-                              domain.type === "SRU"
-                                ? "bg-blue-500 hover:bg-blue-600"
-                                : "bg-purple-500 hover:bg-purple-600"
-                            }
-                          >
-                            {domain.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={domain.isActive ? "default" : "outline"}
-                            className={
-                              domain.isActive
-                                ? "bg-green-500 hover:bg-green-600"
-                                : "bg-gray-400 hover:bg-gray-500"
-                            }
-                          >
-                            {domain.isActive
-                              ? t("domains.status.active")
-                              : t("domains.status.inactive")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleTestDomain(domain)}
-                              disabled={true} // Disabled for now
-                              title={t("domains.actions.test")}
+                    {sortedDomains.map((domain) => {
+                      const totalRequests = domain.totalRequests ?? 0;
+                      const failedRequests = domain.failedRequests ?? 0;
+                      const successfulRequests = Math.max(
+                        0,
+                        totalRequests - failedRequests
+                      );
+
+                      return (
+                        <TableRow
+                          key={domain.uuid}
+                          className={
+                            editingDomain?.uuid === domain.uuid
+                              ? "bg-primary/5"
+                              : ""
+                          }
+                        >
+                          <TableCell className="font-mono text-sm" dir="ltr">
+                            {domain.domain}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant={
+                                domain.type === "SRU" ? "default" : "secondary"
+                              }
+                              className={
+                                domain.type === "SRU"
+                                  ? "bg-blue-500 hover:bg-blue-600"
+                                  : "bg-purple-500 hover:bg-purple-600"
+                              }
                             >
-                              <IconActivity className="size-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditDomain(domain)}
-                              disabled={isLoading}
-                              title={t("domains.actions.edit")}
+                              {domain.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center font-mono text-sm">
+                            {formatFixed2(successfulRequests)}
+                          </TableCell>
+                          <TableCell className="text-center font-mono text-sm">
+                            {formatFixed2(failedRequests)}
+                          </TableCell>
+                          <TableCell className="text-center font-mono text-sm">
+                            {formatFixed2(domain.failedRate)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant={domain.isActive ? "default" : "outline"}
+                              className={
+                                domain.isActive
+                                  ? "bg-green-500 hover:bg-green-600"
+                                  : "bg-gray-400 hover:bg-gray-500"
+                              }
                             >
-                              <IconEdit className="size-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteDomain(domain)}
-                              disabled={isLoading}
-                              title={t("domains.actions.delete")}
-                            >
-                              <IconTrash className="text-destructive size-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              {domain.isActive
+                                ? t("domains.status.active")
+                                : t("domains.status.inactive")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleTestDomain(domain)}
+                                disabled={true} // Disabled for now
+                                title={t("domains.actions.test")}
+                              >
+                                <IconActivity className="size-4" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditDomain(domain)}
+                                disabled={isLoading}
+                                title={t("domains.actions.edit")}
+                              >
+                                <IconEdit className="size-4" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteDomain(domain)}
+                                disabled={isLoading}
+                                title={t("domains.actions.delete")}
+                              >
+                                <IconTrash className="text-destructive size-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
