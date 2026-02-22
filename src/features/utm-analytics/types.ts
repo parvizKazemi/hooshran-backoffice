@@ -39,3 +39,9 @@ export interface UtmAnalyticsQueryParams {
   start_date?: string;
   end_date?: string;
 }
+
+export const PresentTokenConfigSchema = z.object({
+  isEnabled: z.boolean(),
+});
+
+export type PresentTokenConfig = z.infer<typeof PresentTokenConfigSchema>;

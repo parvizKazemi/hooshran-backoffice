@@ -49,7 +49,7 @@
     "referrals": "ارجاع",
     "media": "فایل‌ها",
     "payments": "پرداخت‌ها",
-    "utmAnalytics": "تحلیل بازاریابی",
+    "utmAnalytics": "UTM",
     "logout": "خروج",
     "logoutConfirm": "تایید خروج",
     "logoutConfirmDescription": "آیا از خروج از حساب کاربری خود اطمینان دارید؟",
@@ -1073,7 +1073,7 @@
     }
   },
   "utmAnalytics": {
-    "title": "تحلیل بازاریابی",
+    "title": "UTM",
     "description": "تحلیل منبع کاربران و تبدیل",
     "search": "جستجو...",
     "allEventTypes": "همه انواع رویداد",
@@ -1097,6 +1097,14 @@
     },
     "actions": {
       "view": "مشاهده"
+    },
+    "presentToken": {
+      "title": "تخصیص اعتبار هدیه",
+      "loading": "در حال دریافت وضعیت...",
+      "enabled": "فعال",
+      "disabled": "غیرفعال",
+      "activate": "فعال‌سازی",
+      "deactivate": "غیرفعال‌سازی"
     }
   }
 }

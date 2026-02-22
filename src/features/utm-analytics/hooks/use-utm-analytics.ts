@@ -1,8 +1,13 @@
-import { ApiError } from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
+import { ApiError, apiGet, apiPatch } from "@/services/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { mockUtmEvents } from "../mock-data";
-import { PaginatedResponse, UtmAnalyticsQueryParams, UtmEvent } from "../types";
+import {
+  PaginatedResponse,
+  PresentTokenConfig,
+  UtmAnalyticsQueryParams,
+  UtmEvent,
+} from "../types";
 
 export const useUtmAnalytics = (params: UtmAnalyticsQueryParams = {}) => {
   return useQuery({
@@ -57,5 +62,64 @@ export const useUtmAnalytics = (params: UtmAnalyticsQueryParams = {}) => {
     },
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const usePresentTokenConfig = () => {
+  return useQuery({
+    queryKey: ["present-token-config"],
+    queryFn: async (): Promise<PresentTokenConfig> => {
+      try {
+        const response = await apiGet<PresentTokenConfig>(
+          "/admin/present-token/config"
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useUpdatePresentTokenConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      isEnabled,
+    }: {
+      isEnabled: boolean;
+    }): Promise<PresentTokenConfig> => {
+      try {
+        const response = await apiPatch<PresentTokenConfig>(
+          "/admin/present-token/config",
+          {
+            isEnabled,
+          }
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: (updatedConfig) => {
+      queryClient.setQueryData(["present-token-config"], updatedConfig);
+      toast.success("تنظیمات تخصیص اعتبار با موفقیت به‌روزرسانی شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در به‌روزرسانی تنظیمات تخصیص اعتبار");
+      }
+    },
   });
 };

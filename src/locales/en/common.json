@@ -49,7 +49,7 @@
     "referrals": "Referrals",
     "media": "Media",
     "payments": "Payments",
-    "utmAnalytics": "UTM Analytics",
+    "utmAnalytics": "UTM",
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
     "logoutConfirmDescription": "Are you sure you want to logout?"
@@ -993,7 +993,7 @@
     }
   },
   "utmAnalytics": {
-    "title": "UTM Analytics",
+    "title": "UTM",
     "description": "Analyze user sources and conversions",
     "search": "Search...",
     "allEventTypes": "All event types",
@@ -1017,6 +1017,14 @@
     },
     "actions": {
       "view": "View"
+    },
+    "presentToken": {
+      "title": "Gift Credit Assignment",
+      "loading": "Loading status...",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     }
   }
 }
