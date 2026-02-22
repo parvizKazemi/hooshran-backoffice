@@ -135,6 +135,12 @@ export interface UpdateUserCreditInput {
   creditBalance: number;
 }
 
+export interface GiftUserCreditInput {
+  phoneNumber: string;
+  creditAmount: number;
+  expirationExtensionDays: number;
+}
+
 export const useCreateUserCredit = () => {
   const queryClient = useQueryClient();
 
@@ -207,6 +213,38 @@ export const useUpdateUserCredit = () => {
         toast.error(error.message);
       } else {
         toast.error("خطا در به‌روزرسانی اعتبار کاربر");
+      }
+    },
+  });
+};
+
+export const useGiftUserCredit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: GiftUserCreditInput): Promise<UserCredit> => {
+      try {
+        const response = await apiPost<UserCredit>(
+          "/admin/user-credits/gift",
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-credits"] });
+      toast.success("اعتبار هدیه با موفقیت ثبت شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ثبت اعتبار هدیه");
       }
     },
   });

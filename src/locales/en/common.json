@@ -665,6 +665,7 @@
     "items": "items",
     "selectedRows": "{{selected}} of {{total}} selected",
     "createCredit": "Create Credit",
+    "giftCredit": "Gift Credit",
     "table": {
       "user": "User",
       "userPhone": "User Phone",
@@ -737,6 +738,10 @@
       "title": "Create User Credit",
       "description": "Create a new credit for the user"
     },
+    "gift": {
+      "title": "Gift User Credit",
+      "description": "Gift credit amount or expiration time to the user"
+    },
     "edit": {
       "title": "Edit User Credit",
       "description": "Edit user credit information"
@@ -758,6 +763,9 @@
       "saveChanges": "Save Changes",
       "cancel": "Cancel",
       "createCredit": "Create Credit",
+      "giftCredit": "Submit Credit Gift",
+      "giftCreditAmount": "Gift Credit Amount",
+      "expirationExtensionDays": "Expiration Extension (Days)",
       "period": "Period",
       "periodMonthly": "Monthly",
       "periodYearly": "Yearly"

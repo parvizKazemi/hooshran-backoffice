@@ -732,6 +732,7 @@
     "items": "آیتم",
     "selectedRows": "{{selected}} از {{total}} انتخاب شده",
     "createCredit": "ایجاد اعتبار",
+    "giftCredit": "هدیه اعتبار",
     "table": {
       "user": "کاربر",
       "userPhone": "شماره کاربر",
@@ -804,6 +805,10 @@
       "title": "ایجاد اعتبار کاربر",
       "description": "اعتبار جدید برای کاربر ایجاد کنید"
     },
+    "gift": {
+      "title": "هدیه اعتبار کاربر",
+      "description": "برای کاربر اعتبار یا زمان انقضا هدیه ثبت کنید"
+    },
     "edit": {
       "title": "ویرایش اعتبار کاربر",
       "description": "اطلاعات اعتبار کاربر را ویرایش کنید"
@@ -825,6 +830,9 @@
       "saveChanges": "ذخیره تغییرات",
       "cancel": "لغو",
       "createCredit": "ایجاد اعتبار",
+      "giftCredit": "ثبت هدیه اعتبار",
+      "giftCreditAmount": "مقدار اعتبار هدیه",
+      "expirationExtensionDays": "تمدید انقضا (روز)",
       "period": "دوره",
       "periodMonthly": "ماهیانه",
       "periodYearly": "سالیانه"

@@ -8,10 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { IconSearch, IconPlus } from "@tabler/icons-react";
+import { IconSearch, IconPlus, IconGift } from "@tabler/icons-react";
 import { UserCreditsTable } from "./components/user-credits-table";
 import { UserCreditsFilterDialog } from "./components/user-credits-filter-dialog";
 import { UserCreditForm } from "./components/user-credit-form";
+import { UserCreditGiftForm } from "./components/user-credit-gift-form";
 import { useUserCredits } from "./hooks/use-user-credits";
 import { UserCreditsQueryParams } from "./types";
 
@@ -23,6 +24,7 @@ export default function UserCredits() {
   });
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
 
   const { data, isLoading, refetch } = useUserCredits(filters);
   const credits = data?.data || [];
@@ -68,6 +70,16 @@ export default function UserCredits() {
             >
               <IconPlus className="mr-2 size-4" />
               {t("userCredits.createCredit")}
+            </Button>
+          )}
+          {filters.phoneNumber && (
+            <Button
+              onClick={() => setIsGiftDialogOpen(true)}
+              variant="secondary"
+              className="w-full sm:w-auto"
+            >
+              <IconGift className="mr-2 size-4" />
+              {t("userCredits.giftCredit")}
             </Button>
           )}
         </div>
@@ -127,6 +139,28 @@ export default function UserCredits() {
                 refetch();
               }}
               onCancel={() => setIsCreateDialogOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gift Credit Dialog */}
+      <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{t("userCredits.gift.title")}</DialogTitle>
+            <DialogDescription>
+              {t("userCredits.gift.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <UserCreditGiftForm
+              phoneNumber={filters.phoneNumber}
+              onSuccess={() => {
+                setIsGiftDialogOpen(false);
+                refetch();
+              }}
+              onCancel={() => setIsGiftDialogOpen(false)}
             />
           </div>
         </DialogContent>
