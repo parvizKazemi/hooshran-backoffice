@@ -20,16 +20,26 @@ import {
 const giftCreditSchema = z
   .object({
     phoneNumber: z.string().min(1, "شماره تلفن الزامی است"),
-    creditAmount: z.number().min(0, "مقدار اعتبار نمی‌تواند منفی باشد"),
+    creditAmount: z
+      .number()
+      .min(0, "مقدار اعتبار نمی‌تواند منفی باشد")
+      .optional(),
     expirationExtensionDays: z
       .number()
-      .min(0, "تعداد روز تمدید نمی‌تواند منفی باشد"),
+      .min(0, "تعداد روز تمدید نمی‌تواند منفی باشد")
+      .optional(),
   })
-  .refine((data) => data.creditAmount > 0 || data.expirationExtensionDays > 0, {
-    message:
-      "حداقل یکی از مقدار اعتبار یا تعداد روز تمدید باید بزرگتر از صفر باشد",
-    path: ["creditAmount"],
-  });
+  .refine(
+    (data) =>
+      (data.creditAmount !== undefined && data.creditAmount > 0) ||
+      (data.expirationExtensionDays !== undefined &&
+        data.expirationExtensionDays > 0),
+    {
+      message:
+        "حداقل یکی از مقدار اعتبار یا تعداد روز تمدید باید بزرگتر از صفر باشد",
+      path: ["creditAmount"],
+    }
+  );
 
 type GiftCreditFormData = z.infer<typeof giftCreditSchema>;
 
@@ -51,24 +61,28 @@ export const UserCreditGiftForm = memo(function UserCreditGiftForm({
     resolver: zodResolver(giftCreditSchema),
     defaultValues: {
       phoneNumber: initialPhoneNumber || "",
-      creditAmount: 0,
-      expirationExtensionDays: 0,
+      creditAmount: undefined,
+      expirationExtensionDays: undefined,
     },
   });
 
   const onSubmit: SubmitHandler<GiftCreditFormData> = async (data) => {
     const payload: GiftUserCreditInput = {
       phoneNumber: data.phoneNumber,
-      creditAmount: data.creditAmount,
-      expirationExtensionDays: data.expirationExtensionDays,
+      ...(data.creditAmount !== undefined
+        ? { creditAmount: data.creditAmount }
+        : {}),
+      ...(data.expirationExtensionDays !== undefined
+        ? { expirationExtensionDays: data.expirationExtensionDays }
+        : {}),
     };
 
     await giftCredit.mutateAsync(payload);
     onSuccess?.();
     form.reset({
       phoneNumber: initialPhoneNumber || "",
-      creditAmount: 0,
-      expirationExtensionDays: 0,
+      creditAmount: undefined,
+      expirationExtensionDays: undefined,
     });
   };
 
@@ -109,7 +123,8 @@ export const UserCreditGiftForm = memo(function UserCreditGiftForm({
             type="number"
             min="0"
             {...form.register("creditAmount", {
-              valueAsNumber: true,
+              setValueAs: (value) =>
+                value === "" || value === undefined ? undefined : Number(value),
             })}
             disabled={isLoading}
           />
@@ -131,7 +146,8 @@ export const UserCreditGiftForm = memo(function UserCreditGiftForm({
             type="number"
             min="0"
             {...form.register("expirationExtensionDays", {
-              valueAsNumber: true,
+              setValueAs: (value) =>
+                value === "" || value === undefined ? undefined : Number(value),
             })}
             disabled={isLoading}
           />

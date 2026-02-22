@@ -137,8 +137,8 @@ export interface UpdateUserCreditInput {
 
 export interface GiftUserCreditInput {
   phoneNumber: string;
-  creditAmount: number;
-  expirationExtensionDays: number;
+  creditAmount?: number;
+  expirationExtensionDays?: number;
 }
 
 export const useCreateUserCredit = () => {
