@@ -85,6 +85,11 @@ function useSidebarData() {
         icon: IconCoins,
       },
       {
+        title: t("nav.utmAnalytics"),
+        url: "/utm-analytics",
+        icon: IconChartBar,
+      },
+      {
         title: t("nav.plans"),
         url: "/plans",
         icon: IconCreditCard,
@@ -133,11 +138,6 @@ function useSidebarData() {
         title: t("nav.payments"),
         url: "/payments",
         icon: IconReceipt,
-      },
-      {
-        title: t("nav.utmAnalytics"),
-        url: "/utm-analytics",
-        icon: IconChartBar,
       },
     ],
 
@@ -222,6 +222,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/notifications",
               "/packages",
               "/user-credits",
+              "/utm-analytics",
             ]}
             // badges={{
             //   "/service-requests": 1,
