@@ -1105,6 +1105,18 @@
       "disabled": "غیرفعال",
       "activate": "فعال‌سازی",
       "deactivate": "غیرفعال‌سازی"
+    },
+    "rewardRules": {
+      "title": "قوانین پاداش بر اساس utm_content",
+      "description": "مقدار utm_content و پاداش هرکدام را تعریف کنید. اولین قانون منطبق اعمال می‌شود.",
+      "addRule": "افزودن قانون",
+      "empty": "هیچ قانونی ثبت نشده است.",
+      "rule": "قانون",
+      "utmContent": "utm_content",
+      "credits": "اعتبار",
+      "gems": "gems",
+      "subscriptionExtensionDays": "تمدید اشتراک (روز)",
+      "save": "ذخیره قوانین"
     }
   }
 }

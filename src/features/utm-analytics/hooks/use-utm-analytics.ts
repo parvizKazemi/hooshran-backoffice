@@ -5,6 +5,8 @@ import { mockUtmEvents } from "../mock-data";
 import {
   PaginatedResponse,
   PresentTokenConfig,
+  UpdateUtmContentRewardRulesInput,
+  UtmContentRewardRule,
   UtmAnalyticsQueryParams,
   UtmEvent,
 } from "../types";
@@ -119,6 +121,61 @@ export const useUpdatePresentTokenConfig = () => {
         toast.error(error.message);
       } else {
         toast.error("خطا در به‌روزرسانی تنظیمات تخصیص اعتبار");
+      }
+    },
+  });
+};
+
+export const useUtmContentRewardRules = () => {
+  return useQuery({
+    queryKey: ["utm-content-reward-rules"],
+    queryFn: async (): Promise<UtmContentRewardRule[]> => {
+      try {
+        const response = await apiGet<UtmContentRewardRule[]>(
+          "/admin/utm-content-reward-rules"
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useUpdateUtmContentRewardRules = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (
+      data: UpdateUtmContentRewardRulesInput
+    ): Promise<UtmContentRewardRule[]> => {
+      try {
+        const response = await apiPatch<UtmContentRewardRule[]>(
+          "/admin/utm-content-reward-rules",
+          data
+        );
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: (rules) => {
+      queryClient.setQueryData(["utm-content-reward-rules"], rules);
+      toast.success("قوانین پاداش UTM با موفقیت ذخیره شد");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ذخیره قوانین پاداش UTM");
       }
     },
   });

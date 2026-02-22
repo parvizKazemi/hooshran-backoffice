@@ -1,31 +1,19 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconLoader2 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import { UtmAnalyticsTable } from "./components/utm-analytics-table";
+import { UtmContentRewardRulesCard } from "./components/utm-content-reward-rules-card";
 import {
   usePresentTokenConfig,
   useUpdatePresentTokenConfig,
-  useUtmAnalytics,
 } from "./hooks/use-utm-analytics";
-import { UtmAnalyticsQueryParams } from "./types";
 
 export default function UtmAnalytics() {
   const { t } = useTranslation("common");
-  const [filters, setFilters] = useState<UtmAnalyticsQueryParams>({
-    page: 1,
-    take: 10,
-  });
 
   const { data: presentTokenConfig, isLoading: isConfigLoading } =
     usePresentTokenConfig();
   const updatePresentTokenConfig = useUpdatePresentTokenConfig();
 
-  const { data, isLoading, refetch } = useUtmAnalytics(filters);
-  const events = data?.data || [];
-  const total = data?.total || 0;
-  const currentPage = data?.page || 1;
-  const totalPages = data?.totalPages || 1;
   const isEnabled = presentTokenConfig?.isEnabled ?? false;
   const isUpdatingConfig = updatePresentTokenConfig.isPending;
 
@@ -71,19 +59,7 @@ export default function UtmAnalytics() {
         </Button>
       </div>
 
-      <UtmAnalyticsTable
-        data={events}
-        isLoading={isLoading}
-        onRefresh={() => refetch()}
-        filters={filters}
-        onFiltersChange={setFilters}
-        pagination={{
-          page: currentPage,
-          total: total,
-          totalPages: totalPages,
-          take: filters.take || 10,
-        }}
-      />
+      <UtmContentRewardRulesCard />
     </div>
   );
 }

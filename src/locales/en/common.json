@@ -1025,6 +1025,18 @@
       "disabled": "Disabled",
       "activate": "Activate",
       "deactivate": "Deactivate"
+    },
+    "rewardRules": {
+      "title": "UTM Content Reward Rules",
+      "description": "Define utm_content values and their rewards. First matching rule is applied.",
+      "addRule": "Add Rule",
+      "empty": "No reward rules are defined.",
+      "rule": "Rule",
+      "utmContent": "utm_content",
+      "credits": "Credits",
+      "gems": "Gems",
+      "subscriptionExtensionDays": "Subscription Extension (Days)",
+      "save": "Save Rules"
     }
   }
 }

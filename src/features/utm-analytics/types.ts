@@ -45,3 +45,20 @@ export const PresentTokenConfigSchema = z.object({
 });
 
 export type PresentTokenConfig = z.infer<typeof PresentTokenConfigSchema>;
+
+export const UtmContentRewardRuleSchema = z.object({
+  utmContent: z.string().min(1),
+  credits: z.number().int().min(0).default(0),
+  gems: z.number().int().min(0).default(0),
+  subscriptionExtensionDays: z.number().int().min(0).default(0),
+});
+
+export type UtmContentRewardRule = z.infer<typeof UtmContentRewardRuleSchema>;
+
+export const UpdateUtmContentRewardRulesSchema = z.object({
+  rules: z.array(UtmContentRewardRuleSchema),
+});
+
+export type UpdateUtmContentRewardRulesInput = z.infer<
+  typeof UpdateUtmContentRewardRulesSchema
+>;
