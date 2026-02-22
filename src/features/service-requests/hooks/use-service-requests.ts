@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ServiceRequest,
   ServiceRequestsQueryParams,
   PaginatedResponse,
 } from "../types";
-import { ApiError, apiGet } from "@/services/api";
+import { ApiError, apiGet, apiPost } from "@/services/api";
 
 // Build query string from params
 const buildQueryString = (
@@ -70,5 +70,79 @@ export const useServiceRequests = (params: ServiceRequestsQueryParams = {}) => {
     enabled: !!params.phoneNumber, // Only fetch when phoneNumber is provided
     retry: 1,
     refetchOnWindowFocus: false,
+  });
+};
+
+export interface RefundByIdsInput {
+  requestUuids: string[];
+  reason: string;
+}
+
+export interface RefundByRangeInput {
+  dateFrom: string;
+  dateTo: string;
+  userUuid?: string;
+  reason: string;
+}
+
+export const useRefundServiceRequestsByIds = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: RefundByIdsInput): Promise<unknown> => {
+      try {
+        return await apiPost<unknown>(
+          "/admin/service-requests/refund/by-ids",
+          data
+        );
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service-requests"] });
+      toast.success("درخواست‌های انتخاب‌شده با موفقیت ریفاند شدند");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ریفاند درخواست‌های انتخاب‌شده");
+      }
+    },
+  });
+};
+
+export const useRefundServiceRequestsByRange = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: RefundByRangeInput): Promise<unknown> => {
+      try {
+        return await apiPost<unknown>(
+          "/admin/service-requests/refund/by-range",
+          data
+        );
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.message);
+        }
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service-requests"] });
+      toast.success("درخواست‌های بازه زمانی با موفقیت ریفاند شدند");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("خطا در ریفاند درخواست‌های بازه زمانی");
+      }
+    },
   });
 };

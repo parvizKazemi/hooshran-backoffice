@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { IconSearch } from "@tabler/icons-react";
+import { IconCash, IconSearch } from "@tabler/icons-react";
 import { ServiceRequestsTable } from "./components/service-requests-table";
 import { ServiceRequestFilterDialog } from "./components/service-request-filter-dialog";
+import { ServiceRequestsRefundByIdsDialog } from "./components/service-requests-refund-by-ids-dialog";
+import { ServiceRequestsRefundByRangeDialog } from "./components/service-requests-refund-by-range-dialog";
 import { useServiceRequests } from "./hooks/use-service-requests";
 import { ServiceRequestsQueryParams } from "./types";
 
@@ -14,6 +16,12 @@ export default function ServiceRequests() {
     take: 10,
   });
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [selectedRequestUuids, setSelectedRequestUuids] = useState<string[]>(
+    []
+  );
+  const [isRefundByIdsDialogOpen, setIsRefundByIdsDialogOpen] = useState(false);
+  const [isRefundByRangeDialogOpen, setIsRefundByRangeDialogOpen] =
+    useState(false);
 
   const { data, isLoading, refetch } = useServiceRequests(filters);
   const requests = data?.data || [];
@@ -46,11 +54,29 @@ export default function ServiceRequests() {
             ? t("serviceRequests.filter.changeFilter")
             : t("serviceRequests.filter.searchByPhone")}
         </Button>
-        {filters.phoneNumber && (
-          <div className="text-muted-foreground text-sm">
-            {t("serviceRequests.filter.currentPhone")}: {filters.phoneNumber}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {filters.phoneNumber && (
+            <div className="text-muted-foreground text-sm">
+              {t("serviceRequests.filter.currentPhone")}: {filters.phoneNumber}
+            </div>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => setIsRefundByRangeDialogOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            <IconCash className="mr-2 size-4" />
+            {t("serviceRequests.refund.byRange.action")}
+          </Button>
+          <Button
+            onClick={() => setIsRefundByIdsDialogOpen(true)}
+            disabled={selectedRequestUuids.length === 0}
+            className="w-full sm:w-auto"
+          >
+            <IconCash className="mr-2 size-4" />
+            {t("serviceRequests.refund.byIds.action")}
+          </Button>
+        </div>
       </div>
 
       {!filters.phoneNumber ? (
@@ -74,6 +100,7 @@ export default function ServiceRequests() {
           onRefresh={() => refetch()}
           filters={filters}
           onFiltersChange={setFilters}
+          onSelectedRequestUuidsChange={setSelectedRequestUuids}
           pagination={{
             page: meta.page,
             total: meta.itemCount,
@@ -88,6 +115,26 @@ export default function ServiceRequests() {
         onOpenChange={setIsFilterDialogOpen}
         onFilter={setFilters}
         initialFilters={filters}
+      />
+
+      <ServiceRequestsRefundByIdsDialog
+        open={isRefundByIdsDialogOpen}
+        onOpenChange={setIsRefundByIdsDialogOpen}
+        requestUuids={selectedRequestUuids}
+        onSuccess={() => {
+          setIsRefundByIdsDialogOpen(false);
+          setSelectedRequestUuids([]);
+          refetch();
+        }}
+      />
+
+      <ServiceRequestsRefundByRangeDialog
+        open={isRefundByRangeDialogOpen}
+        onOpenChange={setIsRefundByRangeDialogOpen}
+        onSuccess={() => {
+          setIsRefundByRangeDialogOpen(false);
+          refetch();
+        }}
       />
     </div>
   );

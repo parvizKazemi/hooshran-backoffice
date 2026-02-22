@@ -647,7 +647,8 @@
       "pending": "در انتظار",
       "processing": "در حال پردازش",
       "success": "موفق",
-      "failed": "ناموفق"
+      "failed": "ناموفق",
+      "refunded": "ریفاند شده"
     },
     "actions": {
       "view": "مشاهده",
@@ -671,6 +672,27 @@
       "paidWithGems": "پرداخت با گیم",
       "taskId": "شناسه تسک",
       "uuid": "UUID"
+    },
+    "refund": {
+      "reason": "دلیل ریفاند",
+      "reasonPlaceholder": "دلیل بازگشت اعتبار را وارد کنید",
+      "cancel": "لغو",
+      "byIds": {
+        "action": "ریفاند موارد انتخاب‌شده",
+        "title": "ریفاند بر اساس لیست درخواست‌ها",
+        "description": "تعداد {{count}} درخواست انتخاب شده است. فقط درخواست‌های SUCCESS ریفاند می‌شوند.",
+        "submit": "انجام ریفاند"
+      },
+      "byRange": {
+        "action": "ریفاند کلی در بازه زمانی",
+        "title": "ریفاند بر اساس بازه زمانی",
+        "description": "تمام درخواست‌های SUCCESS در بازه زمانی انتخاب‌شده ریفاند می‌شوند.",
+        "dateFrom": "از تاریخ",
+        "dateTo": "تا تاریخ",
+        "userUuid": "UUID کاربر (اختیاری)",
+        "userUuidPlaceholder": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "submit": "ریفاند بازه"
+      }
     }
   },
   "categories": {

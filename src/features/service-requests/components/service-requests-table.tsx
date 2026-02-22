@@ -55,6 +55,7 @@ type ServiceRequestsTableProps = {
   onRefresh?: () => void;
   filters?: ServiceRequestsQueryParams;
   onFiltersChange?: (filters: ServiceRequestsQueryParams) => void;
+  onSelectedRequestUuidsChange?: (uuids: string[]) => void;
   pagination?: {
     page: number;
     total: number;
@@ -68,6 +69,7 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
   isLoading = false,
   filters = {},
   onFiltersChange,
+  onSelectedRequestUuidsChange,
   pagination,
 }: ServiceRequestsTableProps) {
   const { t } = useTranslation("common");
@@ -83,14 +85,15 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
   // Local filter states
   const [searchQuery, setSearchQuery] = useState(filters.phoneNumber || "");
   const [statusFilter, setStatusFilter] = useState<
-    "all" | "PENDING" | "SUCCESS" | "FAILED" | "PROCESSING"
+    "all" | "PENDING" | "SUCCESS" | "FAILED" | "PROCESSING" | "REFUNDED"
   >(
     (filters.status as
       | "all"
       | "PENDING"
       | "SUCCESS"
       | "FAILED"
-      | "PROCESSING") || "all"
+      | "PROCESSING"
+      | "REFUNDED") || "all"
   );
   // Calculate take value from filters.take (user selection) or pagination.take (API response)
   // Prioritize filters.take (user selection) over pagination.take (API response)
@@ -122,7 +125,8 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
         | "PENDING"
         | "SUCCESS"
         | "FAILED"
-        | "PROCESSING") || "all";
+        | "PROCESSING"
+        | "REFUNDED") || "all";
     if (newStatus !== statusFilter) {
       setStatusFilter(newStatus);
     }
@@ -155,6 +159,7 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     PROCESSING: t("serviceRequests.statuses.processing"),
     SUCCESS: t("serviceRequests.statuses.success"),
     FAILED: t("serviceRequests.statuses.failed"),
+    REFUNDED: t("serviceRequests.statuses.refunded"),
   };
 
   const statusVariants: Record<
@@ -165,6 +170,7 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     PROCESSING: "secondary",
     SUCCESS: "default",
     FAILED: "destructive",
+    REFUNDED: "default",
   };
 
   const columns: ColumnDef<ServiceRequest>[] = useMemo(
@@ -301,6 +307,14 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
     manualPagination: true,
   });
 
+  useEffect(() => {
+    if (!onSelectedRequestUuidsChange) return;
+    const selectedUuids = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.uuid);
+    onSelectedRequestUuidsChange(selectedUuids);
+  }, [rowSelection, table, onSelectedRequestUuidsChange]);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -336,7 +350,8 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
                   | "PENDING"
                   | "SUCCESS"
                   | "FAILED"
-                  | "PROCESSING";
+                  | "PROCESSING"
+                  | "REFUNDED";
                 setStatusFilter(newStatus);
                 if (onFiltersChange) {
                   onFiltersChange({
@@ -368,6 +383,9 @@ export const ServiceRequestsTable = memo(function ServiceRequestsTable({
                 </SelectItem>
                 <SelectItem value="FAILED">
                   {t("serviceRequests.statuses.failed")}
+                </SelectItem>
+                <SelectItem value="REFUNDED">
+                  {t("serviceRequests.statuses.refunded")}
                 </SelectItem>
               </SelectContent>
             </Select>

@@ -584,7 +584,8 @@
       "pending": "Pending",
       "processing": "Processing",
       "success": "Success",
-      "failed": "Failed"
+      "failed": "Failed",
+      "refunded": "Refunded"
     },
     "actions": {
       "view": "View",
@@ -604,6 +605,27 @@
       "timestamps": "Timestamps",
       "createdAt": "Created At",
       "updatedAt": "Updated At"
+    },
+    "refund": {
+      "reason": "Refund Reason",
+      "reasonPlaceholder": "Enter refund reason",
+      "cancel": "Cancel",
+      "byIds": {
+        "action": "Refund Selected",
+        "title": "Refund by Request List",
+        "description": "{{count}} requests selected. Only SUCCESS requests will be refunded.",
+        "submit": "Submit Refund"
+      },
+      "byRange": {
+        "action": "Refund by Range",
+        "title": "Refund by Time Range",
+        "description": "All SUCCESS requests in selected range will be refunded.",
+        "dateFrom": "Date From",
+        "dateTo": "Date To",
+        "userUuid": "User UUID (optional)",
+        "userUuidPlaceholder": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "submit": "Refund Range"
+      }
     }
   },
   "categories": {
