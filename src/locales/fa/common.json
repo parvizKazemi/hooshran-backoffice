@@ -393,6 +393,9 @@
       "noItems": "هیچ آیتمی اضافه نشده. روی \"افزودن آیتم\" کلیک کنید.",
       "titleRequired": "عنوان الزامی است",
       "descriptionRequired": "توضیحات الزامی است",
+      "invalidUrl": "آدرس URL نامعتبر است",
+      "referenceLabelRequired": "عنوان مرجع الزامی است",
+      "ctaLabelRequired": "عنوان دکمه CTA الزامی است",
       "characters": "کاراکتر"
     },
     "templates": {

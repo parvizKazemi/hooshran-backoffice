@@ -9,6 +9,7 @@ import { useState } from "react";
 import { FileUploader } from "./file-uploader";
 
 const MAX_DESCRIPTION_LENGTH = 200;
+const URL_PATTERN = /^https?:\/\/.+/;
 
 // فیلدهای required برای هر آیتم promotional
 const PROMOTIONAL_ITEM_REQUIRED_FIELDS = {
@@ -54,6 +55,41 @@ export interface PromotionalItem {
 interface PromotionalItemsEditorProps {
   value?: PromotionalItem[];
   onChange: (items: PromotionalItem[]) => void;
+}
+
+// Validation function for promotional items
+export function validatePromotionalItems(items: PromotionalItem[]): string[] {
+  const errors: string[] = [];
+
+  items.forEach((item, index) => {
+    const itemNumber = index + 1;
+
+    // Required fields validation
+    if (!item.title?.trim()) {
+      errors.push(`آیتم ${itemNumber}: عنوان الزامی است`);
+    }
+    if (!item.description?.trim()) {
+      errors.push(`آیتم ${itemNumber}: توضیحات الزامی است`);
+    }
+
+    // URL validation
+    if (item.reference_link && !URL_PATTERN.test(item.reference_link)) {
+      errors.push(`آیتم ${itemNumber}: لینک مرجع نامعتبر است`);
+    }
+    if (item.cta_link && !URL_PATTERN.test(item.cta_link)) {
+      errors.push(`آیتم ${itemNumber}: لینک CTA نامعتبر است`);
+    }
+
+    // Conditional label validation
+    if (item.reference_link && !item.reference_label?.trim()) {
+      errors.push(`آیتم ${itemNumber}: عنوان لینک مرجع الزامی است`);
+    }
+    if (item.cta_link && !item.cta_label?.trim()) {
+      errors.push(`آیتم ${itemNumber}: عنوان لینک CTA الزامی است`);
+    }
+  });
+
+  return errors;
 }
 
 export function PromotionalItemsEditor({
@@ -106,8 +142,19 @@ export function PromotionalItemsEditor({
     const newItems = [...items];
     const item = newItems[index];
     if (item) {
-      // برای list فقط string رو ذخیره می‌کنیم
-      (item as unknown as Record<string, unknown>)[field] = fieldValue;
+      if (field === "list") {
+        // Convert textarea string to array of strings, filtering out empty lines
+        const listArray =
+          typeof fieldValue === "string"
+            ? fieldValue
+                .split("\n")
+                .map((line) => line.trim())
+                .filter((line) => line.length > 0)
+            : fieldValue;
+        (item as unknown as Record<string, unknown>)[field] = listArray;
+      } else {
+        (item as unknown as Record<string, unknown>)[field] = fieldValue;
+      }
       onChange(newItems);
     }
   };
@@ -312,6 +359,13 @@ export function PromotionalItemsEditor({
                         ).toLowerCase(),
                       })}
                     />
+                    {item.reference_link && !item.reference_label?.trim() && (
+                      <FieldDescription className="text-destructive text-xs">
+                        {t(
+                          "notifications.promotionalItems.referenceLabelRequired"
+                        )}
+                      </FieldDescription>
+                    )}
                   </Field>
                   <Field>
                     <FieldLabelWithRequired fieldKey="reference_link">
@@ -326,6 +380,12 @@ export function PromotionalItemsEditor({
                       }
                       placeholder="https://..."
                     />
+                    {item.reference_link &&
+                      !URL_PATTERN.test(item.reference_link) && (
+                        <FieldDescription className="text-destructive text-xs">
+                          {t("notifications.promotionalItems.invalidUrl")}
+                        </FieldDescription>
+                      )}
                   </Field>
                 </div>
 
@@ -380,6 +440,11 @@ export function PromotionalItemsEditor({
                         ).toLowerCase(),
                       })}
                     />
+                    {item.cta_link && !item.cta_label?.trim() && (
+                      <FieldDescription className="text-destructive text-xs">
+                        {t("notifications.promotionalItems.ctaLabelRequired")}
+                      </FieldDescription>
+                    )}
                   </Field>
                   <Field>
                     <FieldLabelWithRequired fieldKey="cta_link">
@@ -394,6 +459,11 @@ export function PromotionalItemsEditor({
                       dir="ltr"
                       type="url"
                     />
+                    {item.cta_link && !URL_PATTERN.test(item.cta_link) && (
+                      <FieldDescription className="text-destructive text-xs">
+                        {t("notifications.promotionalItems.invalidUrl")}
+                      </FieldDescription>
+                    )}
                   </Field>
                 </div>
               </CardContent>

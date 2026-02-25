@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import {
   PromotionalItemsEditor,
   type PromotionalItem,
+  validatePromotionalItems,
 } from "./promotional-items-editor";
 import {
   TEMPLATE_FIELD_CONFIGS,
@@ -137,6 +138,17 @@ export function NotificationForm({
         `فیلدهای زیر الزامی هستند: ${missingFields.map((f) => f.replace("metaData.data.", "")).join(", ")}`
       );
       return;
+    }
+
+    // Validate promotional items if template type is promotional
+    if (data.metaData?.type === "promotional") {
+      const changelog =
+        (data.metaData.data?.changelog as PromotionalItem[]) || [];
+      const promotionalErrors = validatePromotionalItems(changelog);
+      if (promotionalErrors.length > 0) {
+        toast.error(`خطاهای اعتبارسنجی: ${promotionalErrors.join(", ")}`);
+        return;
+      }
     }
 
     try {

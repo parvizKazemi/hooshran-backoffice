@@ -352,8 +352,41 @@
         "result": "Result",
         "amount": "Amount",
         "alertType": "Alert Type",
-        "link": "Link"
-      }
+        "link": "Link",
+        "serviceName": "Service Name",
+        "actionLabel": "Action Label",
+        "actionLink": "Action Link",
+        "isSuccess": "Success",
+        "receiptLink": "Receipt Link",
+        "receiptLabel": "Receipt Label",
+        "transactionId": "Transaction ID",
+        "securityLink": "Security Link",
+        "securityLabel": "Security Label",
+        "ipAddress": "IP Address",
+        "deviceInfo": "Device Info",
+        "changelog": "Changelog"
+      },
+      "promotionalNotificationTypeWarning": "Notification type has been automatically changed to information"
+    },
+    "promotionalItems": {
+      "title": "Slider Items",
+      "addItem": "Add Slide",
+      "itemNumber": "Slide {{number}}",
+      "media": "Media (Featured Image/Video)",
+      "fieldTitle": "Title",
+      "description": "Description",
+      "referenceLabel": "Reference Title",
+      "referenceLink": "Reference Link",
+      "listItems": "List (each line is a separate item)",
+      "ctaLabel": "CTA Button Title",
+      "ctaLink": "CTA Button Link",
+      "noItems": "No items added. Click \"Add Item\" to start.",
+      "titleRequired": "Title is required",
+      "descriptionRequired": "Description is required",
+      "invalidUrl": "Invalid URL address",
+      "referenceLabelRequired": "Reference title is required",
+      "ctaLabelRequired": "CTA button title is required",
+      "characters": "characters"
     },
     "templates": {
       "service_result": "Service Result",
