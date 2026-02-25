@@ -396,6 +396,7 @@
       "invalidUrl": "آدرس URL نامعتبر است",
       "referenceLabelRequired": "عنوان مرجع الزامی است",
       "ctaLabelRequired": "عنوان دکمه CTA الزامی است",
+      "compressImage": "فشرده‌سازی تصویر",
       "characters": "کاراکتر"
     },
     "templates": {

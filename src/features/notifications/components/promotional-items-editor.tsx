@@ -21,6 +21,7 @@ const PROMOTIONAL_ITEM_REQUIRED_FIELDS = {
   list: false,
   cta_label: false,
   cta_link: false,
+  compress_image: false,
 };
 
 // Helper component برای نمایش label با علامت *
@@ -50,6 +51,7 @@ export interface PromotionalItem {
   list?: string[];
   cta_label?: string;
   cta_link?: string;
+  compress_image?: boolean;
 }
 
 interface PromotionalItemsEditorProps {
@@ -105,6 +107,7 @@ export function PromotionalItemsEditor({
       title: "",
       description: "",
       list: [],
+      compress_image: true, // Enable compression by default
     };
     const newItems = [...items, newItem];
     onChange(newItems);
@@ -280,12 +283,34 @@ export function PromotionalItemsEditor({
                       )}
                     </div>
                   )}
-                  <FileUploader
-                    value={item.featured_media}
-                    onChange={(url) => updateItem(index, "featured_media", url)}
-                    showUrlInput={false}
-                    showFileName={false}
-                  />
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id={`compress-${index}`}
+                        checked={item.compress_image ?? true}
+                        onChange={(e) =>
+                          updateItem(index, "compress_image", e.target.checked)
+                        }
+                        className="rounded border-gray-300"
+                      />
+                      <label
+                        htmlFor={`compress-${index}`}
+                        className="text-muted-foreground cursor-pointer text-sm"
+                      >
+                        {t("notifications.promotionalItems.compressImage")}
+                      </label>
+                    </div>
+                    <FileUploader
+                      value={item.featured_media}
+                      onChange={(url) =>
+                        updateItem(index, "featured_media", url)
+                      }
+                      compressImages={item.compress_image ?? true}
+                      showUrlInput={false}
+                      showFileName={false}
+                    />
+                  </div>
                 </Field>
 
                 <Field>

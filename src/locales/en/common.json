@@ -386,6 +386,7 @@
       "invalidUrl": "Invalid URL address",
       "referenceLabelRequired": "Reference title is required",
       "ctaLabelRequired": "CTA button title is required",
+      "compressImage": "Compress image",
       "characters": "characters"
     },
     "templates": {
