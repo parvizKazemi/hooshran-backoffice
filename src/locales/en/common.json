@@ -337,6 +337,8 @@
       "systemCannotHaveUserId": "Type 'system' cannot have userId",
       "popup": "Show as popup",
       "popupDescription": "If enabled, the notification will be displayed as a popup",
+      "isPublic": "Show as public",
+      "isPublicDescription": "If enabled, the notification will be sent to all users",
       "userId": "User ID (optional)",
       "userIdPlaceholder": "User UUID (optional)",
       "userIdDescription": "If left empty, the notification will be sent to all users",

@@ -92,6 +92,7 @@ export function NotificationForm({
             data: {} as Record<string, unknown>,
           },
           isPopup: false,
+          isPublic: false,
         },
   });
 
@@ -115,12 +116,6 @@ export function NotificationForm({
       }
       // Set popup to true for promotional
       setValue("isPopup", true);
-    } else if (
-      templateType === "simple" &&
-      notificationType === "information"
-    ) {
-      // For simple notifications, use "notification" type to avoid isPublic = true
-      setValue("type", "notification");
     }
   }, [templateType, notificationType, setValue]);
 
@@ -165,6 +160,7 @@ export function NotificationForm({
             },
           }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
+          ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
           // Send admin UUID
           userId: authData?.user.uuid,
         };
@@ -192,7 +188,7 @@ export function NotificationForm({
             data: (data.metaData?.data || {}) as Record<string, unknown>,
           },
           isPopup: isPromotional ? true : (data.isPopup ?? false),
-          isPublic: data.type === "information" ? true : false,
+          isPublic: isPromotional ? false : (data.isPublic ?? false),
           userId: authData?.user.uuid, // Send admin UUID
         };
 
@@ -384,36 +380,65 @@ export function NotificationForm({
         )}
 
         {templateType !== "promotional" && (
-          <Field>
-            <FieldLabel htmlFor="isPopup">
-              {t("notifications.form.popup")}
-              {isFieldRequired("isPopup", {
-                metaData: { type: templateType },
-              }) && <span className="text-destructive"> *</span>}
-            </FieldLabel>
-            <Select
-              value={watch("isPopup") ? "true" : "false"}
-              onValueChange={(value) => setValue("isPopup", value === "true")}
-              disabled={
-                createNotification.isPending || updateNotification.isPending
-              }
-            >
-              <SelectTrigger id="isPopup">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="false">
-                  {t("notifications.table.no")}
-                </SelectItem>
-                <SelectItem value="true">
-                  {t("notifications.table.yes")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <FieldDescription>
-              {t("notifications.form.popupDescription")}
-            </FieldDescription>
-          </Field>
+          <div className="flex justify-between gap-4">
+            <Field className="flex-1">
+              <FieldLabel htmlFor="isPopup" className="mb-2">
+                {t("notifications.form.popup")}
+                {isFieldRequired("isPopup", {
+                  metaData: { type: templateType },
+                }) && <span className="text-destructive"> *</span>}
+              </FieldLabel>
+              <Select
+                value={watch("isPopup") ? "true" : "false"}
+                onValueChange={(value) => setValue("isPopup", value === "true")}
+                disabled={
+                  createNotification.isPending || updateNotification.isPending
+                }
+              >
+                <SelectTrigger id="isPopup" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">
+                    {t("notifications.table.no")}
+                  </SelectItem>
+                  <SelectItem value="true">
+                    {t("notifications.table.yes")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field className="flex-1">
+              <FieldLabel htmlFor="isPublic" className="mb-2">
+                {t("notifications.form.isPublic")}
+                {isFieldRequired("isPublic", {
+                  metaData: { type: templateType },
+                }) && <span className="text-destructive"> *</span>}
+              </FieldLabel>
+              <Select
+                value={watch("isPublic") ? "true" : "false"}
+                onValueChange={(value) =>
+                  setValue("isPublic", value === "true")
+                }
+                disabled={
+                  createNotification.isPending || updateNotification.isPending
+                }
+              >
+                <SelectTrigger id="isPublic" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">
+                    {t("notifications.table.no")}
+                  </SelectItem>
+                  <SelectItem value="true">
+                    {t("notifications.table.yes")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
         )}
 
         <Field>

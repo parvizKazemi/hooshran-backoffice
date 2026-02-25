@@ -208,6 +208,13 @@ export const FORM_FIELD_CONFIGS: Record<string, FieldConfig> = {
     required: false,
     condition: (formData) => formData.metaData?.type !== "promotional",
   },
+  isPublic: {
+    name: "isPublic",
+    label: "notifications.form.isPublic",
+    type: "boolean",
+    required: false,
+    condition: (formData) => formData.metaData?.type !== "promotional",
+  },
   changelog: {
     name: "metaData.data.changelog",
     label: "notifications.form.fields.changelog",

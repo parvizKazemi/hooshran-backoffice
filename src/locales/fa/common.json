@@ -347,6 +347,8 @@
       "systemCannotHaveUserId": "نوع 'system' نمی‌تواند userId داشته باشد",
       "popup": "نمایش به صورت پاپ‌آپ",
       "popupDescription": "در صورت فعال بودن، نوتیفیکیشن به صورت پاپ‌آپ نمایش داده می‌شود",
+      "isPublic": "نمایش برای همه",
+      "isPublicDescription": "در صورت فعال بودن، نوتیفیکیشن برای همه کاربران ارسال می‌شود",
       "userId": "شناسه کاربر",
       "userIdPlaceholder": "UUID کاربر",
       "userIdDescription": "نوتیفیکیشن برای کاربر مشخص شده ارسال می‌شود",
