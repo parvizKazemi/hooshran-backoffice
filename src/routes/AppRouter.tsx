@@ -39,6 +39,15 @@ const Payments = lazy(() => import("../features/payments/Payments.tsx"));
 const UtmAnalytics = lazy(
   () => import("../features/utm-analytics/UtmAnalytics.tsx")
 );
+const UserFreezeSettings = lazy(
+  () => import("../features/user-settings/UserFreezeSettings.tsx")
+);
+const UserPurchasePaymentSettings = lazy(
+  () => import("../features/user-settings/UserPurchasePaymentSettings.tsx")
+);
+const UserRegistrationSettings = lazy(
+  () => import("../features/user-settings/UserRegistrationSettings.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -140,6 +149,18 @@ const router = createBrowserRouter([
           {
             path: "/utm-analytics",
             element: <UtmAnalytics />,
+          },
+          {
+            path: "/user-settings/freeze-management",
+            element: <UserFreezeSettings />,
+          },
+          {
+            path: "/user-settings/purchase-payments",
+            element: <UserPurchasePaymentSettings />,
+          },
+          {
+            path: "/user-settings/registrations",
+            element: <UserRegistrationSettings />,
           },
         ],
       },

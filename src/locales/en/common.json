@@ -50,6 +50,12 @@
     "media": "Media",
     "payments": "Payments",
     "utmAnalytics": "UTM",
+    "userSettings": {
+      "title": "User Settings",
+      "freezeManagement": "Crisis and Subscription Freeze",
+      "purchasePayments": "Purchase and Payments",
+      "registrations": "Registrations"
+    },
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
     "logoutConfirmDescription": "Are you sure you want to logout?"
@@ -183,6 +189,98 @@
       "language": "Language",
       "persian": "Persian",
       "english": "English"
+    }
+  },
+  "userSettings": {
+    "defaults": {
+      "outageTitle": "Service is temporarily unavailable",
+      "outageDescription": "We apologize for the disruption. Our technical team is actively resolving the issue.",
+      "purchaseDisabledFallbackMessage": "Purchasing is temporarily disabled. Thank you for your patience."
+    },
+    "actions": {
+      "saveFreeze": "Save freeze settings",
+      "saveUnfreeze": "Save unfreeze settings",
+      "savePurchase": "Save purchase settings",
+      "saveRegistration": "Save registration settings"
+    },
+    "aria": {
+      "toggleFreezeStatus": "Toggle global freeze status",
+      "togglePurchaseStatus": "Toggle user purchase status",
+      "toggleRegistrationStatus": "Toggle new registration status"
+    },
+    "toasts": {
+      "freezeSaved": "Freeze settings saved successfully",
+      "freezeSaveFailed": "Failed to save freeze settings",
+      "unfreezeSaved": "Unfreeze settings saved successfully",
+      "unfreezeSaveFailed": "Failed to save unfreeze settings",
+      "purchaseSaved": "Purchase and payment settings saved successfully",
+      "purchaseSaveFailed": "Failed to save purchase and payment settings",
+      "registrationSaved": "Registration settings saved successfully",
+      "registrationSaveFailed": "Failed to save registration settings"
+    },
+    "freezePage": {
+      "header": {
+        "title": "Crisis and Subscription Freeze Management",
+        "description": "Enable freeze and manage recovery"
+      },
+      "card": {
+        "title": "Global user freeze settings",
+        "description": "When freeze is enabled, user subscriptions pause. Recovery policy applies when freeze is disabled."
+      },
+      "tabs": {
+        "freezeOn": "Enable freeze",
+        "freezeOff": "Disable freeze"
+      },
+      "freezeOn": {
+        "toggleTitle": "Temporary system stop (subscription freeze)",
+        "toggleDescription": "When enabled, all user subscriptions are frozen.",
+        "outageTitleLabel": "Outage message title (shown to users)",
+        "outageTitlePlaceholder": "Example: Service is temporarily unavailable",
+        "outageDescriptionLabel": "Outage description text",
+        "outageDescriptionPlaceholder": "Detailed outage message shown in the user panel"
+      },
+      "freezeOff": {
+        "gracePeriodLabel": "Manual unfreeze grace period",
+        "compensationDaysLabel": "Compensation gift days",
+        "recoverySmsLabel": "Send recovery SMS notification",
+        "recoverySmsHint": "When checked, true will be sent for recovery SMS."
+      }
+    },
+    "purchasePage": {
+      "header": {
+        "title": "Purchase and Payments Management",
+        "description": "Control gateways and purchase buttons in user panel"
+      },
+      "card": {
+        "title": "Disable user purchase capability (Kill Switch)",
+        "description": "When enabled, \"Buy Package\" and \"Upgrade Credit\" buttons are disabled across user panel and payment gateways become unavailable."
+      },
+      "status": {
+        "enabled": "Purchase is enabled",
+        "disabled": "Purchase is disabled for users",
+        "hint": "This change applies to all user panels."
+      },
+      "customMessage": {
+        "label": "Custom message when purchase is disabled",
+        "placeholder": "Example: Saman Bank gateway is temporarily unavailable",
+        "hint": "If left empty, the fallback message will be shown to users.",
+        "fallbackLabel": "Fallback message:"
+      }
+    },
+    "registrationPage": {
+      "header": {
+        "title": "Registration Management",
+        "description": "Control new user access to the system"
+      },
+      "card": {
+        "title": "Temporarily close new registrations",
+        "description": "When enabled, new users cannot register while existing users can still log in."
+      },
+      "status": {
+        "open": "New user registration is open",
+        "blocked": "New user registration is closed",
+        "hint": "Existing users keep login access in both states."
+      }
     }
   },
   "notFound": {

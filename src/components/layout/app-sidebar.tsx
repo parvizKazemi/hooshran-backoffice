@@ -85,6 +85,24 @@ function useSidebarData() {
         icon: IconCoins,
       },
       {
+        title: t("nav.userSettings.title"),
+        icon: IconSettings,
+        items: [
+          {
+            title: t("nav.userSettings.freezeManagement"),
+            url: "/user-settings/freeze-management",
+          },
+          {
+            title: t("nav.userSettings.purchasePayments"),
+            url: "/user-settings/purchase-payments",
+          },
+          {
+            title: t("nav.userSettings.registrations"),
+            url: "/user-settings/registrations",
+          },
+        ],
+      },
+      {
         title: t("nav.utmAnalytics"),
         url: "/utm-analytics",
         icon: IconChartBar,
