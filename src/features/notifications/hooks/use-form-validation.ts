@@ -13,7 +13,11 @@ export function useFormValidation(templateType: string) {
     requiredFields.forEach((fieldName) => {
       // Handle nested fields like "metaData.data.title"
       const value = getNestedValue(data, fieldName);
-      if (!value || (typeof value === "string" && value.trim() === "")) {
+      if (
+        !value ||
+        (typeof value === "string" && value.trim() === "") ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
         errors.push(fieldName);
       }
     });

@@ -185,6 +185,52 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       required: true,
     },
   ],
+  simple_popup: [
+    {
+      name: "title",
+      label: "notifications.form.fields.title",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "message",
+      label: "notifications.form.fields.message",
+      type: "textarea",
+      required: true,
+    },
+    {
+      name: "badge",
+      label: "notifications.form.fields.badge",
+      type: "text",
+      required: false,
+    },
+  ],
+  urgent_banner: [
+    {
+      name: "title",
+      label: "notifications.form.fields.title",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "message",
+      label: "notifications.form.fields.message",
+      type: "textarea",
+      required: true,
+    },
+    {
+      name: "button_text",
+      label: "notifications.form.fields.buttonText",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "target_url",
+      label: "notifications.form.fields.targetUrl",
+      type: "text",
+      required: true,
+    },
+  ],
 };
 
 // Form-level field configurations

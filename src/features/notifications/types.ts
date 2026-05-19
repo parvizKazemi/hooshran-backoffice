@@ -141,6 +141,8 @@ export interface NotificationStats {
 // Template Types
 export const TEMPLATE_TYPES = [
   "simple",
+  "simple_popup",
+  "urgent_banner",
   "promotional",
   // "dynamic",
   // "service_result",

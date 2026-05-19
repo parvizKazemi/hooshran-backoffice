@@ -41,7 +41,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -91,6 +90,91 @@ const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text);
 };
 
+const getUrlTargets = (notification: AdminNotification): string[] => {
+  const data = (notification.metaData?.data || {}) as Record<string, unknown>;
+  const visibility = data.visibility as
+    | {
+        route?: string[];
+        rules?: Array<{ route?: string; path?: string }>;
+      }
+    | undefined;
+
+  const visibilityRules = Array.isArray(visibility?.rules)
+    ? visibility.rules
+        .map((item) => {
+          if (!item || typeof item !== "object") {
+            return "";
+          }
+
+          if (typeof item.route === "string") {
+            return item.route.trim();
+          }
+
+          if (typeof item.path === "string") {
+            return item.path.trim();
+          }
+
+          return "";
+        })
+        .filter(Boolean)
+    : [];
+
+  if (visibilityRules.length > 0) {
+    return Array.from(new Set(visibilityRules));
+  }
+
+  const visibilityRoutes = Array.isArray(visibility?.route)
+    ? visibility.route
+        .map((route) => (typeof route === "string" ? route.trim() : ""))
+        .filter(Boolean)
+    : [];
+
+  if (visibilityRoutes.length > 0) {
+    return Array.from(new Set(visibilityRoutes));
+  }
+
+  const rawRules = Array.isArray(data.urlRules) ? data.urlRules : [];
+  const urlRules = rawRules
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return "";
+      }
+
+      if (typeof (item as { path?: unknown }).path === "string") {
+        return (item as { path: string }).path.trim();
+      }
+
+      if (typeof (item as { route?: unknown }).route === "string") {
+        return (item as { route: string }).route.trim();
+      }
+
+      return "";
+    })
+    .filter(Boolean);
+
+  if (urlRules.length > 0) {
+    return Array.from(new Set(urlRules));
+  }
+
+  const rawTargets = Array.isArray(data.urlTargets) ? data.urlTargets : [];
+  return rawTargets
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+};
+
+const getAudience = (notification: AdminNotification): string[] => {
+  const rawValue = (notification.metaData?.data as Record<string, unknown>)
+    ?.audience;
+
+  if (!Array.isArray(rawValue)) {
+    return [];
+  }
+
+  return rawValue
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+};
+
 type NotificationsListProps = {
   data: AdminNotification[];
   isLoading?: boolean;
@@ -105,19 +189,13 @@ type NotificationsListProps = {
   };
 };
 
-const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  system: IconSettings,
-  notification: IconBell,
-  information: IconInfoCircle,
-};
-
-const typeVariants: Record<
+const templateIcons: Record<
   string,
-  "default" | "secondary" | "destructive" | "outline"
+  React.ComponentType<{ className?: string }>
 > = {
-  system: "default",
-  notification: "secondary",
-  information: "outline",
+  simple_popup: IconBell,
+  urgent_banner: IconInfoCircle,
+  promotional: IconSettings,
 };
 
 export function NotificationsList({
@@ -155,10 +233,10 @@ export function NotificationsList({
   const [sortBy, setSortBy] = useState(filters.sortBy || "createdAt");
   const [order, setOrder] = useState<"ASC" | "DESC">(filters.order || "DESC");
 
-  const typeLabels: Record<string, string> = {
-    system: t("notifications.types.system"),
-    notification: t("notifications.types.notification"),
-    information: t("notifications.types.information"),
+  const audienceLabels: Record<string, string> = {
+    all_users: t("notifications.form.audience.allUsers"),
+    logged_in_users: t("notifications.form.audience.loggedInUsers"),
+    guests: t("notifications.form.audience.guests"),
   };
 
   const handleFilterChange = useCallback(
@@ -246,12 +324,6 @@ export function NotificationsList({
 
   // Table columns
   const columns = useMemo<ColumnDef<AdminNotification>[]>(() => {
-    const templateLabels: Record<string, string> = {};
-    TEMPLATE_TYPES.forEach((type) => {
-      const templateKey = `notifications.templates.${type}` as const;
-      templateLabels[type] = t(templateKey);
-    });
-
     return [
       {
         id: "select",
@@ -301,25 +373,14 @@ export function NotificationsList({
         accessorKey: "type",
         header: t("notifications.table.type"),
         cell: ({ row }) => {
-          const type = row.getValue("type") as string;
-          const Icon = typeIcons[type] || IconBell;
+          const rawTemplateType = row.original.metaData?.type || "simple_popup";
+          const normalizedTemplateType =
+            rawTemplateType === "simple" ? "simple_popup" : rawTemplateType;
+          const Icon = templateIcons[normalizedTemplateType] || IconBell;
           return (
-            <Badge variant={typeVariants[type] || "outline"}>
+            <Badge variant="outline">
               <Icon className="mr-1 h-3 w-3" />
-              {typeLabels[type] || type}
-            </Badge>
-          );
-        },
-      },
-      {
-        accessorKey: "metaData.type",
-        header: t("notifications.table.templateType"),
-        cell: ({ row }) => {
-          const metaData = row.original.metaData;
-          const templateType = metaData.type || "simple";
-          return (
-            <Badge variant="outline" className="text-xs">
-              {templateLabels[templateType] || templateType}
+              {t(`notifications.templates.${normalizedTemplateType}`)}
             </Badge>
           );
         },
@@ -337,50 +398,71 @@ export function NotificationsList({
         },
       },
       {
-        accessorKey: "recipientCount",
-        header: t("notifications.table.recipients"),
-        cell: ({ row }) => {
-          return (
-            <span className="text-sm">{row.original.recipientCount || 0}</span>
-          );
-        },
-      },
-      {
-        accessorKey: "readStatus",
-        header: t("notifications.table.readUnread"),
+        accessorKey: "destinationPage",
+        header: t("notifications.table.destinationPage"),
         cell: ({ row }) => {
           const notification = row.original;
-          const total = notification.recipientCount || 0;
-          const read = notification.readCount || 0;
-          const unread = notification.unreadCount || 0;
-          const readPercentage = total > 0 ? (read / total) * 100 : 0;
+          const urlTargets = getUrlTargets(notification);
+          const hasAllPages = urlTargets.includes("all");
+          const hasSpecificTargets = urlTargets.length > 0 && !hasAllPages;
+
+          if (hasAllPages) {
+            return (
+              <div className="text-muted-foreground flex max-w-xs flex-wrap items-center justify-center gap-1 text-xs">
+                <Badge
+                  variant="outline"
+                  className="bg-accent text-muted-foreground rounded-sm border-none px-1.5 py-1 text-xs"
+                >
+                  {t("notifications.form.targeting.allPages")}
+                </Badge>
+              </div>
+            );
+          }
 
           return (
-            <div className="flex min-w-[150px] flex-col gap-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
-                  {read}/{total}
+            <div className="text-muted-foreground flex max-w-xs flex-wrap items-center justify-center gap-1.5 text-xs">
+              {hasSpecificTargets ? (
+                urlTargets.map((item) => (
+                  <span
+                    key={item}
+                    dir="ltr"
+                    className="bg-accent rounded-sm px-1.5 py-1"
+                  >
+                    {item}
+                  </span>
+                ))
+              ) : (
+                <span className="border-accent text-muted-foreground rounded-sm border px-1.5 py-1 text-xs">
+                  {t("notifications.table.notDefined")}
                 </span>
-                <span className="text-muted-foreground">
-                  {unread} {t("notifications.table.unread")}
-                </span>
-              </div>
-              <Progress value={readPercentage} className="h-2" />
+              )}
             </div>
           );
         },
       },
       {
-        accessorKey: "isPopup",
-        header: t("notifications.popup"),
+        accessorKey: "targetUsers",
+        header: t("notifications.table.targetUsers"),
         cell: ({ row }) => {
-          const isPopup = row.getValue("isPopup") as boolean;
+          const notification = row.original;
+          const audience = getAudience(notification);
+
+          if (audience.length > 0) {
+            return (
+              <span className="text-xs">
+                {audience
+                  .map((item) => audienceLabels[item] || item)
+                  .join(" / ")}
+              </span>
+            );
+          }
+
           return (
-            <Badge variant={isPopup ? "default" : "outline"}>
-              {isPopup
-                ? t("notifications.table.yes")
-                : t("notifications.table.no")}
-            </Badge>
+            <span className="text-muted-foreground text-xs">
+              {notification.isPublic
+                ? t("notifications.form.audience.allUsers")
+                : t("notifications.table.notDefined")}
+            </span>
           );
         },
       },
@@ -449,7 +531,7 @@ export function NotificationsList({
         },
       },
     ];
-  }, [handleDelete, handleEdit, handleSend, typeLabels, t]);
+  }, [audienceLabels, handleDelete, handleEdit, handleSend, t]);
 
   const table = useReactTable({
     data,
@@ -493,8 +575,8 @@ export function NotificationsList({
                   {t("notifications.sendNew")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
-                <DialogHeader>
+              <DialogContent className="flex h-[98vh] w-[99vw] max-w-3xl! flex-col overflow-hidden p-0 sm:rounded-xl lg:w-[80vw]">
+                <DialogHeader className="border-b px-6 py-4">
                   <DialogTitle className="text-center">
                     {t("notifications.sendNewTitle")}
                   </DialogTitle>
@@ -502,7 +584,7 @@ export function NotificationsList({
                     {t("notifications.sendNewDescription")}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="mt-4">
+                <div className="flex-1 overflow-y-auto px-6 py-5">
                   <NotificationForm
                     onSuccess={handleFormSuccess}
                     onCancel={() => setIsDrawerOpen(false)}
@@ -802,7 +884,7 @@ export function NotificationsList({
 
       {/* Edit Dialog */}
       <Dialog open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
-        <DialogContent>
+        <DialogContent className="h-[98vh] w-[99vw] max-w-3xl!">
           <DialogHeader>
             <DialogTitle>{t("notifications.editTitle")}</DialogTitle>
             <DialogDescription>

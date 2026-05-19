@@ -390,6 +390,8 @@
       "title": "عنوان",
       "recipients": "گیرندگان",
       "readUnread": "خوانده/نخوانده",
+      "destinationPage": "صفحه مقصد",
+      "targetUsers": "کاربران هدف",
       "createdAt": "تاریخ ایجاد",
       "actions": "عملیات",
       "selectAll": "انتخاب همه",
@@ -397,7 +399,8 @@
       "noTitle": "بدون عنوان",
       "unread": "خوانده نشده",
       "yes": "بله",
-      "no": "خیر"
+      "no": "خیر",
+      "notDefined": "تعریف نشده"
     },
     "filters": {
       "searchPlaceholder": "جستجو در metadata...",
@@ -456,6 +459,25 @@
       "updating": "در حال به‌روزرسانی...",
       "cancel": "انصراف",
       "fieldPlaceholder": "{{label}} را وارد کنید...",
+      "targeting": {
+        "title": "هدف‌گیری و نمایش (مسیر نمایش)",
+        "description": "مسیرهای نمایش اعلان را انتخاب کنید",
+        "allPages": "تمام صفحات",
+        "specificPaths": "مسیرهای خاص",
+        "specificPathsPlaceholder": "/url_path",
+        "matchMode": "نوع تطبیق مسیر",
+        "matchExact": "دقیقا منطبق",
+        "matchInclude": "شامل",
+        "matchRequired": "برای مسیرهای خاص، نوع تطبیق مسیر (exact/include) را انتخاب کنید",
+        "addPath": "افزودن مسیر",
+        "routeRequired": "حداقل یک مسیر معتبر برای حالت مسیرهای خاص وارد کنید"
+      },
+      "audience": {
+        "title": "نمایش برای (مخاطب هدف)",
+        "allUsers": "تمامی کاربران (عمومی)",
+        "loggedInUsers": "فقط کاربران لاگین شده",
+        "guests": "مهمان‌ها (کاربران لاگین نشده)"
+      },
       "fields": {
         "title": "عنوان",
         "message": "پیام",
@@ -474,7 +496,11 @@
         "securityLabel": "عنوان امنیتی",
         "ipAddress": "آدرس IP",
         "deviceInfo": "اطلاعات دستگاه",
-        "changelog": "لیست تغییرات"
+        "changelog": "لیست تغییرات",
+        "buttonText": "متن دکمه / لینک",
+        "targetUrl": "URL مقصد",
+        "mediaOptional": "رسانه (اختیاری)",
+        "badge": "متن Badge (اختیاری)"
       },
       "promotionalNotificationTypeWarning": "نوع نوتیفیکیشن به صورت خودکار به اطلاعیه تغییر کرده است"
     },
@@ -505,7 +531,9 @@
       "security_alert": "هشدار امنیتی",
       "promotional": "بروزرسانی",
       "dynamic": "پویا",
-      "simple": "ساده"
+      "simple": "ساده",
+      "simple_popup": "پاپ‌آپ ساده",
+      "urgent_banner": "بنر فوری"
     }
   },
   "domains": {

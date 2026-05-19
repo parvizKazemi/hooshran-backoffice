@@ -390,6 +390,8 @@
       "title": "Title",
       "recipients": "Recipients",
       "readUnread": "Read/Unread",
+      "destinationPage": "Destination Page",
+      "targetUsers": "Target Users",
       "createdAt": "Created At",
       "actions": "Actions",
       "selectAll": "Select all",
@@ -397,7 +399,8 @@
       "noTitle": "No title",
       "unread": "unread",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "notDefined": "Not defined"
     },
     "filters": {
       "searchPlaceholder": "Search in metadata...",
@@ -446,6 +449,25 @@
       "updating": "Updating...",
       "cancel": "Cancel",
       "fieldPlaceholder": "Enter {{label}}...",
+      "targeting": {
+        "title": "Targeting and Display (URL Target)",
+        "description": "Choose where this notification should be shown",
+        "allPages": "All Pages",
+        "specificPaths": "Specific Paths",
+        "specificPathsPlaceholder": "Example: /dashboard, /support",
+        "matchMode": "Route Match Mode",
+        "matchExact": "Exact",
+        "matchInclude": "Include",
+        "matchRequired": "Please select route match mode (exact/include) for specific paths",
+        "addPath": "Add Path",
+        "routeRequired": "Please add at least one valid path for specific paths mode"
+      },
+      "audience": {
+        "title": "Display For (Target Audience)",
+        "allUsers": "All Users (Public)",
+        "loggedInUsers": "Logged-in Users Only",
+        "guests": "Guests (Not Logged In)"
+      },
       "fields": {
         "title": "Title",
         "message": "Message",
@@ -464,7 +486,11 @@
         "securityLabel": "Security Label",
         "ipAddress": "IP Address",
         "deviceInfo": "Device Info",
-        "changelog": "Changelog"
+        "changelog": "Changelog",
+        "buttonText": "Button / Link Text",
+        "targetUrl": "Target URL",
+        "mediaOptional": "Media (Optional)",
+        "badge": "Badge Text (Optional)"
       },
       "promotionalNotificationTypeWarning": "Notification type has been automatically changed to information"
     },
@@ -495,7 +521,9 @@
       "security_alert": "Security Alert",
       "promotional": "Promotional",
       "dynamic": "Dynamic",
-      "simple": "Simple"
+      "simple": "Simple",
+      "simple_popup": "Simple Popup",
+      "urgent_banner": "Urgent Banner"
     }
   },
   "domains": {
