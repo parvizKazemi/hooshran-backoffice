@@ -281,7 +281,7 @@ export function NotificationForm({
     typeof audienceValue[0] === "string" &&
     audienceValue[0]
       ? audienceValue[0]
-      : "all_users";
+      : "ALL";
 
   const { validateRequiredFields } = useFormValidation(
     templateType || "simple"
@@ -322,7 +322,7 @@ export function NotificationForm({
       return;
     }
 
-    if (templateType === "urgent_banner") {
+    if (templateType === "float_banner") {
       setValue("isPopup", false);
       if (
         !Array.isArray((metaDataData as Record<string, unknown>).urlTargets)
@@ -339,7 +339,7 @@ export function NotificationForm({
         setValue("metaData.data.targetMode", "all");
       }
       if (!Array.isArray((metaDataData as Record<string, unknown>).audience)) {
-        setValue("metaData.data.audience", ["all_users"]);
+        setValue("metaData.data.audience", ["ALL"]);
       }
     }
   }, [metaDataData, notificationType, setValue, t, templateType]);
@@ -429,7 +429,7 @@ export function NotificationForm({
       data.metaData.type = "simple";
     }
 
-    if (data.metaData?.type === "urgent_banner") {
+    if (data.metaData?.type === "float_banner") {
       const normalizedRules = normalizeUrlRules(
         data.metaData.data?.urlRules,
         data.metaData.data?.urlTargets,
@@ -447,7 +447,7 @@ export function NotificationForm({
         typeof audience[0] === "string" &&
         audience[0].trim()
           ? [audience[0]]
-          : ["all_users"];
+          : ["ALL"];
       const allRules = Array.from(new Set(normalizedRules.map((r) => r.rule)));
 
       data.metaData.data = {
@@ -889,7 +889,7 @@ export function NotificationForm({
           </>
         )}
 
-        {templateType === "urgent_banner" && (
+        {templateType === "float_banner" && (
           <>
             <Field className="space-y-3 rounded-md border p-4">
               <FieldLabel>{t("notifications.form.targeting.title")}</FieldLabel>
@@ -984,13 +984,13 @@ export function NotificationForm({
                 }
                 className="w-full justify-start"
               >
-                <ToggleGroupItem value="all_users">
+                <ToggleGroupItem value="ALL">
                   {t("notifications.form.audience.allUsers")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="logged_in_users">
+                <ToggleGroupItem value="LOGINNED">
                   {t("notifications.form.audience.loggedInUsers")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="guests">
+                <ToggleGroupItem value="NOT_LOGINNED">
                   {t("notifications.form.audience.guests")}
                 </ToggleGroupItem>
               </ToggleGroup>
@@ -1020,7 +1020,7 @@ export function NotificationForm({
           </Field>
         )}
 
-        {!["promotional", "simple_popup", "urgent_banner"].includes(
+        {!["promotional", "simple_popup", "float_banner"].includes(
           templateType || ""
         ) && (
           <div className="flex justify-between gap-4">

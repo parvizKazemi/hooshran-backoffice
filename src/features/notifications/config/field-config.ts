@@ -205,7 +205,7 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       required: false,
     },
   ],
-  urgent_banner: [
+  float_banner: [
     {
       name: "title",
       label: "notifications.form.fields.title",
@@ -219,16 +219,22 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       required: true,
     },
     {
+      name: "badge",
+      label: "notifications.form.fields.badge",
+      type: "text",
+      required: false,
+    },
+    {
       name: "button_text",
       label: "notifications.form.fields.buttonText",
       type: "text",
-      required: true,
+      required: false,
     },
     {
       name: "target_url",
       label: "notifications.form.fields.targetUrl",
       type: "text",
-      required: true,
+      required: false,
     },
   ],
 };

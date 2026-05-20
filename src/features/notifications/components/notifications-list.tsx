@@ -194,7 +194,7 @@ const templateIcons: Record<
   React.ComponentType<{ className?: string }>
 > = {
   simple_popup: IconBell,
-  urgent_banner: IconInfoCircle,
+  float_banner: IconInfoCircle,
   promotional: IconSettings,
 };
 
@@ -234,9 +234,9 @@ export function NotificationsList({
   const [order, setOrder] = useState<"ASC" | "DESC">(filters.order || "DESC");
 
   const audienceLabels: Record<string, string> = {
-    all_users: t("notifications.form.audience.allUsers"),
-    logged_in_users: t("notifications.form.audience.loggedInUsers"),
-    guests: t("notifications.form.audience.guests"),
+    ALL: t("notifications.form.audience.allUsers"),
+    LOGINNED: t("notifications.form.audience.loggedInUsers"),
+    NOT_LOGINNED: t("notifications.form.audience.guests"),
   };
 
   const handleFilterChange = useCallback(

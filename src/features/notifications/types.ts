@@ -142,7 +142,7 @@ export interface NotificationStats {
 export const TEMPLATE_TYPES = [
   "simple",
   "simple_popup",
-  "urgent_banner",
+  "float_banner",
   "promotional",
   // "dynamic",
   // "service_result",

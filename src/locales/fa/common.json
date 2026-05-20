@@ -499,8 +499,8 @@
         "changelog": "لیست تغییرات",
         "buttonText": "متن دکمه / لینک",
         "targetUrl": "URL مقصد",
-        "mediaOptional": "رسانه (اختیاری)",
-        "badge": "متن Badge (اختیاری)"
+        "mediaOptional": "رسانه",
+        "badge": "متن Badge"
       },
       "promotionalNotificationTypeWarning": "نوع نوتیفیکیشن به صورت خودکار به اطلاعیه تغییر کرده است"
     },
@@ -533,7 +533,7 @@
       "dynamic": "پویا",
       "simple": "ساده",
       "simple_popup": "پاپ‌آپ ساده",
-      "urgent_banner": "بنر فوری"
+      "float_banner": "بنر فوری"
     }
   },
   "domains": {
