@@ -122,6 +122,26 @@ const normalizeUrlRules = (
     }));
 };
 
+const normalizeTargetGroup = (...values: unknown[]): string => {
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      const firstValidItem = value.find(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0
+      );
+      if (firstValidItem) {
+        return firstValidItem.trim();
+      }
+    }
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return "ALL";
+};
+
 export function NotificationForm({
   notification,
   onSuccess,
@@ -244,6 +264,10 @@ export function NotificationForm({
           },
           isPopup: notification.isPopup,
           isPublic: notification.isPublic,
+          targetGroup: normalizeTargetGroup(
+            notification.targetGroup,
+            (notification.metaData.data as Record<string, unknown>)?.audience
+          ),
         }
       : {
           type: "information" as NotificationType,
@@ -253,6 +277,7 @@ export function NotificationForm({
           },
           isPopup: false,
           isPublic: false,
+          targetGroup: "ALL",
         },
   });
 
@@ -275,13 +300,11 @@ export function NotificationForm({
     : rawUrlTargets.includes("all") || urlRules.length === 0;
   const customRouteRules =
     urlRules.length > 0 ? urlRules : [{ path: "", rule: "exact" as const }];
-  const audienceValue = (metaDataData as Record<string, unknown>).audience;
-  const selectedAudience =
-    Array.isArray(audienceValue) &&
-    typeof audienceValue[0] === "string" &&
-    audienceValue[0]
-      ? audienceValue[0]
-      : "ALL";
+  const targetGroupValue = watch("targetGroup");
+  const selectedAudience = normalizeTargetGroup(
+    targetGroupValue,
+    (metaDataData as Record<string, unknown>).audience
+  );
 
   const { validateRequiredFields } = useFormValidation(
     templateType || "simple"
@@ -319,6 +342,9 @@ export function NotificationForm({
       if (!(metaDataData as Record<string, unknown>).targetMode) {
         setValue("metaData.data.targetMode", "all");
       }
+      if (typeof targetGroupValue !== "string" || !targetGroupValue.trim()) {
+        setValue("targetGroup", "ALL");
+      }
       return;
     }
 
@@ -338,11 +364,18 @@ export function NotificationForm({
       if (!(metaDataData as Record<string, unknown>).targetMode) {
         setValue("metaData.data.targetMode", "all");
       }
-      if (!Array.isArray((metaDataData as Record<string, unknown>).audience)) {
-        setValue("metaData.data.audience", ["ALL"]);
+      if (typeof targetGroupValue !== "string" || !targetGroupValue.trim()) {
+        setValue("targetGroup", "ALL");
       }
     }
-  }, [metaDataData, notificationType, setValue, t, templateType]);
+  }, [
+    metaDataData,
+    notificationType,
+    setValue,
+    t,
+    targetGroupValue,
+    templateType,
+  ]);
 
   const currentTemplateFields =
     TEMPLATE_FIELD_CONFIGS[templateType || "simple"] ||
@@ -370,6 +403,11 @@ export function NotificationForm({
         return;
       }
     }
+
+    const normalizedTargetGroup = normalizeTargetGroup(
+      data.targetGroup,
+      data.metaData?.data?.audience
+    );
 
     if (data.metaData?.type === "simple_popup") {
       const normalizedRules = normalizeUrlRules(
@@ -441,17 +479,12 @@ export function NotificationForm({
         toast.error(t("notifications.form.targeting.routeRequired"));
         return;
       }
-      const audience = data.metaData.data?.audience;
-      const normalizedAudience =
-        Array.isArray(audience) &&
-        typeof audience[0] === "string" &&
-        audience[0].trim()
-          ? [audience[0]]
-          : ["ALL"];
       const allRules = Array.from(new Set(normalizedRules.map((r) => r.rule)));
+      const currentData = (data.metaData.data || {}) as Record<string, unknown>;
+      const { ...restData } = currentData;
 
       data.metaData.data = {
-        ...(data.metaData.data || {}),
+        ...restData,
         urlTargets:
           targetMode === "custom"
             ? normalizedRules.map((rule) => rule.path)
@@ -472,9 +505,10 @@ export function NotificationForm({
                 ...(allRules.length === 1 ? { rule: allRules[0] } : {}),
               }
             : null,
-        audience: normalizedAudience,
       };
     }
+
+    data.targetGroup = normalizedTargetGroup;
 
     try {
       if (isEditing && notification) {
@@ -489,6 +523,7 @@ export function NotificationForm({
               }),
             },
           }),
+          ...(data.targetGroup && { targetGroup: data.targetGroup }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
           ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
           // Send admin UUID
@@ -517,6 +552,7 @@ export function NotificationForm({
             type: data.metaData?.type || "simple",
             data: (data.metaData?.data || {}) as Record<string, unknown>,
           },
+          targetGroup: normalizedTargetGroup,
           isPopup: isPromotional ? true : (data.isPopup ?? false),
           isPublic: isPromotional ? false : (data.isPublic ?? false),
           userId: authData?.user.uuid, // Send admin UUID
@@ -973,29 +1009,29 @@ export function NotificationForm({
                 </div>
               )}
             </Field>
-
-            <Field className="space-y-3 rounded-md border p-4">
-              <FieldLabel>{t("notifications.form.audience.title")}</FieldLabel>
-              <ToggleGroup
-                type="single"
-                value={selectedAudience}
-                onValueChange={(value) =>
-                  value && updateMetaDataField("audience", [value])
-                }
-                className="w-full justify-start"
-              >
-                <ToggleGroupItem value="ALL">
-                  {t("notifications.form.audience.allUsers")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="LOGINNED">
-                  {t("notifications.form.audience.loggedInUsers")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="NOT_LOGINNED">
-                  {t("notifications.form.audience.guests")}
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </Field>
           </>
+        )}
+
+        {["simple_popup", "float_banner"].includes(templateType || "") && (
+          <Field className="space-y-3 rounded-md border p-4">
+            <FieldLabel>{t("notifications.form.audience.title")}</FieldLabel>
+            <ToggleGroup
+              type="single"
+              value={selectedAudience}
+              onValueChange={(value) => value && setValue("targetGroup", value)}
+              className="w-full justify-start"
+            >
+              <ToggleGroupItem value="ALL">
+                {t("notifications.form.audience.allUsers")}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="LOGGINED">
+                {t("notifications.form.audience.loggedInUsers")}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="NOT_LOGGINED">
+                {t("notifications.form.audience.guests")}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </Field>
         )}
 
         {/* Promotional items editor */}

@@ -163,16 +163,23 @@ const getUrlTargets = (notification: AdminNotification): string[] => {
 };
 
 const getAudience = (notification: AdminNotification): string[] => {
-  const rawValue = (notification.metaData?.data as Record<string, unknown>)
-    ?.audience;
+  const rawValue =
+    notification.targetGroup ||
+    ((notification.metaData?.data as Record<string, unknown>)?.audience as
+      | unknown
+      | undefined);
 
-  if (!Array.isArray(rawValue)) {
-    return [];
+  if (typeof rawValue === "string" && rawValue.trim()) {
+    return [rawValue.trim()];
   }
 
-  return rawValue
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
+  if (Array.isArray(rawValue)) {
+    return rawValue
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 type NotificationsListProps = {
@@ -235,8 +242,8 @@ export function NotificationsList({
 
   const audienceLabels: Record<string, string> = {
     ALL: t("notifications.form.audience.allUsers"),
-    LOGINNED: t("notifications.form.audience.loggedInUsers"),
-    NOT_LOGINNED: t("notifications.form.audience.guests"),
+    LOGGINED: t("notifications.form.audience.loggedInUsers"),
+    NOT_LOGGINED: t("notifications.form.audience.guests"),
   };
 
   const handleFilterChange = useCallback(

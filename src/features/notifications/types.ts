@@ -35,6 +35,7 @@ export interface AdminNotification {
   uuid: string;
   type: NotificationType;
   metaData: NotificationMetaData;
+  targetGroup?: string;
   isPopup: boolean;
   isPublic: boolean;
   user?: UserDto;
@@ -50,6 +51,7 @@ export interface BasicNotification {
   uuid: string;
   type: NotificationType;
   metaData: NotificationMetaData;
+  targetGroup?: string;
   isPopup: boolean;
   isPublic: boolean;
   user?: UserDto;
@@ -94,6 +96,7 @@ export const createNotificationSchema = z.object({
         "داده‌های template الزامی است"
       ),
   }),
+  targetGroup: z.string().optional(),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional().default(false),
   isPublic: z.boolean().optional().default(false),
@@ -121,6 +124,7 @@ export const updateNotificationSchema = z.object({
       data: z.record(z.string(), z.unknown()).optional(),
     })
     .optional(),
+  targetGroup: z.string().optional(),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional(),
   isPublic: z.boolean().optional(),
