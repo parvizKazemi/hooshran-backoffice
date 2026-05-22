@@ -6,40 +6,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SettingsPageHeader } from "./components/settings-page-header";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  useUpdatePurchasePaymentSettings,
-  useUserSettings,
+  usePaymentGateConfig,
+  useUpdatePaymentGateConfig,
 } from "./hooks/use-user-settings";
 
-export default function UserPurchasePaymentSettings() {
+export default function UserRegistrationSettings() {
   const { t } = useTranslation("common");
-  const { data, isLoading } = useUserSettings();
-  const updatePurchasePayment = useUpdatePurchasePaymentSettings();
-  const [isPurchaseDisabled, setIsPurchaseDisabled] = useState(false);
-  const [purchaseDisabledMessage, setPurchaseDisabledMessage] = useState("");
+  const { data, isLoading } = usePaymentGateConfig();
+  const updatePaymentGateConfig = useUpdatePaymentGateConfig();
+  const [isPaymentEnabled, setIsPaymentEnabled] = useState(true);
+  const [paymentDisabledMessage, setPaymentDisabledMessage] = useState("");
 
   useEffect(() => {
     if (!data) {
       return;
     }
-    setIsPurchaseDisabled(data.purchasePayment.isPurchaseDisabled);
-    setPurchaseDisabledMessage(
-      data.purchasePayment.purchaseDisabledMessage ?? ""
-    );
+    setIsPaymentEnabled(data.isPurchaseDisabled);
+    setPaymentDisabledMessage(data.purchaseDisabledMessage ?? "");
   }, [data]);
 
   const handleSave = async () => {
-    await updatePurchasePayment.mutateAsync({
-      isPurchaseDisabled,
-      purchaseDisabledMessage,
+    await updatePaymentGateConfig.mutateAsync({
+      isPurchaseDisabled: isPaymentEnabled,
+      purchaseDisabledMessage: paymentDisabledMessage,
     });
   };
 
@@ -73,9 +71,9 @@ export default function UserPurchasePaymentSettings() {
           <div className="bg-muted/40 flex items-center justify-between rounded-md border p-4">
             <div>
               <p className="text-sm font-semibold">
-                {isPurchaseDisabled
-                  ? t("userSettings.purchasePage.status.disabled")
-                  : t("userSettings.purchasePage.status.enabled")}
+                {isPaymentEnabled
+                  ? t("userSettings.purchasePage.status.enabled")
+                  : t("userSettings.purchasePage.status.disabled")}
               </p>
               <p className="text-muted-foreground text-xs">
                 {t("userSettings.purchasePage.status.hint")}
@@ -83,21 +81,21 @@ export default function UserPurchasePaymentSettings() {
             </div>
             <Switch
               dir="ltr"
-              checked={isPurchaseDisabled}
-              onCheckedChange={setIsPurchaseDisabled}
+              checked={isPaymentEnabled}
+              onCheckedChange={setIsPaymentEnabled}
               aria-label={t("userSettings.aria.togglePurchaseStatus")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="purchase-disabled-custom-message">
+            <Label htmlFor="payment-disabled-custom-message">
               {t("userSettings.purchasePage.customMessage.label")}
             </Label>
             <Textarea
-              id="purchase-disabled-custom-message"
-              value={purchaseDisabledMessage}
+              id="payment-disabled-custom-message"
+              value={paymentDisabledMessage}
               onChange={(event) =>
-                setPurchaseDisabledMessage(event.target.value)
+                setPaymentDisabledMessage(event.target.value)
               }
               placeholder={t(
                 "userSettings.purchasePage.customMessage.placeholder"
@@ -118,9 +116,9 @@ export default function UserPurchasePaymentSettings() {
           <div className="flex justify-end">
             <Button
               onClick={handleSave}
-              disabled={updatePurchasePayment.isPending}
+              disabled={updatePaymentGateConfig.isPending}
             >
-              {updatePurchasePayment.isPending && (
+              {updatePaymentGateConfig.isPending && (
                 <IconLoader2 className="size-4 animate-spin" />
               )}
               {t("userSettings.actions.savePurchase")}

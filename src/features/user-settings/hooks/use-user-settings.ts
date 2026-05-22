@@ -2,7 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
+  getPaymentGateConfig,
   getUserSettings,
+  updatePaymentGateConfig,
   updateFreezeEndSettings,
   updateFreezeStartSettings,
   updatePurchasePaymentSettings,
@@ -17,6 +19,7 @@ import type {
 } from "../types";
 
 const USER_SETTINGS_QUERY_KEY = ["user-settings"] as const;
+const PAYMENT_GATE_CONFIG_QUERY_KEY = ["payment-gate-config"] as const;
 
 const withErrorToast = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) {
@@ -94,5 +97,28 @@ export function useUpdateRegistrationSettings() {
     },
     onError: (error) =>
       withErrorToast(error, t("userSettings.toasts.registrationSaveFailed")),
+  });
+}
+
+export function usePaymentGateConfig() {
+  return useQuery({
+    queryKey: PAYMENT_GATE_CONFIG_QUERY_KEY,
+    queryFn: getPaymentGateConfig,
+  });
+}
+
+export function useUpdatePaymentGateConfig() {
+  const { t } = useTranslation("common");
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: PurchasePaymentSettings) =>
+      updatePaymentGateConfig(payload),
+    onSuccess: (updatedData: PurchasePaymentSettings) => {
+      queryClient.setQueryData(PAYMENT_GATE_CONFIG_QUERY_KEY, updatedData);
+      toast.success(t("userSettings.toasts.purchaseSaved"));
+    },
+    onError: (error) =>
+      withErrorToast(error, t("userSettings.toasts.purchaseSaveFailed")),
   });
 }

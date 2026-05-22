@@ -130,3 +130,33 @@ export async function updateRegistrationSettings(
     return structuredClone(mockUserSettingsState);
   }
 }
+
+export async function getPaymentGateConfig(): Promise<PurchasePaymentSettings> {
+  const response = await apiGet<{
+    isEnabled: boolean;
+    message?: string | null;
+  }>(USER_SETTINGS_ENDPOINTS.updatePurchasePayment);
+
+  return {
+    isPurchaseDisabled: Boolean(response.isEnabled),
+    purchaseDisabledMessage: response.message?.trim() ?? "",
+  };
+}
+
+export async function updatePaymentGateConfig(
+  payload: PurchasePaymentSettings
+): Promise<PurchasePaymentSettings> {
+  const normalizedMessage = payload.purchaseDisabledMessage.trim();
+  const response = await apiPatch<{
+    isEnabled: boolean;
+    message?: string | null;
+  }>(USER_SETTINGS_ENDPOINTS.updatePurchasePayment, {
+    isEnabled: payload.isPurchaseDisabled,
+    message: normalizedMessage,
+  });
+
+  return {
+    isPurchaseDisabled: Boolean(response.isEnabled),
+    purchaseDisabledMessage: response.message?.trim() ?? "",
+  };
+}
