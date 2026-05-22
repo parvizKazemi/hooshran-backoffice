@@ -36,6 +36,7 @@ export interface AdminNotification {
   type: NotificationType;
   metaData: NotificationMetaData;
   targetGroup?: string;
+  isActive?: boolean;
   isPopup: boolean;
   isPublic: boolean;
   user?: UserDto;
@@ -52,6 +53,7 @@ export interface BasicNotification {
   type: NotificationType;
   metaData: NotificationMetaData;
   targetGroup?: string;
+  isActive?: boolean;
   isPopup: boolean;
   isPublic: boolean;
   user?: UserDto;
@@ -97,6 +99,7 @@ export const createNotificationSchema = z.object({
       ),
   }),
   targetGroup: z.string().optional(),
+  isActive: z.boolean().optional(),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional().default(false),
   isPublic: z.boolean().optional().default(false),
@@ -125,6 +128,7 @@ export const updateNotificationSchema = z.object({
     })
     .optional(),
   targetGroup: z.string().optional(),
+  isActive: z.boolean().optional(),
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional(),
   isPublic: z.boolean().optional(),

@@ -145,13 +145,13 @@ const normalizeTargetGroup = (...values: unknown[]): string => {
 export function NotificationForm({
   notification,
   onSuccess,
-  onCancel,
 }: NotificationFormProps) {
   const { t } = useTranslation("common");
   const { authData } = useAuth();
   const createNotification = useCreateNotification();
   const updateNotification = useUpdateNotification();
   const isEditing = !!notification;
+  const submitModeRef = React.useRef<"publish" | "draft">("publish");
 
   const {
     handleSubmit,
@@ -264,6 +264,7 @@ export function NotificationForm({
           },
           isPopup: notification.isPopup,
           isPublic: notification.isPublic,
+          isActive: notification.isActive ?? true,
           targetGroup: normalizeTargetGroup(
             notification.targetGroup,
             (notification.metaData.data as Record<string, unknown>)?.audience
@@ -277,6 +278,7 @@ export function NotificationForm({
           },
           isPopup: false,
           isPublic: false,
+          isActive: true,
           targetGroup: "ALL",
         },
   });
@@ -408,6 +410,7 @@ export function NotificationForm({
       data.targetGroup,
       data.metaData?.data?.audience
     );
+    const isActive = submitModeRef.current === "publish";
 
     if (data.metaData?.type === "simple_popup") {
       const normalizedRules = normalizeUrlRules(
@@ -509,6 +512,7 @@ export function NotificationForm({
     }
 
     data.targetGroup = normalizedTargetGroup;
+    data.isActive = isActive;
 
     try {
       if (isEditing && notification) {
@@ -524,6 +528,7 @@ export function NotificationForm({
             },
           }),
           ...(data.targetGroup && { targetGroup: data.targetGroup }),
+          ...(data.isActive !== undefined && { isActive: data.isActive }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
           ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
           // Send admin UUID
@@ -553,6 +558,7 @@ export function NotificationForm({
             data: (data.metaData?.data || {}) as Record<string, unknown>,
           },
           targetGroup: normalizedTargetGroup,
+          isActive,
           isPopup: isPromotional ? true : (data.isPopup ?? false),
           isPublic: isPromotional ? false : (data.isPublic ?? false),
           userId: authData?.user.uuid, // Send admin UUID
@@ -1122,8 +1128,34 @@ export function NotificationForm({
 
         <Field>
           <div className="flex gap-2">
+            {!isEditing && (
+              <Button
+                type="submit"
+                variant="secondary"
+                onClick={() => {
+                  submitModeRef.current = "draft";
+                }}
+                disabled={
+                  createNotification.isPending || updateNotification.isPending
+                }
+                className="flex-1"
+              >
+                {createNotification.isPending ||
+                updateNotification.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    {t("notifications.form.savingDraft")}
+                  </>
+                ) : (
+                  t("notifications.form.saveDraft")
+                )}
+              </Button>
+            )}
             <Button
               type="submit"
+              onClick={() => {
+                submitModeRef.current = "publish";
+              }}
               disabled={
                 createNotification.isPending || updateNotification.isPending
               }
@@ -1142,18 +1174,6 @@ export function NotificationForm({
                 t("notifications.form.create")
               )}
             </Button>
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={
-                  createNotification.isPending || updateNotification.isPending
-                }
-              >
-                {t("notifications.form.cancel")}
-              </Button>
-            )}
           </div>
         </Field>
       </FieldGroup>

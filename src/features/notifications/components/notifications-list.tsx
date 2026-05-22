@@ -48,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -60,6 +61,7 @@ import { cn } from "@/lib/utils";
 import {
   useDeleteNotification,
   useSendNotification,
+  useUpdateNotification,
 } from "../hooks/use-notifications";
 import {
   AdminNotification,
@@ -225,6 +227,7 @@ export function NotificationsList({
 
   const deleteNotification = useDeleteNotification();
   const sendNotification = useSendNotification();
+  const updateNotification = useUpdateNotification();
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(filters.search || "");
@@ -328,6 +331,20 @@ export function NotificationsList({
       }
     }
   }, [selectedNotification, userIdsToSend, sendNotification, onRefresh]);
+
+  const handleToggleActive = useCallback(
+    async (notification: AdminNotification, isActive: boolean) => {
+      try {
+        await updateNotification.mutateAsync({
+          notificationId: notification.uuid,
+          data: { isActive },
+        });
+      } catch {
+        // Error handled in hook
+      }
+    },
+    [updateNotification]
+  );
 
   // Table columns
   const columns = useMemo<ColumnDef<AdminNotification>[]>(() => {
@@ -474,6 +491,32 @@ export function NotificationsList({
         },
       },
       {
+        accessorKey: "isActive",
+        header: t("table.status"),
+        cell: ({ row }) => {
+          const notification = row.original;
+          const isActive = notification.isActive ?? true;
+          return (
+            <div className="flex items-center gap-2">
+              <Switch
+                dir="ltr"
+                checked={isActive}
+                onCheckedChange={(checked) =>
+                  handleToggleActive(notification, checked)
+                }
+                disabled={updateNotification.isPending}
+                aria-label={t("table.status")}
+              />
+              <span className="text-xs">
+                {isActive
+                  ? t("users.statuses.active")
+                  : t("users.statuses.inactive")}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
         accessorKey: "createdAt",
         header: t("notifications.table.createdAt"),
         cell: ({ row }) => {
@@ -538,7 +581,15 @@ export function NotificationsList({
         },
       },
     ];
-  }, [audienceLabels, handleDelete, handleEdit, handleSend, t]);
+  }, [
+    audienceLabels,
+    handleDelete,
+    handleEdit,
+    handleSend,
+    handleToggleActive,
+    t,
+    updateNotification.isPending,
+  ]);
 
   const table = useReactTable({
     data,
