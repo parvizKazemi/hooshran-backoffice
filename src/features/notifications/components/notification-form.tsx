@@ -48,6 +48,7 @@ import {
 } from "../config/field-config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileUploader } from "./file-uploader";
+import { cn } from "@/lib/utils";
 
 type NotificationFormProps = {
   notification?: AdminNotification;
@@ -140,6 +141,33 @@ const normalizeTargetGroup = (...values: unknown[]): string => {
   }
 
   return "ALL";
+};
+
+const TITLE_MAX_LENGTH = 40;
+const BADGE_MAX_LENGTH = 15;
+const MESSAGE_MAX_LENGTH_BY_TEMPLATE: Record<string, number> = {
+  promotional: 300,
+  simple: 1000,
+  simple_popup: 1000,
+  float_banner: 90,
+};
+
+const getFieldMaxLength = (
+  templateType: string | undefined,
+  fieldName: string
+): number | undefined => {
+  if (fieldName === "title") {
+    return TITLE_MAX_LENGTH;
+  }
+  if (fieldName === "badge") {
+    return BADGE_MAX_LENGTH;
+  }
+
+  if (fieldName === "message") {
+    return MESSAGE_MAX_LENGTH_BY_TEMPLATE[templateType || "simple"] || 1000;
+  }
+
+  return undefined;
 };
 
 export function NotificationForm({
@@ -768,66 +796,129 @@ export function NotificationForm({
               </FieldLabel>
               {field.type === "textarea" ? (
                 <div>
-                  <Textarea
-                    id={`metaData.data.${field.name}`}
-                    placeholder={t("notifications.form.fieldPlaceholder", {
-                      label: t(field.label),
-                    })}
-                    value={
-                      (metaDataData as Record<string, string>)[field.name] || ""
-                    }
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (
-                        field.name === "message" &&
-                        templateType === "promotional" &&
-                        field.maxLength
-                      ) {
-                        if (value.length <= field.maxLength) {
-                          updateMetaDataField(field.name, value);
-                        }
-                      } else {
-                        updateMetaDataField(field.name, value);
-                      }
-                    }}
-                    disabled={
-                      createNotification.isPending ||
-                      updateNotification.isPending
-                    }
-                    rows={4}
-                    maxLength={
-                      field.name === "message" && templateType === "promotional"
-                        ? field.maxLength
-                        : undefined
-                    }
-                  />
-                  {field.name === "message" &&
-                    templateType === "promotional" &&
-                    field.maxLength && (
-                      <FieldDescription className="text-muted-foreground text-xs">
-                        {(metaDataData as Record<string, string>).message
-                          ?.length || 0}
-                        /{field.maxLength} کاراکتر
-                      </FieldDescription>
-                    )}
+                  {(() => {
+                    const currentValue =
+                      ((metaDataData as Record<string, unknown>)[
+                        field.name
+                      ] as string) || "";
+                    const maxLength = getFieldMaxLength(
+                      templateType || undefined,
+                      field.name
+                    );
+                    const remainingChars =
+                      typeof maxLength === "number"
+                        ? Math.max(maxLength - currentValue.length, 0)
+                        : undefined;
+
+                    return (
+                      <>
+                        <div className="relative">
+                          <Textarea
+                            id={`metaData.data.${field.name}`}
+                            placeholder={t(
+                              "notifications.form.fieldPlaceholder",
+                              {
+                                label: t(field.label),
+                              }
+                            )}
+                            value={currentValue}
+                            onChange={(e) => {
+                              const nextValue =
+                                typeof maxLength === "number"
+                                  ? e.target.value.slice(0, maxLength)
+                                  : e.target.value;
+                              updateMetaDataField(field.name, nextValue);
+                            }}
+                            disabled={
+                              createNotification.isPending ||
+                              updateNotification.isPending
+                            }
+                            rows={4}
+                            maxLength={maxLength}
+                            className={
+                              typeof maxLength === "number" ? "pb-7" : ""
+                            }
+                          />
+                          {typeof maxLength === "number" && (
+                            <FieldDescription
+                              className={cn(
+                                "bg-background/80 pointer-events-none absolute bottom-2 left-3 rounded px-1",
+                                remainingChars === 0
+                                  ? "text-destructive! text-xs"
+                                  : "text-muted-foreground text-xs"
+                              )}
+                            >
+                              {remainingChars}/{maxLength}{" "}
+                              {t("notifications.promotionalItems.characters")}
+                            </FieldDescription>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
-                <Input
-                  id={`metaData.data.${field.name}`}
-                  type={field.type === "number" ? "number" : "text"}
-                  placeholder={t("notifications.form.fieldPlaceholder", {
-                    label: t(field.label),
-                  })}
-                  value={
-                    (metaDataData as Record<string, string>)[field.name] || ""
-                  }
-                  onChange={(e) =>
-                    updateMetaDataField(field.name, e.target.value)
-                  }
-                  disabled={
-                    createNotification.isPending || updateNotification.isPending
-                  }
-                />
+                <>
+                  {(() => {
+                    const currentValue =
+                      ((metaDataData as Record<string, unknown>)[
+                        field.name
+                      ] as string) || "";
+                    const maxLength = getFieldMaxLength(
+                      templateType || undefined,
+                      field.name
+                    );
+                    const remainingChars =
+                      typeof maxLength === "number"
+                        ? Math.max(maxLength - currentValue.length, 0)
+                        : undefined;
+
+                    return (
+                      <>
+                        <div className="relative">
+                          <Input
+                            id={`metaData.data.${field.name}`}
+                            type={field.type === "number" ? "number" : "text"}
+                            placeholder={t(
+                              "notifications.form.fieldPlaceholder",
+                              {
+                                label: t(field.label),
+                              }
+                            )}
+                            value={currentValue}
+                            onChange={(e) => {
+                              const nextValue =
+                                typeof maxLength === "number"
+                                  ? e.target.value.slice(0, maxLength)
+                                  : e.target.value;
+                              updateMetaDataField(field.name, nextValue);
+                            }}
+                            disabled={
+                              createNotification.isPending ||
+                              updateNotification.isPending
+                            }
+                            maxLength={maxLength}
+                            className={
+                              typeof maxLength === "number" ? "pl-24" : ""
+                            }
+                          />
+                          {typeof maxLength === "number" && (
+                            <FieldDescription
+                              className={cn(
+                                "bg-background/80 pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded px-1",
+                                remainingChars === 0
+                                  ? "text-destructive! text-xs"
+                                  : "text-muted-foreground text-xs"
+                              )}
+                            >
+                              {remainingChars}/{maxLength}
+                            </FieldDescription>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </>
               )}
             </Field>
           ))}

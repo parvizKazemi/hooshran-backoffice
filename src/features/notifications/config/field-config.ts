@@ -153,7 +153,7 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       label: "notifications.form.fields.message",
       type: "textarea",
       required: false,
-      maxLength: 50,
+      maxLength: 300,
     },
     // Note: changelog field is handled by PromotionalItemsEditor component
   ],

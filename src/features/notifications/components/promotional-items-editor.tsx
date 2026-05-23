@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FileUploader } from "./file-uploader";
 
-const MAX_DESCRIPTION_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 300;
 const URL_PATTERN = /^https?:\/\/.+/;
 
 // فیلدهای required برای هر آیتم promotional
