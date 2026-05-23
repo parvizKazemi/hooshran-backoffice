@@ -146,7 +146,7 @@ const normalizeTargetGroup = (...values: unknown[]): string => {
 const TITLE_MAX_LENGTH = 40;
 const BADGE_MAX_LENGTH = 15;
 const MESSAGE_MAX_LENGTH_BY_TEMPLATE: Record<string, number> = {
-  promotional: 300,
+  promotional: 40,
   simple: 1000,
   simple_popup: 1000,
   float_banner: 90,
