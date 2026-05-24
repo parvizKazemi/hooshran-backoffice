@@ -1,10 +1,10 @@
 import i18next from "@/i18n";
-import { apiGet, apiPatch } from "@/services/api";
+import { apiGet, apiPatch, apiPost } from "@/services/api";
 import type {
-  FreezeEndSettings,
-  FreezeStartSettings,
   PurchasePaymentSettings,
   RegistrationSettings,
+  SubscriptionFreezeConfig,
+  SubscriptionFreezeStartPayload,
   UserSettingsState,
 } from "../types";
 import { USER_SETTINGS_ENDPOINTS } from "./endpoints";
@@ -28,18 +28,6 @@ const normalizePurchaseSettings = (
 };
 
 let mockUserSettingsState: UserSettingsState = {
-  freezeStart: {
-    isFreezeEnabled: false,
-    outageTitle: i18next.t("common:userSettings.defaults.outageTitle"),
-    outageDescription: i18next.t(
-      "common:userSettings.defaults.outageDescription"
-    ),
-  },
-  freezeEnd: {
-    manualUnfreezeGraceDays: 10,
-    compensationGiftDays: 5,
-    sendRecoverySms: true,
-  },
   purchasePayment: {
     isPurchaseDisabled: false,
     purchaseDisabledMessage: resolveFallbackPurchaseMessage(),
@@ -47,6 +35,12 @@ let mockUserSettingsState: UserSettingsState = {
   registration: {
     isNewRegistrationBlocked: false,
   },
+};
+
+let mockSubscriptionFreezeConfig: SubscriptionFreezeConfig = {
+  isFrozen: false,
+  title: i18next.t("common:userSettings.defaults.outageTitle"),
+  message: i18next.t("common:userSettings.defaults.outageDescription"),
 };
 
 export async function getUserSettings(): Promise<UserSettingsState> {
@@ -58,39 +52,58 @@ export async function getUserSettings(): Promise<UserSettingsState> {
   }
 }
 
-export async function updateFreezeStartSettings(
-  payload: FreezeStartSettings
-): Promise<UserSettingsState> {
+export async function getSubscriptionFreezeConfig(): Promise<SubscriptionFreezeConfig> {
   try {
-    return await apiPatch<UserSettingsState>(
-      USER_SETTINGS_ENDPOINTS.updateFreezeStart,
-      payload
+    return await apiGet<SubscriptionFreezeConfig>(
+      USER_SETTINGS_ENDPOINTS.getSubscriptionFreezeConfig
     );
   } catch {
     await delay();
-    mockUserSettingsState = {
-      ...mockUserSettingsState,
-      freezeStart: payload,
-    };
-    return structuredClone(mockUserSettingsState);
+    return structuredClone(mockSubscriptionFreezeConfig);
   }
 }
 
-export async function updateFreezeEndSettings(
-  payload: FreezeEndSettings
-): Promise<UserSettingsState> {
+export async function updateSubscriptionFreezeConfig(
+  payload: SubscriptionFreezeConfig
+): Promise<SubscriptionFreezeConfig> {
+  const normalizedPayload: SubscriptionFreezeConfig = {
+    ...payload,
+    title: payload.title.trim(),
+    message: payload.message.trim(),
+  };
+
   try {
-    return await apiPatch<UserSettingsState>(
-      USER_SETTINGS_ENDPOINTS.updateFreezeEnd,
-      payload
+    return await apiPatch<SubscriptionFreezeConfig>(
+      USER_SETTINGS_ENDPOINTS.updateSubscriptionFreezeConfig,
+      normalizedPayload
     );
   } catch {
     await delay();
-    mockUserSettingsState = {
-      ...mockUserSettingsState,
-      freezeEnd: payload,
+    mockSubscriptionFreezeConfig = normalizedPayload;
+    return structuredClone(mockSubscriptionFreezeConfig);
+  }
+}
+
+export async function startSubscriptionFreeze(
+  payload: SubscriptionFreezeStartPayload
+): Promise<SubscriptionFreezeConfig> {
+  const normalizedPayload: SubscriptionFreezeStartPayload = {
+    title: payload.title.trim(),
+    message: payload.message.trim(),
+  };
+
+  try {
+    return await apiPost<SubscriptionFreezeConfig>(
+      USER_SETTINGS_ENDPOINTS.startSubscriptionFreeze,
+      normalizedPayload
+    );
+  } catch {
+    await delay();
+    mockSubscriptionFreezeConfig = {
+      isFrozen: true,
+      ...normalizedPayload,
     };
-    return structuredClone(mockUserSettingsState);
+    return structuredClone(mockSubscriptionFreezeConfig);
   }
 }
 

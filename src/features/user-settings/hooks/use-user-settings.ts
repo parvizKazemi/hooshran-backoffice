@@ -2,24 +2,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
+  getSubscriptionFreezeConfig,
   getPaymentGateConfig,
   getUserSettings,
+  startSubscriptionFreeze,
   updatePaymentGateConfig,
-  updateFreezeEndSettings,
-  updateFreezeStartSettings,
+  updateSubscriptionFreezeConfig,
   updatePurchasePaymentSettings,
   updateRegistrationSettings,
 } from "../api/service";
 import type {
-  FreezeEndSettings,
-  FreezeStartSettings,
   PurchasePaymentSettings,
   RegistrationSettings,
+  SubscriptionFreezeConfig,
+  SubscriptionFreezeStartPayload,
   UserSettingsState,
 } from "../types";
 
 const USER_SETTINGS_QUERY_KEY = ["user-settings"] as const;
 const PAYMENT_GATE_CONFIG_QUERY_KEY = ["payment-gate-config"] as const;
+const SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY = [
+  "subscription-freeze-config",
+] as const;
 
 const withErrorToast = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) {
@@ -36,15 +40,25 @@ export function useUserSettings() {
   });
 }
 
-export function useUpdateFreezeStartSettings() {
+export function useSubscriptionFreezeConfig() {
+  return useQuery({
+    queryKey: SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY,
+    queryFn: getSubscriptionFreezeConfig,
+  });
+}
+
+export function useUpdateSubscriptionFreezeConfig() {
   const { t } = useTranslation("common");
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: FreezeStartSettings) =>
-      updateFreezeStartSettings(payload),
-    onSuccess: (updatedData: UserSettingsState) => {
-      queryClient.setQueryData(USER_SETTINGS_QUERY_KEY, updatedData);
+    mutationFn: (payload: SubscriptionFreezeConfig) =>
+      updateSubscriptionFreezeConfig(payload),
+    onSuccess: (updatedData: SubscriptionFreezeConfig) => {
+      queryClient.setQueryData(
+        SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY,
+        updatedData
+      );
       toast.success(t("userSettings.toasts.freezeSaved"));
     },
     onError: (error) =>
@@ -52,19 +66,22 @@ export function useUpdateFreezeStartSettings() {
   });
 }
 
-export function useUpdateFreezeEndSettings() {
+export function useStartSubscriptionFreeze() {
   const { t } = useTranslation("common");
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: FreezeEndSettings) =>
-      updateFreezeEndSettings(payload),
-    onSuccess: (updatedData: UserSettingsState) => {
-      queryClient.setQueryData(USER_SETTINGS_QUERY_KEY, updatedData);
-      toast.success(t("userSettings.toasts.unfreezeSaved"));
+    mutationFn: (payload: SubscriptionFreezeStartPayload) =>
+      startSubscriptionFreeze(payload),
+    onSuccess: (updatedData: SubscriptionFreezeConfig) => {
+      queryClient.setQueryData(
+        SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY,
+        updatedData
+      );
+      toast.success(t("userSettings.toasts.freezeStarted"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.unfreezeSaveFailed")),
+      withErrorToast(error, t("userSettings.toasts.freezeStartFailed")),
   });
 }
 

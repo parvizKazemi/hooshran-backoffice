@@ -1,14 +1,13 @@
-export type FreezeStartSettings = {
-  isFreezeEnabled: boolean;
-  outageTitle: string;
-  outageDescription: string;
+export type SubscriptionFreezeConfig = {
+  isFrozen: boolean;
+  title: string;
+  message: string;
 };
 
-export type FreezeEndSettings = {
-  manualUnfreezeGraceDays: number;
-  compensationGiftDays: number;
-  sendRecoverySms: boolean;
-};
+export type SubscriptionFreezeStartPayload = Pick<
+  SubscriptionFreezeConfig,
+  "title" | "message"
+>;
 
 export type PurchasePaymentSettings = {
   isPurchaseDisabled: boolean;
@@ -20,8 +19,6 @@ export type RegistrationSettings = {
 };
 
 export type UserSettingsState = {
-  freezeStart: FreezeStartSettings;
-  freezeEnd: FreezeEndSettings;
   purchasePayment: PurchasePaymentSettings;
   registration: RegistrationSettings;
 };

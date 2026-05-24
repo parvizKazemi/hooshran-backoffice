@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,68 +17,66 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SettingsPageHeader } from "./components/settings-page-header";
 import {
-  useUpdateFreezeEndSettings,
-  useUpdateFreezeStartSettings,
-  useUserSettings,
+  useStartSubscriptionFreeze,
+  useSubscriptionFreezeConfig,
+  useUpdateSubscriptionFreezeConfig,
 } from "./hooks/use-user-settings";
-import type { FreezeEndSettings, FreezeStartSettings } from "./types";
+import type { SubscriptionFreezeConfig } from "./types";
 
-const defaultFreezeStart: FreezeStartSettings = {
-  isFreezeEnabled: false,
-  outageTitle: "",
-  outageDescription: "",
-};
-
-const defaultFreezeEnd: FreezeEndSettings = {
-  manualUnfreezeGraceDays: 0,
-  compensationGiftDays: 0,
-  sendRecoverySms: false,
-};
-
-const clampToNonNegativeInteger = (value: number) => {
-  if (!Number.isFinite(value) || value < 0) {
-    return 0;
-  }
-  return Math.floor(value);
+const defaultFreezeConfig: SubscriptionFreezeConfig = {
+  isFrozen: false,
+  title: "",
+  message: "",
 };
 
 export default function UserFreezeSettings() {
   const { t } = useTranslation("common");
-  const { data, isLoading } = useUserSettings();
-  const updateFreezeStart = useUpdateFreezeStartSettings();
-  const updateFreezeEnd = useUpdateFreezeEndSettings();
-
-  const [freezeStart, setFreezeStart] =
-    useState<FreezeStartSettings>(defaultFreezeStart);
-  const [freezeEnd, setFreezeEnd] =
-    useState<FreezeEndSettings>(defaultFreezeEnd);
+  const { data, isLoading } = useSubscriptionFreezeConfig();
+  const updateFreezeConfig = useUpdateSubscriptionFreezeConfig();
+  const startFreeze = useStartSubscriptionFreeze();
+  const [freezeConfig, setFreezeConfig] =
+    useState<SubscriptionFreezeConfig>(defaultFreezeConfig);
 
   useEffect(() => {
     if (!data) {
       return;
     }
-    setFreezeStart(data.freezeStart);
-    setFreezeEnd(data.freezeEnd);
+    setFreezeConfig({
+      isFrozen: Boolean(data.isFrozen),
+      title: data.title ?? "",
+      message: data.message ?? "",
+    });
   }, [data]);
 
-  const handleSaveFreezeStart = async () => {
-    await updateFreezeStart.mutateAsync(freezeStart);
-  };
-
-  const handleSaveFreezeEnd = async () => {
-    await updateFreezeEnd.mutateAsync({
-      ...freezeEnd,
-      manualUnfreezeGraceDays: clampToNonNegativeInteger(
-        freezeEnd.manualUnfreezeGraceDays
-      ),
-      compensationGiftDays: clampToNonNegativeInteger(
-        freezeEnd.compensationGiftDays
-      ),
+  const handleSaveFreezeConfig = async () => {
+    await updateFreezeConfig.mutateAsync({
+      ...freezeConfig,
+      title: freezeConfig.title.trim(),
+      message: freezeConfig.message.trim(),
     });
   };
 
-  const isSavingStart = updateFreezeStart.isPending;
-  const isSavingEnd = updateFreezeEnd.isPending;
+  const handleStartFreeze = async () => {
+    const result = await startFreeze.mutateAsync({
+      title: freezeConfig.title.trim() || "سرویس موقتاً در دسترس نیست",
+      message:
+        freezeConfig.message.trim() ||
+        "از اختلال به وجود آمده صمیمانه پوزش می‌طلبیم. سیستم در حال بروزرسانی و رفع مشکل است.",
+    });
+    setFreezeConfig(result);
+  };
+
+  const handleDisableFreeze = async () => {
+    await updateFreezeConfig.mutateAsync({
+      ...freezeConfig,
+      isFrozen: false,
+      title: freezeConfig.title.trim(),
+      message: freezeConfig.message.trim(),
+    });
+  };
+
+  const isSavingConfig = updateFreezeConfig.isPending;
+  const isStartingFreeze = startFreeze.isPending;
 
   if (isLoading && !data) {
     return (
@@ -129,7 +126,9 @@ export default function UserFreezeSettings() {
                 <div className="bg-muted/40 flex items-center justify-between rounded-md border p-3">
                   <div>
                     <p className="text-sm font-semibold">
-                      {t("userSettings.freezePage.freezeOn.toggleTitle")}
+                      {freezeConfig.isFrozen
+                        ? t("userSettings.freezePage.freezeOn.statusActive")
+                        : t("userSettings.freezePage.freezeOn.statusInactive")}
                     </p>
                     <p className="text-muted-foreground text-xs">
                       {t("userSettings.freezePage.freezeOn.toggleDescription")}
@@ -137,11 +136,11 @@ export default function UserFreezeSettings() {
                   </div>
                   <Switch
                     dir="ltr"
-                    checked={freezeStart.isFreezeEnabled}
+                    checked={freezeConfig.isFrozen}
                     onCheckedChange={(value) =>
-                      setFreezeStart((prev) => ({
+                      setFreezeConfig((prev) => ({
                         ...prev,
-                        isFreezeEnabled: value,
+                        isFrozen: value,
                       }))
                     }
                     aria-label={t("userSettings.aria.toggleFreezeStatus")}
@@ -154,11 +153,11 @@ export default function UserFreezeSettings() {
                   </Label>
                   <Input
                     id="freeze-outage-title"
-                    value={freezeStart.outageTitle}
+                    value={freezeConfig.title}
                     onChange={(event) =>
-                      setFreezeStart((prev) => ({
+                      setFreezeConfig((prev) => ({
                         ...prev,
-                        outageTitle: event.target.value,
+                        title: event.target.value,
                       }))
                     }
                     placeholder={t(
@@ -175,11 +174,11 @@ export default function UserFreezeSettings() {
                   </Label>
                   <Textarea
                     id="freeze-outage-description"
-                    value={freezeStart.outageDescription}
+                    value={freezeConfig.message}
                     onChange={(event) =>
-                      setFreezeStart((prev) => ({
+                      setFreezeConfig((prev) => ({
                         ...prev,
-                        outageDescription: event.target.value,
+                        message: event.target.value,
                       }))
                     }
                     className="min-h-28"
@@ -189,12 +188,22 @@ export default function UserFreezeSettings() {
                   />
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
                   <Button
-                    onClick={handleSaveFreezeStart}
-                    disabled={isSavingStart}
+                    onClick={handleStartFreeze}
+                    variant="outline"
+                    disabled={isSavingConfig || isStartingFreeze}
                   >
-                    {isSavingStart && (
+                    {isStartingFreeze && (
+                      <IconLoader2 className="size-4 animate-spin" />
+                    )}
+                    {t("userSettings.actions.startFreezeNow")}
+                  </Button>
+                  <Button
+                    onClick={handleSaveFreezeConfig}
+                    disabled={isSavingConfig || isStartingFreeze}
+                  >
+                    {isSavingConfig && (
                       <IconLoader2 className="size-4 animate-spin" />
                     )}
                     {t("userSettings.actions.saveFreeze")}
@@ -205,75 +214,56 @@ export default function UserFreezeSettings() {
 
             <TabsContent value="freeze-off">
               <div className="space-y-5 rounded-lg border p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="manual-unfreeze-grace-period">
-                      {t("userSettings.freezePage.freezeOff.gracePeriodLabel")}
-                    </Label>
-                    <Input
-                      id="manual-unfreeze-grace-period"
-                      type="number"
-                      min={0}
-                      value={freezeEnd.manualUnfreezeGraceDays}
-                      onChange={(event) =>
-                        setFreezeEnd((prev) => ({
-                          ...prev,
-                          manualUnfreezeGraceDays:
-                            Number.parseInt(event.target.value, 10) || 0,
-                        }))
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="compensation-gift-days">
-                      {t(
-                        "userSettings.freezePage.freezeOff.compensationDaysLabel"
-                      )}
-                    </Label>
-                    <Input
-                      id="compensation-gift-days"
-                      type="number"
-                      min={0}
-                      value={freezeEnd.compensationGiftDays}
-                      onChange={(event) =>
-                        setFreezeEnd((prev) => ({
-                          ...prev,
-                          compensationGiftDays:
-                            Number.parseInt(event.target.value, 10) || 0,
-                        }))
-                      }
-                    />
-                  </div>
+                <div className="bg-muted/40 space-y-2 rounded-md border p-4">
+                  <p className="text-sm font-semibold">
+                    {freezeConfig.isFrozen
+                      ? t("userSettings.freezePage.freezeOff.statusFrozen")
+                      : t("userSettings.freezePage.freezeOff.statusUnfrozen")}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {t("userSettings.freezePage.freezeOff.statusHint")}
+                  </p>
                 </div>
 
-                <div className="flex items-start gap-3 rounded-md border p-4">
-                  <Checkbox
-                    id="send-recovery-sms"
-                    checked={freezeEnd.sendRecoverySms}
-                    onCheckedChange={(checked) =>
-                      setFreezeEnd((prev) => ({
-                        ...prev,
-                        sendRecoverySms: checked === true,
-                      }))
-                    }
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="send-recovery-sms">
-                      {t("userSettings.freezePage.freezeOff.recoverySmsLabel")}
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="freeze-off-title">
+                      {t("userSettings.freezePage.freezeOn.outageTitleLabel")}
                     </Label>
-                    <p className="text-muted-foreground text-xs">
-                      {t("userSettings.freezePage.freezeOff.recoverySmsHint")}
-                    </p>
+                    <Input
+                      id="freeze-off-title"
+                      value={freezeConfig.title}
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="freeze-off-message">
+                      {t(
+                        "userSettings.freezePage.freezeOn.outageDescriptionLabel"
+                      )}
+                    </Label>
+                    <Textarea
+                      id="freeze-off-message"
+                      value={freezeConfig.message}
+                      className="min-h-28"
+                      readOnly
+                    />
                   </div>
                 </div>
 
                 <div className="flex justify-end">
-                  <Button onClick={handleSaveFreezeEnd} disabled={isSavingEnd}>
-                    {isSavingEnd && (
+                  <Button
+                    onClick={handleDisableFreeze}
+                    disabled={
+                      !freezeConfig.isFrozen ||
+                      isSavingConfig ||
+                      isStartingFreeze
+                    }
+                  >
+                    {isSavingConfig && (
                       <IconLoader2 className="size-4 animate-spin" />
                     )}
-                    {t("userSettings.actions.saveUnfreeze")}
+                    {t("userSettings.actions.disableFreeze")}
                   </Button>
                 </div>
               </div>

@@ -203,6 +203,8 @@
     },
     "actions": {
       "saveFreeze": "ذخیره تنظیمات فریز",
+      "startFreezeNow": "شروع فریز با اطلاعات پیش‌فرض",
+      "disableFreeze": "غیرفعال‌سازی فریز",
       "saveUnfreeze": "ذخیره تنظیمات خروج از فریز",
       "savePurchase": "ذخیره تنظیمات خرید",
       "saveRegistration": "ذخیره تنظیمات ثبت‌نام"
@@ -215,6 +217,8 @@
     "toasts": {
       "freezeSaved": "تنظیمات فریز با موفقیت ذخیره شد",
       "freezeSaveFailed": "ذخیره تنظیمات فریز با خطا مواجه شد",
+      "freezeStarted": "فریز اشتراک با موفقیت فعال شد",
+      "freezeStartFailed": "شروع فریز اشتراک با خطا مواجه شد",
       "unfreezeSaved": "تنظیمات خروج از فریز با موفقیت ذخیره شد",
       "unfreezeSaveFailed": "ذخیره تنظیمات خروج از فریز با خطا مواجه شد",
       "purchaseSaved": "تنظیمات خرید و پرداخت با موفقیت ذخیره شد",
@@ -237,13 +241,18 @@
       },
       "freezeOn": {
         "toggleTitle": "توقف موقت سیستم (فریز اشتراک‌ها)",
-        "toggleDescription": "در حالت فعال، اشتراک همه کاربران فریز می‌شود.",
+        "toggleDescription": "با تغییر این وضعیت و ذخیره، پیکربندی فریز به‌روزرسانی می‌شود.",
+        "statusActive": "اشتراک در حال حاضر فریز است",
+        "statusInactive": "اشتراک در حال حاضر فعال است",
         "outageTitleLabel": "عنوان پیام قطعی (نمایش به کاربر)",
         "outageTitlePlaceholder": "مثال: سرویس موقتا در دسترس نیست",
         "outageDescriptionLabel": "متن توضیحات اختلال",
         "outageDescriptionPlaceholder": "توضیحات کامل پیام اختلال برای نمایش در پنل کاربر"
       },
       "freezeOff": {
+        "statusFrozen": "فریز فعال است",
+        "statusUnfrozen": "فریز غیرفعال است",
+        "statusHint": "برای خروج از فریز، وضعیت فریز را خاموش کرده و ذخیره کنید.",
         "gracePeriodLabel": "مهلت آنفریز دستی (Grace Period)",
         "compensationDaysLabel": "روزهای هدیه جبران قطعی",
         "recoverySmsLabel": "ارسال پیامک اطلاع‌رسانی بازگشت",
