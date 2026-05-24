@@ -63,6 +63,11 @@ type UrlRule = {
   rule: RuleType;
 };
 
+type NotificationVisibility = {
+  route: string[];
+  rules: Record<string, RuleType>;
+};
+
 const getRawUrlTargets = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
     return [];
@@ -141,6 +146,125 @@ const normalizeTargetGroup = (...values: unknown[]): string => {
   }
 
   return "ALL";
+};
+
+const buildVisibilityFromRules = (
+  rules: UrlRule[],
+  isAllPages: boolean
+): NotificationVisibility => {
+  if (isAllPages || rules.length === 0) {
+    return {
+      route: ["all"],
+      rules: { all: "include" },
+    };
+  }
+
+  const normalizedRules = rules
+    .map((item) => ({
+      route: item.path.trim(),
+      rule: normalizeRuleType(item.rule),
+    }))
+    .filter((item) => item.route.length > 0);
+
+  return {
+    route: normalizedRules.map((item) => item.route),
+    rules: normalizedRules.reduce<Record<string, RuleType>>((acc, item) => {
+      acc[item.route] = item.rule;
+      return acc;
+    }, {}),
+  };
+};
+
+const stripLegacyTargetingFields = (
+  data: Record<string, unknown>
+): Record<string, unknown> => {
+  const sanitized = { ...data };
+  delete sanitized.urlTargets;
+  delete sanitized.urlRules;
+  delete sanitized.urlRule;
+  delete sanitized.targetMode;
+  return sanitized;
+};
+
+const extractTargetingEditorState = (data: Record<string, unknown>) => {
+  const visibility = (data.visibility ?? null) as {
+    route?: string[];
+    rules?:
+      | Record<string, RuleType>
+      | Array<{
+          route?: string;
+          path?: string;
+          rule?: RuleType;
+          match?: RuleType;
+        }>;
+  } | null;
+
+  const routeFromVisibility = Array.isArray(visibility?.route)
+    ? visibility!.route
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean)
+    : [];
+
+  const rulesFromVisibilityObject =
+    visibility?.rules &&
+    !Array.isArray(visibility.rules) &&
+    typeof visibility.rules === "object"
+      ? Object.entries(visibility.rules)
+          .map(([route, rule]) => ({
+            path: route.trim(),
+            rule: normalizeRuleType(rule),
+          }))
+          .filter((item) => item.path.length > 0 && item.path !== "all")
+      : [];
+
+  const rulesFromVisibilityArray = Array.isArray(visibility?.rules)
+    ? visibility!.rules
+        .map((item) => {
+          const route =
+            typeof item.route === "string"
+              ? item.route.trim()
+              : typeof item.path === "string"
+                ? item.path.trim()
+                : "";
+          if (!route || route === "all") return null;
+          return {
+            path: route,
+            rule: normalizeRuleType(item.rule ?? item.match),
+          };
+        })
+        .filter((item): item is UrlRule => item !== null)
+    : [];
+
+  const fallbackRules = normalizeUrlRules(
+    data.urlRules,
+    data.urlTargets,
+    data.urlRule,
+    true
+  ).filter((rule) => rule.path !== "all");
+
+  const mergedRules =
+    rulesFromVisibilityObject.length > 0
+      ? rulesFromVisibilityObject
+      : rulesFromVisibilityArray.length > 0
+        ? rulesFromVisibilityArray
+        : fallbackRules;
+
+  const isAllPages =
+    routeFromVisibility.includes("all") ||
+    (routeFromVisibility.length === 0 && mergedRules.length === 0);
+
+  const uniqueRuleTypes = Array.from(
+    new Set(mergedRules.map((rule) => rule.rule))
+  );
+
+  return {
+    urlTargets: isAllPages
+      ? ["all"]
+      : mergedRules.map((rule) => rule.path).filter(Boolean),
+    urlRules: isAllPages ? [] : mergedRules,
+    urlRule: uniqueRuleTypes.length === 1 ? uniqueRuleTypes[0] : "exact",
+    targetMode: isAllPages ? "all" : "custom",
+  };
 };
 
 const TITLE_MAX_LENGTH = 40;
@@ -223,72 +347,30 @@ export function NotificationForm({
                       (notification.metaData.data?.featured_media as
                         | string
                         | undefined) || "",
-                    urlTargets: Array.isArray(
-                      (
-                        notification.metaData.data?.visibility as
-                          | { route?: string[] }
-                          | undefined
-                      )?.route
-                    )
-                      ? (
-                          notification.metaData.data?.visibility as {
-                            route?: string[];
-                          }
-                        ).route
-                      : ["all"],
-                    urlRule:
-                      (
-                        notification.metaData.data?.visibility as
-                          | { rule?: RuleType; match?: RuleType }
-                          | undefined
-                      )?.rule ||
-                      (
-                        notification.metaData.data?.visibility as
-                          | { rule?: RuleType; match?: RuleType }
-                          | undefined
-                      )?.match ||
-                      "exact",
-                    urlRules: Array.isArray(
-                      (
-                        notification.metaData.data?.visibility as
-                          | {
-                              route?: string[];
-                              rules?: Array<{
-                                route?: string;
-                                rule?: RuleType;
-                                match?: RuleType;
-                              }>;
-                            }
-                          | undefined
-                      )?.rules
-                    )
-                      ? (
-                          notification.metaData.data?.visibility as {
-                            rules?: Array<{
-                              route?: string;
-                              rule?: RuleType;
-                              match?: RuleType;
-                            }>;
-                          }
-                        ).rules?.map((rule) => ({
-                          path: rule.route || "",
-                          rule: rule.rule || rule.match || "exact",
-                        }))
-                      : undefined,
-                    targetMode: Array.isArray(
-                      (
-                        notification.metaData.data?.visibility as
-                          | { route?: string[] }
-                          | undefined
-                      )?.route
-                    )
-                      ? "custom"
-                      : "all",
+                    ...extractTargetingEditorState(
+                      (notification.metaData.data || {}) as Record<
+                        string,
+                        unknown
+                      >
+                    ),
                   }
-                : ((notification.metaData.data || {}) as Record<
-                    string,
-                    unknown
-                  >),
+                : notification.metaData.type === "float_banner"
+                  ? {
+                      ...((notification.metaData.data || {}) as Record<
+                        string,
+                        unknown
+                      >),
+                      ...extractTargetingEditorState(
+                        (notification.metaData.data || {}) as Record<
+                          string,
+                          unknown
+                        >
+                      ),
+                    }
+                  : ((notification.metaData.data || {}) as Record<
+                      string,
+                      unknown
+                    >),
           },
           isPopup: notification.isPopup,
           isPublic: notification.isPublic,
@@ -469,30 +551,10 @@ export function NotificationForm({
         mappedSimpleData.badge = badge.trim();
       }
 
-      if (targetMode === "custom") {
-        const allMatches = Array.from(
-          new Set(normalizedRules.map((rule) => rule.rule))
-        );
-        const visibility: {
-          route: string[];
-          rule?: RuleType;
-          rules: Array<{ route: string; rule: RuleType }>;
-        } = {
-          route: normalizedRules.map((rule) => rule.path),
-          rules: normalizedRules.map((rule) => ({
-            route: rule.path,
-            rule: rule.rule,
-          })),
-        };
-
-        if (allMatches.length === 1) {
-          visibility.rule = allMatches[0];
-        }
-
-        mappedSimpleData.visibility = visibility;
-      } else {
-        mappedSimpleData.visibility = null;
-      }
+      mappedSimpleData.visibility = buildVisibilityFromRules(
+        normalizedRules,
+        targetMode !== "custom"
+      );
 
       data.metaData.data = mappedSimpleData;
       data.metaData.type = "simple";
@@ -510,32 +572,15 @@ export function NotificationForm({
         toast.error(t("notifications.form.targeting.routeRequired"));
         return;
       }
-      const allRules = Array.from(new Set(normalizedRules.map((r) => r.rule)));
       const currentData = (data.metaData.data || {}) as Record<string, unknown>;
-      const { ...restData } = currentData;
+      const sanitizedData = stripLegacyTargetingFields(currentData);
 
       data.metaData.data = {
-        ...restData,
-        urlTargets:
-          targetMode === "custom"
-            ? normalizedRules.map((rule) => rule.path)
-            : ["all"],
-        urlRule:
-          targetMode === "custom" && allRules.length === 1
-            ? allRules[0]
-            : undefined,
-        urlRules: targetMode === "custom" ? normalizedRules : [],
-        visibility:
-          targetMode === "custom"
-            ? {
-                route: normalizedRules.map((rule) => rule.path),
-                rules: normalizedRules.map((rule) => ({
-                  route: rule.path,
-                  rule: rule.rule,
-                })),
-                ...(allRules.length === 1 ? { rule: allRules[0] } : {}),
-              }
-            : null,
+        ...sanitizedData,
+        visibility: buildVisibilityFromRules(
+          normalizedRules,
+          targetMode !== "custom"
+        ),
       };
     }
 
