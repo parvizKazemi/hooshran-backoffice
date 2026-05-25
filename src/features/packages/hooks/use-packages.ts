@@ -137,6 +137,8 @@ export const useUpdatePackage = () => {
             ? {
                 transferLimit: updatePayload.properties.transferLimit ?? 0,
                 boughtLimit: updatePayload.properties.boughtLimit ?? 1,
+                parallelRequestLimit:
+                  updatePayload.properties.parallelRequestLimit ?? 2,
                 toolboxAccess:
                   updatePayload.properties.toolboxAccess !== undefined
                     ? updatePayload.properties.toolboxAccess
@@ -149,6 +151,7 @@ export const useUpdatePackage = () => {
             : {
                 transferLimit: 0,
                 boughtLimit: 1,
+                parallelRequestLimit: 1,
                 toolboxAccess: false,
                 isSpecialOffer: false,
               },

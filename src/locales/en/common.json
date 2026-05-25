@@ -1103,7 +1103,11 @@
       "isActive": "Active",
       "saveChanges": "Save Changes",
       "createPlan": "Create Plan",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "transferLimit": "Transfer limit",
+      "transferLimitPlaceholder": "Enter transfer limit",
+      "parallelRequestLimit": "Parallel request limit",
+      "parallelRequestLimitPlaceholder": "Enter parallel request limit"
     }
   },
   "referrals": {

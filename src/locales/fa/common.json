@@ -1101,6 +1101,8 @@
       "properties": "ویژگی‌ها",
       "transferLimit": "انتقال مانده",
       "transferLimitPlaceholder": "انتقال مانده را وارد کنید",
+      "parallelRequestLimit": "درخواست همزمان",
+      "parallelRequestLimitPlaceholder": "محدودیت تعداد درخواست همزمان را وارد کنید",
       "boughtLimit": "محدودیت تعداد خرید",
       "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
       "toolboxAccess": "دسترسی به جعبه ابزار",

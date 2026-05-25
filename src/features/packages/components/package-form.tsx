@@ -90,6 +90,7 @@ export const PackageForm = memo(function PackageForm({
           properties: {
             transferLimit: pkg.properties?.transferLimit || 0,
             boughtLimit: pkg.properties?.boughtLimit || 1,
+            parallelRequestLimit: pkg.properties?.parallelRequestLimit || 2,
             toolboxAccess: pkg.properties?.toolboxAccess ?? true,
             isSpecialOffer: pkg.properties?.isSpecialOffer || undefined,
           },
@@ -106,6 +107,7 @@ export const PackageForm = memo(function PackageForm({
           properties: {
             transferLimit: 0,
             boughtLimit: 1,
+            parallelRequestLimit: 2,
             toolboxAccess: true,
             isSpecialOffer: undefined,
           },
@@ -305,11 +307,10 @@ export const PackageForm = memo(function PackageForm({
         <FieldLabel className="text-base font-semibold">
           {t("packages.form.properties")}
         </FieldLabel>
-
         <div className="mx-2 flex flex-row items-center justify-between gap-2">
           <Field>
             <FieldLabel htmlFor="properties.transferLimit">
-              {t("packages.form.transferLimit")}{" "}
+              {t("packages.form.transferLimit")}
               <span className="text-destructive">*</span>
             </FieldLabel>
             <Input
@@ -327,6 +328,30 @@ export const PackageForm = memo(function PackageForm({
             {form.formState.errors.properties?.transferLimit && (
               <FieldDescription className="text-destructive">
                 {form.formState.errors.properties.transferLimit.message}
+              </FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="properties.parallelRequestLimit">
+              {t("packages.form.parallelRequestLimit")}
+              <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="properties.parallelRequestLimit"
+              className="text-left"
+              dir="ltr"
+              type="number"
+              min="0"
+              {...form.register("properties.parallelRequestLimit", {
+                valueAsNumber: true,
+              })}
+              placeholder={t("packages.form.parallelRequestLimitPlaceholder")}
+              disabled={isLoading}
+            />
+            {form.formState.errors.properties?.parallelRequestLimit && (
+              <FieldDescription className="text-destructive">
+                {form.formState.errors.properties.parallelRequestLimit.message}
               </FieldDescription>
             )}
           </Field>
@@ -355,7 +380,6 @@ export const PackageForm = memo(function PackageForm({
           </Field>
         </div>
         {/* Number Fields */}
-
         {/* Boolean Fields */}
         <div className="mx-4 flex flex-row items-center justify-between gap-2">
           <Field>

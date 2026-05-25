@@ -15,6 +15,7 @@ export const PackageSchema = z.object({
   properties: z.object({
     transferLimit: z.number().int().min(0),
     boughtLimit: z.number().int(),
+    parallelRequestLimit: z.number().int().min(0),
     isSpecialOffer: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -47,6 +48,7 @@ export const createPackageSchema = PackageSchema.omit({
   properties: z.object({
     transferLimit: z.number().int().min(0),
     boughtLimit: z.number().int(),
+    parallelRequestLimit: z.number().int().min(0),
     isSpecialOffer: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -58,6 +60,7 @@ export const updatePackageSchema = createPackageSchema.partial().extend({
     .object({
       transferLimit: z.number().int().min(0),
       boughtLimit: z.number().int(),
+      parallelRequestLimit: z.number().int().min(0),
       isSpecialOffer: z.boolean().optional(),
       toolboxAccess: z.boolean().optional(),
     })
