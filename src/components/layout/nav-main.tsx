@@ -125,7 +125,7 @@ export function NavMain({
                   {item.icon && (
                     <item.icon
                       className={
-                        completed
+                        completed || hasSubItems
                           ? "text-blue-500 dark:text-emerald-500"
                           : "text-black/40 dark:text-white/40"
                       }
@@ -133,7 +133,7 @@ export function NavMain({
                   )}
                   <span
                     className={
-                      completed
+                      completed || hasSubItems
                         ? "text-black dark:text-white"
                         : "text-black/40 dark:text-white/40"
                     }

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -106,7 +106,7 @@ export default function UserFreezeSettings() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="freeze-on" className="w-full gap-4">
-            <TabsList className="grid w-full grid-cols-2 gap-2">
+            {/* <TabsList className="grid w-full grid-cols-2 gap-2">
               <TabsTrigger
                 value="freeze-on"
                 className="cursor-pointer hover:opacity-50"
@@ -119,7 +119,7 @@ export default function UserFreezeSettings() {
               >
                 {t("userSettings.freezePage.tabs.freezeOff")}
               </TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             <TabsContent value="freeze-on">
               <div className="space-y-5 rounded-lg border p-4">

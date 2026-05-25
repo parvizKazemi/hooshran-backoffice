@@ -239,6 +239,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/service-requests",
               "/notifications",
               "/packages",
+              "/user-settings",
               "/user-credits",
               "/utm-analytics",
             ]}
