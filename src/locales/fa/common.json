@@ -544,7 +544,9 @@
       "dynamic": "پویا",
       "simple": "ساده",
       "simple_popup": "پاپ‌آپ ساده",
-      "float_banner": "بنر فوری"
+      "float_banner": "بنر فوری",
+      "unfreeze_subscription": "اتمام فریز اشتراک",
+      "freeze_subscription": "شروع فریز اشتراک"
     }
   },
   "domains": {

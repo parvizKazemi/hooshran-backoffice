@@ -532,7 +532,9 @@
       "dynamic": "Dynamic",
       "simple": "Simple",
       "simple_popup": "Simple Popup",
-      "float_banner": "Urgent Float Banner"
+      "float_banner": "Urgent Float Banner",
+      "unfreeze_subscription": "Unfreeze Subscription",
+      "freeze_subscription": "Freeze Subscription"
     }
   },
   "domains": {
