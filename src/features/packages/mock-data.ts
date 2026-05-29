@@ -15,6 +15,7 @@ export const mockPackages: Package[] = [
       boughtLimit: 1,
       toolboxAccess: true,
       isSpecialOffer: false,
+      parallelRequestLimit: 2,
     },
   },
   {
@@ -31,6 +32,7 @@ export const mockPackages: Package[] = [
       boughtLimit: 1,
       toolboxAccess: true,
       isSpecialOffer: false,
+      parallelRequestLimit: 1,
     },
   },
   {
@@ -47,6 +49,7 @@ export const mockPackages: Package[] = [
       boughtLimit: 1,
       toolboxAccess: true,
       isSpecialOffer: false,
+      parallelRequestLimit: 2,
     },
   },
   {
@@ -63,6 +66,7 @@ export const mockPackages: Package[] = [
       boughtLimit: 1,
       toolboxAccess: true,
       isSpecialOffer: false,
+      parallelRequestLimit: 2,
     },
   },
   {
@@ -79,6 +83,7 @@ export const mockPackages: Package[] = [
       boughtLimit: 1,
       toolboxAccess: true,
       isSpecialOffer: false,
+      parallelRequestLimit: 2,
     },
   },
 ];
