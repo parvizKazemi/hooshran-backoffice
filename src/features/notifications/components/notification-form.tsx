@@ -68,6 +68,21 @@ type NotificationVisibility = {
 };
 const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
 const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
+const TEMPLATE_TRANSITION_SHARED_FIELDS = new Set([
+  "title",
+  "message",
+  "badge",
+  "media_url",
+  "button_text",
+  "target_url",
+  "changelog",
+]);
+const TARGETING_TEMPLATE_FIELDS = new Set([
+  "urlTargets",
+  "urlRules",
+  "urlRule",
+  "targetMode",
+]);
 
 const getRawUrlTargets = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
@@ -295,6 +310,34 @@ const getFieldMaxLength = (
   return undefined;
 };
 
+const buildTemplateTransitionData = (
+  nextTemplateType: string,
+  currentData: Record<string, unknown>,
+  cachedNextTemplateData?: Record<string, unknown>
+): Record<string, unknown> => {
+  if (cachedNextTemplateData) {
+    return { ...cachedNextTemplateData };
+  }
+
+  const nextTemplateFields = new Set(
+    (TEMPLATE_FIELD_CONFIGS[nextTemplateType] || []).map((field) => field.name)
+  );
+
+  return Object.entries(currentData).reduce<Record<string, unknown>>(
+    (acc, [key, value]) => {
+      if (
+        nextTemplateFields.has(key) ||
+        TEMPLATE_TRANSITION_SHARED_FIELDS.has(key) ||
+        TARGETING_TEMPLATE_FIELDS.has(key)
+      ) {
+        acc[key] = value;
+      }
+      return acc;
+    },
+    {}
+  );
+};
+
 export function NotificationForm({
   notification,
   onSuccess,
@@ -305,9 +348,13 @@ export function NotificationForm({
   const updateNotification = useUpdateNotification();
   const isEditing = !!notification;
   const submitModeRef = React.useRef<"publish" | "draft">("publish");
+  const templateDraftsRef = React.useRef<
+    Record<string, Record<string, unknown>>
+  >({});
 
   const {
     handleSubmit,
+    getValues,
     setValue,
     watch,
     formState: { errors },
@@ -417,6 +464,25 @@ export function NotificationForm({
     targetGroupValue,
     (metaDataData as Record<string, unknown>).audience
   );
+
+  const handleTemplateTypeChange = (nextTemplateType: string) => {
+    const currentTemplateType = templateType || "simple_popup";
+    const currentData = (getValues("metaData.data") || {}) as Record<
+      string,
+      unknown
+    >;
+
+    templateDraftsRef.current[currentTemplateType] = { ...currentData };
+
+    const nextData = buildTemplateTransitionData(
+      nextTemplateType,
+      currentData,
+      templateDraftsRef.current[nextTemplateType]
+    );
+
+    setValue("metaData.type", nextTemplateType);
+    setValue("metaData.data", nextData);
+  };
 
   const { validateRequiredFields } = useFormValidation(
     templateType || "simple"
@@ -764,18 +830,14 @@ export function NotificationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <FieldGroup>
-        <div className="flex items-center justify-center gap-4">
-          <Field>
+        <div className="bg-accent/50 flex w-full items-center justify-center rounded-md p-2 px-2">
+          <Field className="flex w-full flex-row items-center justify-between gap-2">
             <FieldLabel htmlFor="metaData.type">
               {t("notifications.form.templateTypeRequired")}
             </FieldLabel>
             <Select
               value={templateType || "simple_popup"}
-              onValueChange={(value) => {
-                setValue("metaData.type", value);
-                // Reset data when template type changes
-                setValue("metaData.data", {} as Record<string, unknown>);
-              }}
+              onValueChange={handleTemplateTypeChange}
             >
               <SelectTrigger id="metaData.type">
                 <SelectValue />
