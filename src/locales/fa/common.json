@@ -226,6 +226,14 @@
       "registrationSaved": "تنظیمات ثبت‌نام با موفقیت ذخیره شد",
       "registrationSaveFailed": "ذخیره تنظیمات ثبت‌نام با خطا مواجه شد"
     },
+    "errors": {
+      "titleRequiredBackend": "title should not be empty",
+      "messageRequiredBackend": "message should not be empty",
+      "titleRequired": "لطفا عنوان پیام را وارد کنید.",
+      "messageRequired": "لطفا متن پیام را وارد کنید.",
+      "titleAndMessageRequired": "لطفا عنوان و متن پیام را تکمیل کنید.",
+      "purchaseMessageRequiredWhenDisabled": "برای حالت غیرفعال بودن خرید، متن پیام را وارد کنید."
+    },
     "freezePage": {
       "header": {
         "title": "مدیریت بحران و فریز اشتراک",
@@ -265,8 +273,8 @@
         "description": "کنترل درگاه‌ها و دکمه‌های خرید در پنل کاربران"
       },
       "card": {
-        "title": "غیرفعال‌سازی امکان خرید کاربر (Kill Switch)",
-        "description": "با روشن کردن این گزینه، دکمه‌های «خرید بسته» و «ارتقای اعتبار» در تمام پنل کاربری غیرفعال شده و درگاه بانکی از دسترس خارج می‌شود."
+        "title": "وضعیت درگاه پرداخت",
+        "description": "با تغییر وضعیت، درگاه پرداخت به حالت فعال یا غیرفعال تغییر می‌کند."
       },
       "status": {
         "enabled": "خرید فعال است",

@@ -151,7 +151,7 @@ export async function getPaymentGateConfig(): Promise<PurchasePaymentSettings> {
   }>(USER_SETTINGS_ENDPOINTS.updatePurchasePayment);
 
   return {
-    isPurchaseDisabled: Boolean(response.isEnabled),
+    isPurchaseDisabled: !response.isEnabled,
     purchaseDisabledMessage: response.message?.trim() ?? "",
   };
 }
@@ -164,12 +164,12 @@ export async function updatePaymentGateConfig(
     isEnabled: boolean;
     message?: string | null;
   }>(USER_SETTINGS_ENDPOINTS.updatePurchasePayment, {
-    isEnabled: payload.isPurchaseDisabled,
+    isEnabled: !payload.isPurchaseDisabled,
     message: normalizedMessage,
   });
 
   return {
-    isPurchaseDisabled: Boolean(response.isEnabled),
+    isPurchaseDisabled: !response.isEnabled,
     purchaseDisabledMessage: response.message?.trim() ?? "",
   };
 }

@@ -25,9 +25,41 @@ const SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY = [
   "subscription-freeze-config",
 ] as const;
 
-const withErrorToast = (error: unknown, fallbackMessage: string) => {
+const normalizeErrorMessage = (message: string): string =>
+  message.toLowerCase().replace(/\s+/g, " ").trim();
+
+const resolveUserFriendlySettingsError = (
+  message: string,
+  t: (key: string) => string
+): string => {
+  const normalizedMessage = normalizeErrorMessage(message);
+  const hasTitleRequired = normalizedMessage.includes(
+    t("userSettings.errors.titleRequiredBackend").toLowerCase()
+  );
+  const hasMessageRequired = normalizedMessage.includes(
+    t("userSettings.errors.messageRequiredBackend").toLowerCase()
+  );
+
+  if (hasTitleRequired && hasMessageRequired) {
+    return t("userSettings.errors.titleAndMessageRequired");
+  }
+  if (hasTitleRequired) {
+    return t("userSettings.errors.titleRequired");
+  }
+  if (hasMessageRequired) {
+    return t("userSettings.errors.messageRequired");
+  }
+
+  return message;
+};
+
+const withErrorToast = (
+  error: unknown,
+  fallbackMessage: string,
+  t: (key: string) => string
+) => {
   if (error instanceof Error && error.message) {
-    toast.error(error.message);
+    toast.error(resolveUserFriendlySettingsError(error.message, t));
     return;
   }
   toast.error(fallbackMessage);
@@ -62,7 +94,7 @@ export function useUpdateSubscriptionFreezeConfig() {
       toast.success(t("userSettings.toasts.freezeSaved"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.freezeSaveFailed")),
+      withErrorToast(error, t("userSettings.toasts.freezeSaveFailed"), t),
   });
 }
 
@@ -81,7 +113,7 @@ export function useStartSubscriptionFreeze() {
       toast.success(t("userSettings.toasts.freezeStarted"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.freezeStartFailed")),
+      withErrorToast(error, t("userSettings.toasts.freezeStartFailed"), t),
   });
 }
 
@@ -97,7 +129,7 @@ export function useUpdatePurchasePaymentSettings() {
       toast.success(t("userSettings.toasts.purchaseSaved"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.purchaseSaveFailed")),
+      withErrorToast(error, t("userSettings.toasts.purchaseSaveFailed"), t),
   });
 }
 
@@ -113,7 +145,7 @@ export function useUpdateRegistrationSettings() {
       toast.success(t("userSettings.toasts.registrationSaved"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.registrationSaveFailed")),
+      withErrorToast(error, t("userSettings.toasts.registrationSaveFailed"), t),
   });
 }
 
@@ -136,6 +168,6 @@ export function useUpdatePaymentGateConfig() {
       toast.success(t("userSettings.toasts.purchaseSaved"));
     },
     onError: (error) =>
-      withErrorToast(error, t("userSettings.toasts.purchaseSaveFailed")),
+      withErrorToast(error, t("userSettings.toasts.purchaseSaveFailed"), t),
   });
 }

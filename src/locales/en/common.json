@@ -222,6 +222,14 @@
       "registrationSaved": "Registration settings saved successfully",
       "registrationSaveFailed": "Failed to save registration settings"
     },
+    "errors": {
+      "titleRequiredBackend": "title should not be empty",
+      "messageRequiredBackend": "message should not be empty",
+      "titleRequired": "Please enter the message title.",
+      "messageRequired": "Please enter the message body.",
+      "titleAndMessageRequired": "Please complete both title and message fields.",
+      "purchaseMessageRequiredWhenDisabled": "When purchase is disabled, message text is required."
+    },
     "freezePage": {
       "header": {
         "title": "Crisis and Subscription Freeze Management",

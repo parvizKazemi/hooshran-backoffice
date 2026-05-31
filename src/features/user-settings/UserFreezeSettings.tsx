@@ -15,9 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { SettingsPageHeader } from "./components/settings-page-header";
 import {
-  useStartSubscriptionFreeze,
   useSubscriptionFreezeConfig,
   useUpdateSubscriptionFreezeConfig,
 } from "./hooks/use-user-settings";
@@ -33,7 +33,6 @@ export default function UserFreezeSettings() {
   const { t } = useTranslation("common");
   const { data, isLoading } = useSubscriptionFreezeConfig();
   const updateFreezeConfig = useUpdateSubscriptionFreezeConfig();
-  const startFreeze = useStartSubscriptionFreeze();
   const [freezeConfig, setFreezeConfig] =
     useState<SubscriptionFreezeConfig>(defaultFreezeConfig);
 
@@ -49,21 +48,19 @@ export default function UserFreezeSettings() {
   }, [data]);
 
   const handleSaveFreezeConfig = async () => {
+    const title = freezeConfig.title.trim();
+    const message = freezeConfig.message.trim();
+
+    if (freezeConfig.isFrozen && (!title || !message)) {
+      toast.error("برای حالت فعال، عنوان و متن پیام را کامل کنید.");
+      return;
+    }
+
     await updateFreezeConfig.mutateAsync({
       ...freezeConfig,
-      title: freezeConfig.title.trim(),
-      message: freezeConfig.message.trim(),
+      title,
+      message,
     });
-  };
-
-  const handleStartFreeze = async () => {
-    const result = await startFreeze.mutateAsync({
-      title: freezeConfig.title.trim() || "سرویس موقتاً در دسترس نیست",
-      message:
-        freezeConfig.message.trim() ||
-        "از اختلال به وجود آمده صمیمانه پوزش می‌طلبیم. سیستم در حال بروزرسانی و رفع مشکل است.",
-    });
-    setFreezeConfig(result);
   };
 
   const handleDisableFreeze = async () => {
@@ -76,7 +73,6 @@ export default function UserFreezeSettings() {
   };
 
   const isSavingConfig = updateFreezeConfig.isPending;
-  const isStartingFreeze = startFreeze.isPending;
 
   if (isLoading && !data) {
     return (
@@ -190,18 +186,8 @@ export default function UserFreezeSettings() {
 
                 <div className="flex flex-wrap justify-end gap-2">
                   <Button
-                    onClick={handleStartFreeze}
-                    variant="outline"
-                    disabled={isSavingConfig || isStartingFreeze}
-                  >
-                    {isStartingFreeze && (
-                      <IconLoader2 className="size-4 animate-spin" />
-                    )}
-                    {t("userSettings.actions.startFreezeNow")}
-                  </Button>
-                  <Button
                     onClick={handleSaveFreezeConfig}
-                    disabled={isSavingConfig || isStartingFreeze}
+                    disabled={isSavingConfig}
                   >
                     {isSavingConfig && (
                       <IconLoader2 className="size-4 animate-spin" />
@@ -254,11 +240,7 @@ export default function UserFreezeSettings() {
                 <div className="flex justify-end">
                   <Button
                     onClick={handleDisableFreeze}
-                    disabled={
-                      !freezeConfig.isFrozen ||
-                      isSavingConfig ||
-                      isStartingFreeze
-                    }
+                    disabled={!freezeConfig.isFrozen || isSavingConfig}
                   >
                     {isSavingConfig && (
                       <IconLoader2 className="size-4 animate-spin" />

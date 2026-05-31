@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { SettingsPageHeader } from "./components/settings-page-header";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,14 +31,22 @@ export default function UserRegistrationSettings() {
     if (!data) {
       return;
     }
-    setIsPaymentEnabled(data.isPurchaseDisabled);
+    setIsPaymentEnabled(!data.isPurchaseDisabled);
     setPaymentDisabledMessage(data.purchaseDisabledMessage ?? "");
   }, [data]);
 
   const handleSave = async () => {
+    const normalizedMessage = paymentDisabledMessage.trim();
+    const isPurchaseDisabled = !isPaymentEnabled;
+
+    if (isPurchaseDisabled && normalizedMessage.length === 0) {
+      toast.error(t("userSettings.errors.purchaseMessageRequiredWhenDisabled"));
+      return;
+    }
+
     await updatePaymentGateConfig.mutateAsync({
-      isPurchaseDisabled: isPaymentEnabled,
-      purchaseDisabledMessage: paymentDisabledMessage,
+      isPurchaseDisabled,
+      purchaseDisabledMessage: normalizedMessage,
     });
   };
 
