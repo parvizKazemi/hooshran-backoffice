@@ -538,7 +538,7 @@ export function NotificationForm({
 
       const mappedSimpleData: Record<string, unknown> = {
         title: (data.metaData.data?.title as string) || "",
-        desc: (data.metaData.data?.message as string) || "",
+        message: (data.metaData.data?.message as string) || "",
       };
 
       const featuredMedia = data.metaData.data?.media_url;
