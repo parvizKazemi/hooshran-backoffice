@@ -574,6 +574,12 @@ export function NotificationForm({
         toast.error(`خطاهای اعتبارسنجی: ${promotionalErrors.join(", ")}`);
         return;
       }
+
+      const promotionalData = {
+        ...((data.metaData.data || {}) as Record<string, unknown>),
+      };
+      delete promotionalData.badge;
+      data.metaData.data = promotionalData;
     }
 
     const normalizedTargetGroup = normalizeTargetGroup(
