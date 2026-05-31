@@ -30,7 +30,6 @@ import {
   BasicNotification,
   CreateNotificationInput,
   createNotificationSchema,
-  NOTIFICATION_TYPES,
   NotificationType,
   TEMPLATE_TYPES,
   UpdateNotificationInput,
@@ -67,6 +66,8 @@ type NotificationVisibility = {
   route: string[];
   rules: Record<string, RuleType>;
 };
+const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
+const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
 
 const getRawUrlTargets = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
@@ -393,7 +394,6 @@ export function NotificationForm({
         },
   });
 
-  const notificationType = watch("type");
   const templateType = watch("metaData.type");
   const metaDataData = watch("metaData.data") || {};
   const rawUrlTargets = getRawUrlTargets(
@@ -422,19 +422,20 @@ export function NotificationForm({
     templateType || "simple"
   );
 
-  // Auto-set notification type and popup based on template
+  // Keep notification type fixed to information while hidden in UI.
+  React.useEffect(() => {
+    setValue("type", INFORMATION_NOTIFICATION_TYPE);
+  }, [setValue]);
+
+  // Auto-configure notification behavior based on template
   React.useEffect(() => {
     if (templateType === "promotional") {
-      if (notificationType !== "information") {
-        // notify user that the notification type will be set to "information"
-        toast.warning(
-          t("notifications.form.promotionalNotificationTypeWarning")
-        );
-        setValue("type", "information");
-      }
       // Set popup to true for promotional
       setValue("isPopup", true);
       setValue("metaData.data.urlTargets", ["all"]);
+      if (targetGroupValue !== PROMOTIONAL_TARGET_GROUP) {
+        setValue("targetGroup", PROMOTIONAL_TARGET_GROUP);
+      }
       return;
     }
 
@@ -480,14 +481,7 @@ export function NotificationForm({
         setValue("targetGroup", "ALL");
       }
     }
-  }, [
-    metaDataData,
-    notificationType,
-    setValue,
-    t,
-    targetGroupValue,
-    templateType,
-  ]);
+  }, [metaDataData, setValue, targetGroupValue, templateType]);
 
   const currentTemplateFields =
     TEMPLATE_FIELD_CONFIGS[templateType || "simple"] ||
@@ -520,6 +514,10 @@ export function NotificationForm({
       data.targetGroup,
       data.metaData?.data?.audience
     );
+    const finalTargetGroup =
+      data.metaData?.type === "promotional"
+        ? PROMOTIONAL_TARGET_GROUP
+        : normalizedTargetGroup;
     const isActive = submitModeRef.current === "publish";
 
     if (data.metaData?.type === "simple_popup") {
@@ -584,14 +582,15 @@ export function NotificationForm({
       };
     }
 
-    data.targetGroup = normalizedTargetGroup;
+    data.type = INFORMATION_NOTIFICATION_TYPE;
+    data.targetGroup = finalTargetGroup;
     data.isActive = isActive;
 
     try {
       if (isEditing && notification) {
         // Update mode
         const payload: UpdateNotificationInput = {
-          ...(data.type && { type: data.type }),
+          type: INFORMATION_NOTIFICATION_TYPE,
           ...(data.metaData && {
             metaData: {
               ...(data.metaData.type && { type: data.metaData.type }),
@@ -600,7 +599,7 @@ export function NotificationForm({
               }),
             },
           }),
-          ...(data.targetGroup && { targetGroup: data.targetGroup }),
+          ...(finalTargetGroup && { targetGroup: finalTargetGroup }),
           ...(data.isActive !== undefined && { isActive: data.isActive }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
           ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
@@ -625,12 +624,12 @@ export function NotificationForm({
         // Create mode
         const isPromotional = data.metaData?.type === "promotional";
         const payload: CreateNotificationInput = {
-          type: data.type as NotificationType,
+          type: INFORMATION_NOTIFICATION_TYPE,
           metaData: {
             type: data.metaData?.type || "simple",
             data: (data.metaData?.data || {}) as Record<string, unknown>,
           },
-          targetGroup: normalizedTargetGroup,
+          targetGroup: finalTargetGroup,
           isActive,
           isPopup: isPromotional ? true : (data.isPopup ?? false),
           isPublic: isPromotional ? false : (data.isPublic ?? false),
@@ -798,34 +797,6 @@ export function NotificationForm({
             {errors.metaData?.type && (
               <FieldDescription className="text-destructive">
                 {errors.metaData.type.message}
-              </FieldDescription>
-            )}
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="type">
-              {t("notifications.form.typeRequired")}
-            </FieldLabel>
-            <Select
-              value={notificationType}
-              onValueChange={(value) =>
-                setValue("type", value as NotificationType)
-              }
-            >
-              <SelectTrigger id="type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {NOTIFICATION_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {t(`notifications.types.${type}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.type && (
-              <FieldDescription className="text-destructive">
-                {errors.type.message}
               </FieldDescription>
             )}
           </Field>
