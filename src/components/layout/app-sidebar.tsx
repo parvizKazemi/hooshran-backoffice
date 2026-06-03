@@ -93,6 +93,10 @@ function useSidebarData() {
             url: "/user-settings/freeze-management",
           },
           {
+            title: t("nav.userSettings.requestToolsGate"),
+            url: "/user-settings/request-tools-gate",
+          },
+          {
             title: t("nav.userSettings.purchasePayments"),
             url: "/user-settings/purchase-payments",
           },

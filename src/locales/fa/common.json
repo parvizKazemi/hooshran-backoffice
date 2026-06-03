@@ -54,7 +54,8 @@
       "title": "تنظیمات کاربران",
       "freezeManagement": "مدیریت بحران و فریز اشتراک",
       "purchasePayments": "مدیریت خرید و پرداخت‌ها",
-      "registrations": "مدیریت ثبت‌نام‌ها"
+      "registrations": "مدیریت ثبت‌نام‌ها",
+      "requestToolsGate": "قطع اضطراری ارسال درخواست"
     },
     "logout": "خروج",
     "logoutConfirm": "تایید خروج",
@@ -199,7 +200,9 @@
     "defaults": {
       "outageTitle": "سرویس موقتا در دسترس نیست",
       "outageDescription": "از اختلال به وجود آمده پوزش می‌طلبیم. تیم فنی در حال رفع مشکل است.",
-      "purchaseDisabledFallbackMessage": "امکان خرید موقتا غیرفعال است. از شکیبایی شما متشکریم."
+      "purchaseDisabledFallbackMessage": "امکان خرید موقتا غیرفعال است. از شکیبایی شما متشکریم.",
+      "requestGateOutageTitle": "ارسال درخواست کاربران موقتاً متوقف شد",
+      "requestGateOutageDescription": "به دلیل اختلال فنی، ارسال درخواست برای کاربران عادی موقتاً غیرفعال است."
     },
     "actions": {
       "saveFreeze": "ذخیره تنظیمات فریز",
@@ -212,7 +215,8 @@
     "aria": {
       "toggleFreezeStatus": "تغییر وضعیت فریز سراسری",
       "togglePurchaseStatus": "تغییر وضعیت خرید کاربران",
-      "toggleRegistrationStatus": "تغییر وضعیت ثبت‌نام کاربران جدید"
+      "toggleRegistrationStatus": "تغییر وضعیت ثبت‌نام کاربران جدید",
+      "toggleRequestGateStatus": "تغییر وضعیت کلید قطع اضطراری ارسال درخواست"
     },
     "toasts": {
       "freezeSaved": "تنظیمات فریز با موفقیت ذخیره شد",
@@ -224,7 +228,9 @@
       "purchaseSaved": "تنظیمات خرید و پرداخت با موفقیت ذخیره شد",
       "purchaseSaveFailed": "ذخیره تنظیمات خرید و پرداخت با خطا مواجه شد",
       "registrationSaved": "تنظیمات ثبت‌نام با موفقیت ذخیره شد",
-      "registrationSaveFailed": "ذخیره تنظیمات ثبت‌نام با خطا مواجه شد"
+      "registrationSaveFailed": "ذخیره تنظیمات ثبت‌نام با خطا مواجه شد",
+      "requestGateSaved": "تنظیمات کنترل اضطراری درخواست‌ها ذخیره شد",
+      "requestGateSaveFailed": "ذخیره تنظیمات کنترل اضطراری درخواست‌ها ناموفق بود"
     },
     "errors": {
       "titleRequiredBackend": "title should not be empty",
@@ -301,6 +307,43 @@
         "open": "ثبت‌نام کاربران جدید باز است",
         "blocked": "ثبت‌نام کاربران جدید بسته است",
         "hint": "دسترسی ورود کاربران فعلی در هر دو حالت حفظ می‌شود."
+      }
+    },
+    "requestGatePage": {
+      "header": {
+        "title": "کنترل اضطراری ارسال درخواست کاربران",
+        "description": "برای مدیریت بحران فنی، ارسال درخواست کاربران عادی را قطع کنید و فقط تسترهای مجاز را در وایت‌لیست نگه دارید."
+      },
+      "card": {
+        "title": "کلید قطع اضطراری درخواست ابزارها",
+        "description": "غیرفعالسازی ارسال درخواست کاربران عادی  و اجازه ارسال درخواست  فقط برای شماره‌های وایت‌لیست شده."
+      },
+      "toggle": {
+        "title": "غیرفعال‌سازی ارسال درخواست کاربران",
+        "description": "علت اختلال را برای نمایش به کاربران بنویسید."
+      },
+      "status": {
+        "blocked": "ارسال درخواست مسدود می‌شود!",
+        "open": "ارسال درخواست فعال است"
+      },
+      "message": {
+        "titleLabel": "عنوان پیام خطا",
+        "titlePlaceholder": "مثال: سرویس فعلاً در دسترس نیست",
+        "descriptionLabel": "توضیحات خطا",
+        "descriptionPlaceholder": "جزئیات اختلال را برای نمایش به کاربران بنویسید."
+      },
+      "whitelist": {
+        "label": "لیست سفید شماره تسترها (Whitelist)",
+        "placeholder": "09121112233",
+        "hint": "با Enter یا Space یا ویرگول شماره را تبدیل به تگ کنید.",
+        "invalidPhone": "فرمت شماره معتبر نیست. فرمت صحیح: 09121112233",
+        "removeTagAria": "حذف شماره از وایت‌لیست"
+      },
+      "errors": {
+        "messageFieldsRequired": "برای فعال‌سازی قطع اضطراری، عنوان و توضیحات خطا را کامل کنید."
+      },
+      "actions": {
+        "save": "ذخیره تنظیمات"
       }
     }
   },

@@ -54,7 +54,8 @@
       "title": "User Settings",
       "freezeManagement": "Crisis and Subscription Freeze",
       "purchasePayments": "Purchase and Payments",
-      "registrations": "Registrations"
+      "registrations": "Registrations",
+      "requestToolsGate": "Emergency Request Tools Gate"
     },
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
@@ -195,7 +196,9 @@
     "defaults": {
       "outageTitle": "Service is temporarily unavailable",
       "outageDescription": "We apologize for the disruption. Our technical team is actively resolving the issue.",
-      "purchaseDisabledFallbackMessage": "Purchasing is temporarily disabled. Thank you for your patience."
+      "purchaseDisabledFallbackMessage": "Purchasing is temporarily disabled. Thank you for your patience.",
+      "requestGateOutageTitle": "User requests are temporarily blocked",
+      "requestGateOutageDescription": "Due to a technical incident, request sending is temporarily unavailable for regular users."
     },
     "actions": {
       "saveFreeze": "Save freeze settings",
@@ -208,7 +211,8 @@
     "aria": {
       "toggleFreezeStatus": "Toggle global freeze status",
       "togglePurchaseStatus": "Toggle user purchase status",
-      "toggleRegistrationStatus": "Toggle new registration status"
+      "toggleRegistrationStatus": "Toggle new registration status",
+      "toggleRequestGateStatus": "Toggle emergency request kill switch"
     },
     "toasts": {
       "freezeSaved": "Freeze settings saved successfully",
@@ -220,7 +224,9 @@
       "purchaseSaved": "Purchase and payment settings saved successfully",
       "purchaseSaveFailed": "Failed to save purchase and payment settings",
       "registrationSaved": "Registration settings saved successfully",
-      "registrationSaveFailed": "Failed to save registration settings"
+      "registrationSaveFailed": "Failed to save registration settings",
+      "requestGateSaved": "Emergency request gate settings saved successfully",
+      "requestGateSaveFailed": "Failed to save emergency request gate settings"
     },
     "errors": {
       "titleRequiredBackend": "title should not be empty",
@@ -297,6 +303,43 @@
         "open": "New user registration is open",
         "blocked": "New user registration is closed",
         "hint": "Existing users keep login access in both states."
+      }
+    },
+    "requestGatePage": {
+      "header": {
+        "title": "Emergency Request Tools Gate Control",
+        "description": "Disable request sending for regular users during incidents while allowing whitelisted testers."
+      },
+      "card": {
+        "title": "Emergency Request Tools Gate",
+        "description": "When enabled, regular user requests are blocked and only whitelisted tester phone numbers can continue testing."
+      },
+      "toggle": {
+        "title": "Disable user request sending",
+        "description": "Turning this on expands live settings below."
+      },
+      "status": {
+        "blocked": "Request sending is blocked!",
+        "open": "Request sending is active"
+      },
+      "message": {
+        "titleLabel": "Error title",
+        "titlePlaceholder": "Example: Service is temporarily unavailable",
+        "descriptionLabel": "Error description",
+        "descriptionPlaceholder": "Write incident details to show to users."
+      },
+      "whitelist": {
+        "label": "Tester phone whitelist",
+        "placeholder": "09121112233",
+        "hint": "Use Enter, comma, or Space to convert phone number into a tag.",
+        "invalidPhone": "Invalid phone format. Use: 09121112233",
+        "removeTagAria": "Remove phone from whitelist"
+      },
+      "errors": {
+        "messageFieldsRequired": "Title and description are required when request tools gate is enabled."
+      },
+      "actions": {
+        "save": "Save settings"
       }
     }
   },

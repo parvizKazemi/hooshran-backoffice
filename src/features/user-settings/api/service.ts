@@ -2,6 +2,7 @@ import i18next from "@/i18n";
 import { apiGet, apiPatch, apiPost } from "@/services/api";
 import type {
   PurchasePaymentSettings,
+  RequestToolsGateSettings,
   RegistrationSettings,
   SubscriptionFreezeConfig,
   SubscriptionFreezeStartPayload,
@@ -105,6 +106,30 @@ export async function startSubscriptionFreeze(
     };
     return structuredClone(mockSubscriptionFreezeConfig);
   }
+}
+
+export async function getRequestToolsGateConfig(): Promise<RequestToolsGateSettings> {
+  return apiGet<RequestToolsGateSettings>(
+    USER_SETTINGS_ENDPOINTS.getRequestToolsGateConfig
+  );
+}
+
+export async function updateRequestToolsGateConfig(
+  payload: RequestToolsGateSettings
+): Promise<RequestToolsGateSettings> {
+  const normalizedPayload: RequestToolsGateSettings = {
+    ...payload,
+    outageTitle: payload.outageTitle.trim(),
+    outageDescription: payload.outageDescription.trim(),
+    testerWhitelistPhoneNumbers: payload.testerWhitelistPhoneNumbers.map(
+      (phone) => phone.trim()
+    ),
+  };
+
+  return apiPatch<RequestToolsGateSettings>(
+    USER_SETTINGS_ENDPOINTS.updateRequestToolsGateConfig,
+    normalizedPayload
+  );
 }
 
 export async function updatePurchasePaymentSettings(

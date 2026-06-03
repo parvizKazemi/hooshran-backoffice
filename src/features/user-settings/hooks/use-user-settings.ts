@@ -2,10 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
+  getRequestToolsGateConfig,
   getSubscriptionFreezeConfig,
   getPaymentGateConfig,
   getUserSettings,
   startSubscriptionFreeze,
+  updateRequestToolsGateConfig,
   updatePaymentGateConfig,
   updateSubscriptionFreezeConfig,
   updatePurchasePaymentSettings,
@@ -13,6 +15,7 @@ import {
 } from "../api/service";
 import type {
   PurchasePaymentSettings,
+  RequestToolsGateSettings,
   RegistrationSettings,
   SubscriptionFreezeConfig,
   SubscriptionFreezeStartPayload,
@@ -23,6 +26,9 @@ const USER_SETTINGS_QUERY_KEY = ["user-settings"] as const;
 const PAYMENT_GATE_CONFIG_QUERY_KEY = ["payment-gate-config"] as const;
 const SUBSCRIPTION_FREEZE_CONFIG_QUERY_KEY = [
   "subscription-freeze-config",
+] as const;
+const REQUEST_TOOLS_GATE_CONFIG_QUERY_KEY = [
+  "request-tools-gate-config",
 ] as const;
 
 const normalizeErrorMessage = (message: string): string =>
@@ -95,6 +101,32 @@ export function useUpdateSubscriptionFreezeConfig() {
     },
     onError: (error) =>
       withErrorToast(error, t("userSettings.toasts.freezeSaveFailed"), t),
+  });
+}
+
+export function useRequestToolsGateConfig() {
+  return useQuery({
+    queryKey: REQUEST_TOOLS_GATE_CONFIG_QUERY_KEY,
+    queryFn: getRequestToolsGateConfig,
+  });
+}
+
+export function useUpdateRequestToolsGateConfig() {
+  const { t } = useTranslation("common");
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: RequestToolsGateSettings) =>
+      updateRequestToolsGateConfig(payload),
+    onSuccess: (updatedData: RequestToolsGateSettings) => {
+      queryClient.setQueryData(
+        REQUEST_TOOLS_GATE_CONFIG_QUERY_KEY,
+        updatedData
+      );
+      toast.success(t("userSettings.toasts.requestGateSaved"));
+    },
+    onError: (error) =>
+      withErrorToast(error, t("userSettings.toasts.requestGateSaveFailed"), t),
   });
 }
 

@@ -48,6 +48,9 @@ const UserPurchasePaymentSettings = lazy(
 const UserRegistrationSettings = lazy(
   () => import("../features/user-settings/UserRegistrationSettings.tsx")
 );
+const UserRequestToolsGateSettings = lazy(
+  () => import("../features/user-settings/UserRequestToolsGateSettings.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -161,6 +164,10 @@ const router = createBrowserRouter([
           {
             path: "/user-settings/registrations",
             element: <UserRegistrationSettings />,
+          },
+          {
+            path: "/user-settings/request-tools-gate",
+            element: <UserRequestToolsGateSettings />,
           },
         ],
       },

@@ -9,6 +9,13 @@ export type SubscriptionFreezeStartPayload = Pick<
   "title" | "message"
 >;
 
+export type RequestToolsGateSettings = {
+  isRequestSendingDisabled: boolean;
+  outageTitle: string;
+  outageDescription: string;
+  testerWhitelistPhoneNumbers: string[];
+};
+
 export type PurchasePaymentSettings = {
   isPurchaseDisabled: boolean;
   purchaseDisabledMessage: string;
