@@ -4,6 +4,7 @@ import type {
   PurchasePaymentSettings,
   RequestToolsGateSettings,
   RegistrationSettings,
+  ServiceRequestSendingConfig,
   SubscriptionFreezeConfig,
   SubscriptionFreezeStartPayload,
   UserSettingsState,
@@ -108,28 +109,50 @@ export async function startSubscriptionFreeze(
   }
 }
 
+const mapServiceRequestSendingToUi = (
+  config: ServiceRequestSendingConfig
+): RequestToolsGateSettings => ({
+  isRequestSendingDisabled: !config.isEnableService,
+  outageTitle: config.serviceOutageTitle?.trim() ?? "",
+  outageDescription: config.serviceOutageDescription?.trim() ?? "",
+  testerWhitelistPhoneNumbers: config.whiteList ?? [],
+});
+
+const mapUiToServiceRequestSending = (
+  settings: RequestToolsGateSettings
+): Pick<
+  ServiceRequestSendingConfig,
+  | "isEnableService"
+  | "serviceOutageTitle"
+  | "serviceOutageDescription"
+  | "whiteList"
+> => ({
+  isEnableService: !settings.isRequestSendingDisabled,
+  serviceOutageTitle: settings.outageTitle.trim(),
+  serviceOutageDescription: settings.outageDescription.trim(),
+  whiteList: settings.testerWhitelistPhoneNumbers
+    .map((phone) => phone.trim())
+    .filter(Boolean),
+});
+
 export async function getRequestToolsGateConfig(): Promise<RequestToolsGateSettings> {
-  return apiGet<RequestToolsGateSettings>(
-    USER_SETTINGS_ENDPOINTS.getRequestToolsGateConfig
+  const response = await apiGet<ServiceRequestSendingConfig>(
+    USER_SETTINGS_ENDPOINTS.getServiceRequestSendingConfig
   );
+
+  return mapServiceRequestSendingToUi(response);
 }
 
 export async function updateRequestToolsGateConfig(
   payload: RequestToolsGateSettings
 ): Promise<RequestToolsGateSettings> {
-  const normalizedPayload: RequestToolsGateSettings = {
-    ...payload,
-    outageTitle: payload.outageTitle.trim(),
-    outageDescription: payload.outageDescription.trim(),
-    testerWhitelistPhoneNumbers: payload.testerWhitelistPhoneNumbers.map(
-      (phone) => phone.trim()
-    ),
-  };
-
-  return apiPatch<RequestToolsGateSettings>(
-    USER_SETTINGS_ENDPOINTS.updateRequestToolsGateConfig,
-    normalizedPayload
+  const apiPayload = mapUiToServiceRequestSending(payload);
+  const response = await apiPatch<ServiceRequestSendingConfig>(
+    USER_SETTINGS_ENDPOINTS.updateServiceRequestSendingConfig,
+    apiPayload
   );
+
+  return mapServiceRequestSendingToUi(response);
 }
 
 export async function updatePurchasePaymentSettings(

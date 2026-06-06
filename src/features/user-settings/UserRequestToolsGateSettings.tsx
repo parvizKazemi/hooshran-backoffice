@@ -24,8 +24,8 @@ import {
 } from "./hooks/use-user-settings";
 import type { RequestToolsGateSettings } from "./types";
 
-const OUTAGE_TITLE_MAX_LENGTH = 50;
-const OUTAGE_DESCRIPTION_MAX_LENGTH = 300;
+const OUTAGE_TITLE_MAX_LENGTH = 100;
+const OUTAGE_DESCRIPTION_MAX_LENGTH = 500;
 const PHONE_REGEX = /^09\d{9}$/;
 const TAG_DELIMITER_REGEX = /[\s,]+/;
 

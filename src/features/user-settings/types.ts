@@ -9,6 +9,14 @@ export type SubscriptionFreezeStartPayload = Pick<
   "title" | "message"
 >;
 
+export type ServiceRequestSendingConfig = {
+  isEnableService: boolean;
+  serviceOutageTitle: string;
+  serviceOutageDescription: string;
+  whiteList: string[];
+  updatedAt?: string;
+};
+
 export type RequestToolsGateSettings = {
   isRequestSendingDisabled: boolean;
   outageTitle: string;
