@@ -1103,7 +1103,9 @@
       "createPackage": "Create Package",
       "cancel": "Cancel",
       "name": "Name",
-      "namePlaceholder": "Enter package name"
+      "namePlaceholder": "Enter package name",
+      "queueProcessingSpeed": "Queue processing speed",
+      "queueProcessingSpeedPlaceholder": "Enter server queue priority (default 1)"
     }
   },
   "plans": {

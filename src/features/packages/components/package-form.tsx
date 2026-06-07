@@ -91,6 +91,7 @@ export const PackageForm = memo(function PackageForm({
             transferLimit: pkg.properties?.transferLimit || 0,
             boughtLimit: pkg.properties?.boughtLimit || 1,
             parallelRequestLimit: pkg.properties?.parallelRequestLimit || 2,
+            queueProcessingSpeed: pkg.properties?.queueProcessingSpeed || 1,
             toolboxAccess: pkg.properties?.toolboxAccess ?? true,
             isSpecialOffer: pkg.properties?.isSpecialOffer || undefined,
           },
@@ -108,6 +109,7 @@ export const PackageForm = memo(function PackageForm({
             transferLimit: 0,
             boughtLimit: 1,
             parallelRequestLimit: 2,
+            queueProcessingSpeed: 1,
             toolboxAccess: true,
             isSpecialOffer: undefined,
           },
@@ -375,6 +377,30 @@ export const PackageForm = memo(function PackageForm({
             {form.formState.errors.properties?.boughtLimit && (
               <FieldDescription className="text-destructive">
                 {form.formState.errors.properties.boughtLimit.message}
+              </FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="properties.queueProcessingSpeed">
+              {t("packages.form.queueProcessingSpeed")}
+              <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              id="properties.queueProcessingSpeed"
+              className="text-left"
+              dir="ltr"
+              type="number"
+              min="1"
+              {...form.register("properties.queueProcessingSpeed", {
+                valueAsNumber: true,
+              })}
+              placeholder={t("packages.form.queueProcessingSpeedPlaceholder")}
+              disabled={isLoading}
+            />
+            {form.formState.errors.properties?.queueProcessingSpeed && (
+              <FieldDescription className="text-destructive">
+                {form.formState.errors.properties.queueProcessingSpeed.message}
               </FieldDescription>
             )}
           </Field>

@@ -315,7 +315,7 @@ export const PackagesTable = memo(function PackagesTable({
                   {t("packages.addPackage")}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-3xl!">
                 <DialogHeader>
                   <DialogTitle>
                     {editingPackage

@@ -1154,6 +1154,8 @@
       "transferLimitPlaceholder": "انتقال مانده را وارد کنید",
       "parallelRequestLimit": "درخواست همزمان",
       "parallelRequestLimitPlaceholder": "محدودیت تعداد درخواست همزمان را وارد کنید",
+      "queueProcessingSpeed": "سرعت پردازشی در صف",
+      "queueProcessingSpeedPlaceholder": "اولویت صف سرور را وارد کنید (پیش‌فرض ۱)",
       "boughtLimit": "محدودیت تعداد خرید",
       "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
       "toolboxAccess": "دسترسی به جعبه ابزار",
