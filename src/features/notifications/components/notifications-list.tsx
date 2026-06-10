@@ -17,6 +17,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
+
+const PAGE_SIZE_OPTIONS = [10, 20, 30, 50] as const;
+const SHOW_SEND_ACTION = false;
 import { useTranslation } from "react-i18next";
 
 import {
@@ -224,6 +227,11 @@ export function NotificationsList({
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
   const [userIdsToSend, setUserIdsToSend] = useState<string>("");
+
+  const takeValue = useMemo(
+    () => filters.take ?? pagination?.take ?? PAGE_SIZE_OPTIONS[0],
+    [filters.take, pagination?.take]
+  );
 
   const deleteNotification = useDeleteNotification();
   const sendNotification = useSendNotification();
@@ -554,19 +562,21 @@ export function NotificationsList({
                 <IconEdit className="size-4" />
               </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 hover:scale-105"
-                onClick={() => handleSend(notification)}
-                disabled={notification.isPublic}
-              >
-                {!notification.isPublic ? (
-                  <IconSend className="size-4 rotate-270" />
-                ) : (
-                  <IconSendOff className="size-4 rotate-270" />
-                )}
-              </Button>
+              {SHOW_SEND_ACTION && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 hover:scale-105"
+                  onClick={() => handleSend(notification)}
+                  disabled={notification.isPublic}
+                >
+                  {!notification.isPublic ? (
+                    <IconSend className="size-4 rotate-270" />
+                  ) : (
+                    <IconSendOff className="size-4 rotate-270" />
+                  )}
+                </Button>
+              )}
 
               <Button
                 variant="ghost"
@@ -871,8 +881,8 @@ export function NotificationsList({
         )}
 
         {/* Pagination */}
-        {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-2">
+        {pagination && (
+          <div className="flex flex-col gap-3 px-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-muted-foreground text-sm">
               {t("notifications.page")} {pagination.page}{" "}
               {t("notifications.of")} {pagination.totalPages} (
@@ -890,7 +900,7 @@ export function NotificationsList({
                     });
                   }
                 }}
-                disabled={pagination.page <= 1}
+                disabled={pagination.page <= 1 || isLoading}
               >
                 {t("notifications.prev")}
               </Button>
@@ -908,12 +918,12 @@ export function NotificationsList({
                     });
                   }
                 }}
-                disabled={pagination.page >= pagination.totalPages}
+                disabled={pagination.page >= pagination.totalPages || isLoading}
               >
                 {t("notifications.next")}
               </Button>
               <Select
-                value={String(pagination.take)}
+                value={String(takeValue)}
                 onValueChange={(value) => {
                   if (onFiltersChange) {
                     onFiltersChange({
@@ -928,7 +938,7 @@ export function NotificationsList({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[10, 20, 30, 50].map((size) => (
+                  {PAGE_SIZE_OPTIONS.map((size) => (
                     <SelectItem key={size} value={String(size)}>
                       {size}
                     </SelectItem>

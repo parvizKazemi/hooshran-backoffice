@@ -13,9 +13,10 @@ export default function Notifications() {
 
   const { data, isLoading, refetch } = useNotifications(filters);
   const notifications = data?.data || [];
-  const total = data?.total || 0;
-  const currentPage = data?.page || 1;
-  const totalPages = data?.totalPages || 1;
+  const meta = data?.meta;
+  const total = meta?.itemCount || 0;
+  const currentPage = meta?.page || 1;
+  const totalPages = meta?.pageCount || 1;
 
   return (
     <div className="flex flex-col gap-4 px-4 lg:px-6">
@@ -35,7 +36,7 @@ export default function Notifications() {
           page: currentPage,
           total: total,
           totalPages: totalPages,
-          take: filters.take || 10,
+          take: meta?.take || filters.take || 10,
         }}
       />
     </div>

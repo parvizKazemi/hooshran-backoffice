@@ -61,13 +61,19 @@ export interface BasicNotification {
   updatedAt: string;
 }
 
-// Paginated Response
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
+export interface PageMeta {
   page: number;
   take: number;
-  totalPages: number;
+  itemCount: number;
+  pageCount: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+// Paginated Response (matches backend PageDto)
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PageMeta;
 }
 
 // Query Parameters for GET /admin/notification
