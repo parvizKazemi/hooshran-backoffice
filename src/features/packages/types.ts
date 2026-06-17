@@ -3,6 +3,11 @@ import { z } from "zod";
 export const PackageTypeSchema = z.enum(["PERMANENT", "SUBSCRIPTION"]);
 export type PackageType = z.infer<typeof PackageTypeSchema>;
 
+export const PlanQueueSchema = z.enum(["hero", "adventurer", "explorer"]);
+export type PlanQueue = z.infer<typeof PlanQueueSchema>;
+export const PLAN_QUEUE_OPTIONS = PlanQueueSchema.options;
+export const DEFAULT_PLAN_QUEUE: PlanQueue = "explorer";
+
 export const PackageSchema = z.object({
   uuid: z.string(),
   name: z.string(),
@@ -17,6 +22,7 @@ export const PackageSchema = z.object({
     boughtLimit: z.number().int(),
     parallelRequestLimit: z.number().int().min(0),
     queueProcessingSpeed: z.number().int().min(1).optional(),
+    planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -51,6 +57,7 @@ export const createPackageSchema = PackageSchema.omit({
     boughtLimit: z.number().int(),
     parallelRequestLimit: z.number().int().min(0),
     queueProcessingSpeed: z.number().int().min(1).optional(),
+    planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -64,6 +71,7 @@ export const updatePackageSchema = createPackageSchema.partial().extend({
       boughtLimit: z.number().int(),
       parallelRequestLimit: z.number().int().min(0),
       queueProcessingSpeed: z.number().int().min(1).optional(),
+      planQueue: PlanQueueSchema.optional(),
       isSpecialOffer: z.boolean().optional(),
       toolboxAccess: z.boolean().optional(),
     })

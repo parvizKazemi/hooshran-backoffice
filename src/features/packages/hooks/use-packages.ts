@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   CreatePackageInput,
+  DEFAULT_PLAN_QUEUE,
   Package,
   PackagesQueryParams,
   PaginatedResponse,
@@ -141,6 +142,8 @@ export const useUpdatePackage = () => {
                   updatePayload.properties.parallelRequestLimit ?? 2,
                 queueProcessingSpeed:
                   updatePayload.properties.queueProcessingSpeed ?? 1,
+                planQueue:
+                  updatePayload.properties.planQueue ?? DEFAULT_PLAN_QUEUE,
                 toolboxAccess:
                   updatePayload.properties.toolboxAccess !== undefined
                     ? updatePayload.properties.toolboxAccess
@@ -155,6 +158,7 @@ export const useUpdatePackage = () => {
                 boughtLimit: 1,
                 parallelRequestLimit: 1,
                 queueProcessingSpeed: 1,
+                planQueue: DEFAULT_PLAN_QUEUE,
                 toolboxAccess: false,
                 isSpecialOffer: false,
               },

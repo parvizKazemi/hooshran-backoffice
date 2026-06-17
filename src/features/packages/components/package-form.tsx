@@ -19,7 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createPackageSchema, CreatePackageInput, Package } from "../types";
+import {
+  createPackageSchema,
+  CreatePackageInput,
+  Package,
+  PlanQueue,
+  PLAN_QUEUE_OPTIONS,
+  DEFAULT_PLAN_QUEUE,
+} from "../types";
 import { useCreatePackage, useUpdatePackage } from "../hooks/use-packages";
 
 type PackageFormProps = {
@@ -92,6 +99,7 @@ export const PackageForm = memo(function PackageForm({
             boughtLimit: pkg.properties?.boughtLimit || 1,
             parallelRequestLimit: pkg.properties?.parallelRequestLimit || 2,
             queueProcessingSpeed: pkg.properties?.queueProcessingSpeed || 1,
+            planQueue: pkg.properties?.planQueue ?? DEFAULT_PLAN_QUEUE,
             toolboxAccess: pkg.properties?.toolboxAccess ?? true,
             isSpecialOffer: pkg.properties?.isSpecialOffer || undefined,
           },
@@ -110,6 +118,7 @@ export const PackageForm = memo(function PackageForm({
             boughtLimit: 1,
             parallelRequestLimit: 2,
             queueProcessingSpeed: 1,
+            planQueue: DEFAULT_PLAN_QUEUE,
             toolboxAccess: true,
             isSpecialOffer: undefined,
           },
@@ -117,6 +126,7 @@ export const PackageForm = memo(function PackageForm({
   });
 
   const packageType = form.watch("type");
+  const planQueue = form.watch("properties.planQueue");
 
   const onSubmit: SubmitHandler<PackageFormData> = async (data) => {
     // Combine name parts with | separator
@@ -401,6 +411,40 @@ export const PackageForm = memo(function PackageForm({
             {form.formState.errors.properties?.queueProcessingSpeed && (
               <FieldDescription className="text-destructive">
                 {form.formState.errors.properties.queueProcessingSpeed.message}
+              </FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="properties.planQueue">
+              {t("packages.form.planQueue")}{" "}
+              <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Select
+              value={planQueue}
+              onValueChange={(value) =>
+                form.setValue("properties.planQueue", value as PlanQueue, {
+                  shouldValidate: true,
+                })
+              }
+              disabled={isLoading}
+            >
+              <SelectTrigger id="properties.planQueue">
+                <SelectValue
+                  placeholder={t("packages.form.planQueuePlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {PLAN_QUEUE_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {t(`packages.planQueue.${option}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.properties?.planQueue && (
+              <FieldDescription className="text-destructive">
+                {form.formState.errors.properties.planQueue.message}
               </FieldDescription>
             )}
           </Field>

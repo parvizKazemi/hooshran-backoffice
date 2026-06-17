@@ -1136,6 +1136,11 @@
       "permanent": "Permanent",
       "subscription": "Subscription"
     },
+    "planQueue": {
+      "hero": "Hero",
+      "adventurer": "Adventurer",
+      "explorer": "Explorer"
+    },
     "statuses": {
       "active": "Active",
       "inactive": "Inactive"
@@ -1159,7 +1164,24 @@
       "name": "Name",
       "namePlaceholder": "Enter package name",
       "queueProcessingSpeed": "Queue processing speed",
-      "queueProcessingSpeedPlaceholder": "Enter server queue priority (default 1)"
+      "queueProcessingSpeedPlaceholder": "Enter server queue priority (default 1)",
+      "planQueue": "Plan queue",
+      "planQueuePlaceholder": "Select plan queue",
+      "properties": "Properties",
+      "transferLimit": "Transfer limit",
+      "transferLimitPlaceholder": "Enter transfer limit",
+      "parallelRequestLimit": "Parallel requests",
+      "parallelRequestLimitPlaceholder": "Enter parallel request limit",
+      "boughtLimit": "Purchase limit",
+      "boughtLimitPlaceholder": "Enter purchase limit",
+      "toolboxAccess": "Toolbox access",
+      "isSpecialOffer": "Special offer",
+      "displayParts": "Display parts for user",
+      "mainParts": "Main package parts",
+      "mainPriceDisplay": "Main price (Toman)",
+      "mainPriceDisplayPlaceholder": "Main price shown to user",
+      "buyPriceDisplay": "Buy price (Toman)",
+      "buyPriceDisplayPlaceholder": "Buy price shown to user"
     }
   },
   "plans": {

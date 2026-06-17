@@ -1175,6 +1175,11 @@
       "permanent": "دائمی",
       "subscription": "اشتراکی"
     },
+    "planQueue": {
+      "hero": "قهرمان",
+      "adventurer": "ماجراجو",
+      "explorer": "کاشف"
+    },
     "statuses": {
       "active": "فعال",
       "inactive": "غیرفعال"
@@ -1210,6 +1215,8 @@
       "parallelRequestLimitPlaceholder": "محدودیت تعداد درخواست همزمان را وارد کنید",
       "queueProcessingSpeed": "سرعت پردازشی در صف",
       "queueProcessingSpeedPlaceholder": "اولویت صف سرور را وارد کنید (پیش‌فرض ۱)",
+      "planQueue": "صف پلن",
+      "planQueuePlaceholder": "صف پلن را انتخاب کنید",
       "boughtLimit": "محدودیت تعداد خرید",
       "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
       "toolboxAccess": "دسترسی به جعبه ابزار",
