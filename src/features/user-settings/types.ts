@@ -37,3 +37,35 @@ export type UserSettingsState = {
   purchasePayment: PurchasePaymentSettings;
   registration: RegistrationSettings;
 };
+
+export type BannedUser = {
+  uuid: string;
+  phoneNumber: string;
+  banningReason?: string;
+  isActive: boolean;
+  updatedAt?: string;
+  createdAt?: string;
+  profile?: {
+    full_name?: string | null;
+  } | null;
+};
+
+export type BlacklistRecord = BannedUser;
+
+export type BanUserPayload = {
+  phoneNumber: string;
+  banningReason: string;
+};
+
+export type UpdateBanPayload = {
+  uuid: string;
+  banningReason: string;
+};
+
+export type BannedUsersQueryParams = {
+  page?: number;
+  take?: number;
+  search?: string;
+  sortBy?: string;
+  order?: "ASC" | "DESC";
+};

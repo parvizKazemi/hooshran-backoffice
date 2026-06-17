@@ -104,6 +104,10 @@ function useSidebarData() {
             title: t("nav.userSettings.registrations"),
             url: "/user-settings/registrations",
           },
+          {
+            title: t("nav.userSettings.blacklist"),
+            url: "/user-settings/blacklist",
+          },
         ],
       },
       {

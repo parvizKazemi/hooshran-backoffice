@@ -55,7 +55,8 @@
       "freezeManagement": "Crisis and Subscription Freeze",
       "purchasePayments": "Purchase and Payments",
       "registrations": "Registrations",
-      "requestToolsGate": "Emergency Request Tools Gate"
+      "requestToolsGate": "Emergency Request Tools Gate",
+      "blacklist": "User Blacklist"
     },
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
@@ -340,6 +341,59 @@
       },
       "actions": {
         "save": "Save settings"
+      }
+    },
+    "blacklistPage": {
+      "header": {
+        "title": "User Panel Settings",
+        "description": "Manage the blacklist of violating users and their live platform access."
+      },
+      "card": {
+        "title": "User Blacklist Management",
+        "description": "Control access to requests, credit purchases, and notifications"
+      },
+      "searchPlaceholder": "Search mobile number...",
+      "emptyState": "No user matches the search criteria",
+      "table": {
+        "phone": "User / Mobile",
+        "reason": "Ban Reason",
+        "bannedAt": "Ban Date & Time",
+        "actions": "Actions"
+      },
+      "modal": {
+        "addTitle": "Add User to Blacklist",
+        "editTitle": "Edit Ban Details",
+        "description": "Instantly block all key user access",
+        "phoneLabel": "Violating user mobile number",
+        "phonePlaceholder": "Example: 09123456789",
+        "reasonLabel": "Ban reason",
+        "reasonPlaceholder": "Enter a ban reason or pick a suggestion below...",
+        "suggestionsLabel": "Suggestions:"
+      },
+      "unblock": {
+        "title": "Do you want to unban this user?",
+        "description": "By confirming, all platform access for this user will be restored.",
+        "descriptionWithPhone": "By confirming, access for {{phone}} will be restored."
+      },
+      "actions": {
+        "addBan": "Add New Ban",
+        "edit": "Edit",
+        "unban": "Unban",
+        "cancel": "Cancel",
+        "confirmBan": "Confirm Ban",
+        "saveChanges": "Save Changes",
+        "confirmUnban": "Confirm Activation"
+      },
+      "toasts": {
+        "banSuccess": "User banned successfully",
+        "banFailed": "Failed to ban user",
+        "updateSuccess": "Ban details updated successfully",
+        "updateFailed": "Failed to update ban details",
+        "unbanSuccess": "User activated successfully",
+        "unbanFailed": "Failed to unban user",
+        "userNotFound": "No user found with this mobile number",
+        "invalidPhone": "Please enter a valid mobile number",
+        "reasonRequired": "Please enter a ban reason"
       }
     }
   },

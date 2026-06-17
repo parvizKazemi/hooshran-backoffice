@@ -51,6 +51,9 @@ const UserRegistrationSettings = lazy(
 const UserRequestToolsGateSettings = lazy(
   () => import("../features/user-settings/UserRequestToolsGateSettings.tsx")
 );
+const UserBlacklistSettings = lazy(
+  () => import("../features/user-settings/UserBlacklistSettings.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -168,6 +171,10 @@ const router = createBrowserRouter([
           {
             path: "/user-settings/request-tools-gate",
             element: <UserRequestToolsGateSettings />,
+          },
+          {
+            path: "/user-settings/blacklist",
+            element: <UserBlacklistSettings />,
           },
         ],
       },
