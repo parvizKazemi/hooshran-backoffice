@@ -56,6 +56,7 @@
       "purchasePayments": "Purchase and Payments",
       "registrations": "Registrations",
       "requestToolsGate": "Emergency Request Tools Gate",
+      "welcomePackages": "Acquisition & Welcome Gifts",
       "blacklist": "User Blacklist"
     },
     "logout": "Logout",
@@ -1109,6 +1110,7 @@
     "description": "Manage credit purchase packages",
     "search": "Search packages...",
     "allTypes": "All types",
+    "specialOfferOnly": "Trial/Special packages only",
     "allStatuses": "All statuses",
     "credit": "credit",
     "rial": "Rials",
@@ -1369,6 +1371,83 @@
       "gems": "Gems",
       "subscriptionExtensionDays": "Subscription Extension (Days)",
       "save": "Save Rules"
+    }
+  },
+  "welcomePackages": {
+    "header": {
+      "title": "Acquisition & Welcome Gifts",
+      "description": "Configure signup gifts, trial packages, and UTM campaign rewards"
+    },
+    "card": {
+      "title": "Acquisition & Welcome Gifts",
+      "description": "Manage signup rewards, service restrictions, and UTM campaigns"
+    },
+    "registrationGift": {
+      "title": "Enable New Signup Gift Credit",
+      "description": "Grant timed gift credits to first-time registered users.",
+      "creditsLabel": "Signup gift credits (coins)",
+      "expiryLabel": "Gift credit expiry window (days)",
+      "dayUnit": "days"
+    },
+    "vipRestriction": {
+      "title": "Restrict VIP Tools for Gift Coins",
+      "description": "Choose which services can be used with signup gift coins.",
+      "selectorLabel": "Allowed services for signup gift credit",
+      "selectorHint": "Added services are allowed with gift coins. When disabled, all services are allowed."
+    },
+    "trialPackages": {
+      "title": "Economic Trial Packages (First Purchase)",
+      "description": "Manage low-cost packages for new buyers.",
+      "listTitle": "Active trial packages",
+      "addPackage": "Add package",
+      "editPackage": "Edit",
+      "empty": "No trial/special package found.",
+      "specialOfferBadge": "Special offer",
+      "welcomePackageBadge": "Welcome package",
+      "packageMeta": "{{credits}} coins · {{price}} IRR · {{days}} days",
+      "note": "These packages are shown only to users without a successful purchase."
+    },
+    "utmCampaigns": {
+      "title": "UTM Campaign Gifts",
+      "description": "Assign campaign-specific gift coins and allowed services.",
+      "listTitle": "Active UTM campaign rules",
+      "addCampaign": "New campaign",
+      "empty": "No UTM campaign rule yet.",
+      "valuePlaceholder": "Parameter value",
+      "removeRow": "Remove campaign"
+    },
+    "services": {
+      "addService": "Add allowed service...",
+      "availableServices": "Selectable services",
+      "selectAll": "Select all",
+      "clearAll": "Clear",
+      "allSelected": "All services are already allowed.",
+      "removeService": "Remove {{name}}",
+      "selectAllowed": "Select allowed services",
+      "allServicesCount": "All services ({{count}})",
+      "noneSelected": "No service allowed",
+      "oneSelected": "1 service selected",
+      "selectedCount": "{{count}} services allowed",
+      "searchPlaceholder": "Search services...",
+      "noSearchResults": "No service matches your search."
+    },
+    "actions": {
+      "save": "Save settings"
+    },
+    "aria": {
+      "toggleRegistrationGift": "Toggle signup gift credit",
+      "toggleVipRestriction": "Toggle VIP restriction",
+      "toggleTrialPackages": "Toggle trial packages section",
+      "toggleUtmCampaigns": "Toggle UTM campaigns section"
+    },
+    "toasts": {
+      "saved": "Welcome package settings saved",
+      "saveFailed": "Failed to save welcome package settings"
+    },
+    "errors": {
+      "invalidCredits": "Gift credit amount is invalid.",
+      "invalidExpiryDays": "Expiry window must be at least 1 day.",
+      "vipServicesRequired": "Select at least one allowed service for VIP restriction."
     }
   }
 }

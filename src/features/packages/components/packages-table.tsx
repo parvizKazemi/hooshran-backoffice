@@ -88,6 +88,9 @@ export const PackagesTable = memo(function PackagesTable({
   const [typeFilter, setTypeFilter] = useState<
     "all" | "SUBSCRIPTION" | "PERMANENT"
   >((filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all");
+  const [specialOfferOnly, setSpecialOfferOnly] = useState(
+    Boolean(filters.isSpecialOffer)
+  );
 
   // Keep latest filters in ref to avoid infinite loops
   const filtersRef = useRef(filters);
@@ -100,6 +103,7 @@ export const PackagesTable = memo(function PackagesTable({
     setTypeFilter(
       (filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all"
     );
+    setSpecialOfferOnly(Boolean(filters.isSpecialOffer));
   }, [filters]);
 
   const applyFilters = useCallback(
@@ -303,6 +307,19 @@ export const PackagesTable = memo(function PackagesTable({
                 </SelectItem>
               </SelectContent>
             </Select>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={specialOfferOnly}
+                onCheckedChange={(value) => {
+                  const checked = value === true;
+                  setSpecialOfferOnly(checked);
+                  applyFilters({
+                    isSpecialOffer: checked || undefined,
+                  });
+                }}
+              />
+              <span>{t("packages.specialOfferOnly")}</span>
+            </label>
             <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <DialogTrigger asChild>
                 <Button

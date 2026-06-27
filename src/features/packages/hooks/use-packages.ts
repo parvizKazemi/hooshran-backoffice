@@ -9,6 +9,7 @@ import {
   PaginatedResponse,
   UpdatePackageInput,
 } from "../types";
+import { isTrialOrWelcomePackage } from "../utils/package-filters";
 
 // Build query string from params
 const buildQueryString = (params: PackagesQueryParams): string => {
@@ -52,6 +53,10 @@ export const usePackages = (params: PackagesQueryParams = {}) => {
 
         if (params.type && params.type !== "all") {
           filtered = filtered.filter((pkg) => pkg.type === params.type);
+        }
+
+        if (params.isSpecialOffer) {
+          filtered = filtered.filter(isTrialOrWelcomePackage);
         }
 
         // Apply pagination

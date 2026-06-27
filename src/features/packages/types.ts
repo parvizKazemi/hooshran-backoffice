@@ -24,6 +24,7 @@ export const PackageSchema = z.object({
     queueProcessingSpeed: z.number().int().min(1).optional(),
     planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
+    isWelcomePackage: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
 });
@@ -45,6 +46,7 @@ export interface PackagesQueryParams {
   q?: string;
   type?: PackageType | "all";
   is_active?: boolean;
+  isSpecialOffer?: boolean;
 }
 
 export const createPackageSchema = PackageSchema.omit({
@@ -59,6 +61,7 @@ export const createPackageSchema = PackageSchema.omit({
     queueProcessingSpeed: z.number().int().min(1).optional(),
     planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
+    isWelcomePackage: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
 });
@@ -73,6 +76,7 @@ export const updatePackageSchema = createPackageSchema.partial().extend({
       queueProcessingSpeed: z.number().int().min(1).optional(),
       planQueue: PlanQueueSchema.optional(),
       isSpecialOffer: z.boolean().optional(),
+      isWelcomePackage: z.boolean().optional(),
       toolboxAccess: z.boolean().optional(),
     })
     .optional(),

@@ -105,6 +105,10 @@ function useSidebarData() {
             url: "/user-settings/registrations",
           },
           {
+            title: t("nav.userSettings.welcomePackages"),
+            url: "/user-settings/welcome-packages",
+          },
+          {
             title: t("nav.userSettings.blacklist"),
             url: "/user-settings/blacklist",
           },
@@ -250,6 +254,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-settings",
               "/user-credits",
               "/utm-analytics",
+              "/user-settings/welcome-packages",
             ]}
             // badges={{
             //   "/service-requests": 1,

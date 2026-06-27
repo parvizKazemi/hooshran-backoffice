@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { PackagesTable } from "./components/packages-table";
 import { usePackages } from "./hooks/use-packages";
 import { PackagesQueryParams } from "./types";
 
 export default function Packages() {
   const { t } = useTranslation("common");
+  const [searchParams] = useSearchParams();
+  const specialOfferFromUrl = searchParams.get("specialOffer") === "true";
   const [filters, setFilters] = useState<PackagesQueryParams>({
     page: 1,
     limit: 50,
+    isSpecialOffer: specialOfferFromUrl || undefined,
   });
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      isSpecialOffer: specialOfferFromUrl || undefined,
+      page: 1,
+    }));
+  }, [specialOfferFromUrl]);
 
   const { data, isLoading, refetch } = usePackages(filters);
   const packages = data?.data || [];

@@ -51,6 +51,9 @@ const UserRegistrationSettings = lazy(
 const UserRequestToolsGateSettings = lazy(
   () => import("../features/user-settings/UserRequestToolsGateSettings.tsx")
 );
+const WelcomePackagesSettings = lazy(
+  () => import("../features/welcome-packages/WelcomePackagesSettings.tsx")
+);
 const UserBlacklistSettings = lazy(
   () => import("../features/user-settings/UserBlacklistSettings.tsx")
 );
@@ -171,6 +174,10 @@ const router = createBrowserRouter([
           {
             path: "/user-settings/request-tools-gate",
             element: <UserRequestToolsGateSettings />,
+          },
+          {
+            path: "/user-settings/welcome-packages",
+            element: <WelcomePackagesSettings />,
           },
           {
             path: "/user-settings/blacklist",
