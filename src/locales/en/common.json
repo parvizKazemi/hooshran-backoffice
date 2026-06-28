@@ -50,6 +50,10 @@
     "media": "Media",
     "payments": "Payments",
     "utmAnalytics": "UTM",
+    "services": {
+      "title": "Services",
+      "serviceHint": "Service Guide"
+    },
     "userSettings": {
       "title": "User Settings",
       "freezeManagement": "Crisis and Subscription Freeze",
@@ -1448,6 +1452,76 @@
       "invalidCredits": "Gift credit amount is invalid.",
       "invalidExpiryDays": "Expiry window must be at least 1 day.",
       "vipServicesRequired": "Select at least one allowed service for VIP restriction."
+    }
+  },
+  "serviceHint": {
+    "header": {
+      "title": "Service Guide",
+      "description": "Select a service and manage its guide structure with text and media blocks."
+    },
+    "editor": {
+      "title": "Service Guide Editor",
+      "description": "This section is saved as a JSON array for rendering in the user panel.",
+      "serviceLabel": "Service",
+      "servicePlaceholder": "Select a service",
+      "serviceSearchPlaceholder": "Search service...",
+      "noServices": "No service available.",
+      "noSearchResults": "No service matches your search.",
+      "addSection": "Add Section",
+      "sectionCount": "{{count}} sections for {{service}}",
+      "newSectionTitle": "New Section",
+      "sectionTitlePlaceholder": "Enter section title",
+      "modeCreate": "Create guide",
+      "modeEdit": "Edit guide",
+      "unsavedChanges": "Unsaved changes",
+      "unsavedConfirm": "You have unsaved changes. Switch service without saving?",
+      "resetConfirm": "Discard current changes and restore the last saved version?",
+      "unsavedHint": "You have unsaved changes.",
+      "savedHint": "Latest saved version is loaded."
+    },
+    "blocks": {
+      "text": "Text",
+      "image": "Image",
+      "video": "Video",
+      "tip": "Tip Box",
+      "textPlaceholder": "Write section guide text in Markdown...",
+      "imagePlaceholder": "https://example.com/image.jpg",
+      "imageHint": "Image ratio should be 16:9.",
+      "videoPlaceholder": "https://example.com/embed/video",
+      "videoHint": "Video ratio should be 16:9.",
+      "upload": "Upload",
+      "noFileSelected": "No file selected.",
+      "tipPlaceholder": "Tip text (max 150 characters)",
+      "tipCounter": "{{current}} / {{max}}"
+    },
+    "tipStyles": {
+      "info": "Info",
+      "warning": "Warning",
+      "success": "Success"
+    },
+    "actions": {
+      "save": "Save & Publish",
+      "reset": "Reset",
+      "retry": "Retry"
+    },
+    "toasts": {
+      "saved": "Service guide settings saved successfully",
+      "saveFailed": "Failed to save service guide settings"
+    },
+    "errors": {
+      "maxSections": "At most {{max}} sections are allowed.",
+      "minSections": "At least {{min}} sections are required.",
+      "maxBlocks": "At most {{max}} blocks are allowed per section.",
+      "minBlocks": "Each section must contain at least one block.",
+      "sectionsRange": "Sections count must be between {{min}} and {{max}}.",
+      "invalidSectionId": "Invalid section id format. Use sec-1, sec-2, ...",
+      "duplicateSectionId": "Section ids must be unique.",
+      "blocksRange": "Section \"{{title}}\" must have between {{min}} and {{max}} blocks.",
+      "tipLength": "Tip text must not exceed {{max}} characters.",
+      "noHtml": "HTML is not allowed inside text blocks.",
+      "uploadInProgress": "Please wait until file uploads finish.",
+      "pendingUpload": "Media file is not uploaded yet. Complete upload before saving.",
+      "loadFailed": "Failed to load service guide."
     }
   }
 }

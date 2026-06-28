@@ -85,6 +85,16 @@ function useSidebarData() {
         icon: IconCoins,
       },
       {
+        title: t("nav.services.title"),
+        icon: IconApi,
+        items: [
+          {
+            title: t("nav.services.serviceHint"),
+            url: "/services/service-hint",
+          },
+        ],
+      },
+      {
         title: t("nav.userSettings.title"),
         icon: IconSettings,
         items: [
