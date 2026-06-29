@@ -1,7 +1,6 @@
 import {
   IconApi,
   IconBell,
-  IconChartBar,
   IconCoins,
   IconCreditCard,
   IconDashboard,
@@ -100,10 +99,10 @@ function useSidebarData() {
             title: t("nav.userSettings.purchasePayments"),
             url: "/user-settings/purchase-payments",
           },
-          {
-            title: t("nav.userSettings.registrations"),
-            url: "/user-settings/registrations",
-          },
+          // {
+          //   title: t("nav.userSettings.registrations"),
+          //   url: "/user-settings/registrations",
+          // },
           {
             title: t("nav.userSettings.welcomePackages"),
             url: "/user-settings/welcome-packages",
@@ -113,11 +112,6 @@ function useSidebarData() {
             url: "/user-settings/blacklist",
           },
         ],
-      },
-      {
-        title: t("nav.utmAnalytics"),
-        url: "/utm-analytics",
-        icon: IconChartBar,
       },
       {
         title: t("nav.plans"),
@@ -253,7 +247,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/packages",
               "/user-settings",
               "/user-credits",
-              "/utm-analytics",
               "/user-settings/welcome-packages",
             ]}
             // badges={{

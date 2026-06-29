@@ -5,6 +5,8 @@ export const UTM_CAMPAIGN_TYPES = [
   "utm_source",
   "utm_medium",
   "utm_campaign",
+  "utm_content",
+  "utm_term",
 ] as const;
 
 export type UtmCampaignType = (typeof UTM_CAMPAIGN_TYPES)[number];

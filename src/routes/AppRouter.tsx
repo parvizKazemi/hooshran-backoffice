@@ -36,9 +36,6 @@ const Plans = lazy(() => import("../features/plans/Plans.tsx"));
 const Referrals = lazy(() => import("../features/referrals/Referrals.tsx"));
 const Media = lazy(() => import("../features/media/Media.tsx"));
 const Payments = lazy(() => import("../features/payments/Payments.tsx"));
-const UtmAnalytics = lazy(
-  () => import("../features/utm-analytics/UtmAnalytics.tsx")
-);
 const UserFreezeSettings = lazy(
   () => import("../features/user-settings/UserFreezeSettings.tsx")
 );
@@ -154,10 +151,6 @@ const router = createBrowserRouter([
           {
             path: "/payments",
             element: <Payments />,
-          },
-          {
-            path: "/utm-analytics",
-            element: <UtmAnalytics />,
           },
           {
             path: "/user-settings/freeze-management",
