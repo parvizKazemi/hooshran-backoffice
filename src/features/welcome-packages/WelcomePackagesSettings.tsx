@@ -28,7 +28,9 @@ import { TrialPackagesSection } from "./components/trial-packages-section";
 import { UtmCampaignRow } from "./components/utm-campaign-row";
 import {
   usePlatformServices,
+  usePresentTokenConfig,
   useSaveWelcomePackagesSettings,
+  useUpdatePresentTokenConfig,
   useUtmContentRewardRules,
 } from "./hooks/use-welcome-packages";
 import type { WelcomePackagesFormState } from "./types";
@@ -54,6 +56,9 @@ export default function WelcomePackagesSettings() {
   const { data: rules, isLoading: isRulesLoading } = useUtmContentRewardRules();
   const { data: services = [], isLoading: isServicesLoading } =
     usePlatformServices();
+  const { data: presentTokenConfig, isLoading: isPresentTokenLoading } =
+    usePresentTokenConfig();
+  const updatePresentTokenConfig = useUpdatePresentTokenConfig();
   const saveSettings = useSaveWelcomePackagesSettings();
   const [formState, setFormState] =
     useState<WelcomePackagesFormState>(DEFAULT_FORM_STATE);
@@ -69,8 +74,17 @@ export default function WelcomePackagesSettings() {
     }));
   }, [rules]);
 
-  const isLoading = isRulesLoading || isServicesLoading;
+  const isPresentTokenEnabled = presentTokenConfig?.isEnabled ?? false;
+  const isLoading =
+    isRulesLoading || isServicesLoading || isPresentTokenLoading;
   const isSaving = saveSettings.isPending;
+  const isUpdatingPresentToken = updatePresentTokenConfig.isPending;
+
+  const handleTogglePresentToken = async () => {
+    await updatePresentTokenConfig.mutateAsync({
+      isEnabled: !isPresentTokenEnabled,
+    });
+  };
 
   const updateForm = <K extends keyof WelcomePackagesFormState>(
     key: K,
@@ -100,10 +114,7 @@ export default function WelcomePackagesSettings() {
 
     const payloadRules = buildRulesFromFormState(formState);
 
-    await saveSettings.mutateAsync({
-      rules: { rules: payloadRules },
-      registrationGiftEnabled: formState.registrationGiftEnabled,
-    });
+    await saveSettings.mutateAsync({ rules: payloadRules });
   };
 
   if (isLoading && !rules) {
@@ -141,6 +152,34 @@ export default function WelcomePackagesSettings() {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          <div className="bg-muted/40 flex flex-col items-start justify-between gap-4 rounded-xl border p-4 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-sm font-semibold">
+                {t("welcomePackages.presentToken.title")}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                {isPresentTokenLoading
+                  ? t("welcomePackages.presentToken.loading")
+                  : isPresentTokenEnabled
+                    ? t("welcomePackages.presentToken.enabled")
+                    : t("welcomePackages.presentToken.disabled")}
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={handleTogglePresentToken}
+              disabled={isPresentTokenLoading || isUpdatingPresentToken}
+              variant={isPresentTokenEnabled ? "destructive" : "default"}
+            >
+              {isUpdatingPresentToken && (
+                <IconLoader2 className="size-4 animate-spin" />
+              )}
+              {isPresentTokenEnabled
+                ? t("welcomePackages.presentToken.deactivate")
+                : t("welcomePackages.presentToken.activate")}
+            </Button>
+          </div>
+
           <SettingsToggleSection
             icon={IconSparkles}
             title={t("welcomePackages.registrationGift.title")}

@@ -15,6 +15,10 @@ export type UpdateUtmContentRewardRulesInput = {
   rules: UtmContentRewardRule[];
 };
 
+export type PresentTokenConfig = {
+  isEnabled: boolean;
+};
+
 export type PlatformService = {
   uuid: string;
   name: string;

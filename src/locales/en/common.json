@@ -1381,6 +1381,18 @@
       "title": "Acquisition & Welcome Gifts",
       "description": "Manage signup rewards, service restrictions, and UTM campaigns"
     },
+    "presentToken": {
+      "title": "UTM Present Token",
+      "loading": "Loading status...",
+      "enabled": "New users with utm receive gift credits.",
+      "disabled": "New users with utm do not receive gift credits.",
+      "activate": "Enable",
+      "deactivate": "Disable",
+      "toasts": {
+        "updated": "Present token settings updated",
+        "updateFailed": "Failed to update present token settings"
+      }
+    },
     "registrationGift": {
       "title": "Enable New Signup Gift Credit",
       "description": "Grant timed gift credits to first-time registered users.",

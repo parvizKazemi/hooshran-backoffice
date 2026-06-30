@@ -2,6 +2,7 @@ import { apiGet, apiPatch } from "@/services/api";
 import { PLATFORM_SERVICES_LIMIT } from "../constants";
 import type {
   PlatformService,
+  PresentTokenConfig,
   UpdateUtmContentRewardRulesInput,
   UtmContentRewardRule,
 } from "../types";
@@ -33,12 +34,18 @@ export async function updateUtmContentRewardRules(
   );
 }
 
-export async function updatePresentTokenEnabled(
-  isEnabled: boolean
-): Promise<{ isEnabled: boolean }> {
-  return apiPatch<{ isEnabled: boolean }>(
+export async function getPresentTokenConfig(): Promise<PresentTokenConfig> {
+  return apiGet<PresentTokenConfig>(
+    WELCOME_PACKAGES_ENDPOINTS.presentTokenConfig
+  );
+}
+
+export async function updatePresentTokenConfig(
+  payload: PresentTokenConfig
+): Promise<PresentTokenConfig> {
+  return apiPatch<PresentTokenConfig>(
     WELCOME_PACKAGES_ENDPOINTS.presentTokenConfig,
-    { isEnabled }
+    payload
   );
 }
 
