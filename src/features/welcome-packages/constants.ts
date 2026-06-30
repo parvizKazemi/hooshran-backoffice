@@ -11,4 +11,4 @@ export const UTM_CAMPAIGN_TYPES = [
 
 export type UtmCampaignType = (typeof UTM_CAMPAIGN_TYPES)[number];
 
-export const PLATFORM_SERVICES_LIMIT = 150;
+export const PLATFORM_SERVICES_LIMIT = 300;
