@@ -17,7 +17,10 @@ import {
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { PlatformService } from "../types";
-import { filterServicesByQuery } from "../utils/filter-services";
+import {
+  filterServicesByQuery,
+  sortServicesWithSelectedFirst,
+} from "../utils/filter-services";
 
 type BaseProps = {
   services: PlatformService[];
@@ -75,6 +78,7 @@ type ServiceSelectorPanelProps = {
   title: string;
   headerActions?: ReactNode;
   services: PlatformService[];
+  selectedUuids?: string[];
   emptyMessage: string;
   children: (filteredServices: PlatformService[]) => ReactNode;
 };
@@ -84,16 +88,17 @@ function ServiceSelectorPanel({
   title,
   headerActions,
   services,
+  selectedUuids = [],
   emptyMessage,
   children,
 }: ServiceSelectorPanelProps) {
   const { t } = useTranslation("common");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredServices = useMemo(
-    () => filterServicesByQuery(services, searchQuery),
-    [services, searchQuery]
-  );
+  const filteredServices = useMemo(() => {
+    const filtered = filterServicesByQuery(services, searchQuery);
+    return sortServicesWithSelectedFirst(filtered, selectedUuids);
+  }, [services, searchQuery, selectedUuids]);
 
   useEffect(() => {
     if (!open) {
@@ -142,11 +147,6 @@ function ServiceAllowedSelectorChips({
         .map((uuid) => services.find((service) => service.uuid === uuid))
         .filter((service): service is PlatformService => Boolean(service)),
     [selectedUuids, services]
-  );
-
-  const availableServices = useMemo(
-    () => services.filter((service) => !selectedUuids.includes(service.uuid)),
-    [services, selectedUuids]
   );
 
   const addService = (uuid: string) => {
@@ -215,7 +215,8 @@ function ServiceAllowedSelectorChips({
           <ServiceSelectorPanel
             open={open}
             title={t("welcomePackages.services.availableServices")}
-            services={availableServices}
+            services={services}
+            selectedUuids={selectedUuids}
             emptyMessage={t("welcomePackages.services.allSelected")}
             headerActions={
               <div className="flex items-center gap-2">
@@ -238,16 +239,29 @@ function ServiceAllowedSelectorChips({
             }
           >
             {(filteredServices) =>
-              filteredServices.map((service) => (
-                <button
-                  key={service.uuid}
-                  type="button"
-                  onClick={() => addService(service.uuid)}
-                  className="hover:bg-accent w-full rounded-lg px-3 py-2 text-right text-xs font-medium transition-colors"
-                >
-                  {service.name}
-                </button>
-              ))
+              filteredServices.map((service) => {
+                const isSelected = selectedUuids.includes(service.uuid);
+
+                return (
+                  <button
+                    key={service.uuid}
+                    type="button"
+                    onClick={() =>
+                      isSelected
+                        ? removeService(service.uuid)
+                        : addService(service.uuid)
+                    }
+                    className={cn(
+                      "w-full rounded-lg px-3 py-2 text-right text-xs font-medium transition-colors",
+                      isSelected
+                        ? "bg-violet-50 text-violet-800 hover:bg-violet-100 dark:bg-violet-950/60 dark:text-violet-100 dark:hover:bg-violet-950"
+                        : "hover:bg-accent"
+                    )}
+                  >
+                    {service.name}
+                  </button>
+                );
+              })
             }
           </ServiceSelectorPanel>
         </PopoverContent>
@@ -335,6 +349,7 @@ function ServiceAllowedSelectorDropdown({
           open={open}
           title={t("welcomePackages.services.selectAllowed")}
           services={services}
+          selectedUuids={selectedUuids}
           emptyMessage={t("welcomePackages.services.noSearchResults")}
         >
           {(filteredServices) => (

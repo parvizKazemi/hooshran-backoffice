@@ -1,5 +1,10 @@
-export const DEFAULT_SIGNUP_RULE_TYPE = "utm_content" as const;
-export const DEFAULT_SIGNUP_RULE_VALUE = "n" as const;
+export const NEW_USER_RULE_TYPE = "new_user" as const;
+export const NEW_USER_RULE_VALUE = "t" as const;
+
+/** @deprecated Legacy signup rule – read-only for migration */
+export const LEGACY_SIGNUP_RULE_TYPE = "utm_content" as const;
+/** @deprecated Legacy signup rule – read-only for migration */
+export const LEGACY_SIGNUP_RULE_VALUE = "n" as const;
 
 export const UTM_CAMPAIGN_TYPES = [
   "utm_source",

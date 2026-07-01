@@ -1395,7 +1395,7 @@
     },
     "registrationGift": {
       "title": "Enable New Signup Gift Credit",
-      "description": "Grant timed gift credits to first-time registered users.",
+      "description": "Grant timed gift credits to new users with new_user=t.",
       "creditsLabel": "Signup gift credits (coins)",
       "expiryLabel": "Gift credit expiry window (days)",
       "dayUnit": "days"
@@ -1443,7 +1443,9 @@
       "noSearchResults": "No service matches your search."
     },
     "actions": {
-      "save": "Save settings"
+      "save": "Save settings",
+      "saveNewUserGift": "Save new user gift",
+      "saveUtmCampaigns": "Save UTM campaigns"
     },
     "aria": {
       "toggleRegistrationGift": "Toggle signup gift credit",

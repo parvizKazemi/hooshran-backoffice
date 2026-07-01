@@ -1430,7 +1430,7 @@
     },
     "registrationGift": {
       "title": "فعال‌سازی اعتبار هدیه ورود جدید",
-      "description": "هدیه به کاربران جدید با utm_content=n",
+      "description": "هدیه به کاربران جدید با پارامتر new_user=t",
       "creditsLabel": "میزان اعتبار هدیه ورودی (سکه)",
       "expiryLabel": "بازه زمانی انقضا اعتبار هدیه (روز)",
       "dayUnit": "روز"
@@ -1478,7 +1478,9 @@
       "noSearchResults": "سرویسی با این عبارت پیدا نشد."
     },
     "actions": {
-      "save": "ذخیره تنظیمات"
+      "save": "ذخیره تنظیمات",
+      "saveNewUserGift": "ذخیره هدیه ورود جدید",
+      "saveUtmCampaigns": "ذخیره کمپین‌های UTM"
     },
     "aria": {
       "toggleRegistrationGift": "تغییر وضعیت اعتبار هدیه ورود",

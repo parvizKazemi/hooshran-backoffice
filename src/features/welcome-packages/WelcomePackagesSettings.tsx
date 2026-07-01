@@ -6,8 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SettingsPageHeader } from "@/features/user-settings/components/settings-page-header";
 import {
@@ -15,15 +13,13 @@ import {
   IconLink,
   IconLoader2,
   IconPlus,
-  IconShield,
   IconShoppingBag,
-  IconSparkles,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { NewUserGiftSection } from "./components/new-user-gift-section";
 import { SettingsToggleSection } from "./components/settings-toggle-section";
-import { ServiceAllowedSelector } from "./components/service-allowed-selector";
 import { TrialPackagesSection } from "./components/trial-packages-section";
 import { UtmCampaignRow } from "./components/utm-campaign-row";
 import {
@@ -35,7 +31,8 @@ import {
 } from "./hooks/use-welcome-packages";
 import type { WelcomePackagesFormState } from "./types";
 import {
-  buildRulesFromFormState,
+  buildRulesPayloadForNewUserSave,
+  buildRulesPayloadForUtmSave,
   createEmptyUtmCampaignRow,
   mapRulesToFormState,
 } from "./utils/rules";
@@ -93,27 +90,47 @@ export default function WelcomePackagesSettings() {
     setFormState((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = async () => {
-    if (formState.registrationGiftEnabled) {
-      if (formState.registrationCredits < 0) {
-        toast.error(t("welcomePackages.errors.invalidCredits"));
-        return;
-      }
-      if (formState.registrationExpiryDays < 1) {
-        toast.error(t("welcomePackages.errors.invalidExpiryDays"));
-        return;
-      }
-      if (
-        formState.vipRestrictionEnabled &&
-        formState.allowedServiceUuids.length === 0
-      ) {
-        toast.error(t("welcomePackages.errors.vipServicesRequired"));
-        return;
-      }
+  const validateNewUserGiftForm = (): boolean => {
+    if (!formState.registrationGiftEnabled) {
+      return true;
     }
 
-    const payloadRules = buildRulesFromFormState(formState);
+    if (formState.registrationCredits < 0) {
+      toast.error(t("welcomePackages.errors.invalidCredits"));
+      return false;
+    }
 
+    if (formState.registrationExpiryDays < 1) {
+      toast.error(t("welcomePackages.errors.invalidExpiryDays"));
+      return false;
+    }
+
+    if (
+      formState.vipRestrictionEnabled &&
+      formState.allowedServiceUuids.length === 0
+    ) {
+      toast.error(t("welcomePackages.errors.vipServicesRequired"));
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSaveNewUserGift = async () => {
+    if (!validateNewUserGiftForm() || !rules) {
+      return;
+    }
+
+    const payloadRules = buildRulesPayloadForNewUserSave(formState, rules);
+    await saveSettings.mutateAsync({ rules: payloadRules });
+  };
+
+  const handleSaveUtmCampaigns = async () => {
+    if (!rules) {
+      return;
+    }
+
+    const payloadRules = buildRulesPayloadForUtmSave(formState, rules);
     await saveSettings.mutateAsync({ rules: payloadRules });
   };
 
@@ -180,91 +197,32 @@ export default function WelcomePackagesSettings() {
             </Button>
           </div>
 
-          <SettingsToggleSection
-            icon={IconSparkles}
-            title={t("welcomePackages.registrationGift.title")}
-            description={t("welcomePackages.registrationGift.description")}
-            enabled={formState.registrationGiftEnabled}
-            onEnabledChange={(enabled) =>
+          <NewUserGiftSection
+            registrationGiftEnabled={formState.registrationGiftEnabled}
+            registrationCredits={formState.registrationCredits}
+            registrationExpiryDays={formState.registrationExpiryDays}
+            vipRestrictionEnabled={formState.vipRestrictionEnabled}
+            allowedServiceUuids={formState.allowedServiceUuids}
+            services={services}
+            disabled={isSaving}
+            isSaving={isSaving}
+            onRegistrationGiftEnabledChange={(enabled) =>
               updateForm("registrationGiftEnabled", enabled)
             }
-            ariaLabel={t("welcomePackages.aria.toggleRegistrationGift")}
-          >
-            <div className="bg-muted/40 grid grid-cols-1 gap-4 rounded-xl border p-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="registration-credits">
-                  {t("welcomePackages.registrationGift.creditsLabel")}
-                </Label>
-                <Input
-                  id="registration-credits"
-                  type="number"
-                  min={0}
-                  value={formState.registrationCredits}
-                  onChange={(event) =>
-                    updateForm(
-                      "registrationCredits",
-                      Number(event.target.value) || 0
-                    )
-                  }
-                  className="font-mono"
-                  disabled={isSaving}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="registration-expiry">
-                  {t("welcomePackages.registrationGift.expiryLabel")}
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="registration-expiry"
-                    type="number"
-                    min={1}
-                    value={formState.registrationExpiryDays}
-                    onChange={(event) =>
-                      updateForm(
-                        "registrationExpiryDays",
-                        Number(event.target.value) || 1
-                      )
-                    }
-                    className="font-mono"
-                    disabled={isSaving}
-                  />
-                  <span className="bg-muted text-muted-foreground flex items-center rounded-xl px-3 text-xs font-bold">
-                    {t("welcomePackages.registrationGift.dayUnit")}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </SettingsToggleSection>
-
-          <SettingsToggleSection
-            icon={IconShield}
-            title={t("welcomePackages.vipRestriction.title")}
-            description={t("welcomePackages.vipRestriction.description")}
-            enabled={formState.vipRestrictionEnabled}
-            onEnabledChange={(enabled) =>
+            onRegistrationCreditsChange={(credits) =>
+              updateForm("registrationCredits", credits)
+            }
+            onRegistrationExpiryDaysChange={(days) =>
+              updateForm("registrationExpiryDays", days)
+            }
+            onVipRestrictionEnabledChange={(enabled) =>
               updateForm("vipRestrictionEnabled", enabled)
             }
-            ariaLabel={t("welcomePackages.aria.toggleVipRestriction")}
-          >
-            <div className="bg-muted/40 space-y-3 rounded-xl border p-4">
-              <div>
-                <p className="text-xs font-bold">
-                  {t("welcomePackages.vipRestriction.selectorLabel")}
-                </p>
-                <p className="text-muted-foreground mt-1 text-[11px] leading-relaxed">
-                  {t("welcomePackages.vipRestriction.selectorHint")}
-                </p>
-              </div>
-              <ServiceAllowedSelector
-                variant="chips"
-                services={services}
-                selectedUuids={formState.allowedServiceUuids}
-                onChange={(uuids) => updateForm("allowedServiceUuids", uuids)}
-                disabled={isSaving}
-              />
-            </div>
-          </SettingsToggleSection>
+            onAllowedServiceUuidsChange={(uuids) =>
+              updateForm("allowedServiceUuids", uuids)
+            }
+            onSave={handleSaveNewUserGift}
+          />
 
           <SettingsToggleSection
             icon={IconShoppingBag}
@@ -350,9 +308,9 @@ export default function WelcomePackagesSettings() {
           </SettingsToggleSection>
 
           <div className="flex justify-end border-t pt-4">
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={handleSaveUtmCampaigns} disabled={isSaving}>
               {isSaving && <IconLoader2 className="size-4 animate-spin" />}
-              {t("welcomePackages.actions.save")}
+              {t("welcomePackages.actions.saveUtmCampaigns")}
             </Button>
           </div>
         </CardContent>
