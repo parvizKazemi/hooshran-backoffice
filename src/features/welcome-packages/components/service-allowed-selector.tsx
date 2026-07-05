@@ -1,3 +1,4 @@
+import { ServicePicker } from "@/components/common/ServicePicker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -139,7 +140,6 @@ function ServiceAllowedSelectorChips({
   disabled = false,
 }: ChipVariantProps) {
   const { t } = useTranslation("common");
-  const [open, setOpen] = useState(false);
 
   const selectedServices = useMemo(
     () =>
@@ -161,12 +161,10 @@ function ServiceAllowedSelectorChips({
 
   const selectAll = () => {
     onChange(services.map((service) => service.uuid));
-    setOpen(false);
   };
 
   const clearAll = () => {
     onChange([]);
-    setOpen(false);
   };
 
   return (
@@ -196,76 +194,50 @@ function ServiceAllowedSelectorChips({
         </Badge>
       ))}
 
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="h-8 rounded-xl text-xs font-bold"
-          >
-            <IconPlus className="size-3.5" />
-            {t("welcomePackages.services.addService")}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          className="w-[min(24rem,calc(100vw-2rem))] p-0"
+      <div className="flex items-center gap-2">
+        <ServicePicker
+          services={availableServices}
+          onSelect={addService}
+          placeholder={t("welcomePackages.services.addService")}
+          title={t("welcomePackages.services.availableServices")}
+          searchPlaceholder={t("welcomePackages.services.searchPlaceholder")}
+          emptyMessage={t("welcomePackages.services.allSelected")}
+          noSearchResultsMessage={t("welcomePackages.services.noSearchResults")}
+          disabled={disabled}
+          renderTrigger={({ disabled: isDisabled }) => (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={isDisabled}
+              className="h-8 rounded-xl text-xs font-bold"
+            >
+              <IconPlus className="size-3.5" />
+              {t("welcomePackages.services.addService")}
+            </Button>
+          )}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 rounded-xl text-[11px] font-bold"
+          onClick={selectAll}
+          disabled={disabled}
         >
-          <ServiceSelectorPanel
-            open={open}
-            title={t("welcomePackages.services.availableServices")}
-            services={services}
-            selectedUuids={selectedUuids}
-            emptyMessage={t("welcomePackages.services.allSelected")}
-            headerActions={
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={selectAll}
-                  className="text-primary text-[11px] font-bold hover:underline"
-                >
-                  {t("welcomePackages.services.selectAll")}
-                </button>
-                <span className="text-muted-foreground">|</span>
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  className="text-destructive text-[11px] font-bold hover:underline"
-                >
-                  {t("welcomePackages.services.clearAll")}
-                </button>
-              </div>
-            }
-          >
-            {(filteredServices) =>
-              filteredServices.map((service) => {
-                const isSelected = selectedUuids.includes(service.uuid);
-
-                return (
-                  <button
-                    key={service.uuid}
-                    type="button"
-                    onClick={() =>
-                      isSelected
-                        ? removeService(service.uuid)
-                        : addService(service.uuid)
-                    }
-                    className={cn(
-                      "w-full rounded-lg px-3 py-2 text-right text-xs font-medium transition-colors",
-                      isSelected
-                        ? "bg-violet-50 text-violet-800 hover:bg-violet-100 dark:bg-violet-950/60 dark:text-violet-100 dark:hover:bg-violet-950"
-                        : "hover:bg-accent"
-                    )}
-                  >
-                    {service.name}
-                  </button>
-                );
-              })
-            }
-          </ServiceSelectorPanel>
-        </PopoverContent>
-      </Popover>
+          {t("welcomePackages.services.selectAll")}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="text-destructive h-8 rounded-xl text-[11px] font-bold"
+          onClick={clearAll}
+          disabled={disabled}
+        >
+          {t("welcomePackages.services.clearAll")}
+        </Button>
+      </div>
     </div>
   );
 }

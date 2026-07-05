@@ -57,6 +57,9 @@ const WelcomePackagesSettings = lazy(
 const UserBlacklistSettings = lazy(
   () => import("../features/user-settings/UserBlacklistSettings.tsx")
 );
+const ServiceHintSettings = lazy(
+  () => import("../features/service-hint/ServiceHintSettings.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -182,6 +185,10 @@ const router = createBrowserRouter([
           {
             path: "/user-settings/blacklist",
             element: <UserBlacklistSettings />,
+          },
+          {
+            path: "/services/service-hint",
+            element: <ServiceHintSettings />,
           },
         ],
       },

@@ -50,6 +50,11 @@
     "referrals": "ارجاع",
     "media": "فایل‌ها",
     "payments": "پرداخت‌ها",
+    "utmAnalytics": "UTM",
+    "services": {
+      "title": "سرویس‌ها",
+      "serviceHint": "راهنمای سرویس"
+    },
     "userSettings": {
       "title": "تنظیمات کاربران",
       "freezeManagement": "مدیریت بحران و فریز اشتراک",
@@ -1497,6 +1502,76 @@
       "invalidCredits": "میزان اعتبار هدیه معتبر نیست.",
       "invalidExpiryDays": "بازه انقضا باید حداقل ۱ روز باشد.",
       "vipServicesRequired": "حداقل یک سرویس مجاز برای حالت محدودسازی VIP انتخاب کنید."
+    }
+  },
+  "serviceHint": {
+    "header": {
+      "title": "راهنمای سرویس",
+      "description": "سرویس را انتخاب کنید و ساختار راهنمای آن را به‌صورت بلاک‌های متنی و رسانه‌ای مدیریت کنید."
+    },
+    "editor": {
+      "title": "ویرایشگر راهنمای سرویس",
+      "description": "خروجی این بخش به شکل آرایه JSON برای نمایش در پنل کاربر ذخیره می‌شود.",
+      "serviceLabel": "سرویس",
+      "servicePlaceholder": "یک سرویس انتخاب کنید",
+      "serviceSearchPlaceholder": "جستجوی سرویس...",
+      "noServices": "سرویسی برای انتخاب وجود ندارد.",
+      "noSearchResults": "سرویسی با این عبارت پیدا نشد.",
+      "addSection": "افزودن سرفصل",
+      "sectionCount": "{{count}} سرفصل برای {{service}}",
+      "newSectionTitle": "سرفصل جدید",
+      "sectionTitlePlaceholder": "عنوان سرفصل را وارد کنید",
+      "modeCreate": "ایجاد راهنما",
+      "modeEdit": "ویرایش راهنما",
+      "unsavedChanges": "تغییرات ذخیره نشده",
+      "unsavedConfirm": "تغییرات ذخیره نشده دارید. بدون ذخیره سرویس عوض شود؟",
+      "resetConfirm": "تغییرات فعلی کنسل و به آخرین نسخه ذخیره‌شده برگردد؟",
+      "unsavedHint": "تغییرات هنوز ذخیره نشده‌اند.",
+      "savedHint": "آخرین نسخه ذخیره‌شده بارگذاری شده است."
+    },
+    "blocks": {
+      "text": "متن",
+      "image": "تصویر",
+      "video": "ویدیو",
+      "tip": "کادر نکته",
+      "textPlaceholder": "متن راهنمای این بخش را به‌صورت Markdown بنویسید...",
+      "imagePlaceholder": "https://example.com/image.jpg",
+      "imageHint": "نسبت تصویر باید ۱۶:۹ باشد.",
+      "videoPlaceholder": "https://example.com/embed/video",
+      "videoHint": "نسبت ویدیو باید ۱۶:۹ باشد.",
+      "upload": "آپلود",
+      "noFileSelected": "فایلی انتخاب نشده است.",
+      "tipPlaceholder": "متن نکته (حداکثر ۱۵۰ کاراکتر)",
+      "tipCounter": "{{current}} / {{max}}"
+    },
+    "tipStyles": {
+      "info": "اطلاعاتی",
+      "warning": "هشدار",
+      "success": "تایید"
+    },
+    "actions": {
+      "save": "ذخیره و انتشار",
+      "reset": "بازنشانی",
+      "retry": "تلاش مجدد"
+    },
+    "toasts": {
+      "saved": "تنظیمات راهنمای سرویس با موفقیت ذخیره شد",
+      "saveFailed": "ذخیره تنظیمات راهنمای سرویس ناموفق بود"
+    },
+    "errors": {
+      "maxSections": "حداکثر {{max}} سرفصل مجاز است.",
+      "minSections": "حداقل {{min}} سرفصل باید وجود داشته باشد.",
+      "maxBlocks": "حداکثر {{max}} بلاک برای هر سرفصل مجاز است.",
+      "minBlocks": "هر سرفصل باید حداقل یک بلاک داشته باشد.",
+      "sectionsRange": "تعداد سرفصل‌ها باید بین {{min}} تا {{max}} باشد.",
+      "invalidSectionId": "فرمت شناسه سرفصل نامعتبر است. از sec-1, sec-2 ... استفاده کنید.",
+      "duplicateSectionId": "شناسه سرفصل‌ها باید یکتا باشد.",
+      "blocksRange": "تعداد بلاک‌های سرفصل «{{title}}» باید بین {{min}} تا {{max}} باشد.",
+      "tipLength": "متن کادر نکته نباید بیشتر از {{max}} کاراکتر باشد.",
+      "noHtml": "استفاده از HTML در بلاک متنی مجاز نیست.",
+      "uploadInProgress": "لطفاً تا پایان آپلود فایل‌ها صبر کنید.",
+      "pendingUpload": "فایل رسانه هنوز آپلود نشده است. ابتدا آپلود را کامل کنید.",
+      "loadFailed": "دریافت راهنمای سرویس با خطا مواجه شد."
     }
   },
   "discountCodes": {
