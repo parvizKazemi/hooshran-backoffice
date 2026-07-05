@@ -45,6 +45,7 @@
     "categories": "دسته‌بندی‌ها",
     "userCredits": "مدیریت اعتبار کاربران",
     "packages": "پکیج‌ها",
+    "discountCodes": "کد تخفیف و جوایز",
     "plans": "پلن‌ها",
     "referrals": "ارجاع",
     "media": "فایل‌ها",
@@ -1496,6 +1497,143 @@
       "invalidCredits": "میزان اعتبار هدیه معتبر نیست.",
       "invalidExpiryDays": "بازه انقضا باید حداقل ۱ روز باشد.",
       "vipServicesRequired": "حداقل یک سرویس مجاز برای حالت محدودسازی VIP انتخاب کنید."
+    }
+  },
+  "discountCodes": {
+    "title": "کد تخفیف و جوایز",
+    "description": "ایجاد و مدیریت کدهای تخفیف عمومی و اختصاصی برای کمپین‌های فروش.",
+    "actions": {
+      "create": "تعریف کد تخفیف جدید"
+    },
+    "types": {
+      "global": "گروهی (عمومی)",
+      "personal": "فردی (اختصاصی)"
+    },
+    "status": {
+      "active": "فعال",
+      "expired": "منقضی"
+    },
+    "stats": {
+      "active": "کدهای فعال",
+      "totalUsage": "کل دفعات استفاده",
+      "personal": "کدهای اختصاصی"
+    },
+    "table": {
+      "searchPlaceholder": "جستجو در کدها...",
+      "typeFilter": "نوع کد:",
+      "typeAll": "همه موارد",
+      "applyFilters": "اعمال",
+      "code": "کد تخفیف",
+      "type": "نوع",
+      "discount": "تخفیف",
+      "plans": "پلن‌های هدف",
+      "capacity": "ظرفیت",
+      "expiry": "انقضا",
+      "status": "وضعیت",
+      "actions": "عملیات",
+      "empty": "موردی یافت نشد.",
+      "allPlans": "—",
+      "plansCount": "{{count}} پلن",
+      "noExpiry": "نامحدود",
+      "viewReport": "گزارش مصرف",
+      "pageInfo": "صفحه {{page}} از {{totalPages}}",
+      "previous": "قبلی",
+      "next": "بعدی"
+    },
+    "form": {
+      "createTitle": "تعریف کد تخفیف جدید",
+      "createDescription": "اطلاعات کمپین و قوانین استفاده را تعیین کنید.",
+      "code": "کد تخفیف",
+      "codePlaceholder": "NOROOZ1405",
+      "type": "نوع مخاطب کد تخفیف",
+      "phoneNumber": "شماره موبایل‌های مجاز",
+      "phoneHint": "شماره را تایپ کنید و Enter یا Space بزنید، یا از CSV ایمپورت کنید. برای چند شماره، به ازای هر شماره یک کد جدا با پسوند ۴ رقم آخر ساخته می‌شود (تا زمان پشتیبانی بک‌اند).",
+      "phoneTags": {
+        "placeholder": "09123456789",
+        "removeAria": "حذف شماره",
+        "importCsv": "ایمپورت CSV",
+        "csvHint": "فایل CSV می‌تواند یک ستون شماره یا چند ستون داشته باشد؛ شماره‌های ۰۹xxxxxxxxx استخراج و به لیست اضافه می‌شوند.",
+        "csvSuccess": "{{count}} شماره جدید به لیست اضافه شد",
+        "csvDuplicate": "همه شماره‌های فایل قبلاً در لیست بودند.",
+        "csvEmpty": "هیچ شماره معتبری در فایل CSV یافت نشد.",
+        "csvInvalidFile": "فقط فایل CSV قابل قبول است.",
+        "csvReadError": "خطا در خواندن فایل CSV."
+      },
+      "capacity": "ظرفیت کل",
+      "capacityHint": "حداکثر تعداد استفاده از این کد در کل سیستم.",
+      "usage": {
+        "title": "ظرفیت استفاده"
+      },
+      "usageLimitPerUser": "سقف استفاده هر کاربر",
+      "usageLimitPerUserHint": "فعلاً فقط در UI ذخیره می‌شود؛ بک‌اند باید فیلد usageLimitPerUser را اضافه کند.",
+      "expiry": {
+        "title": "مهلت انقضا",
+        "none": "بدون محدودیت زمانی",
+        "date": "تعیین تاریخ انقضا",
+        "placeholder": "تاریخ انقضا را انتخاب کنید"
+      },
+      "packages": {
+        "title": "پلن‌های هدف",
+        "hint": "برای هر پلن، درصد تخفیف مجزا تعیین کنید. حداقل یک پلن باید انتخاب شود.",
+        "empty": "پلنی برای نمایش وجود ندارد.",
+        "selectedCount": "{{count}} پلن انتخاب شده",
+        "permanent": "دائمی",
+        "durationDays": "{{days}} روزه",
+        "currency": "ریال",
+        "defaultDiscount": "درصد پیش‌فرض",
+        "applyToSelected": "اعمال روی انتخاب‌شده‌ها",
+        "groups": {
+          "specialOffer": "پیشنهادهای ویژه",
+          "welcome": "بسته‌های خوش‌آمدگویی",
+          "subscription": "اشتراک {{days}} روزه",
+          "permanent": "بسته‌های دائمی"
+        }
+      },
+      "notification": {
+        "title": "نمایش به‌صورت اعلان در کلاینت",
+        "description": "پس از ثبت، اعلان تخفیف برای کاربران هدف ارسال می‌شود.",
+        "titleLabel": "عنوان اعلان",
+        "messageLabel": "متن اعلان",
+        "defaultTitle": "کد تخفیف",
+        "defaultMessage": "شما می‌توانید از این کد تخفیف استفاده کنید و تخفیف بگیرید",
+        "backendPendingHint": "عنوان و متن فعلاً فقط در پنل ذخیره می‌شود؛ برای ارسال به API نیاز به توسعه بک‌اند است."
+      },
+      "success": {
+        "created": "کد تخفیف با موفقیت ثبت شد",
+        "multiPersonalCreated": "{{count}} کد فردی با موفقیت ثبت شد"
+      },
+      "submit": "ثبت و ذخیره",
+      "cancel": "انصراف",
+      "summary": "{{count}} پلن انتخاب شده",
+      "sections": {
+        "basic": "اطلاعات پایه",
+        "rules": "قوانین استفاده"
+      },
+      "errors": {
+        "codeRequired": "لطفاً کد تخفیف را وارد کنید.",
+        "codePattern": "کد فقط می‌تواند شامل حروف انگلیسی بزرگ و اعداد باشد.",
+        "invalidPhone": "شماره موبایل معتبر وارد کنید.",
+        "phonesRequired": "حداقل یک شماره موبایل برای کد فردی وارد کنید.",
+        "expiryRequired": "تاریخ انقضا را انتخاب کنید.",
+        "packagesRequired": "حداقل یک پلن با درصد تخفیف انتخاب کنید.",
+        "missingPackageId": "شناسه عددی پلن‌ها از API دریافت نشده. از بک‌اند بخواهید فیلد id را به PackageDto اضافه کند."
+      }
+    },
+    "report": {
+      "title": "گزارش مصرف کد تخفیف",
+      "description": "جزئیات استفاده از کد {{code}}",
+      "loadingDescription": "در حال بارگذاری گزارش...",
+      "capacity": "ظرفیت",
+      "used": "مصرف‌شده",
+      "remaining": "باقی‌مانده",
+      "type": "نوع",
+      "empty": "هنوز استفاده‌ای ثبت نشده است.",
+      "table": {
+        "phone": "موبایل",
+        "original": "مبلغ اولیه",
+        "discount": "تخفیف",
+        "usedAt": "زمان استفاده"
+      }
     }
   }
 }

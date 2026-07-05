@@ -45,6 +45,7 @@
     "categories": "Categories",
     "userCredits": "User Credits",
     "packages": "Packages",
+    "discountCodes": "Discount Codes & Rewards",
     "plans": "Plans",
     "referrals": "Referrals",
     "media": "Media",
@@ -1461,6 +1462,143 @@
       "invalidCredits": "Gift credit amount is invalid.",
       "invalidExpiryDays": "Expiry window must be at least 1 day.",
       "vipServicesRequired": "Select at least one allowed service for VIP restriction."
+    }
+  },
+  "discountCodes": {
+    "title": "Discount Codes & Rewards",
+    "description": "Create and manage public and personal discount codes for sales campaigns.",
+    "actions": {
+      "create": "Create Discount Code"
+    },
+    "types": {
+      "global": "Public (Global)",
+      "personal": "Personal"
+    },
+    "status": {
+      "active": "Active",
+      "expired": "Expired"
+    },
+    "stats": {
+      "active": "Active Codes",
+      "totalUsage": "Total Redemptions",
+      "personal": "Personal Codes"
+    },
+    "table": {
+      "searchPlaceholder": "Search codes...",
+      "typeFilter": "Code type:",
+      "typeAll": "All",
+      "applyFilters": "Apply",
+      "code": "Code",
+      "type": "Type",
+      "discount": "Discount",
+      "plans": "Target Plans",
+      "capacity": "Capacity",
+      "expiry": "Expiry",
+      "status": "Status",
+      "actions": "Actions",
+      "empty": "No results found.",
+      "allPlans": "—",
+      "plansCount": "{{count}} plans",
+      "noExpiry": "Unlimited",
+      "viewReport": "Usage report",
+      "pageInfo": "Page {{page}} of {{totalPages}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "form": {
+      "createTitle": "Create Discount Code",
+      "createDescription": "Set campaign details and usage rules.",
+      "code": "Discount Code",
+      "codePlaceholder": "NOROOZ1405",
+      "type": "Audience Type",
+      "phoneNumber": "Allowed phone numbers",
+      "phoneHint": "Type a number and press Enter or Space, or import from CSV.",
+      "phoneTags": {
+        "placeholder": "09123456789",
+        "removeAria": "Remove phone number",
+        "importCsv": "Import CSV",
+        "csvHint": "CSV can have one or more columns; valid 09xxxxxxxxx numbers are extracted and merged into the list.",
+        "csvSuccess": "{{count}} new numbers added to the list",
+        "csvDuplicate": "All numbers from the file are already in the list.",
+        "csvEmpty": "No valid phone numbers found in the CSV file.",
+        "csvInvalidFile": "Only CSV files are supported.",
+        "csvReadError": "Failed to read the CSV file."
+      },
+      "capacity": "Total Capacity",
+      "capacityHint": "Maximum total redemptions for this code.",
+      "usage": {
+        "title": "Usage Limits"
+      },
+      "usageLimitPerUser": "Per-user usage limit",
+      "usageLimitPerUserHint": "Stored in UI only until backend adds usageLimitPerUser.",
+      "expiry": {
+        "title": "Expiry",
+        "none": "No time limit",
+        "date": "Set expiry date",
+        "placeholder": "Select expiry date"
+      },
+      "packages": {
+        "title": "Target Plans",
+        "hint": "Set a separate discount percentage per plan. At least one plan is required.",
+        "empty": "No plans available.",
+        "selectedCount": "{{count}} plans selected",
+        "permanent": "Permanent",
+        "durationDays": "{{days}} days",
+        "currency": "Rials",
+        "defaultDiscount": "Default discount",
+        "applyToSelected": "Apply to selected",
+        "groups": {
+          "specialOffer": "Special Offers",
+          "welcome": "Welcome Packages",
+          "subscription": "{{days}}-Day Subscriptions",
+          "permanent": "Permanent Packages"
+        }
+      },
+      "notification": {
+        "title": "Show as client notification",
+        "description": "A discount notification will be sent to targeted users after creation.",
+        "titleLabel": "Notification title",
+        "messageLabel": "Notification message",
+        "defaultTitle": "Discount Code",
+        "defaultMessage": "You can use this discount code to get a special offer",
+        "backendPendingHint": "Title and message are prepared in the UI; backend support is required to send them via API."
+      },
+      "success": {
+        "created": "Discount code created successfully",
+        "multiPersonalCreated": "{{count}} personal codes created successfully"
+      },
+      "submit": "Save",
+      "cancel": "Cancel",
+      "summary": "{{count}} plans selected",
+      "sections": {
+        "basic": "Basic Info",
+        "rules": "Usage Rules"
+      },
+      "errors": {
+        "codeRequired": "Please enter a discount code.",
+        "codePattern": "Code must contain only uppercase letters and numbers.",
+        "invalidPhone": "Enter a valid phone number.",
+        "phonesRequired": "Enter at least one phone number for personal codes.",
+        "expiryRequired": "Select an expiry date.",
+        "packagesRequired": "Select at least one plan with a discount percentage.",
+        "missingPackageId": "Numeric package IDs are missing from the API. Ask backend to expose id in PackageDto."
+      }
+    },
+    "report": {
+      "title": "Discount Code Usage Report",
+      "description": "Usage details for code {{code}}",
+      "loadingDescription": "Loading report...",
+      "capacity": "Capacity",
+      "used": "Used",
+      "remaining": "Remaining",
+      "type": "Type",
+      "empty": "No usage recorded yet.",
+      "table": {
+        "phone": "Phone",
+        "original": "Original Amount",
+        "discount": "Discount",
+        "usedAt": "Used At"
+      }
     }
   }
 }

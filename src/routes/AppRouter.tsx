@@ -32,6 +32,9 @@ const UserCredits = lazy(
   () => import("../features/user-credits/UserCredits.tsx")
 );
 const Packages = lazy(() => import("../features/packages/Packages.tsx"));
+const DiscountCodes = lazy(
+  () => import("../features/discount-codes/DiscountCodes.tsx")
+);
 const Plans = lazy(() => import("../features/plans/Plans.tsx"));
 const Referrals = lazy(() => import("../features/referrals/Referrals.tsx"));
 const Media = lazy(() => import("../features/media/Media.tsx"));
@@ -135,6 +138,10 @@ const router = createBrowserRouter([
           {
             path: "/packages",
             element: <Packages />,
+          },
+          {
+            path: "/discount-codes",
+            element: <DiscountCodes />,
           },
           {
             path: "/plans",

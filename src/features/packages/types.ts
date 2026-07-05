@@ -9,6 +9,7 @@ export const PLAN_QUEUE_OPTIONS = PlanQueueSchema.options;
 export const DEFAULT_PLAN_QUEUE: PlanQueue = "explorer";
 
 export const PackageSchema = z.object({
+  id: z.number().int().positive().optional(),
   uuid: z.string(),
   name: z.string(),
   creditAmount: z.number().int().min(1),

@@ -14,6 +14,7 @@ import {
   IconReceipt,
   IconReport,
   IconSettings,
+  IconTicket,
   IconUserCheck,
   IconUsers,
 } from "@tabler/icons-react";
@@ -72,6 +73,11 @@ function useSidebarData() {
         title: t("nav.packages"),
         url: "/packages",
         icon: IconPackage,
+      },
+      {
+        title: t("nav.discountCodes"),
+        url: "/discount-codes",
+        icon: IconTicket,
       },
       {
         title: t("nav.serviceRequests"),
