@@ -196,7 +196,7 @@ function ServiceAllowedSelectorChips({
 
       <div className="flex items-center gap-2">
         <ServicePicker
-          services={availableServices}
+          services={services}
           onSelect={addService}
           placeholder={t("welcomePackages.services.addService")}
           title={t("welcomePackages.services.availableServices")}

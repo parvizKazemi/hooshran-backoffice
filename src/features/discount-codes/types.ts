@@ -23,7 +23,7 @@ export const DiscountCodeSchema = z.object({
   clientUsageLimit: z.number().int().min(1).nullable().optional(),
   notificationTitle: z.string().nullable().optional(),
   notificationText: z.string().nullable().optional(),
-  notificationDetails: z.record(z.unknown()).nullable().optional(),
+  notificationDetails: z.record(z.string(), z.unknown()).nullable().optional(),
   packages: z.array(DiscountCodePackageSchema).optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
