@@ -2,21 +2,12 @@ import {
   IconApi,
   IconBell,
   IconCoins,
-  IconCreditCard,
-  IconDashboard,
   IconFileText,
-  IconFolder,
   IconInnerShadowTop,
   IconLogout,
-  IconMessage,
   IconPackage,
-  IconPhoto,
-  IconReceipt,
-  IconReport,
   IconSettings,
   IconTicket,
-  IconUserCheck,
-  IconUsers,
 } from "@tabler/icons-react";
 import i18next from "i18next";
 import * as React from "react";
@@ -58,12 +49,10 @@ function useSidebarData() {
     },
     navMain: [
       {
-        title: t("nav.dashboard"),
-        url: "/",
-        icon: IconDashboard,
+        title: t("nav.serviceRequests"),
+        url: "/service-requests",
+        icon: IconFileText,
       },
-      // add users link
-
       {
         title: t("nav.notifications"),
         url: "/notifications",
@@ -78,11 +67,6 @@ function useSidebarData() {
         title: t("nav.discountCodes"),
         url: "/discount-codes",
         icon: IconTicket,
-      },
-      {
-        title: t("nav.serviceRequests"),
-        url: "/service-requests",
-        icon: IconFileText,
       },
       {
         title: t("nav.userCredits"),
@@ -128,56 +112,6 @@ function useSidebarData() {
             url: "/user-settings/blacklist",
           },
         ],
-      },
-      {
-        title: t("nav.plans"),
-        url: "/plans",
-        icon: IconCreditCard,
-      },
-      {
-        title: t("nav.users"),
-        url: "/users",
-        icon: IconUsers,
-      },
-      {
-        title: t("nav.paymentGateways"),
-        url: "/payment-gateways",
-        icon: IconCreditCard,
-      },
-      {
-        title: t("nav.tickets"),
-        url: "/tickets",
-        icon: IconMessage,
-      },
-      {
-        title: t("nav.transactions"),
-        url: "/transactions",
-        icon: IconReport,
-      },
-      {
-        title: t("nav.apiServices"),
-        url: "/api-services",
-        icon: IconApi,
-      },
-      {
-        title: t("nav.categories"),
-        url: "/categories",
-        icon: IconFolder,
-      },
-      {
-        title: t("nav.referrals"),
-        url: "/referrals",
-        icon: IconUserCheck,
-      },
-      {
-        title: t("nav.media"),
-        url: "/media",
-        icon: IconPhoto,
-      },
-      {
-        title: t("nav.payments"),
-        url: "/payments",
-        icon: IconReceipt,
       },
     ],
 
@@ -264,6 +198,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-settings",
               "/user-credits",
               "/user-settings/welcome-packages",
+              "/discount-codes",
             ]}
             // badges={{
             //   "/service-requests": 1,
@@ -271,16 +206,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             //   "/packages": 1,
             // }}
           />
-          {/* <NavDocuments items={data.documents} /> */}
           <NavSecondary
             items={data.navSecondary}
             onItemClick={handleNavItemClick}
             className="mt-auto"
           />
         </SidebarContent>
-        {/* <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter> */}
       </Sidebar>
 
       <AlertDialog

@@ -18,15 +18,10 @@ export function DiscountCodesStats({
 }: DiscountCodesStatsProps) {
   const { t } = useTranslation("common");
 
-  const activeCount = useMemo(() => {
-    const now = Date.now();
-    return codes.filter((code) => {
-      if (code.expiresAt && new Date(code.expiresAt).getTime() < now) {
-        return false;
-      }
-      return true;
-    }).length;
-  }, [codes]);
+  const activeCount = useMemo(
+    () => codes.filter((code) => code.isActive).length,
+    [codes]
+  );
 
   const personalCount = useMemo(
     () => codes.filter((code) => code.type === "personal").length,

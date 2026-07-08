@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AuthGuard from "./AuthGuard";
 import PrivateRoute from "./PrivateRoute";
@@ -8,7 +8,7 @@ const Login = lazy(() => import("../features/auth/Login.tsx"));
 const OTPPage = lazy(() => import("../features/auth/OTP.tsx"));
 const NotFoundRoute = lazy(() => import("./NotFoundRoute"));
 
-const Dashboard = lazy(() => import("../features/dashboard/Dashboard.tsx"));
+// const Dashboard = lazy(() => import("../features/dashboard/Dashboard.tsx"));
 const Users = lazy(() => import("../features/users/Users.tsx"));
 const Notifications = lazy(
   () => import("../features/notifications/Notifications.tsx")
@@ -96,7 +96,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/",
-            element: <Dashboard />,
+            element: <Navigate to="/service-requests" />,
           },
           {
             path: "/users",

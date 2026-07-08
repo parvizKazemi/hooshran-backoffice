@@ -1,5 +1,5 @@
 import type { Package } from "@/features/packages/types";
-import type { PackageSelectionState } from "../types";
+import type { DiscountCode, PackageSelectionState } from "../types";
 
 export type PackageGroupKey =
   | "special-offer"
@@ -104,25 +104,53 @@ export function groupPackagesForDiscount(packages: Package[]): PackageGroup[] {
   return groups;
 }
 
+export function extractPackageDisplayName(name: string): string {
+  return name.split("|")[0]?.trim() || name;
+}
+
+export function buildPackageSelectionFromCode(
+  code: DiscountCode
+): PackageSelectionState {
+  const selection: PackageSelectionState = {};
+
+  for (const pkg of code.packages ?? []) {
+    if (!pkg.packageUuid) {
+      continue;
+    }
+
+    selection[pkg.packageUuid] = {
+      selected: true,
+      discountPercentage: pkg.discountPercentage,
+    };
+  }
+
+  if (Object.keys(selection).length === 0) {
+    return selection;
+  }
+
+  return selection;
+}
+
 export function buildSelectedPackagesPayload(
   packages: Package[],
   selection: PackageSelectionState
 ) {
+  const packageByUuid = new Map(packages.map((pkg) => [pkg.uuid, pkg]));
+
   return Object.entries(selection)
     .filter(([, value]) => value.selected && value.discountPercentage >= 1)
     .map(([packageUuid, value]) => {
-      const pkg = packages.find((item) => item.uuid === packageUuid);
-      if (!pkg?.id) {
+      if (!packageByUuid.has(packageUuid)) {
         return null;
       }
 
       return {
-        packageId: pkg.id,
+        packageUuid,
         discountPercentage: Math.round(value.discountPercentage),
       };
     })
     .filter(
-      (item): item is { packageId: number; discountPercentage: number } =>
+      (item): item is { packageUuid: string; discountPercentage: number } =>
         item !== null
     );
 }

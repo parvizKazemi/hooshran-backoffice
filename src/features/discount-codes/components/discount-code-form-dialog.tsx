@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { IconLoader2, IconTicket } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ApiError } from "@/services/api";
 import { toast } from "sonner";
 import {
   DEFAULT_DISCOUNT_PERCENTAGE,
@@ -24,10 +25,22 @@ import {
   DEFAULT_USAGE_LIMIT_PER_USER,
   DISCOUNT_CODE_PATTERN,
 } from "../constants";
-import { useCreateDiscountCode } from "../hooks/use-discount-codes";
-import type { DiscountCodeFormState, PackageSelectionState } from "../types";
 import {
-  buildPersonalDiscountCode,
+  useCreateDiscountCode,
+  useUpdateDiscountCode,
+} from "../hooks/use-discount-codes";
+import type {
+  DiscountCode,
+  DiscountCodeFormState,
+  PackageSelectionState,
+} from "../types";
+import { buildNotificationPayload, resolveDiscountCodeUuid } from "../types";
+import {
+  extractInvalidPhoneNumbers,
+  hasInvalidPhoneNumbersError,
+} from "../utils/parse-discount-code-error";
+import {
+  buildPackageSelectionFromCode,
   buildSelectedPackagesPayload,
   toEndOfDayIso,
 } from "../utils/group-packages";
@@ -39,6 +52,7 @@ type DiscountCodeFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   packages: Package[];
   isPackagesLoading?: boolean;
+  discountCode?: DiscountCode | null;
 };
 
 const createInitialForm = (
@@ -49,7 +63,7 @@ const createInitialForm = (
   type: "global",
   phoneNumbers: [],
   capacity: DEFAULT_GLOBAL_CAPACITY,
-  usageLimitPerUser: DEFAULT_USAGE_LIMIT_PER_USER,
+  clientUsageLimit: DEFAULT_USAGE_LIMIT_PER_USER,
   hasExpiry: false,
   expiresAt: undefined,
   showNotification: false,
@@ -62,9 +76,12 @@ export function DiscountCodeFormDialog({
   onOpenChange,
   packages,
   isPackagesLoading = false,
+  discountCode = null,
 }: DiscountCodeFormDialogProps) {
   const { t } = useTranslation("common");
   const createDiscountCode = useCreateDiscountCode();
+  const updateDiscountCode = useUpdateDiscountCode();
+  const isEditMode = Boolean(discountCode);
 
   const defaultNotificationTitle = t(
     "discountCodes.form.notification.defaultTitle"
@@ -79,21 +96,49 @@ export function DiscountCodeFormDialog({
   const [packageSelection, setPackageSelection] =
     useState<PackageSelectionState>({});
   const [codeError, setCodeError] = useState<string | null>(null);
+  const [serverInvalidPhones, setServerInvalidPhones] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    setForm(
-      createInitialForm(defaultNotificationTitle, defaultNotificationMessage)
-    );
-    setPackageSelection({});
+    setServerInvalidPhones([]);
+
+    if (discountCode) {
+      setForm({
+        code: discountCode.code,
+        type: discountCode.type,
+        phoneNumbers: discountCode.phoneNumbers ?? [],
+        capacity: discountCode.capacity,
+        clientUsageLimit:
+          discountCode.clientUsageLimit ?? DEFAULT_USAGE_LIMIT_PER_USER,
+        hasExpiry: Boolean(discountCode.expiresAt),
+        expiresAt: discountCode.expiresAt?.slice(0, 10),
+        showNotification: discountCode.showNotification,
+        notificationTitle:
+          discountCode.notificationTitle?.trim() || defaultNotificationTitle,
+        notificationMessage:
+          discountCode.notificationText?.trim() || defaultNotificationMessage,
+      });
+      setPackageSelection(buildPackageSelectionFromCode(discountCode));
+    } else {
+      setForm(
+        createInitialForm(defaultNotificationTitle, defaultNotificationMessage)
+      );
+      setPackageSelection({});
+    }
+
     setCodeError(null);
-  }, [open, defaultNotificationTitle, defaultNotificationMessage]);
+  }, [
+    open,
+    discountCode,
+    defaultNotificationTitle,
+    defaultNotificationMessage,
+  ]);
 
   const isPersonal = form.type === "personal";
-  const isSaving = createDiscountCode.isPending;
+  const isSaving = createDiscountCode.isPending || updateDiscountCode.isPending;
 
   const selectedPackagesCount = useMemo(
     () =>
@@ -110,23 +155,6 @@ export function DiscountCodeFormDialog({
   };
 
   const handleSubmit = async () => {
-    const normalizedCode = form.code.trim().toUpperCase();
-
-    if (!normalizedCode) {
-      setCodeError(t("discountCodes.form.errors.codeRequired"));
-      return;
-    }
-
-    if (!DISCOUNT_CODE_PATTERN.test(normalizedCode)) {
-      setCodeError(t("discountCodes.form.errors.codePattern"));
-      return;
-    }
-
-    if (isPersonal && form.phoneNumbers.length === 0) {
-      toast.error(t("discountCodes.form.errors.phonesRequired"));
-      return;
-    }
-
     if (form.hasExpiry && !form.expiresAt) {
       toast.error(t("discountCodes.form.errors.expiryRequired"));
       return;
@@ -139,7 +167,7 @@ export function DiscountCodeFormDialog({
 
     if (selectedPackages.length === 0) {
       if (selectedPackagesCount > 0) {
-        toast.error(t("discountCodes.form.errors.missingPackageId"));
+        toast.error(t("discountCodes.form.errors.missingPackageUuid"));
         return;
       }
 
@@ -147,50 +175,95 @@ export function DiscountCodeFormDialog({
       return;
     }
 
+    const expiresAtValue =
+      form.hasExpiry && form.expiresAt ? toEndOfDayIso(form.expiresAt) : null;
+
+    if (isPersonal && form.phoneNumbers.length === 0) {
+      toast.error(t("discountCodes.form.errors.phonesRequired"));
+      return;
+    }
+
+    const notificationPayload = buildNotificationPayload(
+      form.showNotification,
+      form.notificationTitle,
+      form.notificationMessage
+    );
+
     const sharedPayload = {
-      type: form.type,
       packages: selectedPackages,
-      expiresAt:
-        form.hasExpiry && form.expiresAt
-          ? toEndOfDayIso(form.expiresAt)
-          : undefined,
-      showNotification: form.showNotification,
+      capacity: form.capacity,
+      clientUsageLimit: form.clientUsageLimit,
+      expiresAt: expiresAtValue ?? undefined,
+      ...notificationPayload,
     };
 
     try {
-      if (isPersonal) {
-        const totalPhones = form.phoneNumbers.length;
+      if (isEditMode) {
+        const discountCodeUuid = discountCode
+          ? resolveDiscountCodeUuid(discountCode)
+          : null;
 
-        for (const phone of form.phoneNumbers) {
+        if (!discountCodeUuid) {
+          toast.error(t("discountCodes.form.errors.missingCodeUuid"));
+          return;
+        }
+
+        await updateDiscountCode.mutateAsync({
+          uuid: discountCodeUuid,
+          payload: {
+            ...sharedPayload,
+            expiresAt: expiresAtValue,
+            ...(isPersonal
+              ? {
+                  phoneNumbers: form.phoneNumbers.map((phone) => phone.trim()),
+                }
+              : {}),
+          },
+        });
+        toast.success(t("discountCodes.form.success.updated"));
+      } else {
+        const normalizedCode = form.code.trim().toUpperCase();
+
+        if (!normalizedCode) {
+          setCodeError(t("discountCodes.form.errors.codeRequired"));
+          return;
+        }
+
+        if (!DISCOUNT_CODE_PATTERN.test(normalizedCode)) {
+          setCodeError(t("discountCodes.form.errors.codePattern"));
+          return;
+        }
+
+        if (isPersonal) {
           await createDiscountCode.mutateAsync({
             ...sharedPayload,
-            code: buildPersonalDiscountCode(normalizedCode, phone, totalPhones),
-            phoneNumber: phone,
-            capacity: form.capacity,
+            code: normalizedCode,
+            type: form.type,
+            phoneNumbers: form.phoneNumbers.map((phone) => phone.trim()),
+          });
+        } else {
+          await createDiscountCode.mutateAsync({
+            ...sharedPayload,
+            code: normalizedCode,
+            type: form.type,
           });
         }
 
-        if (totalPhones > 1) {
-          toast.success(
-            t("discountCodes.form.success.multiPersonalCreated", {
-              count: totalPhones,
-            })
-          );
-        } else {
-          toast.success(t("discountCodes.form.success.created"));
-        }
-      } else {
-        await createDiscountCode.mutateAsync({
-          ...sharedPayload,
-          code: normalizedCode,
-          capacity: form.capacity,
-        });
         toast.success(t("discountCodes.form.success.created"));
       }
 
       onOpenChange(false);
-    } catch {
-      // Errors handled in mutation hook
+    } catch (error) {
+      if (hasInvalidPhoneNumbersError(error)) {
+        const invalidPhones = extractInvalidPhoneNumbers(error);
+        setServerInvalidPhones(invalidPhones);
+
+        if (invalidPhones.length === 0 && error instanceof ApiError) {
+          toast.error(error.message);
+        }
+
+        return;
+      }
     }
   };
 
@@ -203,9 +276,15 @@ export function DiscountCodeFormDialog({
               <IconTicket className="size-5" />
             </div>
             <div className="text-right">
-              <DialogTitle>{t("discountCodes.form.createTitle")}</DialogTitle>
+              <DialogTitle>
+                {isEditMode
+                  ? t("discountCodes.form.editTitle")
+                  : t("discountCodes.form.createTitle")}
+              </DialogTitle>
               <DialogDescription>
-                {t("discountCodes.form.createDescription")}
+                {isEditMode
+                  ? t("discountCodes.form.editDescription")
+                  : t("discountCodes.form.createDescription")}
               </DialogDescription>
             </div>
           </div>
@@ -226,7 +305,8 @@ export function DiscountCodeFormDialog({
                 <Input
                   id="discount-code"
                   dir="ltr"
-                  autoFocus
+                  autoFocus={!isEditMode}
+                  disabled={isEditMode}
                   value={form.code}
                   onChange={(event) => {
                     setForm((prev) => ({
@@ -238,7 +318,8 @@ export function DiscountCodeFormDialog({
                   placeholder={t("discountCodes.form.codePlaceholder")}
                   className={cn(
                     "font-mono tracking-wider",
-                    codeError && "border-destructive"
+                    codeError && "border-destructive",
+                    isEditMode && "opacity-70"
                   )}
                 />
                 {codeError && (
@@ -255,12 +336,14 @@ export function DiscountCodeFormDialog({
                     <button
                       key={type}
                       type="button"
+                      disabled={isEditMode}
                       onClick={() => handleTypeChange(type)}
                       className={cn(
                         "flex-1 rounded-lg px-3 py-2.5 text-sm font-bold transition-all",
                         form.type === type
                           ? "bg-background text-primary shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
+                        isEditMode && "cursor-not-allowed opacity-70"
                       )}
                     >
                       {t(`discountCodes.types.${type}`)}
@@ -273,11 +356,13 @@ export function DiscountCodeFormDialog({
                 <div className="bg-primary/5 border-primary/20 rounded-xl border p-4">
                   <PhoneNumbersTagInput
                     value={form.phoneNumbers}
-                    onChange={(phoneNumbers) =>
-                      setForm((prev) => ({ ...prev, phoneNumbers }))
-                    }
+                    onChange={(phoneNumbers) => {
+                      setServerInvalidPhones([]);
+                      setForm((prev) => ({ ...prev, phoneNumbers }));
+                    }}
                     label={`${t("discountCodes.form.phoneNumber")} *`}
                     hint={t("discountCodes.form.phoneHint")}
+                    serverInvalidPhones={serverInvalidPhones}
                   />
                 </div>
               )}
@@ -316,17 +401,17 @@ export function DiscountCodeFormDialog({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="usage-limit-per-user">
-                      {t("discountCodes.form.usageLimitPerUser")}
+                      {t("discountCodes.form.clientUsageLimit")}
                     </Label>
                     <Input
                       id="usage-limit-per-user"
                       type="number"
                       min={1}
-                      value={form.usageLimitPerUser}
+                      value={form.clientUsageLimit}
                       onChange={(event) =>
                         setForm((prev) => ({
                           ...prev,
-                          usageLimitPerUser: Math.max(
+                          clientUsageLimit: Math.max(
                             1,
                             Number(event.target.value) || 1
                           ),
@@ -334,7 +419,7 @@ export function DiscountCodeFormDialog({
                       }
                     />
                     <p className="text-muted-foreground text-xs">
-                      {t("discountCodes.form.usageLimitPerUserHint")}
+                      {t("discountCodes.form.clientUsageLimitHint")}
                     </p>
                   </div>
                 </div>
@@ -446,9 +531,6 @@ export function DiscountCodeFormDialog({
                         )}
                       />
                     </div>
-                    <p className="text-muted-foreground text-xs">
-                      {t("discountCodes.form.notification.backendPendingHint")}
-                    </p>
                   </div>
                 )}
               </div>
@@ -466,11 +548,13 @@ export function DiscountCodeFormDialog({
 
         <DialogFooter className="bg-muted/20 border-t px-6 py-4">
           <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-muted-foreground text-xs">
-              {t("discountCodes.form.summary", {
-                count: selectedPackagesCount,
-              })}
-            </p>
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">
+                {t("discountCodes.form.summary", {
+                  count: selectedPackagesCount,
+                })}
+              </p>
+            </div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row">
               <Button
                 type="button"
@@ -484,7 +568,11 @@ export function DiscountCodeFormDialog({
                 {isSaving && (
                   <IconLoader2 className="mr-2 size-4 animate-spin" />
                 )}
-                {t("discountCodes.form.submit")}
+                {t(
+                  isEditMode
+                    ? "discountCodes.form.saveChanges"
+                    : "discountCodes.form.submit"
+                )}
               </Button>
             </div>
           </div>

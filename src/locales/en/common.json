@@ -1551,6 +1551,7 @@
     },
     "status": {
       "active": "Active",
+      "inactive": "Inactive",
       "expired": "Expired"
     },
     "stats": {
@@ -1567,6 +1568,7 @@
       "type": "Type",
       "discount": "Discount",
       "plans": "Target Plans",
+      "usage": "Usage/Capacity",
       "capacity": "Capacity",
       "expiry": "Expiry",
       "status": "Status",
@@ -1576,6 +1578,10 @@
       "plansCount": "{{count}} plans",
       "noExpiry": "Unlimited",
       "viewReport": "Usage report",
+      "edit": "Edit",
+      "notificationEnabled": "Notification is enabled for users",
+      "statusActivated": "Discount code activated",
+      "statusDeactivated": "Discount code deactivated",
       "pageInfo": "Page {{page}} of {{totalPages}}",
       "previous": "Previous",
       "next": "Next"
@@ -1583,11 +1589,13 @@
     "form": {
       "createTitle": "Create Discount Code",
       "createDescription": "Set campaign details and usage rules.",
+      "editTitle": "Edit Discount Code",
+      "editDescription": "Update capacity, expiry, and target plans.",
       "code": "Discount Code",
       "codePlaceholder": "NOROOZ1405",
       "type": "Audience Type",
       "phoneNumber": "Allowed phone numbers",
-      "phoneHint": "Type a number and press Enter or Space, or import from CSV.",
+      "phoneHint": "Type a number and press Enter or Space, or import from CSV. All numbers are sent as a phoneNumbers array to the backend.",
       "phoneTags": {
         "placeholder": "09123456789",
         "removeAria": "Remove phone number",
@@ -1597,15 +1605,17 @@
         "csvDuplicate": "All numbers from the file are already in the list.",
         "csvEmpty": "No valid phone numbers found in the CSV file.",
         "csvInvalidFile": "Only CSV files are supported.",
-        "csvReadError": "Failed to read the CSV file."
+        "csvReadError": "Failed to read the CSV file.",
+        "serverInvalidTitle": "These numbers are not registered in the system",
+        "serverInvalidHint": "Fix or remove the highlighted numbers and save again."
       },
       "capacity": "Total Capacity",
       "capacityHint": "Maximum total redemptions for this code.",
       "usage": {
         "title": "Usage Limits"
       },
-      "usageLimitPerUser": "Per-user usage limit",
-      "usageLimitPerUserHint": "Stored in UI only until backend adds usageLimitPerUser.",
+      "clientUsageLimit": "Per-user usage limit",
+      "clientUsageLimitHint": "Maximum redemptions per user for this code.",
       "expiry": {
         "title": "Expiry",
         "none": "No time limit",
@@ -1631,18 +1641,19 @@
       },
       "notification": {
         "title": "Show as client notification",
-        "description": "A discount notification will be sent to targeted users after creation.",
+        "description": "A discount notification will be sent to targeted users after save.",
         "titleLabel": "Notification title",
         "messageLabel": "Notification message",
         "defaultTitle": "Discount Code",
-        "defaultMessage": "You can use this discount code to get a special offer",
-        "backendPendingHint": "Title and message are prepared in the UI; backend support is required to send them via API."
+        "defaultMessage": "You can use this discount code to get a special offer"
       },
       "success": {
         "created": "Discount code created successfully",
+        "updated": "Discount code updated successfully",
         "multiPersonalCreated": "{{count}} personal codes created successfully"
       },
       "submit": "Save",
+      "saveChanges": "Save changes",
       "cancel": "Cancel",
       "summary": "{{count}} plans selected",
       "sections": {
@@ -1656,7 +1667,8 @@
         "phonesRequired": "Enter at least one phone number for personal codes.",
         "expiryRequired": "Select an expiry date.",
         "packagesRequired": "Select at least one plan with a discount percentage.",
-        "missingPackageId": "Numeric package IDs are missing from the API. Ask backend to expose id in PackageDto."
+        "missingPackageUuid": "Some selected plans were not found in the package list.",
+        "missingCodeUuid": "Discount code uuid is missing. Please refresh the page."
       }
     },
     "report": {

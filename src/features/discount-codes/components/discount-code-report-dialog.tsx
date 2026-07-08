@@ -19,19 +19,19 @@ import { useTranslation } from "react-i18next";
 import { useDiscountCodeSingleReport } from "../hooks/use-discount-codes";
 
 type DiscountCodeReportDialogProps = {
-  discountCodeId?: number;
+  discountCodeUuid?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 export function DiscountCodeReportDialog({
-  discountCodeId,
+  discountCodeUuid,
   open,
   onOpenChange,
 }: DiscountCodeReportDialogProps) {
   const { t } = useTranslation("common");
   const { data, isLoading } = useDiscountCodeSingleReport(
-    open ? discountCodeId : undefined
+    open ? discountCodeUuid : undefined
   );
 
   return (

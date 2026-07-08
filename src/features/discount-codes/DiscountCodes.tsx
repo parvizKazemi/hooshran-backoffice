@@ -19,7 +19,7 @@ import {
   useDiscountCodes,
 } from "./hooks/use-discount-codes";
 
-import type { DiscountCodesQueryParams } from "./types";
+import type { DiscountCode, DiscountCodesQueryParams } from "./types";
 
 export default function DiscountCodes() {
   const { t } = useTranslation("common");
@@ -31,6 +31,7 @@ export default function DiscountCodes() {
   });
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingCode, setEditingCode] = useState<DiscountCode | null>(null);
 
   const { data, isLoading } = useDiscountCodes(filters);
 
@@ -63,7 +64,10 @@ export default function DiscountCodes() {
         </div>
 
         <Button
-          onClick={() => setIsCreateDialogOpen(true)}
+          onClick={() => {
+            setEditingCode(null);
+            setIsCreateDialogOpen(true);
+          }}
           className="shrink-0"
         >
           <IconPlus className="mr-2 size-4" />
@@ -84,6 +88,7 @@ export default function DiscountCodes() {
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={setFilters}
+        onEdit={setEditingCode}
         meta={
           meta
             ? {
@@ -100,10 +105,16 @@ export default function DiscountCodes() {
       />
 
       <DiscountCodeFormDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
+        open={isCreateDialogOpen || editingCode !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsCreateDialogOpen(false);
+            setEditingCode(null);
+          }
+        }}
         packages={packages}
         isPackagesLoading={isPackagesLoading}
+        discountCode={editingCode}
       />
     </div>
   );

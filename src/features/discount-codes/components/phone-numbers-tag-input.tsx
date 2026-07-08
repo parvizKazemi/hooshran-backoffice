@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IconFileImport, IconX } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { IconAlertCircle, IconFileImport, IconX } from "@tabler/icons-react";
 import { ChangeEvent, KeyboardEvent, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ type PhoneNumbersTagInputProps = {
   hint?: string;
   placeholder?: string;
   invalidPhoneMessage?: string;
+  serverInvalidPhones?: string[];
 };
 
 export function PhoneNumbersTagInput({
@@ -28,10 +30,17 @@ export function PhoneNumbersTagInput({
   hint,
   placeholder,
   invalidPhoneMessage,
+  serverInvalidPhones = [],
 }: PhoneNumbersTagInputProps) {
   const { t } = useTranslation("common");
   const [phoneDraft, setPhoneDraft] = useState("");
   const csvInputRef = useRef<HTMLInputElement>(null);
+
+  const serverInvalidPhoneSet = useMemo(
+    () => new Set(serverInvalidPhones),
+    [serverInvalidPhones]
+  );
+  const hasServerInvalidPhones = serverInvalidPhoneSet.size > 0;
 
   const normalizedPhones = useMemo(
     () => value.map((phone) => phone.trim()).filter(Boolean),
@@ -173,30 +182,49 @@ export function PhoneNumbersTagInput({
           onChange={handleCsvFileChange}
         />
       </div>
-      <div className="rounded-lg border p-3">
+      <div
+        className={cn(
+          "rounded-lg border p-3 transition-colors",
+          hasServerInvalidPhones && "border-destructive/50 bg-destructive/5"
+        )}
+      >
         <div className="flex flex-wrap items-center gap-2">
-          {normalizedPhones.map((phone) => (
-            <span
-              key={phone}
-              className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 font-mono text-xs text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
-            >
-              <button
-                type="button"
-                onClick={() => handleTagEdit(phone)}
-                className="cursor-pointer"
+          {normalizedPhones.map((phone) => {
+            const isServerInvalid = serverInvalidPhoneSet.has(phone);
+
+            return (
+              <span
+                key={phone}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md border px-2 py-1 font-mono text-xs",
+                  isServerInvalid
+                    ? "border-destructive/50 bg-destructive/10 text-destructive"
+                    : "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                )}
               >
-                {phone}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTagRemove(phone)}
-                className="rounded-sm p-0.5 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                aria-label={t("discountCodes.form.phoneTags.removeAria")}
-              >
-                <IconX className="size-3" />
-              </button>
-            </span>
-          ))}
+                <button
+                  type="button"
+                  onClick={() => handleTagEdit(phone)}
+                  className="cursor-pointer"
+                >
+                  {phone}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTagRemove(phone)}
+                  className={cn(
+                    "rounded-sm p-0.5",
+                    isServerInvalid
+                      ? "hover:bg-destructive/15"
+                      : "hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                  )}
+                  aria-label={t("discountCodes.form.phoneTags.removeAria")}
+                >
+                  <IconX className="size-3" />
+                </button>
+              </span>
+            );
+          })}
           <Input
             id={id}
             dir="ltr"
@@ -211,6 +239,22 @@ export function PhoneNumbersTagInput({
           />
         </div>
       </div>
+      {hasServerInvalidPhones && (
+        <div className="border-destructive/30 bg-destructive/5 flex gap-2 rounded-lg border px-3 py-2.5">
+          <IconAlertCircle className="text-destructive mt-0.5 size-4 shrink-0" />
+          <div className="space-y-1 text-xs">
+            <p className="text-destructive font-semibold">
+              {t("discountCodes.form.phoneTags.serverInvalidTitle")}
+            </p>
+            <p className="text-destructive/90 font-mono" dir="ltr">
+              {serverInvalidPhones.join(" · ")}
+            </p>
+            <p className="text-muted-foreground">
+              {t("discountCodes.form.phoneTags.serverInvalidHint")}
+            </p>
+          </div>
+        </div>
+      )}
       {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
       <p className="text-muted-foreground text-xs">
         {t("discountCodes.form.phoneTags.csvHint")}

@@ -15,7 +15,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_DISCOUNT_PERCENTAGE } from "../constants";
 import type { PackageSelectionState } from "../types";
-import { groupPackagesForDiscount } from "../utils/group-packages";
+import {
+  extractPackageDisplayName,
+  groupPackagesForDiscount,
+} from "../utils/group-packages";
 
 type TargetPackagesSelectorProps = {
   packages: Package[];
@@ -284,7 +287,7 @@ export function TargetPackagesSelector({
                           />
                           <div className="min-w-0 space-y-1">
                             <p className="truncate text-sm font-semibold">
-                              {pkg.name}
+                              {extractPackageDisplayName(pkg.name)}
                             </p>
                             <p className="text-muted-foreground text-xs">
                               {pkg.type === "PERMANENT"
