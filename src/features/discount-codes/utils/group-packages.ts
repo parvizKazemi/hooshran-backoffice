@@ -104,8 +104,10 @@ export function groupPackagesForDiscount(packages: Package[]): PackageGroup[] {
   return groups;
 }
 
-export function extractPackageDisplayName(name: string): string {
-  return name.split("|")[0]?.trim() || name;
+export function extractPackageDisplayName(name?: string | null): string {
+  if (!name) return "";
+  const displayName = name.split("|")[0]?.trim();
+  return displayName || name;
 }
 
 export function buildPackageSelectionFromCode(
