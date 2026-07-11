@@ -16,8 +16,19 @@ export interface PackageGroup {
 
 const PRIORITY_SUBSCRIPTION_DURATIONS = [30, 360];
 
+export function extractPackageDisplayName(name?: string | null): string {
+  if (!name) return "";
+  const displayName = name.split("|")[0]?.trim();
+  return displayName || name;
+}
+
+const getPackageSortKey = (pkg: Package): string =>
+  extractPackageDisplayName(pkg.name) || pkg.uuid;
+
 const sortByName = (packages: Package[]) =>
-  [...packages].sort((a, b) => a.name.localeCompare(b.name, "fa"));
+  [...packages].sort((a, b) =>
+    getPackageSortKey(a).localeCompare(getPackageSortKey(b), "fa")
+  );
 
 const sortSubscriptionDurations = (a: number, b: number) => {
   const aPriority = PRIORITY_SUBSCRIPTION_DURATIONS.indexOf(a);
@@ -37,12 +48,16 @@ const sortSubscriptionDurations = (a: number, b: number) => {
 };
 
 export function groupPackagesForDiscount(packages: Package[]): PackageGroup[] {
+  const validPackages = (packages ?? []).filter((pkg): pkg is Package =>
+    Boolean(pkg?.uuid)
+  );
+
   const specialOffers: Package[] = [];
   const welcomePackages: Package[] = [];
   const permanentPackages: Package[] = [];
   const subscriptionByDuration = new Map<number, Package[]>();
 
-  for (const pkg of packages) {
+  for (const pkg of validPackages) {
     if (pkg.properties?.isSpecialOffer) {
       specialOffers.push(pkg);
       continue;
@@ -104,30 +119,32 @@ export function groupPackagesForDiscount(packages: Package[]): PackageGroup[] {
   return groups;
 }
 
-export function extractPackageDisplayName(name?: string | null): string {
-  if (!name) return "";
-  const displayName = name.split("|")[0]?.trim();
-  return displayName || name;
-}
-
 export function buildPackageSelectionFromCode(
-  code: DiscountCode
+  code?: DiscountCode | null
 ): PackageSelectionState {
   const selection: PackageSelectionState = {};
+  if (!code) {
+    return selection;
+  }
 
   for (const pkg of code.packages ?? []) {
-    if (!pkg.packageUuid) {
+    const packageUuid = pkg?.packageUuid?.trim();
+    if (!packageUuid) {
       continue;
     }
 
-    selection[pkg.packageUuid] = {
-      selected: true,
-      discountPercentage: pkg.discountPercentage,
-    };
-  }
+    const discountPercentage = Number(pkg?.discountPercentage);
+    if (!Number.isFinite(discountPercentage) || discountPercentage < 1) {
+      continue;
+    }
 
-  if (Object.keys(selection).length === 0) {
-    return selection;
+    selection[packageUuid] = {
+      selected: true,
+      discountPercentage: Math.min(
+        100,
+        Math.max(1, Math.round(discountPercentage))
+      ),
+    };
   }
 
   return selection;
@@ -137,7 +154,11 @@ export function buildSelectedPackagesPayload(
   packages: Package[],
   selection: PackageSelectionState
 ) {
-  const packageByUuid = new Map(packages.map((pkg) => [pkg.uuid, pkg]));
+  const packageByUuid = new Map(
+    (packages ?? [])
+      .filter((pkg): pkg is Package => Boolean(pkg?.uuid))
+      .map((pkg) => [pkg.uuid, pkg])
+  );
 
   return Object.entries(selection)
     .filter(([, value]) => value.selected && value.discountPercentage >= 1)
@@ -171,5 +192,6 @@ export function buildPersonalDiscountCode(
     return baseCode;
   }
 
-  return `${baseCode}${phone.slice(-4)}`;
+  const suffix = phone?.trim().slice(-4);
+  return suffix ? `${baseCode}${suffix}` : baseCode;
 }
