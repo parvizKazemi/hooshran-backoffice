@@ -64,6 +64,10 @@
       "welcomePackages": "Acquisition & Welcome Gifts",
       "blacklist": "User Blacklist"
     },
+    "systemSettings": {
+      "title": "System Settings",
+      "smsConfig": "SMS Gateway Settings"
+    },
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
     "logoutConfirmDescription": "Are you sure you want to logout?"
@@ -1686,6 +1690,90 @@
         "discount": "Discount",
         "usedAt": "Used At"
       }
+    }
+  },
+  "smsConfig": {
+    "header": {
+      "title": "SMS Gateway Settings",
+      "description": "Manage SMS providers, send priority, and message templates."
+    },
+    "card": {
+      "title": "SMS System",
+      "description": "Set provider priority and active status"
+    },
+    "info": {
+      "title": "Automatic Failover Queue",
+      "description": "Messages are always sent from the first active provider at the top of the list. On failure, the system automatically falls through to the next priorities."
+    },
+    "providers": {
+      "sms_ir": "sms.ir",
+      "ippanel": "IPPanel"
+    },
+    "actions": {
+      "login": "Login / OTP",
+      "forgetPassword": "Forgot Password",
+      "creditExpiration": "Credit Expiration",
+      "subscriptionExpiration": "Subscription Expiration",
+      "adminSubscriptionDays": "Admin Subscription Message",
+      "moveUp": "Move priority up",
+      "moveDown": "Move priority down",
+      "editTemplates": "Template Settings",
+      "addProvider": "Add New Provider",
+      "confirmAdd": "Create Provider",
+      "save": "Save Changes",
+      "reset": "Reset to Default",
+      "confirmReset": "Confirm Reset",
+      "cancel": "Cancel",
+      "saveTemplates": "Save Templates"
+    },
+    "addDialog": {
+      "title": "Add SMS Provider",
+      "description": "Connect a custom SMS panel to the messaging core",
+      "nameLabel": "Provider Name",
+      "namePlaceholder": "e.g. Kavenegar",
+      "apiUrlLabel": "REST API URL",
+      "apiUrlPlaceholder": "https://api.example.com/v1/...",
+      "apiKeyLabel": "API Key / Client Secret",
+      "apiKeyPlaceholder": "••••••••••••••••••••••••",
+      "senderLabel": "Sender Line",
+      "senderPlaceholder": "e.g. 50002040"
+    },
+    "status": {
+      "active": "Provider active",
+      "inactive": "Provider inactive"
+    },
+    "priority": "Priority {{order}}",
+    "loginTemplateLabel": "Login template ID",
+    "sourceLabel": "Source",
+    "sources": {
+      "redis": "Redis",
+      "db": "Database",
+      "env": "Environment"
+    },
+    "aria": {
+      "toggleProvider": "Toggle SMS provider active status"
+    },
+    "templatesDialog": {
+      "title": "SMS Template Settings",
+      "description": "Configure templates for {{name}}",
+      "templateId": "Template / Pattern ID",
+      "templateIdPlaceholder": "e.g. 12409",
+      "params": "Template parameters"
+    },
+    "resetDialog": {
+      "title": "Reset SMS Settings",
+      "description": "All saved settings will be cleared and restored to environment defaults. Are you sure?"
+    },
+    "toasts": {
+      "saved": "SMS settings saved successfully",
+      "saveFailed": "Failed to save SMS settings",
+      "reset": "SMS settings reset to defaults",
+      "resetFailed": "Failed to reset SMS settings",
+      "templatesUpdated": "Templates updated locally; save to apply",
+      "templateIdRequired": "Template ID is required for all actions",
+      "addFieldsRequired": "Please fill in all required fields",
+      "providerAdded": "SMS provider added successfully",
+      "addFailed": "Failed to add SMS provider"
     }
   }
 }

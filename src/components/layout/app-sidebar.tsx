@@ -6,6 +6,7 @@ import {
   IconInnerShadowTop,
   IconLogout,
   IconPackage,
+  IconServerCog,
   IconSettings,
   IconTicket,
 } from "@tabler/icons-react";
@@ -113,6 +114,16 @@ function useSidebarData() {
           },
         ],
       },
+      {
+        title: t("nav.systemSettings.title"),
+        icon: IconServerCog,
+        items: [
+          {
+            title: t("nav.systemSettings.smsConfig"),
+            url: "/system-settings/sms-config",
+          },
+        ],
+      },
     ],
 
     navSecondary: [
@@ -199,6 +210,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-credits",
               "/user-settings/welcome-packages",
               "/discount-codes",
+              "/system-settings/sms-config",
             ]}
             // badges={{
             //   "/service-requests": 1,

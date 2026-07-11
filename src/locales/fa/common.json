@@ -64,6 +64,10 @@
       "welcomePackages": "مدیریت جذب و هدایای خوش‌آمدگویی",
       "blacklist": "لیست سیاه کاربران"
     },
+    "systemSettings": {
+      "title": "تنظیمات سیستم",
+      "smsConfig": "تنظیمات سامانه پیامک کوتاه"
+    },
     "logout": "خروج",
     "logoutConfirm": "تایید خروج",
     "logoutConfirmDescription": "آیا از خروج از حساب کاربری خود اطمینان دارید؟",
@@ -1721,6 +1725,90 @@
         "discount": "تخفیف",
         "usedAt": "زمان استفاده"
       }
+    }
+  },
+  "smsConfig": {
+    "header": {
+      "title": "تنظیمات سامانه پیامک کوتاه",
+      "description": "مدیریت تامین‌کنندگان پیامک، اولویت ارسال و قالب‌های پیامک سیستم."
+    },
+    "card": {
+      "title": "سامانه پیامک",
+      "description": "تعیین اولویت ارسال و وضعیت فعال بودن تامین‌کنندگان پیامک"
+    },
+    "info": {
+      "title": "سیستم اولویت‌بندی ارسال خودکار (Failover Queue)",
+      "description": "پیامک‌ها همواره از اولین پروایدر فعال بالای لیست ارسال می‌شوند. در صورت خطا، سیستم به‌صورت خودکار به اولویت‌های بعدی هدایت می‌کند."
+    },
+    "providers": {
+      "sms_ir": "sms.ir",
+      "ippanel": "آی‌پی‌پنل (IPPanel)"
+    },
+    "actions": {
+      "login": "ورود / OTP",
+      "forgetPassword": "فراموشی رمز",
+      "creditExpiration": "انقضای اعتبار",
+      "subscriptionExpiration": "انقضای اشتراک",
+      "adminSubscriptionDays": "پیام ادمین اشتراک",
+      "moveUp": "انتقال به اولویت بالاتر",
+      "moveDown": "انتقال به اولویت پایین‌تر",
+      "editTemplates": "تنظیمات قالب‌ها",
+      "addProvider": "افزودن تامین‌کننده جدید",
+      "confirmAdd": "تایید و ایجاد درگاه",
+      "save": "ذخیره تغییرات",
+      "reset": "بازگشت به پیش‌فرض",
+      "confirmReset": "تایید بازنشانی",
+      "cancel": "انصراف",
+      "saveTemplates": "ذخیره قالب‌ها"
+    },
+    "addDialog": {
+      "title": "افزودن تامین‌کننده پیامکی جدید",
+      "description": "اتصال پنل‌های پیامکی متفرقه به هسته ارسال پیامک",
+      "nameLabel": "نام تامین‌کننده (SMS Provider Name)",
+      "namePlaceholder": "مثال: کاوه نگار",
+      "apiUrlLabel": "آدرس وب‌سرویس اتصال (REST API URL)",
+      "apiUrlPlaceholder": "https://api.example.com/v1/...",
+      "apiKeyLabel": "کلید وب‌سرویس (API Key / Client Secret)",
+      "apiKeyPlaceholder": "••••••••••••••••••••••••",
+      "senderLabel": "خط فرستنده اختصاصی",
+      "senderPlaceholder": "مثال: 50002040"
+    },
+    "status": {
+      "active": "درگاه فعال است",
+      "inactive": "درگاه غیرفعال"
+    },
+    "priority": "اولویت {{order}}",
+    "loginTemplateLabel": "کد الگوی ورود",
+    "sourceLabel": "منبع",
+    "sources": {
+      "redis": "Redis",
+      "db": "دیتابیس",
+      "env": "محیط (ENV)"
+    },
+    "aria": {
+      "toggleProvider": "تغییر وضعیت فعال بودن تامین‌کننده پیامک"
+    },
+    "templatesDialog": {
+      "title": "تنظیمات قالب‌های پیامک",
+      "description": "پیکربندی قالب‌های وب‌سرویس {{name}}",
+      "templateId": "شناسه / کد الگو (Template ID)",
+      "templateIdPlaceholder": "مثال: 12409",
+      "params": "پارامترهای قالب"
+    },
+    "resetDialog": {
+      "title": "بازنشانی تنظیمات پیامک",
+      "description": "تمام تنظیمات ذخیره‌شده پاک شده و به مقادیر پیش‌فرض محیط بازمی‌گردد. آیا مطمئن هستید؟"
+    },
+    "toasts": {
+      "saved": "تنظیمات پیامک با موفقیت ذخیره شد",
+      "saveFailed": "ذخیره تنظیمات پیامک با خطا مواجه شد",
+      "reset": "تنظیمات پیامک به پیش‌فرض بازگردانی شد",
+      "resetFailed": "بازنشانی تنظیمات پیامک با خطا مواجه شد",
+      "templatesUpdated": "قالب‌های پیامک در لیست محلی به‌روز شد؛ برای اعمال نهایی ذخیره کنید",
+      "templateIdRequired": "شناسه قالب برای همه اکشن‌ها الزامی است",
+      "addFieldsRequired": "لطفاً کلیه فیلدهای اجباری را تکمیل کنید",
+      "providerAdded": "تامین‌کننده پیامک با موفقیت اضافه شد",
+      "addFailed": "افزودن تامین‌کننده پیامک با خطا مواجه شد"
     }
   }
 }

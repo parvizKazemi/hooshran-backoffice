@@ -60,6 +60,9 @@ const UserBlacklistSettings = lazy(
 const ServiceHintSettings = lazy(
   () => import("../features/service-hint/ServiceHintSettings.tsx")
 );
+const SmsConfigSettings = lazy(
+  () => import("../features/sms-config/SmsConfigSettings.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -189,6 +192,10 @@ const router = createBrowserRouter([
           {
             path: "/services/service-hint",
             element: <ServiceHintSettings />,
+          },
+          {
+            path: "/system-settings/sms-config",
+            element: <SmsConfigSettings />,
           },
         ],
       },
