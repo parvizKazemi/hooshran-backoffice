@@ -12,12 +12,13 @@ type PlatformServicesResponse = {
   }>;
 };
 
+type ServiceHintResponse =
+  | ServiceHintConfig
+  | { sections: ServiceHintConfig }
+  | { serviceGuide: { sections: ServiceHintConfig } };
+
 const parseSections = (
-  response:
-    | ServiceHintConfig
-    | { sections: ServiceHintConfig }
-    | null
-    | undefined
+  response: ServiceHintResponse | null | undefined
 ): ServiceHintConfig => {
   if (!response) {
     return [];
@@ -25,6 +26,10 @@ const parseSections = (
 
   if (Array.isArray(response)) {
     return response;
+  }
+
+  if ("serviceGuide" in response) {
+    return response.serviceGuide?.sections ?? [];
   }
 
   return response.sections ?? [];
@@ -49,9 +54,9 @@ export async function getServiceHintConfig(
   serviceUuid: string
 ): Promise<ServiceHintConfig> {
   try {
-    const response = await apiGet<
-      ServiceHintConfig | { sections: ServiceHintConfig }
-    >(SERVICE_HINT_ENDPOINTS.serviceGuide(serviceUuid));
+    const response = await apiGet<ServiceHintResponse>(
+      SERVICE_HINT_ENDPOINTS.serviceGuide(serviceUuid)
+    );
 
     return parseSections(response);
   } catch (error) {
@@ -66,9 +71,10 @@ export async function updateServiceHintConfig(
   serviceUuid: string,
   sections: ServiceHintConfig
 ): Promise<ServiceHintConfig> {
-  const response = await apiPut<
-    ServiceHintConfig | { sections: ServiceHintConfig }
-  >(SERVICE_HINT_ENDPOINTS.serviceGuide(serviceUuid), { sections });
+  const response = await apiPut<ServiceHintResponse>(
+    SERVICE_HINT_ENDPOINTS.serviceGuide(serviceUuid),
+    { sections }
+  );
 
   return parseSections(response);
 }
