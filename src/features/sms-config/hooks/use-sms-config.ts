@@ -2,17 +2,9 @@ import { ApiError } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import {
-  createSmsProvider,
-  getSmsConfig,
-  resetSmsConfig,
-  updateSmsConfig,
-} from "../api/service";
+import { getSmsConfig, resetSmsConfig, updateSmsConfig } from "../api/service";
 import { SMS_CONFIG_QUERY_KEY } from "../constants";
-import type {
-  CreateSmsProviderPayload,
-  UpdateSmsConfigPayload,
-} from "../types";
+import type { UpdateSmsConfigPayload } from "../types";
 
 function getBackendErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError && error.message) {
@@ -63,25 +55,6 @@ export function useResetSmsConfig() {
     onError: (error) => {
       toast.error(
         getBackendErrorMessage(error, t("smsConfig.toasts.resetFailed"))
-      );
-    },
-  });
-}
-
-export function useCreateSmsProvider() {
-  const { t } = useTranslation("common");
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: CreateSmsProviderPayload) =>
-      createSmsProvider(payload),
-    onSuccess: (data) => {
-      queryClient.setQueryData(SMS_CONFIG_QUERY_KEY, data);
-      toast.success(t("smsConfig.toasts.providerAdded"));
-    },
-    onError: (error) => {
-      toast.error(
-        getBackendErrorMessage(error, t("smsConfig.toasts.addFailed"))
       );
     },
   });

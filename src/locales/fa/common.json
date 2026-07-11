@@ -1753,25 +1753,11 @@
       "moveUp": "انتقال به اولویت بالاتر",
       "moveDown": "انتقال به اولویت پایین‌تر",
       "editTemplates": "تنظیمات قالب‌ها",
-      "addProvider": "افزودن تامین‌کننده جدید",
-      "confirmAdd": "تایید و ایجاد درگاه",
       "save": "ذخیره تغییرات",
       "reset": "بازگشت به پیش‌فرض",
       "confirmReset": "تایید بازنشانی",
       "cancel": "انصراف",
       "saveTemplates": "ذخیره قالب‌ها"
-    },
-    "addDialog": {
-      "title": "افزودن تامین‌کننده پیامکی جدید",
-      "description": "اتصال پنل‌های پیامکی متفرقه به هسته ارسال پیامک",
-      "nameLabel": "نام تامین‌کننده (SMS Provider Name)",
-      "namePlaceholder": "مثال: کاوه نگار",
-      "apiUrlLabel": "آدرس وب‌سرویس اتصال (REST API URL)",
-      "apiUrlPlaceholder": "https://api.example.com/v1/...",
-      "apiKeyLabel": "کلید وب‌سرویس (API Key / Client Secret)",
-      "apiKeyPlaceholder": "••••••••••••••••••••••••",
-      "senderLabel": "خط فرستنده اختصاصی",
-      "senderPlaceholder": "مثال: 50002040"
     },
     "status": {
       "active": "درگاه فعال است",
@@ -1805,10 +1791,7 @@
       "reset": "تنظیمات پیامک به پیش‌فرض بازگردانی شد",
       "resetFailed": "بازنشانی تنظیمات پیامک با خطا مواجه شد",
       "templatesUpdated": "قالب‌های پیامک در لیست محلی به‌روز شد؛ برای اعمال نهایی ذخیره کنید",
-      "templateIdRequired": "شناسه قالب برای همه اکشن‌ها الزامی است",
-      "addFieldsRequired": "لطفاً کلیه فیلدهای اجباری را تکمیل کنید",
-      "providerAdded": "تامین‌کننده پیامک با موفقیت اضافه شد",
-      "addFailed": "افزودن تامین‌کننده پیامک با خطا مواجه شد"
+      "templateIdRequired": "شناسه قالب برای همه اکشن‌ها الزامی است"
     }
   }
 }

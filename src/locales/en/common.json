@@ -1718,25 +1718,11 @@
       "moveUp": "Move priority up",
       "moveDown": "Move priority down",
       "editTemplates": "Template Settings",
-      "addProvider": "Add New Provider",
-      "confirmAdd": "Create Provider",
       "save": "Save Changes",
       "reset": "Reset to Default",
       "confirmReset": "Confirm Reset",
       "cancel": "Cancel",
       "saveTemplates": "Save Templates"
-    },
-    "addDialog": {
-      "title": "Add SMS Provider",
-      "description": "Connect a custom SMS panel to the messaging core",
-      "nameLabel": "Provider Name",
-      "namePlaceholder": "e.g. Kavenegar",
-      "apiUrlLabel": "REST API URL",
-      "apiUrlPlaceholder": "https://api.example.com/v1/...",
-      "apiKeyLabel": "API Key / Client Secret",
-      "apiKeyPlaceholder": "••••••••••••••••••••••••",
-      "senderLabel": "Sender Line",
-      "senderPlaceholder": "e.g. 50002040"
     },
     "status": {
       "active": "Provider active",
@@ -1770,10 +1756,7 @@
       "reset": "SMS settings reset to defaults",
       "resetFailed": "Failed to reset SMS settings",
       "templatesUpdated": "Templates updated locally; save to apply",
-      "templateIdRequired": "Template ID is required for all actions",
-      "addFieldsRequired": "Please fill in all required fields",
-      "providerAdded": "SMS provider added successfully",
-      "addFailed": "Failed to add SMS provider"
+      "templateIdRequired": "Template ID is required for all actions"
     }
   }
 }

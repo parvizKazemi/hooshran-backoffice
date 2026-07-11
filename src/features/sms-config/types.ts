@@ -36,11 +36,3 @@ export type SmsConfigResponse = {
 export type UpdateSmsConfigPayload = {
   providers: SmsProviderConfigItem[];
 };
-
-/** Payload for POST /admin/sms/providers (future backend endpoint) */
-export type CreateSmsProviderPayload = {
-  name: string;
-  apiUrl: string;
-  apiKey: string;
-  sender: string;
-};

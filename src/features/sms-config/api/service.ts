@@ -1,9 +1,5 @@
 import { apiGet, apiPatch, apiPost } from "@/services/api";
-import type {
-  CreateSmsProviderPayload,
-  SmsConfigResponse,
-  UpdateSmsConfigPayload,
-} from "../types";
+import type { SmsConfigResponse, UpdateSmsConfigPayload } from "../types";
 import { SMS_CONFIG_ENDPOINTS } from "./endpoints";
 
 export async function getSmsConfig(): Promise<SmsConfigResponse> {
@@ -18,13 +14,4 @@ export async function updateSmsConfig(
 
 export async function resetSmsConfig(): Promise<SmsConfigResponse> {
   return apiPost<SmsConfigResponse>(SMS_CONFIG_ENDPOINTS.reset);
-}
-
-export async function createSmsProvider(
-  payload: CreateSmsProviderPayload
-): Promise<SmsConfigResponse> {
-  return apiPost<SmsConfigResponse>(
-    SMS_CONFIG_ENDPOINTS.createProvider,
-    payload
-  );
 }
