@@ -1744,7 +1744,9 @@
       "description": "Configure templates for {{name}}",
       "templateId": "Template / Pattern ID",
       "templateIdPlaceholder": "e.g. 12409",
-      "params": "Template parameters"
+      "params": "Template parameters",
+      "paramKey": "Key",
+      "paramValue": "Value"
     },
     "resetDialog": {
       "title": "Reset SMS Settings",

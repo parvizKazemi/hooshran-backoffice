@@ -11,19 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconKey } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   ACTION_LABEL_KEYS,
+  isKnownSmsAction,
   isKnownSmsProviderId,
   PROVIDER_LABEL_KEYS,
+  resolveTemplateActions,
 } from "../constants";
-import {
-  SMS_ACTIONS,
-  type SmsAction,
-  type SmsProviderConfigItem,
-} from "../types";
+import type { SmsProviderConfigItem, SmsTemplateConfig } from "../types";
 
 type TemplatesDialogProps = {
   open: boolean;
@@ -34,14 +32,19 @@ type TemplatesDialogProps = {
 
 type ParamRow = { key: string; value: string };
 
-type DraftTemplates = Record<
-  SmsAction,
-  { templateId: string; params: ParamRow[] }
->;
+type DraftTemplate = {
+  templateId: string;
+  params: ParamRow[];
+};
 
-function toDraft(provider: SmsProviderConfigItem): DraftTemplates {
-  return SMS_ACTIONS.reduce((acc, action) => {
-    const template = provider.templates[action];
+type DraftTemplates = Record<string, DraftTemplate>;
+
+function toDraft(
+  templates: Record<string, SmsTemplateConfig>,
+  actions: string[]
+): DraftTemplates {
+  return actions.reduce<DraftTemplates>((acc, action) => {
+    const template = templates[action];
     acc[action] = {
       templateId: template?.templateId ?? "",
       params: Object.entries(template?.params ?? {}).map(([key, value]) => ({
@@ -50,16 +53,18 @@ function toDraft(provider: SmsProviderConfigItem): DraftTemplates {
       })),
     };
     return acc;
-  }, {} as DraftTemplates);
+  }, {});
 }
 
 function fromDraft(
   provider: SmsProviderConfigItem,
-  draft: DraftTemplates
+  draft: DraftTemplates,
+  actions: string[]
 ): SmsProviderConfigItem {
-  const templates = SMS_ACTIONS.reduce(
+  const templates = actions.reduce<Record<string, SmsTemplateConfig>>(
     (acc, action) => {
       const item = draft[action];
+      if (!item) return acc;
       acc[action] = {
         templateId: item.templateId.trim(),
         params: Object.fromEntries(
@@ -70,7 +75,7 @@ function fromDraft(
       };
       return acc;
     },
-    {} as SmsProviderConfigItem["templates"]
+    {}
   );
 
   return { ...provider, templates };
@@ -84,37 +89,42 @@ export function TemplatesDialog({
 }: TemplatesDialogProps) {
   const { t } = useTranslation("common");
   const [draft, setDraft] = useState<DraftTemplates | null>(null);
-  const [activeTab, setActiveTab] = useState<SmsAction>("login");
+  const [activeTab, setActiveTab] = useState("");
+
+  const actions = useMemo(
+    () => (provider ? resolveTemplateActions(provider.templates) : []),
+    [provider]
+  );
 
   useEffect(() => {
     if (open && provider) {
-      setDraft(toDraft(provider));
-      setActiveTab("login");
+      const nextActions = resolveTemplateActions(provider.templates);
+      setDraft(toDraft(provider.templates, nextActions));
+      setActiveTab(nextActions[0] ?? "");
     }
   }, [open, provider]);
 
-  if (!provider || !draft) {
+  if (!provider || !draft || actions.length === 0) {
     return null;
   }
 
-  const updateTemplateId = (action: SmsAction, templateId: string) => {
+  const getActionLabel = (action: string) =>
+    isKnownSmsAction(action) ? t(ACTION_LABEL_KEYS[action]) : action;
+
+  const updateTemplateId = (action: string, templateId: string) => {
     setDraft((prev) =>
       prev
         ? {
             ...prev,
-            [action]: { ...prev[action], templateId },
+            [action]: { ...prev[action]!, templateId },
           }
         : prev
     );
   };
 
-  const updateParamValue = (
-    action: SmsAction,
-    index: number,
-    value: string
-  ) => {
+  const updateParamValue = (action: string, index: number, value: string) => {
     setDraft((prev) => {
-      if (!prev) return prev;
+      if (!prev?.[action]) return prev;
       const params = prev[action].params.map((row, i) =>
         i === index ? { ...row, value } : row
       );
@@ -123,15 +133,13 @@ export function TemplatesDialog({
   };
 
   const handleSave = () => {
-    const missing = SMS_ACTIONS.some(
-      (action) => !draft[action].templateId.trim()
-    );
+    const missing = actions.some((action) => !draft[action]?.templateId.trim());
     if (missing) {
       toast.error(t("smsConfig.toasts.templateIdRequired"));
       return;
     }
 
-    onSave(fromDraft(provider, draft));
+    onSave(fromDraft(provider, draft, actions));
     onOpenChange(false);
   };
 
@@ -158,67 +166,72 @@ export function TemplatesDialog({
           </div>
         </DialogHeader>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as SmsAction)}
-          className="w-full"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-3 flex h-auto w-full flex-wrap justify-start gap-1">
-            {SMS_ACTIONS.map((action) => (
+            {actions.map((action) => (
               <TabsTrigger key={action} value={action} className="text-[11px]">
-                {t(ACTION_LABEL_KEYS[action])}
+                {getActionLabel(action)}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {SMS_ACTIONS.map((action) => (
-            <TabsContent key={action} value={action} className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-bold">
-                  {t("smsConfig.templatesDialog.templateId")}{" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  dir="ltr"
-                  className="font-mono text-sm"
-                  value={draft[action].templateId}
-                  onChange={(e) => updateTemplateId(action, e.target.value)}
-                  placeholder={t(
-                    "smsConfig.templatesDialog.templateIdPlaceholder"
-                  )}
-                />
-              </div>
+          {actions.map((action) => {
+            const item = draft[action];
+            if (!item) return null;
 
-              {draft[action].params.length > 0 && (
-                <div className="space-y-3">
+            return (
+              <TabsContent key={action} value={action} className="space-y-4">
+                <div className="space-y-2">
                   <Label className="text-xs font-bold">
-                    {t("smsConfig.templatesDialog.params")}
+                    {t("smsConfig.templatesDialog.templateId")}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
-                  {draft[action].params.map((row, index) => (
-                    <div
-                      key={`${action}-${row.key}-${index}`}
-                      className="grid grid-cols-[1fr_1.2fr] gap-2"
-                    >
-                      <Input
-                        dir="ltr"
-                        className="bg-muted/40 font-mono text-xs"
-                        value={row.key}
-                        readOnly
-                      />
-                      <Input
-                        dir="ltr"
-                        className="font-mono text-sm"
-                        value={row.value}
-                        onChange={(e) =>
-                          updateParamValue(action, index, e.target.value)
-                        }
-                      />
-                    </div>
-                  ))}
+                  <Input
+                    dir="ltr"
+                    className="font-mono text-sm"
+                    value={item.templateId}
+                    onChange={(e) => updateTemplateId(action, e.target.value)}
+                    placeholder={t(
+                      "smsConfig.templatesDialog.templateIdPlaceholder"
+                    )}
+                  />
                 </div>
-              )}
-            </TabsContent>
-          ))}
+
+                {item.params.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold">
+                      {t("smsConfig.templatesDialog.params")}
+                    </Label>
+                    <div className="text-muted-foreground grid grid-cols-[1fr_1.2fr] gap-2 text-[10px] font-semibold tracking-wide uppercase">
+                      <span>{t("smsConfig.templatesDialog.paramKey")}</span>
+                      <span>{t("smsConfig.templatesDialog.paramValue")}</span>
+                    </div>
+                    {item.params.map((row, index) => (
+                      <div
+                        key={`${action}-${row.key}-${index}`}
+                        className="grid grid-cols-[1fr_1.2fr] gap-2"
+                      >
+                        <Input
+                          dir="ltr"
+                          className="bg-muted/40 font-mono text-xs"
+                          value={row.key}
+                          readOnly
+                        />
+                        <Input
+                          dir="ltr"
+                          className="font-mono text-sm"
+                          value={row.value}
+                          onChange={(e) =>
+                            updateParamValue(action, index, e.target.value)
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            );
+          })}
         </Tabs>
 
         <DialogFooter className="gap-2 sm:gap-2">

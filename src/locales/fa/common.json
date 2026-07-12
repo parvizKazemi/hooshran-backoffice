@@ -1779,7 +1779,9 @@
       "description": "پیکربندی قالب‌های وب‌سرویس {{name}}",
       "templateId": "شناسه / کد الگو (Template ID)",
       "templateIdPlaceholder": "مثال: 12409",
-      "params": "پارامترهای قالب"
+      "params": "پارامترهای قالب",
+      "paramKey": "کلید",
+      "paramValue": "مقدار"
     },
     "resetDialog": {
       "title": "بازنشانی تنظیمات پیامک",

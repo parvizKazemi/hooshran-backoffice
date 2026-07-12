@@ -25,7 +25,8 @@ export type SmsTemplateConfig = {
 export type SmsProviderConfigItem = {
   id: SmsProviderId;
   isActive: boolean;
-  templates: Record<SmsAction, SmsTemplateConfig>;
+  /** Known actions + any future/custom actions from backend */
+  templates: Record<string, SmsTemplateConfig>;
 };
 
 export type SmsConfigResponse = {
