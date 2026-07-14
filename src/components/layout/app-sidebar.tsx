@@ -2,8 +2,6 @@ import {
   IconApi,
   IconBell,
   IconCoins,
-  IconFileText,
-  IconHistory,
   IconInnerShadowTop,
   IconLogout,
   IconPackage,
@@ -51,9 +49,22 @@ function useSidebarData() {
     },
     navMain: [
       {
-        title: t("nav.serviceRequests"),
-        url: "/service-requests",
-        icon: IconFileText,
+        title: t("nav.usersAndCredits.title"),
+        icon: IconCoins,
+        items: [
+          {
+            title: t("nav.usersAndCredits.serviceRequests"),
+            url: "/users-and-credits/service-requests",
+          },
+          {
+            title: t("nav.usersAndCredits.userCredits"),
+            url: "/users-and-credits/user-credits",
+          },
+          {
+            title: t("nav.usersAndCredits.creditLedgerHistory"),
+            url: "/users-and-credits/credit-ledger-history",
+          },
+        ],
       },
       {
         title: t("nav.notifications"),
@@ -69,16 +80,6 @@ function useSidebarData() {
         title: t("nav.discountCodes"),
         url: "/discount-codes",
         icon: IconTicket,
-      },
-      {
-        title: t("nav.userCredits"),
-        url: "/user-credits",
-        icon: IconCoins,
-      },
-      {
-        title: t("nav.creditLedgerHistory"),
-        url: "/credit-ledger-history",
-        icon: IconHistory,
       },
       {
         title: t("nav.services.title"),
@@ -209,18 +210,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <NavMain
             items={data.navMain}
             completedItems={[
-              "/service-requests",
+              "/users-and-credits",
               "/notifications",
               "/packages",
               "/user-settings",
-              "/user-credits",
-              "/credit-ledger-history",
               "/user-settings/welcome-packages",
               "/discount-codes",
               "/system-settings/sms-config",
             ]}
             // badges={{
-            //   "/service-requests": 1,
+            //   "/users-and-credits/service-requests": 1,
             //   "/notifications": 1,
             //   "/packages": 1,
             // }}

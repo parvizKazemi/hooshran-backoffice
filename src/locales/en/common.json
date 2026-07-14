@@ -41,10 +41,13 @@
     "transactions": "Transactions",
     "tickets": "Tickets",
     "apiServices": "API Services",
-    "serviceRequests": "Service Requests",
     "categories": "Categories",
-    "userCredits": "User Credits",
-    "creditLedgerHistory": "User Credit Ledger History",
+    "usersAndCredits": {
+      "title": "Users & Credits",
+      "serviceRequests": "Service Requests",
+      "userCredits": "User Credits",
+      "creditLedgerHistory": "Credit Ledger History"
+    },
     "packages": "Packages",
     "discountCodes": "Discount Codes & Rewards",
     "plans": "Plans",

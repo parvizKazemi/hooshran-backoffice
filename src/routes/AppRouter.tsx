@@ -102,7 +102,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/",
-            element: <Navigate to="/service-requests" />,
+            element: <Navigate to="/users-and-credits/service-requests" />,
           },
           {
             path: "/users",
@@ -133,20 +133,36 @@ const router = createBrowserRouter([
             element: <ApiServices />,
           },
           {
-            path: "/service-requests",
+            path: "/users-and-credits/service-requests",
             element: <ServiceRequests />,
+          },
+          {
+            path: "/service-requests",
+            element: (
+              <Navigate to="/users-and-credits/service-requests" replace />
+            ),
           },
           {
             path: "/categories",
             element: <Categories />,
           },
           {
-            path: "/user-credits",
+            path: "/users-and-credits/user-credits",
             element: <UserCredits />,
           },
           {
-            path: "/credit-ledger-history",
+            path: "/user-credits",
+            element: <Navigate to="/users-and-credits/user-credits" replace />,
+          },
+          {
+            path: "/users-and-credits/credit-ledger-history",
             element: <CreditLedgerHistory />,
+          },
+          {
+            path: "/credit-ledger-history",
+            element: (
+              <Navigate to="/users-and-credits/credit-ledger-history" replace />
+            ),
           },
           {
             path: "/packages",

@@ -41,10 +41,13 @@
     "transactions": "تراکنش‌ها",
     "tickets": "تیکت‌ها",
     "apiServices": "سرویس‌های API",
-    "serviceRequests": "درخواست‌های کاربران",
     "categories": "دسته‌بندی‌ها",
-    "userCredits": "مدیریت اعتبار کاربران",
-    "creditLedgerHistory": "تاریخچه تراکنش‌های کاربر",
+    "usersAndCredits": {
+      "title": "کاربران و اعتبار",
+      "serviceRequests": "درخواست‌های کاربران",
+      "userCredits": "مدیریت اعتبار کاربران",
+      "creditLedgerHistory": "تاریخچه تراکنش‌های کاربر"
+    },
     "packages": "پکیج‌ها",
     "discountCodes": "کد تخفیف و جوایز",
     "plans": "پلن‌ها",
