@@ -56,5 +56,5 @@ export async function fetchAllCreditLedgerByPhone(
 export async function fetchServiceRequestByUuid(
   uuid: string
 ): Promise<ServiceRequest> {
-  return apiGet<ServiceRequest>(`/service-request/${uuid}`);
+  return apiGet<ServiceRequest>(`/admin/service-request/${uuid}`);
 }
