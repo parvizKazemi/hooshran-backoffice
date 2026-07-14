@@ -44,6 +44,7 @@
     "serviceRequests": "Service Requests",
     "categories": "Categories",
     "userCredits": "User Credits",
+    "creditLedgerHistory": "User Credit Ledger History",
     "packages": "Packages",
     "discountCodes": "Discount Codes & Rewards",
     "plans": "Plans",
@@ -1112,6 +1113,70 @@
         "description": "Description",
         "date": "Date"
       }
+    }
+  },
+  "creditLedgerHistory": {
+    "title": "User Credit Ledger History",
+    "description": "View user coin ledger with filters and pagination",
+    "headerTitle": "User Credit Ledger History",
+    "headerDescription": "Monitor purchases, gifts, refunds, and AI credit usage.",
+    "totalTransactions": "Total transactions",
+    "noResults": "No transactions found",
+    "emptyState": {
+      "title": "No transactions to display",
+      "description": "Enter a user phone number to view credit ledger history"
+    },
+    "filter": {
+      "title": "Search by phone number",
+      "description": "Enter the user phone number and apply filters",
+      "phoneNumber": "Phone number",
+      "type": "Type",
+      "status": "Status",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "dateFromPlaceholder": "Select start date",
+      "dateToPlaceholder": "Select end date",
+      "rowsPerPage": "Rows per page",
+      "rowsOption": "{{count}} rows",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "reset": "Clear filters",
+      "searchByPhone": "Search by phone number",
+      "changeFilter": "Change search filter",
+      "currentPhone": "Filtered user"
+    },
+    "table": {
+      "row": "Row",
+      "type": "Transaction type",
+      "description": "Description",
+      "amount": "Credit change",
+      "dateTime": "Date & time",
+      "balanceAfter": "Balance after",
+      "actions": "Actions"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "success": "Success",
+      "failed": "Failed",
+      "reversed": "Reversed"
+    },
+    "pagination": {
+      "showing": "Showing {{start}} to {{end}} of {{total}} transactions"
+    },
+    "actions": {
+      "viewRequest": "View request",
+      "loadingRequest": "Loading...",
+      "loadRequestFailed": "Failed to load request details"
+    },
+    "export": {
+      "button": "Export CSV",
+      "loading": "Preparing...",
+      "success": "CSV exported successfully",
+      "error": "Failed to export CSV",
+      "empty": "No transactions to export",
+      "phoneRequired": "Filter by phone number first"
     }
   },
   "packages": {

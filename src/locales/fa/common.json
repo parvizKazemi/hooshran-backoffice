@@ -44,6 +44,7 @@
     "serviceRequests": "درخواست‌های کاربران",
     "categories": "دسته‌بندی‌ها",
     "userCredits": "مدیریت اعتبار کاربران",
+    "creditLedgerHistory": "تاریخچه تراکنش‌های کاربر",
     "packages": "پکیج‌ها",
     "discountCodes": "کد تخفیف و جوایز",
     "plans": "پلن‌ها",
@@ -1151,6 +1152,70 @@
         "description": "توضیحات",
         "date": "تاریخ"
       }
+    }
+  },
+  "creditLedgerHistory": {
+    "title": "تاریخچه تراکنش‌های کاربر",
+    "description": "گردش حساب و تاریخچه سکه کاربران را با فیلتر و صفحه‌بندی مشاهده کنید",
+    "headerTitle": "گردش حساب و تاریخچه سکه کاربران",
+    "headerDescription": "تغییرات پله‌ای، خریدها، هدایا و کسر اعتبار هوش مصنوعی را مانیتور کنید.",
+    "totalTransactions": "تعداد کل تراکنش‌ها",
+    "noResults": "تراکنشی یافت نشد",
+    "emptyState": {
+      "title": "هیچ تراکنشی نمایش داده نشده است",
+      "description": "برای مشاهده تاریخچه تراکنش‌ها، شماره تلفن کاربر را وارد کنید"
+    },
+    "filter": {
+      "title": "جستجو بر اساس شماره تلفن",
+      "description": "شماره تلفن کاربر را وارد کنید و فیلترهای مورد نظر را اعمال کنید",
+      "phoneNumber": "شماره تلفن",
+      "type": "نوع",
+      "status": "وضعیت",
+      "dateFrom": "از تاریخ",
+      "dateTo": "تا تاریخ",
+      "dateFromPlaceholder": "انتخاب تاریخ شروع",
+      "dateToPlaceholder": "انتخاب تاریخ پایان",
+      "rowsPerPage": "تعداد ردیف تاریخچه در هر صفحه",
+      "rowsOption": "{{count}} ردیف",
+      "allTypes": "همه انواع",
+      "allStatuses": "همه وضعیت‌ها",
+      "apply": "اعمال",
+      "cancel": "لغو",
+      "reset": "پاک کردن فیلترها",
+      "searchByPhone": "جستجو بر اساس شماره تلفن",
+      "changeFilter": "تغییر فیلتر جستجو",
+      "currentPhone": "کاربر فیلتر شده"
+    },
+    "table": {
+      "row": "ردیف",
+      "type": "نوع تراکنش",
+      "description": "شرح تراکنش",
+      "amount": "تغییر اعتبار (سکه)",
+      "dateTime": "تاریخ و ساعت",
+      "balanceAfter": "اعتبار باقی‌مانده بعد از عمل",
+      "actions": "عملیات"
+    },
+    "statuses": {
+      "pending": "در انتظار",
+      "success": "موفق",
+      "failed": "ناموفق",
+      "reversed": "برگشت‌خورده"
+    },
+    "pagination": {
+      "showing": "نمایش {{start}} تا {{end}} از {{total}} تراکنش"
+    },
+    "actions": {
+      "viewRequest": "مشاهده درخواست",
+      "loadingRequest": "در حال بارگذاری...",
+      "loadRequestFailed": "خطا در دریافت جزئیات درخواست"
+    },
+    "export": {
+      "button": "خروجی CSV",
+      "loading": "در حال آماده‌سازی...",
+      "success": "خروجی CSV با موفقیت دانلود شد",
+      "error": "خطا در دریافت خروجی CSV",
+      "empty": "تراکنشی برای دریافت خروجی وجود ندارد",
+      "phoneRequired": "ابتدا شماره تلفن کاربر را فیلتر کنید"
     }
   },
   "packages": {

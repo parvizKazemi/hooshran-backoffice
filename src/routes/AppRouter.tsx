@@ -31,6 +31,9 @@ const Categories = lazy(() => import("../features/categories/Categories.tsx"));
 const UserCredits = lazy(
   () => import("../features/user-credits/UserCredits.tsx")
 );
+const CreditLedgerHistory = lazy(
+  () => import("../features/credit-ledger-history/CreditLedgerHistory.tsx")
+);
 const Packages = lazy(() => import("../features/packages/Packages.tsx"));
 const DiscountCodes = lazy(
   () => import("../features/discount-codes/DiscountCodes.tsx")
@@ -140,6 +143,10 @@ const router = createBrowserRouter([
           {
             path: "/user-credits",
             element: <UserCredits />,
+          },
+          {
+            path: "/credit-ledger-history",
+            element: <CreditLedgerHistory />,
           },
           {
             path: "/packages",

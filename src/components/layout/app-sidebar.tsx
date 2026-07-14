@@ -3,6 +3,7 @@ import {
   IconBell,
   IconCoins,
   IconFileText,
+  IconHistory,
   IconInnerShadowTop,
   IconLogout,
   IconPackage,
@@ -73,6 +74,11 @@ function useSidebarData() {
         title: t("nav.userCredits"),
         url: "/user-credits",
         icon: IconCoins,
+      },
+      {
+        title: t("nav.creditLedgerHistory"),
+        url: "/credit-ledger-history",
+        icon: IconHistory,
       },
       {
         title: t("nav.services.title"),
@@ -208,6 +214,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/packages",
               "/user-settings",
               "/user-credits",
+              "/credit-ledger-history",
               "/user-settings/welcome-packages",
               "/discount-codes",
               "/system-settings/sms-config",
