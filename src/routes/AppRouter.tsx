@@ -66,6 +66,9 @@ const ServiceHintSettings = lazy(
 const SmsConfigSettings = lazy(
   () => import("../features/sms-config/SmsConfigSettings.tsx")
 );
+const ClearUserData = lazy(
+  () => import("../features/clear-user-data/ClearUserData.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -219,6 +222,10 @@ const router = createBrowserRouter([
           {
             path: "/system-settings/sms-config",
             element: <SmsConfigSettings />,
+          },
+          {
+            path: "/system-settings/clear-user-data",
+            element: <ClearUserData />,
           },
         ],
       },

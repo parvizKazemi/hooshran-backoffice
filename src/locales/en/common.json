@@ -70,8 +70,10 @@
     },
     "systemSettings": {
       "title": "System Settings",
-      "smsConfig": "SMS Gateway Settings"
+      "smsConfig": "SMS Gateway Settings",
+      "clearUserData": "Clear & Reset User"
     },
+
     "logout": "Logout",
     "logoutConfirm": "Confirm Logout",
     "logoutConfirmDescription": "Are you sure you want to logout?"
@@ -995,7 +997,8 @@
       "expiresAt": "Expires At",
       "type": "Type",
       "purchaseTime": "Purchase Time",
-      "status": "Status"
+      "status": "Status",
+      "cancelReasonTooltip": "Cancel reason: {{reason}}"
     },
     "sources": {
       "purchase": "Purchase",
@@ -1025,7 +1028,10 @@
     "statuses": {
       "active": "Active",
       "used": "Used",
-      "expired": "Expired"
+      "expired": "Expired",
+      "transferred": "Transferred",
+      "cancelled": "Cancelled",
+      "frozen": "Frozen"
     },
     "allStatuses": "All Statuses",
     "filter": {
@@ -1073,6 +1079,9 @@
       "expiresAt": "Expires At",
       "type": "Type",
       "packageType": "Package Type",
+      "status": "Subscription Status",
+      "cancelReason": "Cancellation Reason",
+      "cancelReasonPlaceholder": "Enter the cancellation reason...",
       "readOnlyFields": "Read-only Fields",
       "selectPackage": "Select Package",
       "selectPackageDescription": "Select a package from the table below",
@@ -1827,6 +1836,54 @@
       "resetFailed": "Failed to reset SMS settings",
       "templatesUpdated": "Templates updated locally; save to apply",
       "templateIdRequired": "Template ID is required for all actions"
+    }
+  },
+  "clearUserData": {
+    "header": {
+      "title": "Clear & Reset User Identity",
+      "description": "Hard-purge legacy user data so the account returns to a fresh signup and onboarding state."
+    },
+    "card": {
+      "title": "Hard data purge & account reset",
+      "description": "Enter the client mobile number to hard-purge from the system."
+    },
+    "form": {
+      "phoneLabel": "Test user mobile number:",
+      "phonePlaceholder": "Example: 09353333333",
+      "optionsTitle": "Physical database purge options:"
+    },
+    "options": {
+      "subscriptions": "Delete all subscriptions and financial history",
+      "prompts": "Delete all requests and logs",
+      "coupons": "Delete discount code usage history",
+      "notifications": "Delete notification and popup history",
+      "hardPurge": "Delete entire user account (Hard Purge)",
+      "hardPurgeHint": "Fully destroy base records so the user can register again"
+    },
+    "actions": {
+      "submit": "Apply full purge & reset",
+      "cancel": "Cancel",
+      "confirm": "Yes, purge & reset"
+    },
+    "confirmDialog": {
+      "title": "Are you sure you want to destroy this user data?",
+      "description": "Confirming this request will hard-purge all data for this phone number based on your selected filters. On the next login, the user will be treated as a new signup.",
+      "summaryTitle": "Client records that will be destroyed:",
+      "items": {
+        "subscriptions": "Delete all subscriptions, invoices, and financial history",
+        "prompts": "Delete all image/video requests and logs",
+        "coupons": "Delete gift code and coupon usage history",
+        "notifications": "Delete onboarding notification and popup state",
+        "hardPurge": "Fully delete the user account from the primary table (Hard Reset)"
+      }
+    },
+    "toasts": {
+      "success": "All records for {{phone}} were hard-purged successfully. On next login this number will register as a new user.",
+      "partialSuccess": "Selected data for {{phone}} was cleared successfully.",
+      "failed": "Failed to clear user data",
+      "invalidPhone": "Please enter a valid mobile number (e.g. 09123456789)",
+      "noOptionSelected": "Please select at least one purge option.",
+      "testModeDisabled": "This operation is only allowed when TEST_MODE is enabled."
     }
   }
 }

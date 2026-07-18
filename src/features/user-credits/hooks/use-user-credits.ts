@@ -131,8 +131,11 @@ export interface CreateUserCreditInput {
 }
 
 export interface UpdateUserCreditInput {
-  creditAmount: number;
-  creditBalance: number;
+  creditAmount?: number;
+  creditBalance?: number;
+  status?: string;
+  cancelReason?: string | null;
+  expiresAt?: string;
 }
 
 export interface GiftUserCreditInput {

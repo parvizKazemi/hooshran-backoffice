@@ -32,9 +32,27 @@ export const PackageTypeSchema = z.enum([
 export type PackageType = z.infer<typeof PackageTypeSchema>;
 
 // Credit Status
-export const CreditStatusSchema = z.enum(["active", "used", "expired"]);
+export const CreditStatusSchema = z.enum([
+  "active",
+  "used",
+  "expired",
+  "transferred",
+  "transfered", // backend spelling variant
+  "cancelled",
+  "frozen",
+]);
 
 export type CreditStatus = z.infer<typeof CreditStatusSchema>;
+
+/** Editable statuses in the admin edit form */
+export const EditableCreditStatusSchema = z.enum([
+  "active",
+  "expired",
+  "transferred",
+  "cancelled",
+]);
+
+export type EditableCreditStatus = z.infer<typeof EditableCreditStatusSchema>;
 
 // Credit Log Type
 export const CreditLogTypeSchema = z.enum([
@@ -59,6 +77,7 @@ export const UserCreditSchema = z.object({
   expiresAt: z.string(),
   createdAt: z.string(),
   status: CreditStatusSchema,
+  cancelReason: z.string().optional().nullable(),
 });
 
 export type UserCredit = z.infer<typeof UserCreditSchema>;

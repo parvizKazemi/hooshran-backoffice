@@ -36,11 +36,28 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth-context";
 import { useNotifications } from "@/contexts/notifications-context";
+import { isTestMode } from "@/lib/env";
 import { type Icon } from "@tabler/icons-react";
 
 function useSidebarData() {
   const { t } = useTranslation("common");
   const { ticketsUnreadCount } = useNotifications();
+
+  const systemSettingsItems = [
+    {
+      title: t("nav.systemSettings.smsConfig"),
+      url: "/system-settings/sms-config",
+    },
+    ...(isTestMode
+      ? [
+          {
+            title: t("nav.systemSettings.clearUserData"),
+            url: "/system-settings/clear-user-data",
+          },
+        ]
+      : []),
+  ];
+
   return {
     user: {
       name: "shadcn",
@@ -124,12 +141,7 @@ function useSidebarData() {
       {
         title: t("nav.systemSettings.title"),
         icon: IconServerCog,
-        items: [
-          {
-            title: t("nav.systemSettings.smsConfig"),
-            url: "/system-settings/sms-config",
-          },
-        ],
+        items: systemSettingsItems,
       },
     ],
 
@@ -217,6 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-settings/welcome-packages",
               "/discount-codes",
               "/system-settings/sms-config",
+              ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}
             // badges={{
             //   "/users-and-credits/service-requests": 1,

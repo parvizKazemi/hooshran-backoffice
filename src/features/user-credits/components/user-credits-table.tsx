@@ -30,6 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { IconDotsVertical, IconEye, IconEdit } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -44,6 +49,10 @@ import {
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserCredit, UserCreditsQueryParams } from "../types";
+import {
+  creditStatusBadgeClassName,
+  normalizeCreditStatus,
+} from "../utils/credit-status.helpers";
 import { UserCreditDetail } from "./user-credit-detail";
 import { UserCreditForm } from "./user-credit-form";
 
@@ -87,15 +96,10 @@ export const UserCreditsTable = memo(function UserCreditsTable({
     active: t("userCredits.statuses.active"),
     used: t("userCredits.statuses.used"),
     expired: t("userCredits.statuses.expired"),
-  };
-
-  const statusVariants: Record<
-    string,
-    "default" | "secondary" | "destructive" | "outline"
-  > = {
-    active: "default",
-    used: "secondary",
-    expired: "destructive",
+    transferred: t("userCredits.statuses.transferred"),
+    transfered: t("userCredits.statuses.transferred"),
+    cancelled: t("userCredits.statuses.cancelled"),
+    frozen: t("userCredits.statuses.frozen"),
   };
 
   const typeLabels: Record<string, string> = {
@@ -209,12 +213,41 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         accessorKey: "status",
         header: t("userCredits.table.status"),
         cell: ({ row }) => {
-          const status = row.original.status;
-          return (
-            <Badge variant={statusVariants[status] || "outline"}>
-              {statusLabels[status] || status}
+          const credit = row.original;
+          const status = normalizeCreditStatus(credit.status);
+          const label =
+            statusLabels[status] || statusLabels[credit.status] || status;
+          const hasCancelTooltip =
+            status === "cancelled" && !!credit.cancelReason;
+
+          const badge = (
+            <Badge
+              variant="outline"
+              className={creditStatusBadgeClassName(
+                status,
+                hasCancelTooltip ? "cursor-help" : undefined
+              )}
+            >
+              {label}
             </Badge>
           );
+
+          if (hasCancelTooltip) {
+            return (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">{badge}</span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-right">
+                  {t("userCredits.table.cancelReasonTooltip", {
+                    reason: credit.cancelReason,
+                  })}
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return badge;
         },
       },
       {
@@ -256,7 +289,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
         },
       },
     ],
-    [t, statusLabels, statusVariants, typeLabels]
+    [t, statusLabels, typeLabels]
   );
 
   const table = useReactTable({

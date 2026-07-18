@@ -153,50 +153,62 @@ export const PersianDateInput = forwardRef<
         <PopoverTrigger asChild>
           <Button
             ref={ref}
+            type="button"
             variant="outline"
             disabled={disabled}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "relative w-full justify-between font-normal",
               !displayValue && "text-muted-foreground",
               className
             )}
             id={id}
           >
-            <IconCalendar className="mr-2 size-4" />
-            {displayValue || placeholder}
+            <span className="truncate font-mono text-xs">
+              {displayValue || placeholder}
+            </span>
+            <IconCalendar className="text-muted-foreground size-4 shrink-0" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <div className="p-3">
+        <PopoverContent
+          className="w-72 rounded-2xl p-4"
+          align="start"
+          dir="rtl"
+        >
+          <div>
             {/* Header */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between border-b pb-3 select-none">
               <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={handlePrevMonth}
-                className="h-7 w-7"
-              >
-                ‹
-              </Button>
-              <div className="font-semibold">
-                {PERSIAN_MONTHS[viewDate.month - 1]} {viewDate.year}
-              </div>
-              <Button
+                type="button"
                 variant="ghost"
                 size="icon-sm"
                 onClick={handleNextMonth}
-                className="h-7 w-7"
+                className="bg-muted/50 hover:bg-muted h-7 w-7"
+              >
+                ‹
+              </Button>
+              <div className="text-xs font-black">
+                {PERSIAN_MONTHS[viewDate.month - 1]} {viewDate.year}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={handlePrevMonth}
+                className="bg-muted/50 hover:bg-muted h-7 w-7"
               >
                 ›
               </Button>
             </div>
 
             {/* Weekday headers */}
-            <div className="mb-2 grid grid-cols-7 gap-1">
-              {PERSIAN_WEEKDAYS.map((day) => (
+            <div className="text-muted-foreground mb-2 grid grid-cols-7 gap-1 text-center text-[10px] font-black select-none">
+              {PERSIAN_WEEKDAYS.map((day, index) => (
                 <div
                   key={day}
-                  className="text-muted-foreground flex h-8 items-center justify-center text-center text-xs font-medium"
+                  className={cn(
+                    "flex h-7 items-center justify-center",
+                    index === 6 && "text-rose-500"
+                  )}
                 >
                   {day}
                 </div>
@@ -213,19 +225,22 @@ export const PersianDateInput = forwardRef<
                   selectedDate?.year === viewDate.year &&
                   selectedDate?.month === viewDate.month &&
                   selectedDate?.day === day;
+                const isFriday = (firstDayPersianWeekday + day - 1) % 7 === 6;
                 return (
-                  <Button
+                  <button
                     key={day}
-                    variant={isSelected ? "default" : "ghost"}
-                    size="icon-sm"
+                    type="button"
                     className={cn(
-                      "h-8 w-8 font-normal",
-                      isSelected && "bg-primary text-primary-foreground"
+                      "flex aspect-square items-center justify-center rounded-full text-xs font-bold transition-all duration-150",
+                      isSelected
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/35 hover:bg-blue-500"
+                        : "hover:bg-muted text-foreground",
+                      !isSelected && isFriday && "text-rose-500"
                     )}
                     onClick={() => handleDateSelect(day)}
                   >
                     {day}
-                  </Button>
+                  </button>
                 );
               })}
             </div>

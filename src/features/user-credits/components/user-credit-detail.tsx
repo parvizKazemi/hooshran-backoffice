@@ -3,6 +3,10 @@ import { useTranslation } from "react-i18next";
 import { UserCredit } from "../types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  creditStatusBadgeClassName,
+  normalizeCreditStatus,
+} from "../utils/credit-status.helpers";
 
 type UserCreditDetailProps = {
   credit: UserCredit;
@@ -12,15 +16,7 @@ export const UserCreditDetail = memo(function UserCreditDetail({
   credit,
 }: UserCreditDetailProps) {
   const { t } = useTranslation("common");
-
-  const statusVariants: Record<
-    string,
-    "default" | "secondary" | "destructive" | "outline"
-  > = {
-    active: "default",
-    used: "secondary",
-    expired: "destructive",
-  };
+  const status = normalizeCreditStatus(credit.status);
 
   const typeLabels: Record<string, string> = {
     PURCHASE: t("userCredits.types.purchase"),
@@ -32,6 +28,8 @@ export const UserCreditDetail = memo(function UserCreditDetail({
 
   const packageTypeLabels: Record<string, string> = {
     SUBSCRIPTION: t("userCredits.packageTypes.subscription"),
+    "SUBSCRIPTION-TRANSFERED": t("userCredits.packageTypes.transferred"),
+    PERMANENT: t("userCredits.packageTypes.permanent"),
     ONE_TIME: t("userCredits.packageTypes.oneTime"),
   };
 
@@ -54,11 +52,26 @@ export const UserCreditDetail = memo(function UserCreditDetail({
                 {t("userCredits.detail.status")}:
               </span>
               <div className="mt-1">
-                <Badge variant={statusVariants[credit.status] || "outline"}>
-                  {t(`userCredits.statuses.${credit.status}`)}
+                <Badge
+                  variant="outline"
+                  className={creditStatusBadgeClassName(status)}
+                >
+                  {t(`userCredits.statuses.${status}`, {
+                    defaultValue: status,
+                  })}
                 </Badge>
               </div>
             </div>
+            {status === "cancelled" && credit.cancelReason ? (
+              <div className="col-span-2">
+                <span className="text-muted-foreground text-sm">
+                  {t("userCredits.form.cancelReason")}:
+                </span>
+                <p className="mt-1 text-sm leading-relaxed">
+                  {credit.cancelReason}
+                </p>
+              </div>
+            ) : null}
             <div>
               <span className="text-muted-foreground text-sm">
                 {t("userCredits.detail.creditBalance")}:
@@ -136,7 +149,11 @@ export const UserCreditDetail = memo(function UserCreditDetail({
             <span className="text-muted-foreground text-sm">
               {t("userCredits.detail.expiresAt")}:
             </span>
-            <p>{new Date(credit.expiresAt).toLocaleString("fa-IR")}</p>
+            <p>
+              {credit.expiresAt
+                ? new Date(credit.expiresAt).toLocaleString("fa-IR")
+                : "-"}
+            </p>
           </div>
         </CardContent>
       </Card>

@@ -1,8 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { memo, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,17 +13,34 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { PersianDateInput } from "@/components/ui/persian-date-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import {
   CreateUserCreditInput,
   UpdateUserCreditInput,
   useCreateUserCredit,
   useUpdateUserCredit,
 } from "../hooks/use-user-credits";
-import { UserCredit } from "../types";
+import {
+  EditableCreditStatus,
+  EditableCreditStatusSchema,
+  UserCredit,
+} from "../types";
 import { usePackages } from "../../packages/hooks/use-packages";
 import { Package } from "../../packages/types";
 import { PackageSelectorDialog } from "./package-selector-dialog";
+import {
+  EDITABLE_CREDIT_STATUSES,
+  normalizeCreditStatus,
+} from "../utils/credit-status.helpers";
 
 const createCreditSchema = z.object({
   phoneNumber: z.string().min(1, "شماره تلفن الزامی است"),
@@ -34,8 +52,10 @@ const createCreditSchema = z.object({
 });
 
 const updateCreditSchema = z.object({
-  creditAmount: z.number().min(0, "مقدار اعتبار باید بیشتر از صفر باشد"),
   creditBalance: z.number().min(0, "موجودی اعتبار باید بیشتر از صفر باشد"),
+  status: EditableCreditStatusSchema,
+  cancelReason: z.string().optional(),
+  expiresAt: z.string().min(1, "تاریخ انقضا الزامی است"),
 });
 
 type CreateCreditFormData = z.infer<typeof createCreditSchema>;
@@ -47,6 +67,61 @@ type UserCreditFormProps = {
   onSuccess?: () => void;
   onCancel?: () => void;
 };
+
+function toDateInputValue(iso?: string | null): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function toEditableStatus(status: string | undefined): EditableCreditStatus {
+  const normalized = normalizeCreditStatus(status);
+  if (
+    normalized === "active" ||
+    normalized === "expired" ||
+    normalized === "transferred" ||
+    normalized === "cancelled"
+  ) {
+    return normalized;
+  }
+  return "active";
+}
+
+function convertDateToISO(dateString: string, previousIso?: string): string {
+  if (!dateString) return "";
+
+  const [rawYear, rawMonth, rawDay] = dateString.split("-");
+  const year = Number(rawYear);
+  const month = Number(rawMonth);
+  const day = Number(rawDay);
+
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day)
+  ) {
+    return "";
+  }
+
+  const date = new Date(year, month - 1, day);
+
+  if (previousIso) {
+    const previous = new Date(previousIso);
+    if (!Number.isNaN(previous.getTime())) {
+      date.setHours(
+        previous.getHours(),
+        previous.getMinutes(),
+        previous.getSeconds(),
+        previous.getMilliseconds()
+      );
+      return date.toISOString();
+    }
+  }
+
+  date.setHours(23, 59, 59, 999);
+  return date.toISOString();
+}
 
 export const UserCreditForm = memo(function UserCreditForm({
   credit,
@@ -60,20 +135,10 @@ export const UserCreditForm = memo(function UserCreditForm({
   const updateCredit = useUpdateUserCredit();
   const [isPackageDialogOpen, setIsPackageDialogOpen] = useState(false);
 
-  // Fetch packages for selector
   const { data: packagesData, isLoading: packagesLoading } = usePackages({
     limit: 100,
   });
   const packages = packagesData?.data || [];
-
-  // Convert ISO datetime to date string (YYYY-MM-DD) for PersianDateInput
-  const expiresAtDate = useMemo(() => {
-    if (credit?.expiresAt) {
-      const date = new Date(credit.expiresAt);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-    return undefined;
-  }, [credit?.expiresAt]);
 
   const createForm = useForm<CreateCreditFormData>({
     resolver: zodResolver(createCreditSchema),
@@ -87,13 +152,11 @@ export const UserCreditForm = memo(function UserCreditForm({
     },
   });
 
-  // Get selected package
   const packageUuid = createForm.watch("packageUuid");
   const selectedPackage = useMemo(() => {
     return packages.find((pkg) => pkg.uuid === packageUuid);
   }, [packageUuid, packages]);
 
-  // Format pricePaid for display
   const pricePaidValue = createForm.watch("pricePaid");
   const formattedPricePaid = useMemo(() => {
     const numericValue = Number(pricePaidValue);
@@ -105,28 +168,28 @@ export const UserCreditForm = memo(function UserCreditForm({
 
   const updateForm = useForm<UpdateCreditFormData>({
     resolver: zodResolver(updateCreditSchema),
-    defaultValues: credit
-      ? {
-          creditAmount: credit.creditAmount,
-          creditBalance: credit.creditBalance,
-        }
-      : {
-          creditAmount: 0,
-          creditBalance: 0,
-        },
+    defaultValues: {
+      creditBalance: credit?.creditBalance ?? 0,
+      status: toEditableStatus(credit?.status),
+      cancelReason: credit?.cancelReason ?? "",
+      expiresAt: toDateInputValue(credit?.expiresAt),
+    },
   });
 
-  // Reset form when credit changes
+  const watchedStatus = updateForm.watch("status");
+  const showCancelReason = watchedStatus === "cancelled";
+
   useEffect(() => {
     if (credit) {
       updateForm.reset({
-        creditAmount: credit.creditAmount,
         creditBalance: credit.creditBalance,
+        status: toEditableStatus(credit.status),
+        cancelReason: credit.cancelReason ?? "",
+        expiresAt: toDateInputValue(credit.expiresAt),
       });
     }
   }, [credit, updateForm]);
 
-  // Update form fields when package is selected
   const handlePackageSelect = (pkg: Package) => {
     createForm.setValue("packageUuid", pkg.uuid, { shouldValidate: true });
     createForm.setValue("creditAmount", pkg.creditAmount, {
@@ -136,15 +199,6 @@ export const UserCreditForm = memo(function UserCreditForm({
       shouldValidate: true,
     });
     createForm.setValue("pricePaid", pkg.price, { shouldValidate: true });
-  };
-
-  // Convert date string (YYYY-MM-DD) to ISO datetime string
-  const convertDateToISO = (dateString: string): string => {
-    if (!dateString) return "";
-    // Set time to end of day (23:59:59.999)
-    const date = new Date(dateString);
-    date.setHours(23, 59, 59, 999);
-    return date.toISOString();
   };
 
   const onCreateSubmit: SubmitHandler<CreateCreditFormData> = async (data) => {
@@ -169,9 +223,17 @@ export const UserCreditForm = memo(function UserCreditForm({
   const onUpdateSubmit: SubmitHandler<UpdateCreditFormData> = async (data) => {
     if (!credit) return;
 
+    if (data.status === "cancelled" && !data.cancelReason?.trim()) {
+      toast.warning("لطفاً علت کنسل شدن اشتراک را وارد کنید.");
+      return;
+    }
+
     const payload: UpdateUserCreditInput = {
-      creditAmount: data.creditAmount,
       creditBalance: data.creditBalance,
+      status: data.status,
+      cancelReason:
+        data.status === "cancelled" ? data.cancelReason?.trim() || null : null,
+      expiresAt: convertDateToISO(data.expiresAt, credit.expiresAt),
     };
 
     await updateCredit.mutateAsync({
@@ -197,20 +259,13 @@ export const UserCreditForm = memo(function UserCreditForm({
             </FieldLabel>
             <Input
               id="creditAmount"
-              className="text-left"
+              className="cursor-not-allowed text-left"
               dir="ltr"
               type="number"
-              min="0"
-              {...updateForm.register("creditAmount", {
-                valueAsNumber: true,
-              })}
-              disabled={isLoading}
+              value={credit.creditAmount}
+              disabled
+              readOnly
             />
-            {updateForm.formState.errors.creditAmount && (
-              <FieldDescription className="text-destructive">
-                {updateForm.formState.errors.creditAmount.message}
-              </FieldDescription>
-            )}
           </Field>
 
           <Field>
@@ -222,7 +277,7 @@ export const UserCreditForm = memo(function UserCreditForm({
               id="creditBalance"
               className="text-left"
               dir="ltr"
-              type="number"
+              type="text"
               min="0"
               {...updateForm.register("creditBalance", {
                 valueAsNumber: true,
@@ -236,12 +291,69 @@ export const UserCreditForm = memo(function UserCreditForm({
             )}
           </Field>
 
-          {/* Read-only fields */}
-          <div className="space-y-4 rounded-lg border p-4">
-            <h3 className="text-muted-foreground text-sm font-semibold">
+          <Field>
+            <FieldLabel htmlFor="status">
+              {t("userCredits.form.status")}{" "}
+              <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Controller
+              control={updateForm.control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={(value) =>
+                    field.onChange(value as EditableCreditStatus)
+                  }
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="status" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EDITABLE_CREDIT_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {t(`userCredits.statuses.${status}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
+
+          <div
+            id="cancellation-reason-container"
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-out",
+              showCancelReason
+                ? "animate-in fade-in slide-in-from-top-2 max-h-40 opacity-100"
+                : "pointer-events-none max-h-0 opacity-0"
+            )}
+            aria-hidden={!showCancelReason}
+          >
+            <Field>
+              <FieldLabel htmlFor="cancelReason">
+                {t("userCredits.form.cancelReason")}{" "}
+                <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Textarea
+                id="cancelReason"
+                rows={2}
+                dir="rtl"
+                className="resize-none text-right"
+                placeholder={t("userCredits.form.cancelReasonPlaceholder")}
+                {...updateForm.register("cancelReason")}
+                disabled={isLoading || !showCancelReason}
+              />
+            </Field>
+          </div>
+
+          <div className="space-y-4 rounded-2xl border p-4">
+            <h3 className="text-muted-foreground text-[10px] font-black tracking-wider uppercase">
               {t("userCredits.form.readOnlyFields")}
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel>{t("userCredits.form.phoneNumber")}</FieldLabel>
                 <Input
@@ -269,20 +381,37 @@ export const UserCreditForm = memo(function UserCreditForm({
                 <Input value={credit.packageType} disabled />
               </Field>
               <Field>
+                <FieldLabel>
+                  {t("userCredits.form.expiresAt")}{" "}
+                  <span className="text-destructive">*</span>
+                </FieldLabel>
+                <Controller
+                  control={updateForm.control}
+                  name="expiresAt"
+                  render={({ field }) => (
+                    <PersianDateInput
+                      id="expiresAt"
+                      value={field.value || undefined}
+                      onChange={(value) => field.onChange(value || "")}
+                      placeholder={t("userCredits.form.selectExpiryDate")}
+                      disabled={isLoading}
+                      className="justify-end text-right font-mono"
+                    />
+                  )}
+                />
+                {updateForm.formState.errors.expiresAt && (
+                  <FieldDescription className="text-destructive">
+                    {updateForm.formState.errors.expiresAt.message}
+                  </FieldDescription>
+                )}
+              </Field>
+              <Field>
                 <FieldLabel>{t("userCredits.form.pricePaid")}</FieldLabel>
                 <Input
                   value={credit.pricePaid.toLocaleString()}
                   disabled
                   className="text-left"
                   dir="ltr"
-                />
-              </Field>
-              <Field>
-                <FieldLabel>{t("userCredits.form.expiresAt")}</FieldLabel>
-                <PersianDateInput
-                  value={expiresAtDate}
-                  onChange={() => {}} // Disabled
-                  disabled
                 />
               </Field>
             </div>
@@ -370,54 +499,6 @@ export const UserCreditForm = memo(function UserCreditForm({
             </FieldDescription>
           )}
         </Field>
-
-        {/* <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="creditAmount">
-              {t("userCredits.form.creditAmount")}{" "}
-              <span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="creditAmount"
-              className="text-left"
-              dir="ltr"
-              type="number"
-              min="0"
-              {...createForm.register("creditAmount", {
-                valueAsNumber: true,
-              })}
-              disabled={isLoading || !!selectedPackage}
-            />
-            {createForm.formState.errors.creditAmount && (
-              <FieldDescription className="text-destructive">
-                {createForm.formState.errors.creditAmount.message}
-              </FieldDescription>
-            )}
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="creditBalance">
-              {t("userCredits.form.creditBalance")}{" "}
-              <span className="text-destructive">*</span>
-            </FieldLabel>
-            <Input
-              id="creditBalance"
-              className="text-left"
-              dir="ltr"
-              type="number"
-              min="0"
-              {...createForm.register("creditBalance", {
-                valueAsNumber: true,
-              })}
-              disabled={isLoading || !!selectedPackage}
-            />
-            {createForm.formState.errors.creditBalance && (
-              <FieldDescription className="text-destructive">
-                {createForm.formState.errors.creditBalance.message}
-              </FieldDescription>
-            )}
-          </Field>
-        </div> */}
 
         <div className="grid grid-cols-1 gap-4">
           <Field>

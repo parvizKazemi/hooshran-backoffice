@@ -264,6 +264,12 @@ export const UserCreditsFilterDialog = memo(function UserCreditsFilterDialog({
                     <SelectItem value="expired">
                       {t("userCredits.statuses.expired")}
                     </SelectItem>
+                    <SelectItem value="transferred">
+                      {t("userCredits.statuses.transferred")}
+                    </SelectItem>
+                    <SelectItem value="cancelled">
+                      {t("userCredits.statuses.cancelled")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
