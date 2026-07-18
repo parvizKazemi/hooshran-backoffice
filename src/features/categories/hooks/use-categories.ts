@@ -1,50 +1,34 @@
 import { ApiError } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { mockCategories } from "../mock-data";
 import {
-  CategoriesQueryParams,
-  Category,
+  createCategory,
+  deleteCategory,
+  fetchCategories,
+  reorderCategories,
+  updateCategory,
+} from "../api/service";
+import { CATEGORY_QUERY_KEY } from "../constants";
+import type {
   CreateCategoryInput,
-  PaginatedResponse,
+  ReorderCategoriesInput,
   UpdateCategoryInput,
 } from "../types";
 
-export const useCategories = (params: CategoriesQueryParams = {}) => {
+export function useCategories() {
+  const { t } = useTranslation("common");
+
   return useQuery({
-    queryKey: ["categories", params],
-    queryFn: async (): Promise<PaginatedResponse<Category>> => {
+    queryKey: CATEGORY_QUERY_KEY,
+    queryFn: async () => {
       try {
-        // TODO: Replace with actual API call
-        let filtered = [...mockCategories];
-        if (params.q) {
-          const query = params.q.toLowerCase();
-          filtered = filtered.filter(
-            (cat) =>
-              cat.name.toLowerCase().includes(query) ||
-              cat.slug?.toLowerCase().includes(query) ||
-              cat.description?.toLowerCase().includes(query)
-          );
-        }
-        if (params.is_active !== undefined) {
-          filtered = filtered.filter(
-            (cat) => cat.is_active === params.is_active
-          );
-        }
-        const page = params.page || 1;
-        const take = params.take || 10;
-        const start = (page - 1) * take;
-        const end = start + take;
-        return {
-          data: filtered.slice(start, end),
-          total: filtered.length,
-          page,
-          take,
-          totalPages: Math.ceil(filtered.length / take),
-        };
+        return await fetchCategories();
       } catch (error) {
         if (error instanceof ApiError) {
           toast.error(error.message);
+        } else {
+          toast.error(t("categories.toasts.loadFailed"));
         }
         throw error;
       }
@@ -52,77 +36,84 @@ export const useCategories = (params: CategoriesQueryParams = {}) => {
     retry: 1,
     refetchOnWindowFocus: false,
   });
-};
+}
 
-export const useCreateCategory = () => {
+export function useCreateCategory() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
+
   return useMutation({
-    mutationFn: async (data: CreateCategoryInput): Promise<Category> => {
-      // TODO: Implement API call
-      const newCategory: Category = {
-        ...data,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      return newCategory;
-    },
+    mutationFn: (payload: CreateCategoryInput) => createCategory(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("دسته‌بندی با موفقیت ایجاد شد");
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
+      toast.success(t("categories.toasts.created"));
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("خطا در ایجاد دسته‌بندی");
-      }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("categories.toasts.createFailed")
+      );
     },
   });
-};
+}
 
-export const useUpdateCategory = () => {
+export function useUpdateCategory() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
+
   return useMutation({
-    mutationFn: async (data: UpdateCategoryInput): Promise<Category> => {
-      // TODO: Implement API call
-      const updatedCategory: Category = {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      } as Category;
-      return updatedCategory;
-    },
+    mutationFn: (payload: UpdateCategoryInput) => updateCategory(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("دسته‌بندی با موفقیت به‌روزرسانی شد");
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
+      toast.success(t("categories.toasts.updated"));
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("خطا در به‌روزرسانی دسته‌بندی");
-      }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("categories.toasts.updateFailed")
+      );
     },
   });
-};
+}
 
-export const useDeleteCategory = () => {
+export function useDeleteCategory() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
+
   return useMutation({
-    mutationFn: async (id: string): Promise<void> => {
-      // TODO: Implement API call
-      void id;
-    },
+    mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("دسته‌بندی با موفقیت حذف شد");
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
+      toast.success(t("categories.toasts.deleted"));
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("خطا در حذف دسته‌بندی");
-      }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("categories.toasts.deleteFailed")
+      );
     },
   });
-};
+}
+
+export function useReorderCategories() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
+
+  return useMutation({
+    mutationFn: (payload: ReorderCategoriesInput) => reorderCategories(payload),
+    onSuccess: (data) => {
+      queryClient.setQueryData(CATEGORY_QUERY_KEY, data);
+      toast.success(t("categories.toasts.reordered"));
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("categories.toasts.reorderFailed")
+      );
+    },
+  });
+}

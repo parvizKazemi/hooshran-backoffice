@@ -146,8 +146,12 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "/categories",
+            path: "/services/categories",
             element: <Categories />,
+          },
+          {
+            path: "/categories",
+            element: <Navigate to="/services/categories" replace />,
           },
           {
             path: "/users-and-credits/user-credits",

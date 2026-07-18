@@ -39,7 +39,17 @@ const filterSchema = z.object({
     .enum(["SUBSCRIPTION", "SUBSCRIPTION-TRANSFERED", "PERMANENT"])
     .optional(),
   type: z.enum(["PURCHASE", "GIFT", "REFERRAL", "SYSTEM", "ADMIN"]).optional(),
-  status: z.enum(["active", "used", "expired"]).optional(),
+  status: z
+    .enum([
+      "active",
+      "used",
+      "expired",
+      "transferred",
+      "transfered",
+      "cancelled",
+      "frozen",
+    ])
+    .optional(),
 });
 
 type FilterFormData = z.infer<typeof filterSchema>;

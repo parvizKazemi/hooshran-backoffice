@@ -1,29 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -33,384 +8,214 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import {
-  IconDotsVertical,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react";
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { IconEdit, IconGripVertical, IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useDeleteCategory } from "../hooks/use-categories";
-import { CategoriesQueryParams, Category } from "../types";
-import { CategoryForm } from "./category-form";
+import type { Category } from "../types";
+import { CategoryBadgePill } from "./category-badge-pill";
 
 type CategoriesTableProps = {
-  data: Category[];
+  items: Category[];
   isLoading?: boolean;
-  onRefresh?: () => void;
-  filters?: CategoriesQueryParams;
-  onFiltersChange?: (filters: CategoriesQueryParams) => void;
-  pagination?: {
-    page: number;
-    total: number;
-    totalPages: number;
-    take: number;
-  };
+  onReorder: (activeId: string, overId: string) => void;
+  onEdit: (category: Category) => void;
+  onDelete: (category: Category) => void;
 };
 
-export const CategoriesTable = memo(function CategoriesTable({
-  data,
+function SortableCategoryRow({
+  category,
+  onEdit,
+  onDelete,
+}: {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (category: Category) => void;
+}) {
+  const { t } = useTranslation("common");
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      data-dragging={isDragging}
+      className={cn(
+        "bg-background relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80",
+        isDragging && "shadow-md"
+      )}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      <TableCell className="w-12 text-center">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground size-8 cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <IconGripVertical className="size-4" />
+          <span className="sr-only">{t("table.dragToReorder")}</span>
+        </Button>
+      </TableCell>
+      <TableCell>
+        <span className="bg-muted text-muted-foreground inline-flex size-7 items-center justify-center rounded-lg text-xs font-bold">
+          {category.order}
+        </span>
+      </TableCell>
+      <TableCell className="font-semibold">{category.name}</TableCell>
+      <TableCell>
+        <code
+          dir="ltr"
+          className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-[11px]"
+        >
+          {category.slug}
+        </code>
+      </TableCell>
+      <TableCell>
+        <CategoryBadgePill badge={category.badge} />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={() => onEdit(category)}
+          >
+            <IconEdit className="size-3.5" />
+            {t("categories.actions.edit")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 text-xs"
+            onClick={() => onDelete(category)}
+          >
+            <IconTrash className="size-3.5" />
+            {t("categories.actions.delete")}
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function CategoriesTable({
+  items,
   isLoading = false,
-  onRefresh,
-  filters = {},
-  onFiltersChange,
-  pagination,
+  onReorder,
+  onEdit,
+  onDelete,
 }: CategoriesTableProps) {
   const { t } = useTranslation("common");
-  const deleteCategory = useDeleteCategory();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [isActiveFilter, setIsActiveFilter] = useState<string>(
-    filters.is_active !== undefined ? String(filters.is_active) : ""
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
   );
 
-  // Keep latest filters in ref to avoid infinite loops
-  const filtersRef = useRef(filters);
-  useEffect(() => {
-    filtersRef.current = filters;
-  }, [filters]);
-
-  useEffect(() => {
-    setSearchQuery(filters.q || "");
-    setIsActiveFilter(
-      filters.is_active !== undefined ? String(filters.is_active) : ""
-    );
-  }, [filters]);
-
-  const applyFilters = useCallback(
-    (newFilters: Partial<CategoriesQueryParams>) => {
-      if (onFiltersChange) {
-        onFiltersChange({
-          ...filtersRef.current,
-          ...newFilters,
-          page: 1,
-        });
-      }
-    },
-    [onFiltersChange]
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      applyFilters({ q: searchQuery || undefined });
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery, applyFilters]);
-
-  const columns: ColumnDef<Category>[] = useMemo(
-    () => [
-      {
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
-        accessorKey: "name",
-        header: t("categories.table.name"),
-      },
-      {
-        accessorKey: "slug",
-        header: t("categories.table.slug"),
-        cell: ({ row }) => row.original.slug || "-",
-      },
-      {
-        accessorKey: "description",
-        header: t("categories.table.description"),
-        cell: ({ row }) => row.original.description || "-",
-      },
-      {
-        accessorKey: "is_active",
-        header: t("categories.table.status"),
-        cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? "default" : "secondary"}>
-            {row.original.is_active
-              ? t("categories.statuses.active")
-              : t("categories.statuses.inactive")}
-          </Badge>
-        ),
-      },
-      {
-        id: "actions",
-        cell: ({ row }) => {
-          const category = row.original;
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <IconDotsVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem
-                  onClick={() => {
-                    setEditingCategory(category);
-                    setIsDrawerOpen(true);
-                  }}
-                >
-                  <IconEdit className="mr-2 size-4" />
-                  {t("categories.actions.edit")}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (confirm(t("categories.confirmDelete"))) {
-                      deleteCategory.mutate(category.id, {
-                        onSuccess: () => onRefresh?.(),
-                      });
-                    }
-                  }}
-                  className="text-destructive"
-                >
-                  <IconTrash className="mr-2 size-4" />
-                  {t("categories.actions.delete")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
-      },
-    ],
-    [t, deleteCategory, onRefresh, setEditingCategory, setIsDrawerOpen]
-  );
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: { sorting, columnVisibility, rowSelection },
-    onSortingChange: setSorting,
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    onReorder(String(active.id), String(over.id));
+  };
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-48" />
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
+      <div className="space-y-3 p-6">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-12 w-full" />
         ))}
       </div>
     );
   }
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Input
-            placeholder={t("categories.search")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
-          <div className="flex items-center gap-2">
-            <Select
-              value={isActiveFilter || "all"}
-              onValueChange={(value) => {
-                setIsActiveFilter(value === "all" ? "" : value);
-                applyFilters({
-                  is_active: value === "all" ? undefined : value === "true",
-                });
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {t("categories.allStatuses")}
-                </SelectItem>
-                <SelectItem value="true">
-                  {t("categories.statuses.active")}
-                </SelectItem>
-                <SelectItem value="false">
-                  {t("categories.statuses.inactive")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button
-                  onClick={() => {
-                    setEditingCategory(null);
-                    setIsDrawerOpen(true);
-                  }}
-                >
-                  <IconPlus className="mr-2 size-4" />
-                  {t("categories.addCategory")}
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>
-                    {editingCategory
-                      ? t("categories.editCategory")
-                      : t("categories.addNewCategory")}
-                  </DrawerTitle>
-                  <DrawerDescription>
-                    {editingCategory
-                      ? t("categories.editCategoryInfo")
-                      : t("categories.addCategoryInfo")}
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="p-4">
-                  <CategoryForm
-                    category={editingCategory || undefined}
-                    onSuccess={() => {
-                      setIsDrawerOpen(false);
-                      setEditingCategory(null);
-                      onRefresh?.();
-                    }}
-                    onCancel={() => setIsDrawerOpen(false)}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis]}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/40">
+              <TableHead className="w-12 text-center text-xs">
+                {t("categories.table.drag")}
+              </TableHead>
+              <TableHead className="text-xs">
+                {t("categories.table.order")}
+              </TableHead>
+              <TableHead className="text-xs">
+                {t("categories.table.name")}
+              </TableHead>
+              <TableHead className="text-xs">
+                {t("categories.table.slug")}
+              </TableHead>
+              <TableHead className="text-xs">
+                {t("categories.table.badge")}
+              </TableHead>
+              <TableHead className="text-center text-xs">
+                {t("categories.table.actions")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  {t("categories.noResults")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              <SortableContext
+                items={items.map((item) => item.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {items.map((category) => (
+                  <SortableCategoryRow
+                    key={category.id}
+                    category={category}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
                   />
-                </div>
-              </DrawerContent>
-            </Drawer>
-          </div>
-        </div>
-
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-start">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    {t("categories.noResults")}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {pagination && (
-          <div className="flex items-center justify-between px-2">
-            <div className="text-muted-foreground text-sm">
-              {t("categories.page")} {pagination.page} {t("categories.of")}{" "}
-              {pagination.totalPages}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (onFiltersChange && pagination.page > 1) {
-                    onFiltersChange({
-                      ...filtersRef.current,
-                      page: pagination.page - 1,
-                    });
-                  }
-                }}
-                disabled={pagination.page <= 1}
-              >
-                {t("categories.prev")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (
-                    onFiltersChange &&
-                    pagination.page < pagination.totalPages
-                  ) {
-                    onFiltersChange({
-                      ...filtersRef.current,
-                      page: pagination.page + 1,
-                    });
-                  }
-                }}
-                disabled={pagination.page >= pagination.totalPages}
-              >
-                {t("categories.next")}
-              </Button>
-            </div>
-          </div>
-        )}
+                ))}
+              </SortableContext>
+            )}
+          </TableBody>
+        </Table>
       </div>
-    </>
+    </DndContext>
   );
-});
+}

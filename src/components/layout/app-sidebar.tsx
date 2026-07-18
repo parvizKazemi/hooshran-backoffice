@@ -103,6 +103,10 @@ function useSidebarData() {
         icon: IconApi,
         items: [
           {
+            title: t("nav.services.categories"),
+            url: "/services/categories",
+          },
+          {
             title: t("nav.services.serviceHint"),
             url: "/services/service-hint",
           },
@@ -228,6 +232,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-settings",
               "/user-settings/welcome-packages",
               "/discount-codes",
+              "/services/categories",
               "/system-settings/sms-config",
               ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}
