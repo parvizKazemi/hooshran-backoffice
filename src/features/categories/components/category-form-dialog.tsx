@@ -26,7 +26,6 @@ import {
   IconFolderPlus,
   IconHash,
   IconLink,
-  IconLoader2,
   IconTag,
   IconTypography,
 } from "@tabler/icons-react";
@@ -38,9 +37,9 @@ import {
   normalizeCategoryBadge,
   toCategoryBadgeFormValue,
 } from "../constants";
-import { useCreateCategory, useUpdateCategory } from "../hooks/use-categories";
 import {
   type Category,
+  type CategoryFormSubmitValues,
   type CategoryFormValues,
   categoryFormSchema,
 } from "../types";
@@ -50,6 +49,9 @@ type CategoryFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   category?: Category | null;
   nextOrder: number;
+  existingSlugs: string[];
+  existingOrders: number[];
+  onSubmit: (values: CategoryFormSubmitValues) => void;
 };
 
 export function CategoryFormDialog({
@@ -57,11 +59,12 @@ export function CategoryFormDialog({
   onOpenChange,
   category = null,
   nextOrder,
+  existingSlugs,
+  existingOrders,
+  onSubmit,
 }: CategoryFormDialogProps) {
   const { t } = useTranslation("common");
   const isEditing = !!category;
-  const createCategory = useCreateCategory();
-  const updateCategory = useUpdateCategory();
 
   const defaultValues = useMemo<CategoryFormValues>(
     () =>
@@ -92,22 +95,32 @@ export function CategoryFormDialog({
     }
   }, [open, defaultValues, form]);
 
-  const isPending = createCategory.isPending || updateCategory.isPending;
+  const handleSubmit = form.handleSubmit((values) => {
+    const slug = values.slug.trim();
+    const order = values.order;
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    const payload = {
-      name: values.name.trim(),
-      slug: values.slug.trim(),
-      order: values.order,
-      badge: normalizeCategoryBadge(values.badge),
-    };
-
-    if (isEditing && category) {
-      await updateCategory.mutateAsync({ ...payload, id: category.id });
-    } else {
-      await createCategory.mutateAsync(payload);
+    const slugTaken = existingSlugs.some(
+      (item) => item === slug && item !== category?.slug
+    );
+    if (slugTaken) {
+      form.setError("slug", { message: t("categories.form.slugDuplicate") });
+      return;
     }
 
+    const orderTaken = existingOrders.some(
+      (item) => item === order && item !== category?.order
+    );
+    if (orderTaken) {
+      form.setError("order", { message: t("categories.form.orderDuplicate") });
+      return;
+    }
+
+    onSubmit({
+      name: values.name.trim(),
+      slug,
+      order,
+      badge: normalizeCategoryBadge(values.badge),
+    });
     onOpenChange(false);
   });
 
@@ -134,7 +147,7 @@ export function CategoryFormDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <FieldGroup className="gap-4 space-y-4">
             <Field>
               <FieldLabel htmlFor="category-name">
@@ -147,7 +160,6 @@ export function CategoryFormDialog({
                   id="category-name"
                   className="ps-10"
                   placeholder={t("categories.form.namePlaceholder")}
-                  disabled={isPending}
                   {...form.register("name")}
                 />
               </div>
@@ -170,7 +182,6 @@ export function CategoryFormDialog({
                   dir="ltr"
                   className="ps-10 text-start font-mono"
                   placeholder={t("categories.form.slugPlaceholder")}
-                  disabled={isPending}
                   {...form.register("slug")}
                 />
               </div>
@@ -190,11 +201,7 @@ export function CategoryFormDialog({
                 control={form.control}
                 name="badge"
                 render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full">
                       <div className="flex items-center gap-2">
                         <IconTag className="text-muted-foreground size-4" />
@@ -230,7 +237,6 @@ export function CategoryFormDialog({
                   min={1}
                   className="ps-10"
                   placeholder={t("categories.form.orderPlaceholder")}
-                  disabled={isPending}
                   {...form.register("order", { valueAsNumber: true })}
                 />
               </div>
@@ -249,17 +255,11 @@ export function CategoryFormDialog({
             <Button
               type="button"
               variant="outline"
-              disabled={isPending}
               onClick={() => onOpenChange(false)}
             >
               {t("categories.form.cancel")}
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? (
-                <IconLoader2 className="size-4 animate-spin" />
-              ) : null}
-              {t("categories.form.submit")}
-            </Button>
+            <Button type="submit">{t("categories.form.submit")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

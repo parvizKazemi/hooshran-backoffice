@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { arrayMove } from "@dnd-kit/sortable";
 import {
+  IconAlertCircle,
   IconDeviceFloppy,
   IconFolders,
   IconLoader2,
@@ -8,38 +9,26 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useCategories,
-  useDeleteCategory,
-  useReorderCategories,
-} from "./hooks/use-categories";
-import type { Category } from "./types";
 import { CategoriesTable } from "./components/categories-table";
 import { CategoryDeleteDialog } from "./components/category-delete-dialog";
 import { CategoryFormDialog } from "./components/category-form-dialog";
-
-function applyLocalOrder(items: Category[]): Category[] {
-  return items.map((item, index) => ({
-    ...item,
-    order: index + 1,
-  }));
-}
-
-function hasOrderChanged(current: Category[], original: Category[]): boolean {
-  if (current.length !== original.length) return true;
-  return current.some((item, index) => {
-    const source = original[index];
-    return !source || source.id !== item.id || source.order !== item.order;
-  });
-}
+import { useCategories, useSaveCategories } from "./hooks/use-categories";
+import type { Category, CategoryFormSubmitValues } from "./types";
+import {
+  applyCategoryOrders,
+  areCategoriesEqual,
+  cloneCategories,
+  createLocalCategory,
+  toCategoryPayloadList,
+} from "./utils/category.helpers";
 
 export default function Categories() {
   const { t } = useTranslation("common");
   const { data, isLoading, isFetching } = useCategories();
-  const deleteCategory = useDeleteCategory();
-  const reorderCategories = useReorderCategories();
+  const saveCategories = useSaveCategories();
 
   const [items, setItems] = useState<Category[]>([]);
+  const [baseline, setBaseline] = useState<Category[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(
@@ -47,40 +36,108 @@ export default function Categories() {
   );
 
   useEffect(() => {
-    if (data) {
-      setItems(data.map((item) => ({ ...item })));
-    }
+    if (!data) return;
+    const next = cloneCategories(data);
+    setItems(next);
+    setBaseline(cloneCategories(data));
   }, [data]);
 
   const isDirty = useMemo(
-    () => hasOrderChanged(items, data ?? []),
-    [items, data]
+    () => !areCategoriesEqual(items, baseline),
+    [items, baseline]
   );
+
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   const nextOrder = useMemo(() => {
     if (items.length === 0) return 1;
     return Math.max(...items.map((item) => item.order)) + 1;
   }, [items]);
 
-  const handleReorder = (activeId: string, overId: string) => {
+  const existingSlugs = useMemo(() => items.map((item) => item.slug), [items]);
+  const existingOrders = useMemo(
+    () => items.map((item) => item.order),
+    [items]
+  );
+
+  const handleReorder = (activeUuid: string, overUuid: string) => {
     setItems((prev) => {
-      const oldIndex = prev.findIndex((item) => item.id === activeId);
-      const newIndex = prev.findIndex((item) => item.id === overId);
+      const oldIndex = prev.findIndex((item) => item.uuid === activeUuid);
+      const newIndex = prev.findIndex((item) => item.uuid === overUuid);
       if (oldIndex < 0 || newIndex < 0) return prev;
-      return applyLocalOrder(arrayMove(prev, oldIndex, newIndex));
+      return applyCategoryOrders(arrayMove(prev, oldIndex, newIndex));
     });
   };
 
-  const handleCancelReorder = () => {
-    if (data) {
-      setItems(data.map((item) => ({ ...item })));
+  const handleCancelChanges = () => {
+    setItems(cloneCategories(baseline));
+  };
+
+  const handleSaveAll = async () => {
+    const payload = toCategoryPayloadList(items);
+    const saved = await saveCategories.mutateAsync({
+      payload,
+      useCreate: baseline.length === 0,
+    });
+    setItems(cloneCategories(saved));
+    setBaseline(cloneCategories(saved));
+  };
+
+  const handleFormSubmit = (values: CategoryFormSubmitValues) => {
+    if (editingCategory) {
+      setItems((prev) =>
+        applyCategoryOrders(
+          prev
+            .map((item) =>
+              item.uuid === editingCategory.uuid
+                ? {
+                    ...item,
+                    name: values.name,
+                    slug: values.slug,
+                    order: values.order,
+                    badge: values.badge,
+                  }
+                : item
+            )
+            .sort((a, b) => a.order - b.order)
+        )
+      );
+      return;
     }
+
+    setItems((prev) =>
+      applyCategoryOrders(
+        [
+          ...prev,
+          createLocalCategory({
+            name: values.name,
+            slug: values.slug,
+            order: values.order,
+            badge: values.badge,
+          }),
+        ].sort((a, b) => a.order - b.order)
+      )
+    );
   };
 
-  const handleSaveReorder = async () => {
-    await reorderCategories.mutateAsync({
-      items: items.map((item) => ({ id: item.id, order: item.order })),
-    });
+  const handleConfirmDelete = () => {
+    if (!deletingCategory) return;
+    setItems((prev) =>
+      applyCategoryOrders(
+        prev.filter((item) => item.uuid !== deletingCategory.uuid)
+      )
+    );
+    setDeletingCategory(null);
   };
 
   return (
@@ -95,6 +152,18 @@ export default function Categories() {
           </p>
         </div>
       </div>
+
+      {isDirty ? (
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+          <IconAlertCircle className="mt-0.5 size-5 shrink-0" />
+          <div>
+            <p className="font-bold">{t("categories.unsaved.title")}</p>
+            <p className="mt-0.5 text-xs opacity-90">
+              {t("categories.unsaved.description")}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
         <div className="bg-muted/30 flex flex-col gap-4 border-b p-5 md:flex-row md:items-center md:justify-between">
@@ -140,22 +209,22 @@ export default function Categories() {
         <Button
           type="button"
           variant="outline"
-          disabled={!isDirty || reorderCategories.isPending}
-          onClick={handleCancelReorder}
+          disabled={!isDirty || saveCategories.isPending}
+          onClick={handleCancelChanges}
         >
           {t("categories.actions.cancelChanges")}
         </Button>
         <Button
           type="button"
-          disabled={!isDirty || reorderCategories.isPending}
-          onClick={handleSaveReorder}
+          disabled={!isDirty || saveCategories.isPending}
+          onClick={handleSaveAll}
         >
-          {reorderCategories.isPending ? (
+          {saveCategories.isPending ? (
             <IconLoader2 className="size-4 animate-spin" />
           ) : (
             <IconDeviceFloppy className="size-4" />
           )}
-          {t("categories.actions.saveOrder")}
+          {t("categories.actions.saveAll")}
         </Button>
       </div>
 
@@ -167,6 +236,9 @@ export default function Categories() {
         }}
         category={editingCategory}
         nextOrder={nextOrder}
+        existingSlugs={existingSlugs}
+        existingOrders={existingOrders}
+        onSubmit={handleFormSubmit}
       />
 
       <CategoryDeleteDialog
@@ -175,13 +247,8 @@ export default function Categories() {
           if (!open) setDeletingCategory(null);
         }}
         category={deletingCategory}
-        isPending={deleteCategory.isPending}
-        onConfirm={() => {
-          if (!deletingCategory) return;
-          deleteCategory.mutate(deletingCategory.id, {
-            onSuccess: () => setDeletingCategory(null),
-          });
-        }}
+        isPending={false}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

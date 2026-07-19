@@ -10,11 +10,13 @@ export const CategoryBadgeSchema = z.enum(CATEGORY_BADGE_VALUES).nullable();
 export type CategoryBadge = z.infer<typeof CategoryBadgeSchema>;
 
 export const CategorySchema = z.object({
-  id: z.string().min(1),
+  uuid: z.string().min(1),
   name: z.string().min(1),
   slug: z.string().min(1),
   order: z.number().int().positive(),
   badge: CategoryBadgeSchema,
+  /** True for rows created locally and not yet persisted. */
+  isLocal: z.boolean().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });
@@ -33,22 +35,18 @@ export const categoryFormSchema = z.object({
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
-export type CreateCategoryInput = {
+/** Payload item sent to POST/PATCH (array body). */
+export type CategoryPayload = {
+  uuid?: string;
   name: string;
   slug: string;
   order: number;
   badge: CategoryBadge;
 };
 
-export type UpdateCategoryInput = CreateCategoryInput & {
-  id: string;
-};
-
-export type ReorderCategoryItem = {
-  id: string;
+export type CategoryFormSubmitValues = {
+  name: string;
+  slug: string;
   order: number;
-};
-
-export type ReorderCategoriesInput = {
-  items: ReorderCategoryItem[];
+  badge: CategoryBadge;
 };

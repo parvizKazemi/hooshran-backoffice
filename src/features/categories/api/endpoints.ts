@@ -1,11 +1,13 @@
 /**
  * Category admin API paths — change here when backend routes are finalized.
+ * Only GET / POST / PATCH (no per-item PUT/DELETE).
+ * Request/response bodies are arrays of category objects.
  */
 export const CATEGORY_ENDPOINTS = {
+  /** GET → Category[] */
   list: "/admin/categories",
+  /** POST → body: CategoryPayload[] (create / first save) */
   create: "/admin/categories",
-  detail: (id: string) => `/admin/categories/${id}`,
-  update: (id: string) => `/admin/categories/${id}`,
-  remove: (id: string) => `/admin/categories/${id}`,
-  reorder: "/admin/categories/reorder",
+  /** PATCH → body: CategoryPayload[] (full-list sync) */
+  save: "/admin/categories",
 } as const;

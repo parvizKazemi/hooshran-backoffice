@@ -1,76 +1,75 @@
-import type {
-  Category,
-  CreateCategoryInput,
-  ReorderCategoriesInput,
-  UpdateCategoryInput,
-} from "./types";
+import type { Category, CategoryPayload } from "./types";
+import {
+  normalizeCategoriesResponse,
+  sortCategoriesByOrder,
+} from "./utils/category.helpers";
 
 const initialCategories: Category[] = [
   {
-    id: "all",
+    uuid: "11111111-1111-4111-8111-111111111101",
     name: "همه",
     slug: "all",
     order: 1,
     badge: null,
   },
   {
-    id: "img-edit",
+    uuid: "11111111-1111-4111-8111-111111111102",
     name: "بهینه سازی و ویرایش تصویر",
     slug: "image-editing",
     order: 2,
     badge: null,
   },
   {
-    id: "img-gen",
+    uuid: "11111111-1111-4111-8111-111111111103",
     name: "تولید تصویر",
     slug: "image-generation",
     order: 3,
     badge: null,
   },
   {
-    id: "products",
+    uuid: "11111111-1111-4111-8111-111111111104",
     name: "عکاسی و طراحی محصولات",
     slug: "product-photography",
     order: 4,
     badge: null,
   },
   {
-    id: "fashion",
+    uuid: "11111111-1111-4111-8111-111111111105",
     name: "مد و فشن",
     slug: "fashion",
     order: 5,
     badge: null,
   },
   {
-    id: "video",
+    uuid: "11111111-1111-4111-8111-111111111106",
     name: "مدل های ویدئویی",
     slug: "video-models",
     order: 6,
     badge: null,
   },
   {
-    id: "audio",
+    uuid: "11111111-1111-4111-8111-111111111107",
     name: "مدل های صوتی",
     slug: "audio-models",
     order: 7,
     badge: null,
   },
   {
-    id: "graphics",
+    uuid: "11111111-1111-4111-8111-111111111108",
     name: "گرافیک، چاپ و طراحی",
     slug: "graphic-design-print",
     order: 8,
     badge: null,
   },
   {
-    id: "toolbox",
+    uuid: "11111111-1111-4111-8111-111111111109",
     name: "جعبه ابزار",
     slug: "toolbox",
     order: 9,
     badge: null,
   },
   {
-    id: "marketing",
+    uuid: "11111111-1111-4111-8111-111111111110",
     name: "بازاریابی و تولید محتوا",
     slug: "marketing-content",
     order: 10,
@@ -82,86 +81,46 @@ let mockCategoriesStore: Category[] = initialCategories.map((item) => ({
   ...item,
 }));
 
-function sortByOrder(items: Category[]): Category[] {
-  return [...items].sort((a, b) => a.order - b.order);
+function validatePayload(payload: CategoryPayload[]): void {
+  const orders = new Set<number>();
+  const slugs = new Set<string>();
+
+  for (const item of payload) {
+    if (orders.has(item.order)) {
+      throw new Error("شماره ترتیب نمایش تکراری است");
+    }
+    if (slugs.has(item.slug)) {
+      throw new Error("اسلاگ دسته‌بندی تکراری است");
+    }
+    orders.add(item.order);
+    slugs.add(item.slug);
+  }
 }
 
-function resetOrders(items: Category[]): Category[] {
-  return items.map((item, index) => ({
-    ...item,
-    order: index + 1,
-  }));
+function persistPayload(payload: CategoryPayload[]): Category[] {
+  validatePayload(payload);
+
+  const now = new Date().toISOString();
+  mockCategoriesStore = sortCategoriesByOrder(
+    payload.map((item) => ({
+      uuid: item.uuid || crypto.randomUUID(),
+      name: item.name,
+      slug: item.slug,
+      order: item.order,
+      badge: item.badge,
+      isLocal: false,
+      createdAt: now,
+      updatedAt: now,
+    }))
+  );
+
+  return normalizeCategoriesResponse(mockCategoriesStore);
 }
 
 export function listMockCategories(): Category[] {
-  return sortByOrder(mockCategoriesStore).map((item) => ({ ...item }));
+  return normalizeCategoriesResponse(mockCategoriesStore);
 }
 
-export function createMockCategory(payload: CreateCategoryInput): Category {
-  const duplicateOrder = mockCategoriesStore.some(
-    (item) => item.order === payload.order
-  );
-  if (duplicateOrder) {
-    throw new Error("شماره ترتیب نمایش تکراری است");
-  }
-
-  const created: Category = {
-    id: `cat-${Date.now()}`,
-    name: payload.name,
-    slug: payload.slug,
-    order: payload.order,
-    badge: payload.badge,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  mockCategoriesStore = [...mockCategoriesStore, created];
-  return { ...created };
-}
-
-export function updateMockCategory(payload: UpdateCategoryInput): Category {
-  const index = mockCategoriesStore.findIndex((item) => item.id === payload.id);
-  const current = mockCategoriesStore[index];
-  if (index < 0 || !current) {
-    throw new Error("دسته‌بندی یافت نشد");
-  }
-
-  const duplicateOrder = mockCategoriesStore.some(
-    (item) => item.order === payload.order && item.id !== payload.id
-  );
-  if (duplicateOrder) {
-    throw new Error("شماره ترتیب نمایش تکراری است");
-  }
-
-  const updated: Category = {
-    id: current.id,
-    name: payload.name,
-    slug: payload.slug,
-    order: payload.order,
-    badge: payload.badge,
-    createdAt: current.createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-  mockCategoriesStore = mockCategoriesStore.map((item, i) =>
-    i === index ? updated : item
-  );
-  return { ...updated };
-}
-
-export function deleteMockCategory(id: string): void {
-  const next = mockCategoriesStore.filter((item) => item.id !== id);
-  mockCategoriesStore = resetOrders(sortByOrder(next));
-}
-
-export function reorderMockCategories(
-  payload: ReorderCategoriesInput
-): Category[] {
-  const orderMap = new Map(payload.items.map((item) => [item.id, item.order]));
-  mockCategoriesStore = sortByOrder(
-    mockCategoriesStore.map((item) => ({
-      ...item,
-      order: orderMap.get(item.id) ?? item.order,
-      updatedAt: new Date().toISOString(),
-    }))
-  );
-  return listMockCategories();
+export function saveMockCategories(payload: CategoryPayload[]): Category[] {
+  return persistPayload(payload);
 }

@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-18 11:55
+**Last Updated:** 2026-07-19 09:15
 
 ---
 
@@ -10,9 +10,9 @@
 
 Added an admin module to manage service catalog categories under **Services → Manage Categories** (`/services/categories`).
 
-Admins can list, create, edit, delete, and drag-and-drop reorder categories. Each category stores `name`, `slug`, `order`, and `badge` (`soon` | `new` | `null`).
+Admins draft add/edit/delete/reorder locally, then persist everything with one **Save final changes** action. Payload is a full `Category[]` array (`uuid`, `name`, `slug`, `order`, `badge`).
 
-API calls are currently mocked (`USE_MOCK_CATEGORIES = true`). Paths live in a single endpoints file so the real backend can be wired without rewriting UI.
+API surface is **GET / POST / PATCH** only. Mock mode (`USE_MOCK_CATEGORIES = true`) until backend is ready. Unsaved changes show a banner and block tab close via `beforeunload`.
 
 ---
 
@@ -27,9 +27,8 @@ API calls are currently mocked (`USE_MOCK_CATEGORIES = true`). Paths live in a s
 ## Solution
 
 - Rebuilt `features/categories` around the Sprint-05 HTML mock (categories only; services management out of scope).
-- Separated concerns: `endpoints.ts`, `service.ts`, React Query hooks, UI components.
-- Local DnD reorder with explicit save/cancel; create/update/delete hit the API (or mock) immediately.
-- Toggle mock vs real API via `USE_MOCK_CATEGORIES`.
+- All mutations stay in local draft until save; one POST/PATCH sends the full array.
+- `uuid` instead of `id`; endpoints file for easy path swaps; unsaved guard for tab close.
 
 ---
 
@@ -104,14 +103,15 @@ src/locales/en/common.json
 
 ```text
 features/categories/
-├── Categories.tsx              # Page: local list state + save/cancel order
-├── types.ts                    # Category, form schema, CRUD/reorder payloads
-├── constants.ts                # USE_MOCK_CATEGORIES, badge helpers, query key
-├── mock-data.ts                # In-memory store used while mock is on
+├── Categories.tsx              # Local draft state; save-all only
+├── types.ts                    # Category (uuid), form, CategoryPayload
+├── constants.ts                # USE_MOCK_CATEGORIES, badge helpers
+├── mock-data.ts                # In-memory store while mock is on
+├── utils/category.helpers.ts   # dirty check, payload map, local uuid
 ├── api/
-│   ├── endpoints.ts            # ← change paths here
-│   └── service.ts              # fetch/create/update/delete/reorder
-├── hooks/use-categories.ts     # React Query
+│   ├── endpoints.ts            # GET list / POST create / PATCH save
+│   └── service.ts              # fetchCategories, saveCategories(array)
+├── hooks/use-categories.ts
 └── components/
     ├── categories-table.tsx
     ├── category-form-dialog.tsx
@@ -121,46 +121,53 @@ features/categories/
 
 ### Domain model
 
-| Field   | Type                      | Notes                          |
-| ------- | ------------------------- | ------------------------------ |
-| `id`    | `string`                  | Server id / uuid               |
-| `name`  | `string`                  | Required                       |
-| `slug`  | `string`                  | kebab-case, required           |
-| `order` | `number` (positive int)   | Sidebar priority               |
-| `badge` | `"soon" \| "new" \| null` | Form uses `"none"` → sent null |
+| Field     | Type                      | Notes                                      |
+| --------- | ------------------------- | ------------------------------------------ |
+| `uuid`    | `string`                  | Server uuid; local rows use `local-…` temp |
+| `name`    | `string`                  | Required                                   |
+| `slug`    | `string`                  | kebab-case, required                       |
+| `order`   | `number` (positive int)   | Sidebar priority                           |
+| `badge`   | `"soon" \| "new" \| null` | Form `"none"` → sent `null`                |
+| `isLocal` | `boolean?`                | Client-only; omitted uuid on save payload  |
 
 ### Expected API contract
 
-| Action  | Method   | Default path                | Body / notes                               |
-| ------- | -------- | --------------------------- | ------------------------------------------ |
-| List    | `GET`    | `/admin/categories`         | `Category[]` or `{ data: Category[] }`     |
-| Create  | `POST`   | `/admin/categories`         | `{ name, slug, order, badge }`             |
-| Update  | `PUT`    | `/admin/categories/:id`     | `{ name, slug, order, badge }`             |
-| Delete  | `DELETE` | `/admin/categories/:id`     | —                                          |
-| Reorder | `PATCH`  | `/admin/categories/reorder` | `{ items: [{ id, order }] }` → sorted list |
+Only **GET / POST / PATCH**. Bodies are **arrays of objects**.
+
+| Action | Method  | Default path        | Body / response                                            |
+| ------ | ------- | ------------------- | ---------------------------------------------------------- |
+| List   | `GET`   | `/admin/categories` | `Category[]` or `{ data: Category[] }`                     |
+| Create | `POST`  | `/admin/categories` | `CategoryPayload[]` (used when baseline list empty)        |
+| Save   | `PATCH` | `/admin/categories` | `CategoryPayload[]` full list sync (add/edit/delete/order) |
+
+`CategoryPayload`:
+
+```ts
+{ uuid?: string; name: string; slug: string; order: number; badge: "soon" | "new" | null }
+```
+
+- Existing rows: include `uuid`
+- New rows: omit `uuid` (`isLocal` on client)
+- Deleted rows: absent from the array
 
 ---
 
 ## User Flow
 
-1. Open **Services → Manage Categories**.
-2. View ordered list; drag rows to change local order.
-3. Add/edit via dialog; delete via confirm dialog.
-4. Click **Save final changes** to persist order, or **Cancel** to reset to last loaded order.
+1. Open **Services → Manage Categories** (GET loads array).
+2. Reorder / add / edit / delete — all local draft only.
+3. Unsaved banner + browser `beforeunload` while dirty.
+4. **Save final changes** → POST (empty baseline) or PATCH (otherwise) with full array.
+5. **Cancel** resets draft to last saved baseline.
 
 ---
 
 ## Connecting the real backend
 
-1. **Align paths** in `src/features/categories/api/endpoints.ts` with final backend routes (including `:id` helpers and reorder).
-2. **Confirm payload/response shapes** match `Category` / `CreateCategoryInput` / `ReorderCategoriesInput` in `types.ts`.
-   - If the API uses `uuid` instead of `id`, map in `api/service.ts` (or rename types to match).
-   - If list is always wrapped (`{ data: [...] }`), current service already supports both array and `{ data }`.
-3. **Turn off mock**: set `USE_MOCK_CATEGORIES` to `false` in `constants.ts`.
-4. **Smoke-test**: list → create → edit → delete → drag reorder → save.
-5. Optional: remove or keep `mock-data.ts` for local demos; it is unused when the flag is `false`.
-
-No other UI files need changes if the contract above is met.
+1. Align paths in `api/endpoints.ts` (`list` / `create` / `save`).
+2. Confirm array request/response with `uuid` (not `id`).
+3. Set `USE_MOCK_CATEGORIES = false` in `constants.ts`.
+4. Smoke-test: load → edit+reorder+add+delete → save once → reload.
 
 ---
 
@@ -169,11 +176,12 @@ No other UI files need changes if the contract above is met.
 ### Completed
 
 - [x] Categories admin page under Services submenu
-- [x] CRUD + DnD reorder with save/cancel
+- [x] Draft CRUD + DnD; single save for full array
+- [x] Unsaved banner + tab close guard
+- [x] `uuid` field; GET/POST/PATCH only
 - [x] Badge support (`soon` / `new` / null)
 - [x] Endpoints file + mock toggle
 - [x] i18n (fa/en)
-- [x] Production build passes
 
 ### Remaining
 
@@ -192,18 +200,22 @@ No other UI files need changes if the contract above is met.
 export const USE_MOCK_CATEGORIES = false;
 ```
 
-**Example reorder body:**
+**Example PATCH/POST body:**
 
 ```json
-{
-  "items": [
-    { "id": "fashion", "order": 1 },
-    { "id": "toolbox", "order": 2 }
-  ]
-}
+[
+  {
+    "uuid": "11111111-1111-4111-8111-111111111105",
+    "name": "مد و فشن",
+    "slug": "fashion",
+    "order": 1,
+    "badge": null
+  },
+  { "name": "دسته جدید", "slug": "new-cat", "order": 2, "badge": "new" }
+]
 ```
 
-Create/update/delete invalidate React Query key `["categories"]`. Reorder updates the cache via `setQueryData`.
+Save updates React Query cache via `setQueryData(["categories"], data)`.
 
 ---
 
@@ -217,6 +229,7 @@ type: feature
 ui-change: true
 ux-change: true
 api-mock: true
+batch-save: true
 backend-handoff: true
 responsive-impact: true
 ```

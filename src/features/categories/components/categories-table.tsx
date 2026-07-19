@@ -34,7 +34,7 @@ import { CategoryBadgePill } from "./category-badge-pill";
 type CategoriesTableProps = {
   items: Category[];
   isLoading?: boolean;
-  onReorder: (activeId: string, overId: string) => void;
+  onReorder: (activeUuid: string, overUuid: string) => void;
   onEdit: (category: Category) => void;
   onDelete: (category: Category) => void;
 };
@@ -56,7 +56,7 @@ function SortableCategoryRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: category.id });
+  } = useSortable({ id: category.uuid });
 
   return (
     <TableRow
@@ -200,12 +200,12 @@ export function CategoriesTable({
               </TableRow>
             ) : (
               <SortableContext
-                items={items.map((item) => item.id)}
+                items={items.map((item) => item.uuid)}
                 strategy={verticalListSortingStrategy}
               >
                 {items.map((category) => (
                   <SortableCategoryRow
-                    key={category.id}
+                    key={category.uuid}
                     category={category}
                     onEdit={onEdit}
                     onDelete={onDelete}

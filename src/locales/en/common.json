@@ -956,11 +956,15 @@
       "edit": "Edit",
       "delete": "Delete",
       "cancelChanges": "Cancel",
-      "saveOrder": "Save final changes"
+      "saveAll": "Save final changes"
+    },
+    "unsaved": {
+      "title": "Unsaved changes",
+      "description": "Adds, edits, deletes, or reorders are not saved yet. Click Save final changes before closing this tab."
     },
     "deleteDialog": {
       "title": "Delete category",
-      "description": "Are you sure you want to delete “{{name}}”? This action cannot be undone."
+      "description": "“{{name}}” will be removed from the list. It is not persisted until you save final changes."
     },
     "form": {
       "name": "Category name",
@@ -968,6 +972,7 @@
       "slug": "Category slug",
       "slugPlaceholder": "fashion",
       "slugHint": "This slug defines the user sidebar route.",
+      "slugDuplicate": "This slug is already in use",
       "badge": "Guide badge (sidebar)",
       "badgeNone": "No badge (default)",
       "badgeSoon": "“Coming soon” badge",
@@ -975,19 +980,14 @@
       "order": "Sidebar display order",
       "orderPlaceholder": "e.g. 10",
       "orderHint": "This number sets sidebar render order and must be unique.",
-      "submit": "Confirm & save",
+      "orderDuplicate": "This display order is already in use",
+      "submit": "Apply to list",
       "cancel": "Cancel"
     },
     "toasts": {
       "loadFailed": "Failed to load categories",
-      "created": "Category created successfully",
-      "createFailed": "Failed to create category",
-      "updated": "Category updated successfully",
-      "updateFailed": "Failed to update category",
-      "deleted": "Category deleted successfully",
-      "deleteFailed": "Failed to delete category",
-      "reordered": "Category order saved",
-      "reorderFailed": "Failed to save category order"
+      "saved": "Category changes saved successfully",
+      "saveFailed": "Failed to save category changes"
     }
   },
   "userCredits": {

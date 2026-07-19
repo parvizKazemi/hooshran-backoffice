@@ -2,19 +2,9 @@ import { ApiError } from "@/services/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import {
-  createCategory,
-  deleteCategory,
-  fetchCategories,
-  reorderCategories,
-  updateCategory,
-} from "../api/service";
+import { fetchCategories, saveCategories } from "../api/service";
 import { CATEGORY_QUERY_KEY } from "../constants";
-import type {
-  CreateCategoryInput,
-  ReorderCategoriesInput,
-  UpdateCategoryInput,
-} from "../types";
+import type { CategoryPayload } from "../types";
 
 export function useCategories() {
   const { t } = useTranslation("common");
@@ -38,81 +28,27 @@ export function useCategories() {
   });
 }
 
-export function useCreateCategory() {
+type SaveCategoriesInput = {
+  payload: CategoryPayload[];
+  useCreate?: boolean;
+};
+
+export function useSaveCategories() {
   const queryClient = useQueryClient();
   const { t } = useTranslation("common");
 
   return useMutation({
-    mutationFn: (payload: CreateCategoryInput) => createCategory(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
-      toast.success(t("categories.toasts.created"));
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("categories.toasts.createFailed")
-      );
-    },
-  });
-}
-
-export function useUpdateCategory() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation("common");
-
-  return useMutation({
-    mutationFn: (payload: UpdateCategoryInput) => updateCategory(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
-      toast.success(t("categories.toasts.updated"));
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("categories.toasts.updateFailed")
-      );
-    },
-  });
-}
-
-export function useDeleteCategory() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation("common");
-
-  return useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
-      toast.success(t("categories.toasts.deleted"));
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("categories.toasts.deleteFailed")
-      );
-    },
-  });
-}
-
-export function useReorderCategories() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation("common");
-
-  return useMutation({
-    mutationFn: (payload: ReorderCategoriesInput) => reorderCategories(payload),
+    mutationFn: ({ payload, useCreate }: SaveCategoriesInput) =>
+      saveCategories(payload, { useCreate }),
     onSuccess: (data) => {
       queryClient.setQueryData(CATEGORY_QUERY_KEY, data);
-      toast.success(t("categories.toasts.reordered"));
+      toast.success(t("categories.toasts.saved"));
     },
     onError: (error) => {
       toast.error(
         error instanceof Error
           ? error.message
-          : t("categories.toasts.reorderFailed")
+          : t("categories.toasts.saveFailed")
       );
     },
   });
