@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 RUN npm install -g pnpm
 
 # Set pnpm registry to Runflare mirror
-RUN pnpm config set registry https://mirror-npm.runflare.com
+# RUN pnpm config set registry https://mirror-npm.runflare.com
 
 WORKDIR /app
 
