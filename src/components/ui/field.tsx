@@ -1,16 +1,15 @@
+import { cn } from "@/lib/utils";
 import * as React from "react";
 
 export function FieldGroup({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return <div className={"grid gap-4".concat(className ?? "")} {...props} />;
+  return <div className={cn("grid gap-4", className)} {...props} />;
 }
 
 export function Field({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div className={"flex flex-col gap-2".concat(className ?? "")} {...props} />
-  );
+  return <div className={cn("flex flex-col gap-2", className)} {...props} />;
 }
 
 export function FieldLabel(props: React.ComponentPropsWithoutRef<"label">) {
@@ -22,9 +21,6 @@ export function FieldDescription({
   ...props
 }: React.ComponentProps<"p">) {
   return (
-    <p
-      className={"text-muted-foreground text-sm".concat(className ?? "")}
-      {...props}
-    />
+    <p className={cn("text-muted-foreground text-sm", className)} {...props} />
   );
 }

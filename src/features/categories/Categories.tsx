@@ -4,11 +4,13 @@ import {
   IconAlertCircle,
   IconDeviceFloppy,
   IconFolders,
+  IconLayersSubtract,
   IconLoader2,
   IconPlus,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { CategoriesTable } from "./components/categories-table";
 import { CategoryDeleteDialog } from "./components/category-delete-dialog";
 import { CategoryFormDialog } from "./components/category-form-dialog";
@@ -151,6 +153,12 @@ export default function Categories() {
             {t("categories.description")}
           </p>
         </div>
+        <Button asChild variant="outline" className="shrink-0">
+          <Link to="/services/manage">
+            <IconLayersSubtract className="size-4" />
+            {t("nav.services.manageServices")}
+          </Link>
+        </Button>
       </div>
 
       {isDirty ? (

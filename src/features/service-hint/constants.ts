@@ -1,6 +1,6 @@
 import type { ServiceHintConfig } from "./types";
 
-export const PLATFORM_SERVICES_LIMIT = 200;
+export const PLATFORM_SERVICES_LIMIT = 300;
 
 export const SERVICE_HINT_LIMITS = {
   minSections: 1,

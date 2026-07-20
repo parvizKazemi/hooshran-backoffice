@@ -63,6 +63,9 @@ const UserBlacklistSettings = lazy(
 const ServiceHintSettings = lazy(
   () => import("../features/service-hint/ServiceHintSettings.tsx")
 );
+const ManageServices = lazy(
+  () => import("../features/manage-services/ManageServices.tsx")
+);
 const SmsConfigSettings = lazy(
   () => import("../features/sms-config/SmsConfigSettings.tsx")
 );
@@ -148,6 +151,10 @@ const router = createBrowserRouter([
           {
             path: "/services/categories",
             element: <Categories />,
+          },
+          {
+            path: "/services/manage",
+            element: <ManageServices />,
           },
           {
             path: "/categories",

@@ -9,6 +9,7 @@ type PlatformServicesResponse = {
     name: string;
     slug: string;
     isActive?: boolean;
+    templateName?: string | null;
   }>;
 };
 
@@ -36,17 +37,23 @@ const parseSections = (
 };
 
 export async function getPlatformServices(): Promise<PlatformService[]> {
-  const response = await apiGet<PlatformServicesResponse>(
+  const response = await apiGet<
+    | PlatformServicesResponse
+    | { services?: PlatformServicesResponse["services"] }
+  >(
     `${SERVICE_HINT_ENDPOINTS.platformServices}?limit=${PLATFORM_SERVICES_LIMIT}&type=all`
   );
 
-  return (response.services ?? [])
-    .filter((service) => service.uuid && service.name)
+  const list = Array.isArray(response) ? response : (response.services ?? []);
+
+  return list
+    .filter((service) => Boolean(service?.uuid && service?.name))
     .map((service) => ({
       uuid: service.uuid,
       name: service.name,
       slug: service.slug,
       isActive: service.isActive ?? true,
+      templateName: service.templateName ?? null,
     }));
 }
 

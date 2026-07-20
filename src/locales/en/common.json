@@ -58,6 +58,7 @@
     "services": {
       "title": "Services",
       "categories": "Manage Categories",
+      "manageServices": "Manage Services",
       "serviceHint": "Service Guide"
     },
     "userSettings": {
@@ -988,6 +989,110 @@
       "loadFailed": "Failed to load categories",
       "saved": "Category changes saved successfully",
       "saveFailed": "Failed to save category changes"
+    }
+  },
+  "manageServices": {
+    "title": "Catalog Service Management",
+    "description": "Add, edit, delete, reorder, and badge services inside categories.",
+    "panelTitle": "Platform services",
+    "panelHint": "Changes stay local until final save. Reorder with drag & drop.",
+    "addService": "Add new service",
+    "editService": "Edit service",
+    "search": "Search services...",
+    "noResults": "No services found",
+    "filter": {
+      "all": "All categories"
+    },
+    "unsaved": {
+      "title": "Unsaved changes",
+      "description": "Adds, edits, deletes, or reorders are not saved yet. Save final changes before closing this tab."
+    },
+    "modelTypes": {
+      "single": "Single model",
+      "multi": "Multi-model"
+    },
+    "badges": {
+      "none": "No badge",
+      "popular": "Most popular",
+      "most_used": "Most used",
+      "newest": "Newest"
+    },
+    "table": {
+      "drag": "Move",
+      "order": "Priority",
+      "service": "Preview & name",
+      "description": "Description",
+      "modelType": "Model type",
+      "badge": "Badge",
+      "actions": "Actions",
+      "inactive": "Inactive",
+      "autoCredit": "Auto credit"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancelChanges": "Cancel",
+      "saveAll": "Save final changes"
+    },
+    "deleteDialog": {
+      "title": "Delete service",
+      "description": "Choose an option for “{{name}}”. Nothing is persisted until final save.",
+      "removeFromCategory": "Remove from “{{category}}”",
+      "deleteEntire": "Delete service entirely"
+    },
+    "form": {
+      "subtitle": "Configure catalog details, priority, and model type",
+      "modelType": "Service model type",
+      "name": "Service name",
+      "description": "Short description",
+      "slug": "Service slug / path",
+      "slugHint": "Unique slug for the user-facing service route",
+      "multiSlugHint": "Prefix {{prefix}} is locked; edit only the part after it",
+      "slugDuplicate": "This slug is already in use",
+      "categories": "Display categories",
+      "noCategories": "No categories found",
+      "imageUrl": "Preview image URL (16:9)",
+      "mediaLabel": "Featured media (image / video)",
+      "mediaHint": "Upload a file or paste a direct link; preview updates immediately",
+      "mediaUpload": "Upload file",
+      "mediaLink": "Direct link",
+      "mediaLinkPlaceholder": "https://...",
+      "mediaPreview": "Preview",
+      "mediaClear": "Remove",
+      "mediaEmpty": "No media selected yet",
+      "creditHint": "Processing credit display",
+      "creditPlaceholder": "e.g. 8 or from 2",
+      "autoCredit": "Auto calculate from backend",
+      "badge": "Catalog card badge",
+      "badgeNone": "No badge",
+      "isActive": "Service active status",
+      "isActiveHint": "Enable or disable public access",
+      "inactiveReason": "Inactive reason",
+      "order": "Display priority",
+      "isChildOfMulti": "Child of a multi-model service",
+      "parentPlaceholder": "Select parent service...",
+      "parentTitle": "Parent multi-model services",
+      "parentSearch": "Search parent service...",
+      "parentEmpty": "No parent multi-model services found",
+      "parentNoResults": "No search results",
+      "submodels": "Submodels",
+      "submodelsHint": "Pick child services from the existing services list",
+      "addSubmodel": "Add submodel",
+      "noSubmodels": "No submodels yet",
+      "submodelPickerPlaceholder": "Select a service...",
+      "submodelPickerTitle": "Pick a submodel from services",
+      "submodelPickerSearch": "Search services...",
+      "submodelPickerEmpty": "No services available",
+      "submodelPickerNoResults": "No search results",
+      "submodelName": "Submodel name",
+      "submodelDesc": "Short description",
+      "submit": "Apply to list",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "loadFailed": "Failed to load services",
+      "saved": "Service changes saved",
+      "saveFailed": "Failed to save service changes"
     }
   },
   "userCredits": {

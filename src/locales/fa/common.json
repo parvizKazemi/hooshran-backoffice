@@ -58,6 +58,7 @@
     "services": {
       "title": "سرویس‌ها",
       "categories": "مدیریت دسته‌بندی‌ها",
+      "manageServices": "مدیریت سرویس‌ها",
       "serviceHint": "راهنمای سرویس"
     },
     "userSettings": {
@@ -1027,6 +1028,110 @@
       "loadFailed": "خطا در دریافت دسته‌بندی‌ها",
       "saved": "تغییرات دسته‌بندی‌ها با موفقیت ذخیره شد",
       "saveFailed": "خطا در ذخیره تغییرات دسته‌بندی‌ها"
+    }
+  },
+  "manageServices": {
+    "title": "مدیریت سرویس‌های کاتالوگ",
+    "description": "افزودن، ویرایش، حذف، مرتب‌سازی و تنظیم بج سرویس‌ها داخل دسته‌بندی‌ها.",
+    "panelTitle": "سرویس‌های پلتفرم",
+    "panelHint": "تغییرات تا ثبت نهایی فقط محلی هستند. مرتب‌سازی با Drag & Drop.",
+    "addService": "افزودن سرویس جدید",
+    "editService": "ویرایش سرویس",
+    "search": "جستجوی سرویس...",
+    "noResults": "سرویسی یافت نشد",
+    "filter": {
+      "all": "همه دسته‌بندی‌ها"
+    },
+    "unsaved": {
+      "title": "تغییرات ذخیره نشده",
+      "description": "افزودن، ویرایش، حذف یا جابه‌جایی هنوز ذخیره نشده‌اند. قبل از بستن تب، ثبت تغییرات نهایی را بزنید."
+    },
+    "modelTypes": {
+      "single": "تک مدل",
+      "multi": "چند مدله"
+    },
+    "badges": {
+      "none": "بدون بج",
+      "popular": "محبوب‌ترین",
+      "most_used": "پراستفاده‌ترین",
+      "newest": "جدیدترین"
+    },
+    "table": {
+      "drag": "جابه‌جایی",
+      "order": "اولویت",
+      "service": "نمایه و نام",
+      "description": "توضیحات",
+      "modelType": "نوع مدل",
+      "badge": "بج",
+      "actions": "عملیات",
+      "inactive": "غیرفعال",
+      "autoCredit": "محاسبه خودکار"
+    },
+    "actions": {
+      "edit": "ویرایش",
+      "delete": "حذف",
+      "cancelChanges": "انصراف",
+      "saveAll": "ثبت تغییرات نهایی"
+    },
+    "deleteDialog": {
+      "title": "حذف سرویس",
+      "description": "برای «{{name}}» یکی از گزینه‌ها را انتخاب کنید. تا ثبت نهایی در سرور اعمال نمی‌شود.",
+      "removeFromCategory": "حذف از دسته «{{category}}»",
+      "deleteEntire": "حذف کامل سرویس"
+    },
+    "form": {
+      "subtitle": "مشخصات کاتالوگ، اولویت و نوع مدل را پیکربندی کنید",
+      "modelType": "نوع مدل سرویس",
+      "name": "نام سرویس",
+      "description": "توضیحات کوتاه",
+      "slug": "اسلاگ / مسیر سرویس",
+      "slugHint": "اسلاگ یکتا برای مسیر کاربری سرویس",
+      "multiSlugHint": "پیشوند {{prefix}} ثابت است؛ فقط بخش بعد از آن را ویرایش کنید",
+      "slugDuplicate": "این اسلاگ قبلاً استفاده شده است",
+      "categories": "دسته‌بندی‌های نمایش",
+      "noCategories": "دسته‌بندی‌ای یافت نشد",
+      "imageUrl": "آدرس تصویر نمایه (۱۶:۹)",
+      "mediaLabel": "رسانه شاخص (تصویر / ویدیو)",
+      "mediaHint": "آپلود فایل یا وارد کردن لینک مستقیم",
+      "mediaUpload": "آپلود فایل",
+      "mediaLink": "لینک مستقیم",
+      "mediaLinkPlaceholder": "https://...",
+      "mediaPreview": "پیش‌نمایش",
+      "mediaClear": "حذف",
+      "mediaEmpty": "هنوز رسانه‌ای انتخاب نشده",
+      "creditHint": "میزان اعتبار پردازش",
+      "creditPlaceholder": "مثال: ۸ یا از ۲",
+      "autoCredit": "محاسبه خودکار از بک‌اند",
+      "badge": "بج نمایش روی کارت",
+      "badgeNone": "بدون بج",
+      "isActive": "وضعیت فعالیت سرویس",
+      "isActiveHint": "فعال یا غیرفعال کردن دسترسی عمومی",
+      "inactiveReason": "دلیل غیرفعال بودن",
+      "order": "اولویت نمایش",
+      "isChildOfMulti": "زیرمجموعه یک سرویس چندمدله است",
+      "parentPlaceholder": "انتخاب سرویس والد...",
+      "parentTitle": "سرویس‌های چندمدله والد",
+      "parentSearch": "جستجوی سرویس والد...",
+      "parentEmpty": "سرویس والد چندمدله‌ای یافت نشد",
+      "parentNoResults": "نتیجه‌ای برای جستجو نیست",
+      "submodels": "زیرمدل‌ها",
+      "submodelsHint": "از لیست سرویس‌های موجود انتخاب کنید",
+      "addSubmodel": "افزودن زیرمدل",
+      "noSubmodels": "هنوز زیرمدلی اضافه نشده",
+      "submodelPickerPlaceholder": "انتخاب سرویس...",
+      "submodelPickerTitle": "انتخاب زیرمدل از سرویس‌ها",
+      "submodelPickerSearch": "جستجوی سرویس...",
+      "submodelPickerEmpty": "سرویسی برای انتخاب نیست",
+      "submodelPickerNoResults": "نتیجه‌ای برای جستجو نیست",
+      "submodelName": "نام زیرمدل",
+      "submodelDesc": "توضیح کوتاه",
+      "submit": "اعمال در لیست",
+      "cancel": "انصراف"
+    },
+    "toasts": {
+      "loadFailed": "خطا در دریافت سرویس‌ها",
+      "saved": "تغییرات سرویس‌ها ذخیره شد",
+      "saveFailed": "خطا در ذخیره تغییرات سرویس‌ها"
     }
   },
   "userCredits": {

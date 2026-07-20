@@ -107,6 +107,10 @@ function useSidebarData() {
             url: "/services/categories",
           },
           {
+            title: t("nav.services.manageServices"),
+            url: "/services/manage",
+          },
+          {
             title: t("nav.services.serviceHint"),
             url: "/services/service-hint",
           },
@@ -233,6 +237,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/user-settings/welcome-packages",
               "/discount-codes",
               "/services/categories",
+              "/services/manage",
               "/system-settings/sms-config",
               ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}

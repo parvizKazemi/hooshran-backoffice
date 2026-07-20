@@ -8,7 +8,10 @@ import {
 } from "../api/service";
 import type { ServiceHintConfig } from "../types";
 
-const PLATFORM_SERVICES_QUERY_KEY = ["service-hint-platform-services"] as const;
+const PLATFORM_SERVICES_QUERY_KEY = [
+  "service-hint-platform-services",
+  "with-template",
+] as const;
 
 export const serviceHintQueryKey = (serviceUuid: string) =>
   ["service-hint-guide", serviceUuid] as const;

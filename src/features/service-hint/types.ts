@@ -50,6 +50,7 @@ export type PlatformService = {
   name: string;
   slug: string;
   isActive: boolean;
+  templateName?: string | null;
 };
 
 export type ServiceHintConfigPayload = {
