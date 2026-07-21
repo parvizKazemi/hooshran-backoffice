@@ -34,12 +34,12 @@ import type {
   ServiceFormSubmitValues,
 } from "./types";
 import {
+  applyCategoryServiceOrders,
   applyServiceOrders,
   areServicesEqual,
   cloneServices,
   createLocalService,
   filterServicesByCategory,
-  getCategoryOrder,
   removeServiceFromCategory,
   toServicePayloadList,
 } from "./utils/service.helpers";
@@ -141,7 +141,20 @@ export default function ManageServices() {
         uuid: service.uuid,
         name: service.name,
         slug: service.slug,
+        description: service.description,
+        imageUrl: service.imageUrl,
+        isActive: service.isActive,
       }));
+  }, [platformServices]);
+
+  const costByUuid = useMemo(() => {
+    const map: Record<string, unknown> = {};
+    for (const service of platformServices) {
+      if (service.cost !== undefined) {
+        map[service.uuid] = service.cost;
+      }
+    }
+    return map;
   }, [platformServices]);
 
   const handleCategoryFilterChange = (value: string) => {
@@ -163,34 +176,12 @@ export default function ManageServices() {
 
       const moved = arrayMove(visible, oldIndex, newIndex);
 
-      // Full list: renumber 1..n
       if (categoryFilter === "all") {
         return applyServiceOrders(moved);
       }
 
-      // Category view: keep existing order values, reassign to new sequence
-      // so global orders of other services stay intact.
-      const orderValues = visible
-        .map((item) => getCategoryOrder(item, categoryFilter))
-        .sort((a, b) => a - b);
-      const orderMap = new Map(
-        moved.map((item, index) => [item.uuid, orderValues[index] ?? index + 1])
-      );
-
-      return prev
-        .map((item) => {
-          const nextOrder = orderMap.get(item.uuid);
-          if (nextOrder === undefined) return item;
-          return {
-            ...item,
-            order: nextOrder,
-            categoryOrders: {
-              ...item.categoryOrders,
-              [categoryFilter]: nextOrder,
-            },
-          };
-        })
-        .sort((a, b) => a.order - b.order);
+      // Position inside selected category → backend service_index via `order`
+      return applyCategoryServiceOrders(prev, categoryFilter, moved);
     });
   };
 
@@ -198,7 +189,10 @@ export default function ManageServices() {
 
   const handleSave = async () => {
     const saved = await saveServices.mutateAsync({
-      payload: toServicePayloadList(items),
+      payload: toServicePayloadList(
+        items,
+        categoryFilter !== "all" ? { categoryUuid: categoryFilter } : undefined
+      ),
       useCreate: baseline.length === 0,
     });
     setItems(cloneServices(saved));
@@ -381,6 +375,7 @@ export default function ManageServices() {
         parentOptions={parentPickerOptions}
         submodelOptions={submodelPickerOptions}
         existingSlugs={existingSlugs}
+        costByUuid={costByUuid}
         onSubmit={handleFormSubmit}
       />
 

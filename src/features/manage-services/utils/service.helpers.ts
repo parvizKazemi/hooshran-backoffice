@@ -6,6 +6,48 @@ import type {
   ServiceSubmodelPayload,
 } from "../types";
 
+export function getCreditDisplay(cost: unknown): string {
+  const formatDecimal = (value: number) => {
+    const rounded = Math.ceil(value * 100) / 100;
+    return rounded.toFixed(2).replace(/\.?0+$/, "");
+  };
+
+  if (typeof cost === "number") {
+    return formatDecimal(cost);
+  }
+
+  if (Array.isArray(cost)) {
+    const numbers = cost.filter(
+      (item): item is number => typeof item === "number"
+    );
+    if (numbers.length > 0) {
+      return `از ${formatDecimal(Math.min(...numbers))}`;
+    }
+  }
+
+  if (typeof cost === "object" && cost !== null) {
+    const allNumbers: number[] = [];
+
+    const extractNumbers = (value: unknown): void => {
+      if (typeof value === "number") {
+        allNumbers.push(value);
+      } else if (Array.isArray(value)) {
+        value.forEach(extractNumbers);
+      } else if (typeof value === "object" && value !== null) {
+        Object.values(value).forEach(extractNumbers);
+      }
+    };
+
+    extractNumbers(cost);
+
+    if (allNumbers.length > 0) {
+      return `از ${formatDecimal(Math.min(...allNumbers))}`;
+    }
+  }
+
+  return "-";
+}
+
 export function sortServicesByOrder(items: ManageService[]): ManageService[] {
   return [...items].sort((a, b) => a.order - b.order);
 }
@@ -33,6 +75,32 @@ export function sortServicesByCategoryOrder(
 
 export function applyServiceOrders(items: ManageService[]): ManageService[] {
   return items.map((item, index) => ({ ...item, order: index + 1 }));
+}
+/**
+ * Apply 1..n positions for services inside one category.
+ * Backend `PATCH /admin/services` maps `order` → `category_services.service_index`.
+ */
+export function applyCategoryServiceOrders(
+  all: ManageService[],
+  categoryUuid: string,
+  orderedInCategory: ManageService[]
+): ManageService[] {
+  const orderMap = new Map(
+    orderedInCategory.map((item, index) => [item.uuid, index + 1])
+  );
+
+  return all.map((item) => {
+    const nextIndex = orderMap.get(item.uuid);
+    if (nextIndex === undefined) return item;
+    return {
+      ...item,
+      order: nextIndex,
+      categoryOrders: {
+        ...item.categoryOrders,
+        [categoryUuid]: nextIndex,
+      },
+    };
+  });
 }
 
 export function cloneServices(items: ManageService[]): ManageService[] {
@@ -126,6 +194,7 @@ function toComparable(items: ManageService[]) {
     badge: item.badge,
     imageUrl: item.imageUrl,
     order: item.order,
+    categoryOrders: item.categoryOrders ?? {},
     isActive: item.isActive,
     inactiveReason: item.inactiveReason,
     categoryUuids: [...item.categoryUuids].sort(),
@@ -162,7 +231,18 @@ function toSubmodelPayload(sub: ServiceSubmodel): ServiceSubmodelPayload {
   };
 }
 
-export function toServicePayload(item: ManageService): ManageServicePayload {
+export function toServicePayload(
+  item: ManageService,
+  options?: { categoryUuid?: string }
+): ManageServicePayload {
+  const categoryUuid = options?.categoryUuid;
+  const inCategory =
+    !!categoryUuid && item.categoryUuids.includes(categoryUuid);
+  const order = inCategory
+    ? (item.categoryOrders?.[categoryUuid] ??
+      getCategoryOrder(item, categoryUuid))
+    : item.order;
+
   return {
     ...(item.isLocal ? {} : { uuid: item.uuid }),
     name: item.name,
@@ -171,7 +251,7 @@ export function toServicePayload(item: ManageService): ManageServicePayload {
     modelType: item.modelType,
     badge: item.badge,
     imageUrl: item.imageUrl,
-    order: item.order,
+    order,
     isActive: item.isActive,
     inactiveReason: item.inactiveReason,
     categoryUuids: [...item.categoryUuids],
@@ -183,9 +263,19 @@ export function toServicePayload(item: ManageService): ManageServicePayload {
 }
 
 export function toServicePayloadList(
-  items: ManageService[]
+  items: ManageService[],
+  options?: { categoryUuid?: string }
 ): ManageServicePayload[] {
-  return sortServicesByOrder(items).map(toServicePayload);
+  const categoryUuid = options?.categoryUuid;
+
+  // Full list is required (omitted uuids are soft-deleted by backend).
+  // When a category is active, `order` for members of that category is their
+  // in-category position so backend can write `category_services.service_index`.
+  if (!categoryUuid) {
+    return sortServicesByOrder(items).map((item) => toServicePayload(item));
+  }
+
+  return items.map((item) => toServicePayload(item, { categoryUuid }));
 }
 
 export function normalizeServicesResponse(

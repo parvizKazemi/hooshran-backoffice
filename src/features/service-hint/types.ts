@@ -51,6 +51,10 @@ export type PlatformService = {
   slug: string;
   isActive: boolean;
   templateName?: string | null;
+  cost?: unknown;
+  endpoint?: string;
+  description?: string;
+  imageUrl?: string;
 };
 
 export type ServiceHintConfigPayload = {

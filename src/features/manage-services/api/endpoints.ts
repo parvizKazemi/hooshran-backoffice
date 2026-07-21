@@ -9,4 +9,6 @@ export const MANAGE_SERVICES_ENDPOINTS = {
   create: "/admin/services",
   /** PATCH → ManageServicePayload[] (full-list sync) */
   save: "/admin/services",
+  /** GET → platform service detail (accept_hint / inputs) */
+  platformDetail: (slug: string) => `/api-service/${slug}`,
 } as const;

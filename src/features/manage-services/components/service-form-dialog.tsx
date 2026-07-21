@@ -49,8 +49,10 @@ import type {
   ServiceSubmodel,
 } from "../types";
 import { serviceFormSchema } from "../types";
+import { fetchParentSubmodelsFromAcceptHint } from "../api/service";
 import {
   buildMultiModelSlugFromSuffix,
+  getCreditDisplay,
   getMultiModelSlugSuffix,
   slugifyName,
 } from "../utils/service.helpers";
@@ -66,6 +68,8 @@ type ServiceFormDialogProps = {
   /** Single/catalog services selectable as multi-model children. */
   submodelOptions: CatalogServiceOption[];
   existingSlugs: string[];
+  /** Backend cost map keyed by service uuid — used when auto credit is on. */
+  costByUuid?: Record<string, unknown>;
   onSubmit: (values: ServiceFormSubmitValues) => void;
 };
 
@@ -78,6 +82,7 @@ export function ServiceFormDialog({
   parentOptions,
   submodelOptions,
   existingSlugs,
+  costByUuid = {},
   onSubmit,
 }: ServiceFormDialogProps) {
   const { t } = useTranslation("common");
@@ -149,11 +154,44 @@ export function ServiceFormDialog({
   const categoryUuids = form.watch("categoryUuids");
   const slugValue = form.watch("slug");
 
+  const autoCreditDisplay = useMemo(() => {
+    if (!service?.uuid) return "-";
+    return getCreditDisplay(costByUuid[service.uuid]);
+  }, [costByUuid, service?.uuid]);
+
   useEffect(() => {
     if (!open) return;
     form.reset(defaultValues);
-    setSubmodels(service?.submodels.map((item) => ({ ...item })) ?? []);
-  }, [open, defaultValues, form, service]);
+
+    let cancelled = false;
+
+    async function seedSubmodels() {
+      if (service?.submodels?.length) {
+        setSubmodels(service.submodels.map((item) => ({ ...item })));
+        return;
+      }
+
+      if (service?.modelType === "multi" && service.slug) {
+        try {
+          const resolved = await fetchParentSubmodelsFromAcceptHint(
+            service.slug,
+            submodelOptions
+          );
+          if (!cancelled) setSubmodels(resolved);
+        } catch {
+          if (!cancelled) setSubmodels([]);
+        }
+        return;
+      }
+
+      setSubmodels([]);
+    }
+
+    void seedSubmodels();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, defaultValues, form, service, submodelOptions]);
 
   useEffect(() => {
     if (modelType !== "multi") return;
@@ -477,12 +515,20 @@ export function ServiceFormDialog({
                     {t("manageServices.form.autoCredit")}
                   </label>
                 </div>
-                <Input
-                  id="service-credit"
-                  disabled={isAutoCredit}
-                  placeholder={t("manageServices.form.creditPlaceholder")}
-                  {...form.register("creditHint")}
-                />
+                {isAutoCredit ? (
+                  <div
+                    id="service-credit"
+                    className="border-input bg-muted/40 text-foreground flex h-9 items-center rounded-md border px-3 text-sm"
+                  >
+                    {autoCreditDisplay}
+                  </div>
+                ) : (
+                  <Input
+                    id="service-credit"
+                    placeholder={t("manageServices.form.creditPlaceholder")}
+                    {...form.register("creditHint")}
+                  />
+                )}
                 {form.formState.errors.creditHint ? (
                   <FieldDescription className="text-destructive">
                     {form.formState.errors.creditHint.message}

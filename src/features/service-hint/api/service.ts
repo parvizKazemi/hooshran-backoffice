@@ -10,6 +10,15 @@ type PlatformServicesResponse = {
     slug: string;
     isActive?: boolean;
     templateName?: string | null;
+    cost?: unknown;
+    endpoint?: string;
+    description?: string;
+    metadata?: {
+      cost?: unknown;
+      ui?: { image?: string; description?: string; cost_hint?: string };
+    };
+    information?: { image?: string; description?: string };
+    media?: { url?: string };
   }>;
 };
 
@@ -54,6 +63,18 @@ export async function getPlatformServices(): Promise<PlatformService[]> {
       slug: service.slug,
       isActive: service.isActive ?? true,
       templateName: service.templateName ?? null,
+      cost: service.cost ?? service.metadata?.cost,
+      endpoint: service.endpoint,
+      description:
+        service.information?.description ||
+        service.metadata?.ui?.description ||
+        service.description ||
+        "",
+      imageUrl:
+        service.information?.image ||
+        service.metadata?.ui?.image ||
+        service.media?.url ||
+        "",
     }));
 }
 
