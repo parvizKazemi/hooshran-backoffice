@@ -39,6 +39,7 @@ import {
   cloneServices,
   createLocalService,
   filterServicesByCategory,
+  getCategoryOrder,
   removeServiceFromCategory,
   toServicePayloadList,
 } from "./utils/service.helpers";
@@ -160,16 +161,36 @@ export default function ManageServices() {
       const newIndex = visible.findIndex((item) => item.uuid === overUuid);
       if (oldIndex < 0 || newIndex < 0) return prev;
 
-      const reorderedVisible = applyServiceOrders(
-        arrayMove(visible, oldIndex, newIndex)
-      );
+      const moved = arrayMove(visible, oldIndex, newIndex);
+
+      // Full list: renumber 1..n
+      if (categoryFilter === "all") {
+        return applyServiceOrders(moved);
+      }
+
+      // Category view: keep existing order values, reassign to new sequence
+      // so global orders of other services stay intact.
+      const orderValues = visible
+        .map((item) => getCategoryOrder(item, categoryFilter))
+        .sort((a, b) => a - b);
       const orderMap = new Map(
-        reorderedVisible.map((item) => [item.uuid, item.order])
+        moved.map((item, index) => [item.uuid, orderValues[index] ?? index + 1])
       );
 
-      return applyServiceOrders(
-        sortWithVisibleOrders(prev, orderMap, categoryFilter)
-      );
+      return prev
+        .map((item) => {
+          const nextOrder = orderMap.get(item.uuid);
+          if (nextOrder === undefined) return item;
+          return {
+            ...item,
+            order: nextOrder,
+            categoryOrders: {
+              ...item.categoryOrders,
+              [categoryFilter]: nextOrder,
+            },
+          };
+        })
+        .sort((a, b) => a.order - b.order);
     });
   };
 
@@ -375,28 +396,4 @@ export default function ManageServices() {
       />
     </div>
   );
-}
-
-function sortWithVisibleOrders(
-  all: ManageService[],
-  orderMap: Map<string, number>,
-  categoryFilter: string
-): ManageService[] {
-  const others = all.filter(
-    (item) =>
-      categoryFilter === "all" || !item.categoryUuids.includes(categoryFilter)
-  );
-  const visible = all
-    .filter(
-      (item) =>
-        categoryFilter === "all" || item.categoryUuids.includes(categoryFilter)
-    )
-    .map((item) => ({
-      ...item,
-      order: orderMap.get(item.uuid) ?? item.order,
-    }))
-    .sort((a, b) => a.order - b.order);
-
-  if (categoryFilter === "all") return visible;
-  return [...others, ...visible];
 }

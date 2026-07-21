@@ -1,6 +1,6 @@
 /**
- * Manage Services (catalog) API paths — change here when backend is ready.
- * Batch array body (same pattern as categories): GET / POST / PATCH.
+ * Manage Services (catalog) API paths.
+ * Batch array body: GET / POST / PATCH.
  */
 export const MANAGE_SERVICES_ENDPOINTS = {
   /** GET → ManageService[] */

@@ -104,7 +104,8 @@ export function ServiceFormDialog({
         ? {
             modelType: service.modelType,
             name: service.name,
-            description: service.description,
+            description:
+              service.description?.trim() || service.introduction?.trim() || "",
             slug: service.slug,
             categoryUuids: service.categoryUuids,
             imageUrl: service.imageUrl,

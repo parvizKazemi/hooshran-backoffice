@@ -41,10 +41,12 @@ type ServicesTableProps = {
 
 function SortableServiceRow({
   service,
+  displayOrder,
   onEdit,
   onDelete,
 }: {
   service: ManageService;
+  displayOrder: number;
   onEdit: (service: ManageService) => void;
   onDelete: (service: ManageService) => void;
 }) {
@@ -86,7 +88,7 @@ function SortableServiceRow({
       </TableCell>
       <TableCell>
         <span className="bg-muted text-muted-foreground inline-flex size-7 items-center justify-center rounded-lg text-xs font-bold">
-          {service.order}
+          {displayOrder}
         </span>
       </TableCell>
       <TableCell>
@@ -107,14 +109,6 @@ function SortableServiceRow({
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{service.name}</p>
-            <p className="text-muted-foreground truncate text-[11px]" dir="ltr">
-              {service.slug}
-            </p>
-            <p className="text-muted-foreground text-[10px]">
-              {service.isAutoCredit
-                ? t("manageServices.table.autoCredit")
-                : service.creditHint}
-            </p>
           </div>
         </div>
       </TableCell>
@@ -241,10 +235,11 @@ export function ServicesTable({
                 items={items.map((item) => item.uuid)}
                 strategy={verticalListSortingStrategy}
               >
-                {items.map((service) => (
+                {items.map((service, index) => (
                   <SortableServiceRow
                     key={service.uuid}
                     service={service}
+                    displayOrder={index + 1}
                     onEdit={onEdit}
                     onDelete={onDelete}
                   />

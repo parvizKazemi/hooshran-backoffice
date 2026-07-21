@@ -1,8 +1,5 @@
 import type { ServiceBadge, ServiceModelType } from "./types";
 
-/** Flip to `false` when batch admin services API is ready. */
-export const USE_MOCK_MANAGE_SERVICES = true;
-
 export const MANAGE_SERVICES_QUERY_KEY = ["manage-services"] as const;
 
 export const PLATFORM_SERVICES_LIMIT = 250;

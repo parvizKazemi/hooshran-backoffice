@@ -10,6 +10,27 @@ export function sortServicesByOrder(items: ManageService[]): ManageService[] {
   return [...items].sort((a, b) => a.order - b.order);
 }
 
+export function getCategoryOrder(
+  item: ManageService,
+  categoryUuid: string
+): number {
+  const fromCategory = item.categoryOrders?.[categoryUuid];
+  if (typeof fromCategory === "number") {
+    return fromCategory;
+  }
+  return item.order > 0 ? item.order : 0;
+}
+
+export function sortServicesByCategoryOrder(
+  items: ManageService[],
+  categoryUuid: string
+): ManageService[] {
+  return [...items].sort(
+    (a, b) =>
+      getCategoryOrder(a, categoryUuid) - getCategoryOrder(b, categoryUuid)
+  );
+}
+
 export function applyServiceOrders(items: ManageService[]): ManageService[] {
   return items.map((item, index) => ({ ...item, order: index + 1 }));
 }
@@ -18,6 +39,9 @@ export function cloneServices(items: ManageService[]): ManageService[] {
   return items.map((item) => ({
     ...item,
     categoryUuids: [...item.categoryUuids],
+    categoryOrders: item.categoryOrders
+      ? { ...item.categoryOrders }
+      : undefined,
     submodels: item.submodels.map((sub) => ({ ...sub })),
   }));
 }
@@ -169,19 +193,29 @@ export function normalizeServicesResponse(
 ): ManageService[] {
   const list = Array.isArray(response) ? response : response.data;
   return sortServicesByOrder(
-    list.map((item) => ({
-      ...item,
-      categoryUuids: item.categoryUuids ?? [],
-      parentUuid: item.parentUuid ?? null,
-      inactiveReason: item.inactiveReason ?? "",
-      creditHint: item.creditHint ?? "",
-      imageUrl: item.imageUrl ?? "",
-      isLocal: false,
-      submodels: (item.submodels ?? []).map((sub) => ({
-        ...sub,
+    list.map((item) => {
+      const raw = item as ManageService & { introduction?: string };
+      const description =
+        raw.description?.trim() || raw.introduction?.trim() || "";
+
+      return {
+        ...item,
+        description,
+        introduction: raw.introduction?.trim() || undefined,
+        order: item.order > 0 ? item.order : 1,
+        categoryUuids: item.categoryUuids ?? [],
+        categoryOrders: item.categoryOrders ?? {},
+        parentUuid: item.parentUuid ?? null,
+        inactiveReason: item.inactiveReason ?? "",
+        creditHint: item.creditHint ?? "",
+        imageUrl: item.imageUrl ?? "",
         isLocal: false,
-      })),
-    }))
+        submodels: (item.submodels ?? []).map((sub) => ({
+          ...sub,
+          isLocal: false,
+        })),
+      };
+    })
   );
 }
 
@@ -190,8 +224,9 @@ export function filterServicesByCategory(
   categoryUuid: string | "all"
 ): ManageService[] {
   if (categoryUuid === "all") return sortServicesByOrder(items);
-  return sortServicesByOrder(
-    items.filter((item) => item.categoryUuids.includes(categoryUuid))
+  return sortServicesByCategoryOrder(
+    items.filter((item) => item.categoryUuids.includes(categoryUuid)),
+    categoryUuid
   );
 }
 
