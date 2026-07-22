@@ -1,6 +1,5 @@
 /**
- * Category admin API paths — change here when backend routes are finalized.
- * Only GET / POST / PATCH (no per-item PUT/DELETE).
+ * Category admin API paths — GET / POST / PATCH (no per-item PUT/DELETE).
  * Request/response bodies are arrays of category objects.
  */
 export const CATEGORY_ENDPOINTS = {

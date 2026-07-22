@@ -955,6 +955,7 @@
     },
     "actions": {
       "edit": "Edit",
+      "editServices": "Edit services",
       "delete": "Delete",
       "cancelChanges": "Cancel",
       "saveAll": "Save final changes"
@@ -995,7 +996,7 @@
     "title": "Catalog Service Management",
     "description": "Add, edit, delete, reorder, and badge services inside categories.",
     "panelTitle": "Platform services",
-    "panelHint": "Changes stay local until final save. Reorder with drag & drop.",
+    "panelHint": "Table edits save immediately; final save syncs base catalog data.",
     "addService": "Add new service",
     "editService": "Edit service",
     "search": "Search services...",
@@ -1024,9 +1025,10 @@
       "description": "Description",
       "modelType": "Model type",
       "badge": "Badge",
+      "isActive": "Status",
       "actions": "Actions",
-      "inactive": "Inactive",
-      "autoCredit": "Auto credit"
+      "autoCredit": "Auto credit",
+      "inactive": "Inactive"
     },
     "actions": {
       "edit": "Edit",
@@ -1086,13 +1088,19 @@
       "submodelPickerNoResults": "No search results",
       "submodelName": "Submodel name",
       "submodelDesc": "Short description",
+      "loadingDetail": "Loading service details...",
       "submit": "Apply to list",
       "cancel": "Cancel"
     },
     "toasts": {
       "loadFailed": "Failed to load services",
       "saved": "Service changes saved",
-      "saveFailed": "Failed to save service changes"
+      "saveFailed": "Failed to save service changes",
+      "detailFailed": "Failed to load service details",
+      "activated": "Service activated",
+      "deactivated": "Service deactivated",
+      "toggleFailed": "Failed to update service status",
+      "customSaved": "Service edits saved"
     }
   },
   "userCredits": {

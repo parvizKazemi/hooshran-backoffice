@@ -26,8 +26,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { IconEdit, IconGripVertical, IconTrash } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconGripVertical,
+  IconLayersSubtract,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type { Category } from "../types";
 import { CategoryBadgePill } from "./category-badge-pill";
 
@@ -102,7 +108,7 @@ function SortableCategoryRow({
         <CategoryBadgePill badge={category.badge} />
       </TableCell>
       <TableCell>
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             type="button"
             variant="outline"
@@ -113,6 +119,21 @@ function SortableCategoryRow({
             <IconEdit className="size-3.5" />
             {t("categories.actions.edit")}
           </Button>
+          {!category.isLocal ? (
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
+            >
+              <Link
+                to={`/services/manage?category=${encodeURIComponent(category.uuid)}`}
+              >
+                <IconLayersSubtract className="size-3.5" />
+                {t("categories.actions.editServices")}
+              </Link>
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"

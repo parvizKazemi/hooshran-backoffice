@@ -1,8 +1,5 @@
 import type { CategoryBadge } from "./types";
 
-/** Flip to `false` when backend categories API is ready. */
-export const USE_MOCK_CATEGORIES = false;
-
 export const CATEGORY_BADGE_VALUES = ["soon", "new"] as const;
 
 export const CATEGORY_BADGE_NONE = "none" as const;

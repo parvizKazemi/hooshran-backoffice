@@ -46,6 +46,8 @@ export const ManageServiceSchema = z.object({
   isAutoCredit: z.boolean(),
   creditHint: z.string(),
   submodels: z.array(ServiceSubmodelSchema).default([]),
+  /** Raw platform cost from detail (for auto credit display). */
+  cost: z.unknown().optional(),
   isLocal: z.boolean().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),

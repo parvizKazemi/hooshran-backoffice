@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -27,6 +28,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { IconEdit, IconGripVertical, IconTrash } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { ManageService } from "../types";
 import { ServiceBadgePill } from "./service-badge-pill";
@@ -34,57 +36,46 @@ import { ServiceBadgePill } from "./service-badge-pill";
 type ServicesTableProps = {
   items: ManageService[];
   isLoading?: boolean;
+  /** When false (e.g. filter = All), drag/reorder is disabled. */
+  reorderEnabled?: boolean;
+  togglingUuid?: string | null;
   onReorder: (activeUuid: string, overUuid: string) => void;
   onEdit: (service: ManageService) => void;
   onDelete: (service: ManageService) => void;
+  onToggleActive: (service: ManageService, isActive: boolean) => void;
 };
 
-function SortableServiceRow({
+function ServiceRowContent({
   service,
   displayOrder,
+  reorderEnabled,
+  dragHandle,
+  isToggling,
   onEdit,
   onDelete,
+  onToggleActive,
 }: {
   service: ManageService;
   displayOrder: number;
+  reorderEnabled: boolean;
+  dragHandle?: ReactNode;
+  isToggling?: boolean;
   onEdit: (service: ManageService) => void;
   onDelete: (service: ManageService) => void;
+  onToggleActive: (service: ManageService, isActive: boolean) => void;
 }) {
   const { t } = useTranslation("common");
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: service.uuid });
 
   return (
-    <TableRow
-      ref={setNodeRef}
-      data-dragging={isDragging}
-      className={cn(
-        "bg-background relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80",
-        !service.isActive && "bg-rose-50/40 dark:bg-rose-950/20",
-        isDragging && "shadow-md"
-      )}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
-    >
+    <>
       <TableCell className="w-12 text-center">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground size-8 cursor-grab active:cursor-grabbing"
-          {...attributes}
-          {...listeners}
-        >
-          <IconGripVertical className="size-4" />
-        </Button>
+        {reorderEnabled ? (
+          dragHandle
+        ) : (
+          <span className="inline-flex size-8 cursor-not-allowed items-center justify-center text-red-500/20">
+            <IconGripVertical className="size-4" />
+          </span>
+        )}
       </TableCell>
       <TableCell>
         <span className="bg-muted text-muted-foreground inline-flex size-7 items-center justify-center rounded-lg text-xs font-bold">
@@ -112,9 +103,6 @@ function SortableServiceRow({
           </div>
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground max-w-[220px] truncate text-xs">
-        {service.description}
-      </TableCell>
       <TableCell>
         <span
           className={cn(
@@ -131,6 +119,17 @@ function SortableServiceRow({
         <ServiceBadgePill badge={service.badge} />
       </TableCell>
       <TableCell>
+        <div className="flex items-center gap-2">
+          <Switch
+            dir="ltr"
+            checked={service.isActive}
+            disabled={isToggling || Boolean(service.isLocal)}
+            onCheckedChange={(checked) => onToggleActive(service, checked)}
+            aria-label={t("manageServices.table.isActive")}
+          />
+        </div>
+      </TableCell>
+      <TableCell>
         <div className="flex items-center justify-center gap-2">
           <Button
             type="button"
@@ -142,18 +141,83 @@ function SortableServiceRow({
             <IconEdit className="size-3.5" />
             {t("manageServices.actions.edit")}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 text-xs"
-            onClick={() => onDelete(service)}
-          >
-            <IconTrash className="size-3.5" />
-            {t("manageServices.actions.delete")}
-          </Button>
+          {reorderEnabled ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 text-xs"
+              onClick={() => onDelete(service)}
+            >
+              <IconTrash className="size-3.5" />
+              {t("manageServices.actions.delete")}
+            </Button>
+          ) : null}
         </div>
       </TableCell>
+    </>
+  );
+}
+
+function SortableServiceRow({
+  service,
+  displayOrder,
+  isToggling,
+  onEdit,
+  onDelete,
+  onToggleActive,
+}: {
+  service: ManageService;
+  displayOrder: number;
+  isToggling?: boolean;
+  onEdit: (service: ManageService) => void;
+  onDelete: (service: ManageService) => void;
+  onToggleActive: (service: ManageService, isActive: boolean) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: service.uuid });
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      data-dragging={isDragging}
+      className={cn(
+        "bg-background relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80",
+        !service.isActive && "bg-rose-50/40 dark:bg-rose-950/20",
+        isDragging && "shadow-md"
+      )}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      <ServiceRowContent
+        service={service}
+        displayOrder={displayOrder}
+        reorderEnabled
+        isToggling={isToggling}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onToggleActive={onToggleActive}
+        dragHandle={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground size-8 cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <IconGripVertical className="size-4" />
+          </Button>
+        }
+      />
     </TableRow>
   );
 }
@@ -161,9 +225,12 @@ function SortableServiceRow({
 export function ServicesTable({
   items,
   isLoading = false,
+  reorderEnabled = true,
+  togglingUuid = null,
   onReorder,
   onEdit,
   onDelete,
+  onToggleActive,
 }: ServicesTableProps) {
   const { t } = useTranslation("common");
   const sensors = useSensors(
@@ -174,6 +241,7 @@ export function ServicesTable({
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!reorderEnabled) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     onReorder(String(active.id), String(over.id));
@@ -189,6 +257,88 @@ export function ServicesTable({
     );
   }
 
+  const colSpan = 7;
+
+  const table = (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/40">
+            <TableHead className="w-12 text-start text-xs">
+              {t("manageServices.table.drag")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.order")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.service")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.modelType")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.badge")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.isActive")}
+            </TableHead>
+            <TableHead className="text-start text-xs">
+              {t("manageServices.table.actions")}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={colSpan} className="h-24 text-center">
+                {t("manageServices.noResults")}
+              </TableCell>
+            </TableRow>
+          ) : reorderEnabled ? (
+            <SortableContext
+              items={items.map((item) => item.uuid)}
+              strategy={verticalListSortingStrategy}
+            >
+              {items.map((service, index) => (
+                <SortableServiceRow
+                  key={service.uuid}
+                  service={service}
+                  displayOrder={index + 1}
+                  isToggling={togglingUuid === service.uuid}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onToggleActive={onToggleActive}
+                />
+              ))}
+            </SortableContext>
+          ) : (
+            items.map((service, index) => (
+              <TableRow
+                key={service.uuid}
+                className={cn(
+                  "bg-background",
+                  !service.isActive && "bg-rose-50/40 dark:bg-rose-950/20"
+                )}
+              >
+                <ServiceRowContent
+                  service={service}
+                  displayOrder={index + 1}
+                  reorderEnabled={false}
+                  isToggling={togglingUuid === service.uuid}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onToggleActive={onToggleActive}
+                />
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  if (!reorderEnabled) return table;
+
   return (
     <DndContext
       sensors={sensors}
@@ -196,59 +346,7 @@ export function ServicesTable({
       modifiers={[restrictToVerticalAxis]}
       onDragEnd={handleDragEnd}
     >
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="w-12 text-center text-xs">
-                {t("manageServices.table.drag")}
-              </TableHead>
-              <TableHead className="text-xs">
-                {t("manageServices.table.order")}
-              </TableHead>
-              <TableHead className="text-xs">
-                {t("manageServices.table.service")}
-              </TableHead>
-              <TableHead className="text-xs">
-                {t("manageServices.table.description")}
-              </TableHead>
-              <TableHead className="text-xs">
-                {t("manageServices.table.modelType")}
-              </TableHead>
-              <TableHead className="text-xs">
-                {t("manageServices.table.badge")}
-              </TableHead>
-              <TableHead className="text-center text-xs">
-                {t("manageServices.table.actions")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  {t("manageServices.noResults")}
-                </TableCell>
-              </TableRow>
-            ) : (
-              <SortableContext
-                items={items.map((item) => item.uuid)}
-                strategy={verticalListSortingStrategy}
-              >
-                {items.map((service, index) => (
-                  <SortableServiceRow
-                    key={service.uuid}
-                    service={service}
-                    displayOrder={index + 1}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </SortableContext>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {table}
     </DndContext>
   );
 }

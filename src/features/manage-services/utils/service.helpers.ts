@@ -333,3 +333,145 @@ export function removeServiceFromCategory(
     };
   });
 }
+
+/** Body for PUT `/admin/services/{uuid}/custom-data` */
+export type ServiceCustomDataPayload = {
+  name?: string;
+  nameEn?: string;
+  description?: string;
+  mediaId?: number;
+  badge?: string | null;
+  isActive?: boolean;
+  metadata?: Record<string, unknown>;
+};
+
+/**
+ * Map catalog row → custom-data DTO.
+ * `patch` can send a partial (e.g. only `{ isActive }`) for table toggles.
+ */
+export function mapManageServiceToCustomData(
+  service: ManageService,
+  patch?: Partial<
+    Pick<
+      ManageService,
+      | "isActive"
+      | "name"
+      | "description"
+      | "badge"
+      | "order"
+      | "inactiveReason"
+      | "creditHint"
+      | "imageUrl"
+      | "isAutoCredit"
+      | "categoryOrders"
+    >
+  >
+): ServiceCustomDataPayload {
+  if (patch && Object.keys(patch).length === 1 && "isActive" in patch) {
+    return { isActive: patch.isActive };
+  }
+
+  const merged = { ...service, ...patch };
+  const categoryOrders = merged.categoryOrders ?? {};
+
+  return {
+    name: merged.name,
+    description: merged.description,
+    badge: merged.badge,
+    isActive: merged.isActive,
+    metadata: {
+      ui: {
+        service_order: merged.order,
+        inactiveReason: merged.inactiveReason || undefined,
+        cost_hint: merged.isAutoCredit
+          ? undefined
+          : merged.creditHint || undefined,
+        image: merged.imageUrl || undefined,
+        category_orders: categoryOrders,
+      },
+    },
+  };
+}
+
+type ModelsDetail = {
+  endpoint?: string;
+  slug?: string;
+  inputs?: unknown;
+  cost?: unknown;
+  information?: Record<string, unknown>;
+  metadata?: { ui?: Record<string, unknown>; cost?: unknown };
+  templateName?: string | null;
+} | null;
+
+/**
+ * Build POST `/admin/api-service/update-data` body (/api/v1/models shape).
+ * Keys are service endpoints (fallback: slug).
+ */
+export function buildModelsUpdatePayload(
+  items: ManageService[],
+  options?: {
+    detailByUuid?: Record<string, ModelsDetail>;
+    categorySlugByUuid?: Record<string, string>;
+    categoryNameByUuid?: Record<string, string>;
+  }
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {};
+
+  for (const item of items) {
+    const detail = options?.detailByUuid?.[item.uuid] ?? null;
+    const prevInfo =
+      (detail?.information as Record<string, unknown> | undefined) ||
+      detail?.metadata?.ui ||
+      {};
+
+    const primaryCategoryUuid = item.categoryUuids[0];
+    const categorySlug =
+      (primaryCategoryUuid &&
+        options?.categorySlugByUuid?.[primaryCategoryUuid]) ||
+      (prevInfo.category as { slug?: string } | undefined)?.slug ||
+      undefined;
+    const categoryTitle =
+      (primaryCategoryUuid &&
+        options?.categoryNameByUuid?.[primaryCategoryUuid]) ||
+      (prevInfo.category as { title?: string } | undefined)?.title ||
+      categorySlug;
+
+    const key =
+      (typeof detail?.endpoint === "string" && detail.endpoint) ||
+      item.slug.replace(/-/g, "/") ||
+      item.slug;
+
+    payload[key] = {
+      inputs: detail?.inputs ?? {},
+      cost: detail?.cost ?? detail?.metadata?.cost ?? {},
+      information: {
+        ...prevInfo,
+        title: item.name,
+        description: item.description,
+        active: item.isActive,
+        template_name:
+          item.modelType === "multi"
+            ? "ParentService"
+            : detail?.templateName ||
+              (prevInfo.template_name as string | undefined),
+        image: item.imageUrl || (prevInfo.image as string | undefined),
+        cost_hint: item.isAutoCredit
+          ? (prevInfo.cost_hint as string | undefined)
+          : item.creditHint || undefined,
+        inactiveReason: item.inactiveReason || undefined,
+        badge: item.badge,
+        service_order: item.order,
+        ...(categorySlug
+          ? {
+              category: {
+                slug: categorySlug,
+                title: categoryTitle || categorySlug,
+              },
+            }
+          : {}),
+      },
+    };
+  }
+
+  return payload;
+}
