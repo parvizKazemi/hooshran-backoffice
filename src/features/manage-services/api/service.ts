@@ -47,16 +47,15 @@ function normalizePlatformListResponse(response: unknown): ManageService[] {
 }
 
 /**
- * Always from `/admin/api-services`:
- * - no slug → `?type=all`
- * - with category slug → `?type={slug}`
+ * - no category → `GET /admin/api-services?type=all`
+ * - with category slug/name/uuid → `GET /admin/api-services?category={value}`
  */
 export async function fetchManageServices(
-  categorySlug?: string | null
+  category?: string | null
 ): Promise<ManageService[]> {
-  const path = categorySlug
-    ? MANAGE_SERVICES_ENDPOINTS.platformListByCategorySlug(
-        categorySlug,
+  const path = category
+    ? MANAGE_SERVICES_ENDPOINTS.platformListByCategory(
+        category,
         PLATFORM_SERVICES_LIMIT
       )
     : MANAGE_SERVICES_ENDPOINTS.platformListAll(PLATFORM_SERVICES_LIMIT);
@@ -105,7 +104,20 @@ export async function upsertServiceCustomData(
 export async function updateManageServiceCustomData(
   service: ManageService,
   patch?: Partial<
-    Pick<ManageService, "isActive" | "name" | "description" | "badge">
+    Pick<
+      ManageService,
+      | "isActive"
+      | "name"
+      | "description"
+      | "badge"
+      | "categoryUuids"
+      | "categoryOrders"
+      | "order"
+      | "inactiveReason"
+      | "creditHint"
+      | "imageUrl"
+      | "isAutoCredit"
+    >
   >
 ): Promise<ManageService> {
   const merged: ManageService = { ...service, ...patch };

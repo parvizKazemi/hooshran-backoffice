@@ -327,9 +327,17 @@ export function removeServiceFromCategory(
 ): ManageService[] {
   return items.map((item) => {
     if (item.uuid !== serviceUuid) return item;
+    const categoryUuids = item.categoryUuids.filter(
+      (id) => id !== categoryUuid
+    );
     return {
       ...item,
-      categoryUuids: item.categoryUuids.filter((id) => id !== categoryUuid),
+      categoryUuids,
+      categoryOrders: buildCategoryOrdersPayload(
+        categoryUuids,
+        item.categoryOrders,
+        item.order
+      ),
     };
   });
 }
@@ -344,6 +352,34 @@ export type ServiceCustomDataPayload = {
   isActive?: boolean;
   metadata?: Record<string, unknown>;
 };
+
+/**
+ * Rebuild `category_orders` from selected `categoryUuids`.
+ * Backend custom-data syncs membership via metadata.ui.category_orders only
+ * (not a top-level categoryUuids field).
+ */
+export function buildCategoryOrdersPayload(
+  categoryUuids: string[],
+  existingOrders: Record<string, number> | undefined,
+  fallbackOrder: number
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const uuid of categoryUuids) {
+    result[uuid] = existingOrders?.[uuid] ?? fallbackOrder;
+  }
+  return result;
+}
+
+/** Keep categoryOrders keys in sync with categoryUuids after form edits. */
+export function syncServiceCategoryOrders(
+  service: Pick<ManageService, "categoryUuids" | "categoryOrders" | "order">
+): Record<string, number> {
+  return buildCategoryOrdersPayload(
+    service.categoryUuids,
+    service.categoryOrders,
+    service.order
+  );
+}
 
 /**
  * Map catalog row → custom-data DTO.
@@ -363,6 +399,7 @@ export function mapManageServiceToCustomData(
       | "creditHint"
       | "imageUrl"
       | "isAutoCredit"
+      | "categoryUuids"
       | "categoryOrders"
     >
   >
@@ -372,7 +409,11 @@ export function mapManageServiceToCustomData(
   }
 
   const merged = { ...service, ...patch };
-  const categoryOrders = merged.categoryOrders ?? {};
+  const categoryOrders = buildCategoryOrdersPayload(
+    merged.categoryUuids ?? [],
+    merged.categoryOrders,
+    merged.order
+  );
 
   return {
     name: merged.name,

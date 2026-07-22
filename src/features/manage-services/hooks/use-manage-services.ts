@@ -11,27 +11,27 @@ import {
 import { MANAGE_SERVICES_QUERY_KEY } from "../constants";
 import type { ManageService } from "../types";
 
-export function manageServicesQueryKey(categorySlug?: string | null) {
-  return [...MANAGE_SERVICES_QUERY_KEY, categorySlug ?? "all"] as const;
+export function manageServicesQueryKey(category?: string | null) {
+  return [...MANAGE_SERVICES_QUERY_KEY, category ?? "all"] as const;
 }
 
 /**
- * @param categorySlug - category slug for `GET /admin/api-services?type={slug}`.
+ * @param category - category slug/name/uuid for `GET /admin/api-services?category=`
  */
 export function useManageServices(options?: {
-  categorySlug?: string | null;
+  category?: string | null;
   enabled?: boolean;
 }) {
   const { t } = useTranslation("common");
-  const categorySlug = options?.categorySlug ?? null;
+  const category = options?.category ?? null;
   const enabled = options?.enabled ?? true;
 
   return useQuery({
-    queryKey: manageServicesQueryKey(categorySlug),
+    queryKey: manageServicesQueryKey(category),
     enabled,
     queryFn: async () => {
       try {
-        return await fetchManageServices(categorySlug);
+        return await fetchManageServices(category);
       } catch (error) {
         if (error instanceof ApiError) {
           toast.error(error.message);
@@ -105,7 +105,7 @@ export function useManageServiceDetail() {
 }
 
 /** Table edit → PUT `/admin/services/{uuid}/custom-data` */
-export function useUpsertServiceCustomData(categorySlug?: string | null) {
+export function useUpsertServiceCustomData(category?: string | null) {
   const queryClient = useQueryClient();
   const { t } = useTranslation("common");
 
@@ -121,7 +121,7 @@ export function useUpsertServiceCustomData(categorySlug?: string | null) {
     }) => updateManageServiceCustomData(service, patch),
     onSuccess: (updated, variables) => {
       queryClient.setQueryData<ManageService[]>(
-        manageServicesQueryKey(categorySlug),
+        manageServicesQueryKey(category),
         (current) =>
           (current ?? []).map((item) =>
             item.uuid === updated.uuid ? { ...item, ...updated } : item
@@ -153,6 +153,6 @@ export function useUpsertServiceCustomData(categorySlug?: string | null) {
 }
 
 /** @deprecated use useUpsertServiceCustomData */
-export function useToggleManageServiceActive(categorySlug?: string | null) {
-  return useUpsertServiceCustomData(categorySlug);
+export function useToggleManageServiceActive(category?: string | null) {
+  return useUpsertServiceCustomData(category);
 }

@@ -37,6 +37,7 @@ import {
   applyCategoryServiceOrders,
   applyServiceOrders,
   areServicesEqual,
+  buildCategoryOrdersPayload,
   cloneServices,
   createLocalService,
   removeServiceFromCategory,
@@ -77,28 +78,29 @@ export default function ManageServices() {
     [categoryOptions, categoryFilter]
   );
 
-  const categorySlug =
+  /** Backend `?category=` expects name | url/slug | uuid — we send slug. */
+  const categoryParam =
     categoryFilter === "all" ? null : (selectedCategory?.slug ?? null);
 
   const { data, isLoading, isFetching } = useManageServices({
-    categorySlug,
-    enabled: categoryFilter === "all" || Boolean(categorySlug),
+    category: categoryParam,
+    enabled: categoryFilter === "all" || Boolean(categoryParam),
   });
 
   /** Full catalog for parent/submodel pickers — only when form is open under a category filter. */
   const { data: fullCatalog = [] } = useManageServices({
-    categorySlug: null,
+    category: null,
     enabled: isFormOpen && categoryFilter !== "all",
   });
 
   const saveServices = useSaveManageServices();
   const loadServiceDetail = useManageServiceDetail();
-  const upsertCustomData = useUpsertServiceCustomData(categorySlug);
+  const upsertCustomData = useUpsertServiceCustomData(categoryParam);
 
   useEffect(() => {
     setItems([]);
     setBaseline([]);
-  }, [categorySlug, categoryFilter]);
+  }, [categoryParam, categoryFilter]);
 
   useEffect(() => {
     if (!data) return;
@@ -296,6 +298,11 @@ export default function ManageServices() {
       const next: ManageService = {
         ...editingService,
         ...values,
+        categoryOrders: buildCategoryOrdersPayload(
+          values.categoryUuids,
+          editingService.categoryOrders,
+          values.order
+        ),
       };
 
       setItems((prev) =>
