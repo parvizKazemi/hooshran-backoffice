@@ -195,19 +195,18 @@ export default function ManageServices() {
 
   const handleReorder = (activeUuid: string, overUuid: string) => {
     setItems((prev) => {
-      // List is already scoped by backend when a category slug is selected.
-      const visible = prev;
-      const oldIndex = visible.findIndex((item) => item.uuid === activeUuid);
-      const newIndex = visible.findIndex((item) => item.uuid === overUuid);
+      const oldIndex = prev.findIndex((item) => item.uuid === activeUuid);
+      const newIndex = prev.findIndex((item) => item.uuid === overUuid);
       if (oldIndex < 0 || newIndex < 0) return prev;
 
-      const moved = arrayMove(visible, oldIndex, newIndex);
+      const moved = arrayMove(prev, oldIndex, newIndex);
 
       if (categoryFilter === "all") {
         return applyServiceOrders(moved);
       }
 
-      return applyCategoryServiceOrders(prev, categoryFilter, moved);
+      // Pass `moved` as the list so visual order updates (not only order numbers).
+      return applyCategoryServiceOrders(moved, categoryFilter, moved);
     });
   };
 
