@@ -108,44 +108,46 @@ export function ServiceFormDialog({
     return requiredFields.includes(field);
   };
 
-  const defaultValues = useMemo<ServiceFormValues>(
-    () =>
-      service
-        ? {
-            modelType: service.modelType,
-            name: service.name,
-            description:
-              service.description?.trim() || service.introduction?.trim() || "",
-            slug: service.slug,
-            categoryUuids: service.categoryUuids,
-            imageUrl: service.imageUrl,
-            isAutoCredit: service.isAutoCredit,
-            creditHint: service.creditHint,
-            badge: toServiceBadgeFormValue(service.badge),
-            isActive: service.isActive,
-            inactiveReason: service.inactiveReason,
-            order: service.order,
-            isChildOfMulti: Boolean(service.parentUuid),
-            parentUuid: service.parentUuid,
-          }
-        : {
-            modelType: "single",
-            name: "",
-            description: "",
-            slug: "",
-            categoryUuids: [],
-            imageUrl: "",
-            isAutoCredit: false,
-            creditHint: "",
-            badge: SERVICE_BADGE_NONE,
-            isActive: true,
-            inactiveReason: "",
-            order: nextOrder,
-            isChildOfMulti: false,
-            parentUuid: null,
-          },
-    [service, nextOrder]
-  );
+  const defaultValues = useMemo<ServiceFormValues>(() => {
+    if (!service) {
+      return {
+        modelType: "single",
+        name: "",
+        description: "",
+        slug: "",
+        categoryUuids: [],
+        imageUrl: "",
+        isAutoCredit: true,
+        creditHint: "",
+        badge: SERVICE_BADGE_NONE,
+        isActive: true,
+        inactiveReason: "",
+        order: nextOrder,
+        isChildOfMulti: false,
+        parentUuid: null,
+      };
+    }
+
+    const creditHint = service.creditHint?.trim() || "";
+
+    return {
+      modelType: service.modelType,
+      name: service.name,
+      description:
+        service.description?.trim() || service.introduction?.trim() || "",
+      slug: service.slug,
+      categoryUuids: service.categoryUuids,
+      imageUrl: service.imageUrl,
+      isAutoCredit: !creditHint,
+      creditHint,
+      badge: toServiceBadgeFormValue(service.badge),
+      isActive: service.isActive,
+      inactiveReason: service.inactiveReason,
+      order: service.order,
+      isChildOfMulti: Boolean(service.parentUuid),
+      parentUuid: service.parentUuid,
+    };
+  }, [service, nextOrder]);
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),

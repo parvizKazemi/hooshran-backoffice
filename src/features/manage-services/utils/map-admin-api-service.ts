@@ -98,10 +98,15 @@ function resolveCategoryOrders(
 }
 
 function resolveCreditHint(raw: Record<string, unknown>): string {
-  if (typeof raw.creditHint === "string") return raw.creditHint;
+  if (typeof raw.creditHint === "string" && raw.creditHint.trim()) {
+    return raw.creditHint.trim();
+  }
+  const information = asRecord(raw.information);
+  const fromInfo = asString(information?.cost_hint).trim();
+  if (fromInfo) return fromInfo;
   const metadata = asRecord(raw.metadata);
   const ui = asRecord(metadata?.ui);
-  return asString(ui?.cost_hint);
+  return asString(ui?.cost_hint).trim();
 }
 
 function resolveCost(raw: Record<string, unknown>): unknown {
@@ -191,7 +196,10 @@ export function mapAdminApiServiceToManageService(
       raw.parentUuid === null
         ? null
         : asString(raw.parentUuid) || fallback?.parentUuid || null,
-    isAutoCredit: asBoolean(raw.isAutoCredit, fallback?.isAutoCredit ?? true),
+    isAutoCredit: asBoolean(
+      raw.isAutoCredit,
+      !(resolveCreditHint(raw) || fallback?.creditHint || "").trim()
+    ),
     creditHint: resolveCreditHint(raw) || fallback?.creditHint || "",
     submodels,
     cost: resolveCost(raw) ?? fallback?.cost,
