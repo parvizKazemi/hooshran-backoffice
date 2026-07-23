@@ -17,12 +17,21 @@ export const MANAGE_SERVICES_ENDPOINTS = {
   /** GET → single service full detail */
   platformDetail: (uuid: string) =>
     `/admin/api-services/${encodeURIComponent(uuid)}`,
-  /** PUT → upsert admin custom overrides */
+  /** PUT → upsert admin custom overrides (+ category_orders → category_services) */
   customData: (uuid: string) =>
     `/admin/services/${encodeURIComponent(uuid)}/custom-data`,
   /** DELETE → remove custom overrides */
   deleteCustomData: (uuid: string) =>
     `/admin/services/${encodeURIComponent(uuid)}/custom-data`,
-  /** POST → sync base service data from /api/v1/models-shaped payload */
+  /**
+   * GET/POST/PATCH → batch catalog manage (`batchSyncManageServices`).
+   * PATCH soft-deletes uuids missing from the body — only send full catalog.
+   */
+  batchList: "/admin/services",
+  batchCreate: "/admin/services",
+  batchSync: "/admin/services",
+  /**
+   * External `/api/v1/models` sync only — NOT for admin catalog save.
+   */
   updateData: "/admin/api-service/update-data",
 } as const;

@@ -48,25 +48,16 @@ export function useManageServices(options?: {
 
 type SaveManageServicesInput = {
   items: ManageService[];
-  categorySlugByUuid?: Record<string, string>;
-  categoryNameByUuid?: Record<string, string>;
 };
 
-/** Overall sync → POST `/admin/api-service/update-data` (+ custom-data overrides). */
+/** Persist draft via PUT `/admin/services/{uuid}/custom-data` (not update-data). */
 export function useSaveManageServices() {
   const queryClient = useQueryClient();
   const { t } = useTranslation("common");
 
   return useMutation({
-    mutationFn: ({
-      items,
-      categorySlugByUuid,
-      categoryNameByUuid,
-    }: SaveManageServicesInput) =>
-      syncManageServicesUpdateData(items, {
-        categorySlugByUuid,
-        categoryNameByUuid,
-      }),
+    mutationFn: ({ items }: SaveManageServicesInput) =>
+      syncManageServicesUpdateData(items),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: MANAGE_SERVICES_QUERY_KEY,

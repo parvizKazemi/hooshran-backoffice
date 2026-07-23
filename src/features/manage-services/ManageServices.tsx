@@ -281,18 +281,7 @@ export default function ManageServices() {
   };
 
   const handleSave = async () => {
-    const categorySlugByUuid = Object.fromEntries(
-      categoryOptions.map((item) => [item.uuid, item.slug])
-    );
-    const categoryNameByUuid = Object.fromEntries(
-      categoryOptions.map((item) => [item.uuid, item.name])
-    );
-
-    await saveServices.mutateAsync({
-      items,
-      categorySlugByUuid,
-      categoryNameByUuid,
-    });
+    await saveServices.mutateAsync({ items });
 
     // Refetch is handled by invalidateQueries; keep local baseline in sync after success.
     setBaseline(

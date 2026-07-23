@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from "@/services/api";
+import { apiGet, apiPut } from "@/services/api";
 import type {
   CatalogServiceOption,
   ManageService,
@@ -10,7 +10,6 @@ import {
 } from "@/features/manage-services/utils/accept-hint.helpers";
 import { mapAdminApiServiceToManageService } from "@/features/manage-services/utils/map-admin-api-service";
 import {
-  buildModelsUpdatePayload,
   mapManageServiceToCustomData,
   normalizeServicesResponse,
   type ServiceCustomDataPayload,
@@ -126,47 +125,21 @@ export async function updateManageServiceCustomData(
 }
 
 /**
- * Overall base sync → POST `/admin/api-service/update-data`
- * Builds /api/v1/models-shaped payload (preserves inputs from detail when possible).
+ * Save catalog draft changes.
+ *
+ * Uses `PUT /admin/services/:uuid/custom-data` (correct admin override path).
+ * Does NOT call `POST /admin/api-service/update-data` — that endpoint is only for
+ * external `/api/v1/models` sync and fails / mutates base params incorrectly.
+ *
+ * Backend `upsertCustomData` also applies `metadata.ui.category_orders` →
+ * `category_services.service_index` (reorder).
  */
 export async function syncManageServicesUpdateData(
-  items: ManageService[],
-  options?: {
-    categorySlugByUuid?: Record<string, string>;
-    categoryNameByUuid?: Record<string, string>;
-  }
+  items: ManageService[]
 ): Promise<ManageService[]> {
-  const details = await Promise.all(
-    items
-      .filter((item) => !item.isLocal)
-      .map(async (item) => {
-        try {
-          const detail = await apiGet<PlatformServiceDetail>(
-            MANAGE_SERVICES_ENDPOINTS.platformDetail(item.uuid)
-          );
-          return [item.uuid, detail] as const;
-        } catch {
-          return [item.uuid, null] as const;
-        }
-      })
-  );
-
-  const detailByUuid = Object.fromEntries(details) as Record<
-    string,
-    PlatformServiceDetail | null
-  >;
-
-  const payload = buildModelsUpdatePayload(items, {
-    detailByUuid,
-    categorySlugByUuid: options?.categorySlugByUuid,
-    categoryNameByUuid: options?.categoryNameByUuid,
-  });
-
-  await apiPost(MANAGE_SERVICES_ENDPOINTS.updateData, payload);
-
-  // Persist admin overrides so the next external sync won't wipe them.
   const persisted = items.filter((item) => !item.isLocal);
-  await Promise.all(
+
+  const results = await Promise.all(
     persisted.map((item) =>
       upsertServiceCustomData(
         item.uuid,
@@ -176,7 +149,7 @@ export async function syncManageServicesUpdateData(
     )
   );
 
-  return persisted.map((item) => ({ ...item, isLocal: false }));
+  return results.map((item) => ({ ...item, isLocal: false }));
 }
 
 /** Resolve parent children the same way as front ParentServiceGrid. */
