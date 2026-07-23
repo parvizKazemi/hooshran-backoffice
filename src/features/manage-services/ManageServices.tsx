@@ -40,7 +40,9 @@ import {
   buildCategoryOrdersPayload,
   cloneServices,
   createLocalService,
+  getCategoryOrder,
   removeServiceFromCategory,
+  sortServicesByCategoryOrder,
 } from "./utils/service.helpers";
 
 export default function ManageServices() {
@@ -104,10 +106,17 @@ export default function ManageServices() {
 
   useEffect(() => {
     if (!data) return;
-    const next = cloneServices(data);
+    const cloned = cloneServices(data);
+    const next =
+      categoryFilter !== "all"
+        ? sortServicesByCategoryOrder(cloned, categoryFilter).map((item) => ({
+            ...item,
+            order: getCategoryOrder(item, categoryFilter),
+          }))
+        : cloned;
     setItems(next);
-    setBaseline(cloneServices(data));
-  }, [data]);
+    setBaseline(cloneServices(next));
+  }, [data, categoryFilter]);
 
   const isDirty = useMemo(
     () => !areServicesEqual(items, baseline),

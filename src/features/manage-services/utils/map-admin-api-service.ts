@@ -72,7 +72,13 @@ function resolveDescription(raw: Record<string, unknown>): string {
   );
 }
 
-function resolveCategoryUuids(raw: Record<string, unknown>): string[] {
+function resolveCategoryUuidsFromOrders(
+  orders: Record<string, number>
+): string[] {
+  return Object.keys(orders);
+}
+
+function resolveCategoryUuidsLegacy(raw: Record<string, unknown>): string[] {
   if (Array.isArray(raw.categoryUuids)) {
     return raw.categoryUuids.filter(
       (item): item is string => typeof item === "string"
@@ -83,18 +89,44 @@ function resolveCategoryUuids(raw: Record<string, unknown>): string[] {
   return uuid ? [uuid] : [];
 }
 
-function resolveCategoryOrders(
-  raw: Record<string, unknown>
+/**
+ * Membership source of truth: keys of category_orders.
+ * Fallback: API categoryUuids / primary category.
+ */
+function resolveCategoryUuids(
+  raw: Record<string, unknown>,
+  orders: Record<string, number>
+): string[] {
+  const fromOrders = resolveCategoryUuidsFromOrders(orders);
+  if (fromOrders.length > 0) return fromOrders;
+  return resolveCategoryUuidsLegacy(raw);
+}
+
+function parseCategoryOrders(
+  value: Record<string, unknown> | null
 ): Record<string, number> {
-  const orders = asRecord(raw.categoryOrders);
-  if (!orders) return {};
+  if (!value) return {};
   const result: Record<string, number> = {};
-  for (const [key, value] of Object.entries(orders)) {
-    if (typeof value === "number" && Number.isFinite(value)) {
-      result[key] = value;
+  for (const [key, entry] of Object.entries(value)) {
+    if (typeof entry === "number" && Number.isFinite(entry)) {
+      result[key] = entry;
     }
   }
   return result;
+}
+
+function resolveCategoryOrders(
+  raw: Record<string, unknown>
+): Record<string, number> {
+  const topLevel = parseCategoryOrders(asRecord(raw.categoryOrders));
+  if (Object.keys(topLevel).length > 0) return topLevel;
+
+  const information = asRecord(raw.information);
+  const fromInfo = parseCategoryOrders(asRecord(information?.category_orders));
+  if (Object.keys(fromInfo).length > 0) return fromInfo;
+
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  return parseCategoryOrders(asRecord(ui?.category_orders));
 }
 
 function resolveCreditHint(raw: Record<string, unknown>): string {
@@ -171,6 +203,15 @@ export function mapAdminApiServiceToManageService(
         })
       : (fallback?.submodels ?? []);
 
+  const resolvedOrders = resolveCategoryOrders(raw);
+  const categoryOrders = {
+    ...(fallback?.categoryOrders ?? {}),
+    ...resolvedOrders,
+  };
+  const resolvedUuids = resolveCategoryUuids(raw, resolvedOrders);
+  const categoryUuids =
+    resolvedUuids.length > 0 ? resolvedUuids : (fallback?.categoryUuids ?? []);
+
   return {
     uuid,
     name,
@@ -184,14 +225,8 @@ export function mapAdminApiServiceToManageService(
     isActive: asBoolean(raw.isActive, fallback?.isActive ?? true),
     inactiveReason:
       resolveInactiveReason(raw) || fallback?.inactiveReason || "",
-    categoryUuids:
-      resolveCategoryUuids(raw).length > 0
-        ? resolveCategoryUuids(raw)
-        : (fallback?.categoryUuids ?? []),
-    categoryOrders: {
-      ...(fallback?.categoryOrders ?? {}),
-      ...resolveCategoryOrders(raw),
-    },
+    categoryUuids,
+    categoryOrders,
     parentUuid:
       raw.parentUuid === null
         ? null
