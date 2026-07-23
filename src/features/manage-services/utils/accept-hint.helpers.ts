@@ -13,7 +13,7 @@ export type AcceptHintOption = {
 };
 
 export function endpointToSlug(endpoint: string): string {
-  return endpoint.replaceAll("/", "-");
+  return endpoint.replace(/\//g, "-");
 }
 
 export function normalizeAcceptHint(hint: unknown): AcceptHintOption[] {
