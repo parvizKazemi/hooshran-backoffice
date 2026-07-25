@@ -54,7 +54,7 @@ const createCreditSchema = z.object({
 const updateCreditSchema = z.object({
   creditBalance: z.number().min(0, "موجودی اعتبار باید بیشتر از صفر باشد"),
   status: EditableCreditStatusSchema,
-  cancelReason: z.string().optional(),
+  cancelationReason: z.string().optional(),
   expiresAt: z.string().min(1, "تاریخ انقضا الزامی است"),
 });
 
@@ -171,7 +171,7 @@ export const UserCreditForm = memo(function UserCreditForm({
     defaultValues: {
       creditBalance: credit?.creditBalance ?? 0,
       status: toEditableStatus(credit?.status),
-      cancelReason: credit?.cancelReason ?? "",
+      cancelationReason: credit?.cancelationReason ?? "",
       expiresAt: toDateInputValue(credit?.expiresAt),
     },
   });
@@ -184,7 +184,7 @@ export const UserCreditForm = memo(function UserCreditForm({
       updateForm.reset({
         creditBalance: credit.creditBalance,
         status: toEditableStatus(credit.status),
-        cancelReason: credit.cancelReason ?? "",
+        cancelationReason: credit.cancelationReason ?? "",
         expiresAt: toDateInputValue(credit.expiresAt),
       });
     }
@@ -223,7 +223,7 @@ export const UserCreditForm = memo(function UserCreditForm({
   const onUpdateSubmit: SubmitHandler<UpdateCreditFormData> = async (data) => {
     if (!credit) return;
 
-    if (data.status === "canceled" && !data.cancelReason?.trim()) {
+    if (data.status === "canceled" && !data.cancelationReason?.trim()) {
       toast.warning("لطفاً علت کنسل شدن اشتراک را وارد کنید.");
       return;
     }
@@ -231,8 +231,10 @@ export const UserCreditForm = memo(function UserCreditForm({
     const payload: UpdateUserCreditInput = {
       creditBalance: data.creditBalance,
       status: data.status,
-      cancelReason:
-        data.status === "canceled" ? data.cancelReason?.trim() || null : null,
+      cancelationReason:
+        data.status === "canceled"
+          ? data.cancelationReason?.trim() || null
+          : null,
       expiresAt: convertDateToISO(data.expiresAt, credit.expiresAt),
     };
 
@@ -333,17 +335,17 @@ export const UserCreditForm = memo(function UserCreditForm({
             aria-hidden={!showCancelReason}
           >
             <Field>
-              <FieldLabel htmlFor="cancelReason">
-                {t("userCredits.form.cancelReason")}{" "}
+              <FieldLabel htmlFor="cancelationReason">
+                {t("userCredits.form.cancelationReason")}{" "}
                 <span className="text-destructive">*</span>
               </FieldLabel>
               <Textarea
-                id="cancelReason"
+                id="cancelationReason"
                 rows={2}
                 dir="rtl"
                 className="resize-none text-right"
-                placeholder={t("userCredits.form.cancelReasonPlaceholder")}
-                {...updateForm.register("cancelReason")}
+                placeholder={t("userCredits.form.cancelationReasonPlaceholder")}
+                {...updateForm.register("cancelationReason")}
                 disabled={isLoading || !showCancelReason}
               />
             </Field>

@@ -218,7 +218,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
           const label =
             statusLabels[status] || statusLabels[credit.status] || status;
           const hasCancelTooltip =
-            status === "canceled" && !!credit.cancelReason;
+            status === "canceled" && !!credit.cancelationReason;
 
           const badge = (
             <Badge
@@ -239,8 +239,8 @@ export const UserCreditsTable = memo(function UserCreditsTable({
                   <span className="inline-flex">{badge}</span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-right">
-                  {t("userCredits.table.cancelReasonTooltip", {
-                    reason: credit.cancelReason,
+                  {t("userCredits.table.cancelationReasonTooltip", {
+                    reason: credit.cancelationReason,
                   })}
                 </TooltipContent>
               </Tooltip>

@@ -1171,7 +1171,7 @@
       "type": "نوع",
       "purchaseTime": "زمان خرید",
       "status": "وضعیت",
-      "cancelReasonTooltip": "علت کنسلی: {{reason}}"
+      "cancelationReasonTooltip": "علت کنسلی: {{reason}}"
     },
     "sources": {
       "purchase": "خرید",
@@ -1253,8 +1253,8 @@
       "type": "نوع",
       "packageType": "نوع پکیج",
       "status": "وضعیت اشتراک",
-      "cancelReason": "علت کنسل شدن اشتراک",
-      "cancelReasonPlaceholder": "توضیحات علت کنسلی را وارد کنید...",
+      "cancelationReason": "علت کنسل شدن اشتراک",
+      "cancelationReasonPlaceholder": "توضیحات علت کنسلی را وارد کنید...",
       "readOnlyFields": "فیلدهای فقط خواندنی",
       "selectPackage": "انتخاب پکیج",
       "selectPackageDescription": "پکیج مورد نظر را از جدول زیر انتخاب کنید",

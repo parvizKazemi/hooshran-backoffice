@@ -77,7 +77,7 @@ export const UserCreditSchema = z.object({
   expiresAt: z.string(),
   createdAt: z.string(),
   status: CreditStatusSchema,
-  cancelReason: z.string().optional().nullable(),
+  cancelationReason: z.string().optional().nullable(),
 });
 
 export type UserCredit = z.infer<typeof UserCreditSchema>;

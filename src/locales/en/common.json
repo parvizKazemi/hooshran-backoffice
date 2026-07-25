@@ -1132,7 +1132,7 @@
       "type": "Type",
       "purchaseTime": "Purchase Time",
       "status": "Status",
-      "cancelReasonTooltip": "Cancel reason: {{reason}}"
+      "cancelationReasonTooltip": "Cancelation reason: {{reason}}"
     },
     "sources": {
       "purchase": "Purchase",
@@ -1214,8 +1214,8 @@
       "type": "Type",
       "packageType": "Package Type",
       "status": "Subscription Status",
-      "cancelReason": "Cancellation Reason",
-      "cancelReasonPlaceholder": "Enter the cancellation reason...",
+      "cancelationReason": "Cancellation Reason",
+      "cancelationReasonPlaceholder": "Enter the cancellation reason...",
       "readOnlyFields": "Read-only Fields",
       "selectPackage": "Select Package",
       "selectPackageDescription": "Select a package from the table below",
