@@ -5,7 +5,7 @@ export const EDITABLE_CREDIT_STATUSES: EditableCreditStatus[] = [
   "active",
   "expired",
   "transferred",
-  "cancelled",
+  "canceled",
 ];
 
 /** Normalize backend spelling (`transfered`) to UI key */
@@ -27,7 +27,7 @@ export function getCreditStatusBadgeClass(status: string): string {
       return "border-rose-100 bg-rose-50 text-rose-600 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400";
     case "transferred":
       return "border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-500/25 dark:bg-blue-500/15 dark:text-blue-400";
-    case "cancelled":
+    case "canceled":
       return "border-amber-100 bg-amber-50 text-amber-600 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400";
     case "frozen":
       return "border-sky-100 bg-sky-50 text-sky-600 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400";

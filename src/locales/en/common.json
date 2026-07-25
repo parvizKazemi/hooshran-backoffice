@@ -1164,7 +1164,7 @@
       "used": "Used",
       "expired": "Expired",
       "transferred": "Transferred",
-      "cancelled": "Cancelled",
+      "canceled": "Canceled",
       "frozen": "Frozen"
     },
     "allStatuses": "All Statuses",

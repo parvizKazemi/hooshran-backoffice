@@ -98,7 +98,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
     expired: t("userCredits.statuses.expired"),
     transferred: t("userCredits.statuses.transferred"),
     transfered: t("userCredits.statuses.transferred"),
-    cancelled: t("userCredits.statuses.cancelled"),
+    canceled: t("userCredits.statuses.canceled"),
     frozen: t("userCredits.statuses.frozen"),
   };
 
@@ -218,7 +218,7 @@ export const UserCreditsTable = memo(function UserCreditsTable({
           const label =
             statusLabels[status] || statusLabels[credit.status] || status;
           const hasCancelTooltip =
-            status === "cancelled" && !!credit.cancelReason;
+            status === "canceled" && !!credit.cancelReason;
 
           const badge = (
             <Badge

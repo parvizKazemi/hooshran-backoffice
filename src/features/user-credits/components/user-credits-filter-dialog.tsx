@@ -46,7 +46,7 @@ const filterSchema = z.object({
       "expired",
       "transferred",
       "transfered",
-      "cancelled",
+      "canceled",
       "frozen",
     ])
     .optional(),
@@ -277,8 +277,8 @@ export const UserCreditsFilterDialog = memo(function UserCreditsFilterDialog({
                     <SelectItem value="transferred">
                       {t("userCredits.statuses.transferred")}
                     </SelectItem>
-                    <SelectItem value="cancelled">
-                      {t("userCredits.statuses.cancelled")}
+                    <SelectItem value="canceled">
+                      {t("userCredits.statuses.canceled")}
                     </SelectItem>
                   </SelectContent>
                 </Select>

@@ -1203,7 +1203,7 @@
       "used": "استفاده شده",
       "expired": "منقضی شده",
       "transferred": "انتقال یافته",
-      "cancelled": "کنسل شده",
+      "canceled": "کنسل شده",
       "frozen": "فریز شده"
     },
     "allStatuses": "همه وضعیت‌ها",

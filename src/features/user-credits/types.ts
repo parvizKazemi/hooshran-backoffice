@@ -38,7 +38,7 @@ export const CreditStatusSchema = z.enum([
   "expired",
   "transferred",
   "transfered", // backend spelling variant
-  "cancelled",
+  "canceled",
   "frozen",
 ]);
 
@@ -49,7 +49,7 @@ export const EditableCreditStatusSchema = z.enum([
   "active",
   "expired",
   "transferred",
-  "cancelled",
+  "canceled",
 ]);
 
 export type EditableCreditStatus = z.infer<typeof EditableCreditStatusSchema>;

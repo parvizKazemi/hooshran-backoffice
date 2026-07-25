@@ -62,7 +62,7 @@ export const UserCreditDetail = memo(function UserCreditDetail({
                 </Badge>
               </div>
             </div>
-            {status === "cancelled" && credit.cancelReason ? (
+            {status === "canceled" && credit.cancelReason ? (
               <div className="col-span-2">
                 <span className="text-muted-foreground text-sm">
                   {t("userCredits.form.cancelReason")}:

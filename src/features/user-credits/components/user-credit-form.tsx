@@ -81,7 +81,7 @@ function toEditableStatus(status: string | undefined): EditableCreditStatus {
     normalized === "active" ||
     normalized === "expired" ||
     normalized === "transferred" ||
-    normalized === "cancelled"
+    normalized === "canceled"
   ) {
     return normalized;
   }
@@ -177,7 +177,7 @@ export const UserCreditForm = memo(function UserCreditForm({
   });
 
   const watchedStatus = updateForm.watch("status");
-  const showCancelReason = watchedStatus === "cancelled";
+  const showCancelReason = watchedStatus === "canceled";
 
   useEffect(() => {
     if (credit) {
@@ -223,7 +223,7 @@ export const UserCreditForm = memo(function UserCreditForm({
   const onUpdateSubmit: SubmitHandler<UpdateCreditFormData> = async (data) => {
     if (!credit) return;
 
-    if (data.status === "cancelled" && !data.cancelReason?.trim()) {
+    if (data.status === "canceled" && !data.cancelReason?.trim()) {
       toast.warning("لطفاً علت کنسل شدن اشتراک را وارد کنید.");
       return;
     }
@@ -232,7 +232,7 @@ export const UserCreditForm = memo(function UserCreditForm({
       creditBalance: data.creditBalance,
       status: data.status,
       cancelReason:
-        data.status === "cancelled" ? data.cancelReason?.trim() || null : null,
+        data.status === "canceled" ? data.cancelReason?.trim() || null : null,
       expiresAt: convertDateToISO(data.expiresAt, credit.expiresAt),
     };
 
