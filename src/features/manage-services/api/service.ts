@@ -109,6 +109,7 @@ export async function updateManageServiceCustomData(
       | "name"
       | "description"
       | "badge"
+      | "slug"
       | "categoryUuids"
       | "categoryOrders"
       | "order"

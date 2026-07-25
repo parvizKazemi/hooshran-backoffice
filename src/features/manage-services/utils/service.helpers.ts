@@ -349,6 +349,7 @@ export type ServiceCustomDataPayload = {
   description?: string;
   mediaId?: number;
   badge?: string | null;
+  slug?: string;
   isActive?: boolean;
   metadata?: Record<string, unknown>;
 };
@@ -394,6 +395,7 @@ export function mapManageServiceToCustomData(
       | "name"
       | "description"
       | "badge"
+      | "slug"
       | "order"
       | "inactiveReason"
       | "creditHint"
@@ -419,6 +421,7 @@ export function mapManageServiceToCustomData(
     name: merged.name,
     description: merged.description,
     badge: merged.badge,
+    slug: merged.slug || undefined,
     isActive: merged.isActive,
     metadata: {
       ui: {
