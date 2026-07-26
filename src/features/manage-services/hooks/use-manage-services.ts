@@ -48,12 +48,18 @@ export function useManageServices(options?: {
   const category = options?.category ?? null;
   const enabled = options?.enabled ?? true;
 
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: manageServicesQueryKey(category),
     enabled,
     queryFn: async () => {
       try {
-        return await fetchManageServices(category);
+        const manageRows = await queryClient.fetchQuery({
+          queryKey: manageServicesBatchQueryKey,
+          staleTime: MANAGE_SERVICES_STALE_TIME,
+          queryFn: fetchManageServicesBatch,
+        });
+        return await fetchManageServices(category, manageRows);
       } catch (error) {
         if (error instanceof ApiError) {
           toast.error(error.message);

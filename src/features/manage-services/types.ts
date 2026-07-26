@@ -45,7 +45,7 @@ export const ManageServiceSchema = z.object({
   isActive: z.boolean(),
   inactiveReason: z.string(),
   /** Catalog visibility — `metadata.ui.display` / `information.display`. */
-  display: z.boolean().default(false),
+  display: z.boolean().default(true),
   /** Search index — `metadata.ui.searchable` / `information.searchable`. */
   searchable: z.boolean().default(true),
   categoryUuids: z.array(z.string()),

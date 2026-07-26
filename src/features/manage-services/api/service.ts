@@ -509,11 +509,27 @@ function areSubmodelListsEqual(
   return true;
 }
 
-function normalizePlatformListResponse(response: unknown): ManageService[] {
+function normalizePlatformListResponse(
+  response: unknown,
+  manageRows: RawService[] = []
+): ManageService[] {
+  const fallbackByUuid = new Map(
+    manageRows.flatMap((item) => {
+      const uuid = asString(item.uuid).trim();
+      return uuid
+        ? ([[uuid, mapAdminApiServiceToManageService(item)]] as const)
+        : [];
+    })
+  );
+
   return normalizeServicesResponse(
-    extractRawServices(response).map((item) =>
-      mapAdminApiServiceToManageService(item)
-    )
+    extractRawServices(response).map((item) => {
+      const uuid = asString(item.uuid).trim();
+      return mapAdminApiServiceToManageService(
+        item,
+        uuid ? fallbackByUuid.get(uuid) : undefined
+      );
+    })
   );
 }
 
@@ -522,7 +538,8 @@ function normalizePlatformListResponse(response: unknown): ManageService[] {
  * - with category slug/name/uuid → `GET /admin/api-services?category={value}`
  */
 export async function fetchManageServices(
-  category?: string | null
+  category?: string | null,
+  cachedManageRows?: RawService[]
 ): Promise<ManageService[]> {
   const path = category
     ? MANAGE_SERVICES_ENDPOINTS.platformListByCategory(
@@ -531,8 +548,13 @@ export async function fetchManageServices(
       )
     : MANAGE_SERVICES_ENDPOINTS.platformListAll(PLATFORM_SERVICES_LIMIT);
 
-  const response = await apiGet<unknown>(path);
-  return normalizePlatformListResponse(response);
+  const [response, manageRows] = await Promise.all([
+    apiGet<unknown>(path),
+    cachedManageRows
+      ? Promise.resolve(cachedManageRows)
+      : fetchManageServicesBatch(),
+  ]);
+  return normalizePlatformListResponse(response, manageRows);
 }
 
 export async function fetchManageServicesBatch(): Promise<RawService[]> {

@@ -375,7 +375,7 @@ export function normalizeServicesResponse(
         parentUuid: item.parentUuid ?? null,
         inactiveReason: item.inactiveReason ?? "",
         searchable: item.searchable ?? true,
-        display: item.display ?? false,
+        display: item.display ?? true,
         creditHint: item.creditHint ?? "",
         imageUrl: item.imageUrl ?? "",
         isLocal: false,

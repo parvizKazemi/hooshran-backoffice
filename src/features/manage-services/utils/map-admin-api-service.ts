@@ -204,7 +204,7 @@ function resolveSearchable(
   return fallback ?? true;
 }
 
-/** Prefer information, then metadata.ui — missing → hidden (opt-in). */
+/** Prefer information, then metadata.ui — missing → visible (opt-out). */
 function resolveDisplay(
   raw: Record<string, unknown>,
   fallback?: boolean
@@ -214,7 +214,7 @@ function resolveDisplay(
   const ui = asRecord(asRecord(raw.metadata)?.ui);
   if (typeof ui?.display === "boolean") return ui.display;
   if (typeof raw.display === "boolean") return raw.display;
-  return fallback ?? false;
+  return fallback ?? true;
 }
 
 function mapRawSubmodel(record: Record<string, unknown>): ServiceSubmodel {
