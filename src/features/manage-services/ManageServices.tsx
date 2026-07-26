@@ -246,6 +246,36 @@ export default function ManageServices() {
     }
   };
 
+  const handleEditSubmodelFromDialog = async (submodelUuid: string) => {
+    setIsFormOpen(false);
+    setEditingService(null);
+    setIsDetailLoading(false);
+
+    const target =
+      catalogForPickers.find((item) => item.uuid === submodelUuid) ??
+      fullCatalog.find((item) => item.uuid === submodelUuid) ??
+      items.find((item) => item.uuid === submodelUuid);
+
+    if (target) {
+      await handleEdit(target);
+      return;
+    }
+
+    setIsFormOpen(true);
+    setIsDetailLoading(true);
+    try {
+      const detail = await loadServiceDetail.mutateAsync({
+        uuid: submodelUuid,
+      });
+      setEditingService(detail);
+    } catch {
+      setIsFormOpen(false);
+      setEditingService(null);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
   const handleToggleActive = async (
     service: ManageService,
     isActive: boolean
@@ -548,6 +578,7 @@ export default function ManageServices() {
         submodelOptions={submodelPickerOptions}
         existingSlugs={existingSlugs}
         onSubmit={handleFormSubmit}
+        onEditSubmodelService={handleEditSubmodelFromDialog}
       />
 
       <ServiceDeleteDialog
