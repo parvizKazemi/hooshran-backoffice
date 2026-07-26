@@ -87,23 +87,44 @@ function resolveSubmodelCost(service: ManageService): string | undefined {
 
 function toSubmodelFromService(
   service: ManageService,
-  order: number
+  order: number,
+  current?: ServiceSubmodel
 ): ServiceSubmodel {
   return {
+    ...current,
     uuid: service.uuid,
     name: service.name,
     description: service.description,
     slug: service.slug,
     endpoint: service.endpoint,
-    imageUrl: service.imageUrl,
+    imageUrl: current?.imageUrl ?? service.imageUrl,
     creditHint: service.creditHint,
     cost: resolveSubmodelCost(service),
-    badge: service.badge,
+    badge: current?.badge ?? service.badge,
     isActive: service.isActive,
-    inactiveReason: service.inactiveReason,
+    inactiveReason: current?.inactiveReason ?? service.inactiveReason,
     order,
     isLocal: false,
   };
+}
+
+function hasParentChildDataChanges(
+  previous: ManageService,
+  next: ManageService
+): boolean {
+  const toComparable = (service: ManageService) => ({
+    name: service.name.trim(),
+    description: service.description.trim(),
+    slug: service.slug.trim(),
+    endpoint: service.endpoint?.trim() ?? "",
+    cost: resolveSubmodelCost(service) ?? "",
+    active: service.isActive,
+  });
+
+  return (
+    JSON.stringify(toComparable(previous)) !==
+    JSON.stringify(toComparable(next))
+  );
 }
 
 function applyChildToParentMembership(
@@ -118,7 +139,11 @@ function applyChildToParentMembership(
     let nextSubmodels = item.submodels;
     let changed = false;
 
-    if (previousParentUuid && item.uuid === previousParentUuid) {
+    if (
+      previousParentUuid &&
+      previousParentUuid !== nextParentUuid &&
+      item.uuid === previousParentUuid
+    ) {
       const filtered = nextSubmodels.filter(
         (submodel) => submodel.uuid !== childService.uuid
       );
@@ -136,13 +161,15 @@ function applyChildToParentMembership(
         childService,
         index >= 0
           ? (nextSubmodels[index]?.order ?? index + 1)
-          : nextSubmodels.length + 1
+          : nextSubmodels.length + 1,
+        index >= 0 ? nextSubmodels[index] : undefined
       );
 
       if (index >= 0) {
-        nextSubmodels = nextSubmodels.map((submodel, submodelIndex) =>
-          submodelIndex === index ? nextSubmodel : submodel
-        );
+        nextSubmodels = nextSubmodels.flatMap((submodel, submodelIndex) => {
+          if (submodel.uuid !== childService.uuid) return [submodel];
+          return submodelIndex === index ? [nextSubmodel] : [];
+        });
       } else {
         nextSubmodels = [...nextSubmodels, nextSubmodel];
       }
@@ -523,8 +550,14 @@ export default function ManageServices() {
 
       const nextParentUuid =
         next.modelType === "single" ? (next.parentUuid ?? null) : null;
+      const parentMembershipChanged = previousParentUuid !== nextParentUuid;
+      const parentChildDataChanged = hasParentChildDataChanges(
+        editingService,
+        next
+      );
       const shouldSyncParentMembership =
-        previousParentUuid !== nextParentUuid || Boolean(nextParentUuid);
+        parentMembershipChanged ||
+        (Boolean(nextParentUuid) && parentChildDataChanged);
       const parentUuidsToSync = new Set<string>();
       if (shouldSyncParentMembership) {
         if (previousParentUuid) parentUuidsToSync.add(previousParentUuid);
