@@ -120,7 +120,15 @@ export function ServicePicker({
             />
           </div>
         </div>
-        <div className="max-h-60 overflow-y-auto p-1.5">
+        <div
+          className="max-h-60 overflow-y-auto p-1.5"
+          onWheel={(event) => {
+            const element = event.currentTarget;
+            element.scrollTop += event.deltaY;
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
           {services.length === 0 ? (
             <p className="text-muted-foreground p-3 text-center text-xs">
               {emptyMessage}

@@ -64,6 +64,10 @@ function asRecord(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
 function endpointToSlug(endpoint: string): string {
   return endpoint.replace(/\//g, "-");
 }
@@ -360,6 +364,111 @@ function readAcceptHint(detail: Record<string, unknown>): unknown {
   )?.accept_hint;
 }
 
+function readParentUuid(
+  raw: Record<string, unknown>
+): string | null | undefined {
+  const direct = raw.parentUuid;
+  if (direct === null) return null;
+  if (typeof direct === "string") {
+    const trimmed = direct.trim();
+    return trimmed || null;
+  }
+
+  const information = asRecord(raw.information);
+  const infoParent = information?.parentUuid ?? information?.parent_uuid;
+  if (infoParent === null) return null;
+  if (typeof infoParent === "string") {
+    const trimmed = infoParent.trim();
+    return trimmed || null;
+  }
+
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  const uiParent = ui?.parentUuid ?? ui?.parent_uuid;
+  if (uiParent === null) return null;
+  if (typeof uiParent === "string") {
+    const trimmed = uiParent.trim();
+    return trimmed || null;
+  }
+
+  return undefined;
+}
+
+function isChildMatch(
+  child: Record<string, unknown>,
+  target: { uuid: string; slug: string; endpoint: string }
+): boolean {
+  const childUuid = asString(child.uuid).trim();
+  if (target.uuid && childUuid && childUuid === target.uuid) return true;
+
+  const targetSlug = normalizeEndpoint(target.slug);
+  const childSlug = normalizeEndpoint(asString(child.slug));
+  if (targetSlug && childSlug) {
+    const a = stripModelsPrefix(targetSlug);
+    const b = stripModelsPrefix(childSlug);
+    if (a === b) return true;
+  }
+
+  const targetEndpoint = normalizeEndpoint(target.endpoint);
+  const childEndpoint = normalizeEndpoint(asString(child.endpoint));
+  if (
+    targetEndpoint &&
+    childEndpoint &&
+    isEndpointEquivalent(targetEndpoint, childEndpoint)
+  ) {
+    return true;
+  }
+
+  if (targetSlug && childEndpoint) {
+    const childEndpointSlug = endpointToSlug(childEndpoint);
+    if (
+      stripModelsPrefix(targetSlug) === stripModelsPrefix(childEndpointSlug)
+    ) {
+      return true;
+    }
+  }
+
+  if (targetEndpoint && childSlug) {
+    const targetEndpointSlug = endpointToSlug(targetEndpoint);
+    if (
+      stripModelsPrefix(targetEndpointSlug) === stripModelsPrefix(childSlug)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function resolveParentUuidFromChildrens(
+  targetService: Record<string, unknown>,
+  manageRows: Record<string, unknown>[]
+): string | undefined {
+  const target = {
+    uuid: asString(targetService.uuid).trim(),
+    slug: asString(targetService.slug).trim(),
+    endpoint: asString(targetService.endpoint).trim(),
+  };
+
+  if (!target.uuid && !target.slug && !target.endpoint) return undefined;
+
+  for (const row of manageRows) {
+    const parentUuid = asString(row.uuid).trim();
+    if (!parentUuid || (target.uuid && parentUuid === target.uuid)) continue;
+
+    const children = readChildrens(row);
+    if (children.length === 0) continue;
+
+    const hasMatch = children.some((entry) => {
+      const child = asRecord(entry);
+      return child ? isChildMatch(child, target) : false;
+    });
+
+    if (hasMatch) return parentUuid;
+  }
+
+  return undefined;
+}
+
 function areSubmodelListsEqual(
   current: ServiceSubmodel[],
   expected: ServiceSubmodel[]
@@ -407,10 +516,34 @@ export async function fetchManageServiceDetail(
   uuid: string,
   fallback?: Partial<ManageService>
 ): Promise<ManageService> {
-  const response = await apiGet<unknown>(
-    MANAGE_SERVICES_ENDPOINTS.platformDetail(uuid)
+  const [response, manageListResponse] = await Promise.all([
+    apiGet<unknown>(MANAGE_SERVICES_ENDPOINTS.platformDetail(uuid)),
+    apiGet<unknown>(MANAGE_SERVICES_ENDPOINTS.batchList),
+  ]);
+
+  const detailRecord = unwrapServiceDetail(response);
+  const detailParentUuid = readParentUuid(detailRecord);
+  const manageRows = extractRawServices(manageListResponse);
+  const manageRow = manageRows.find((item) => asString(item.uuid) === uuid);
+  const manageParentUuid = manageRow ? readParentUuid(manageRow) : undefined;
+  const inferredParentUuid = resolveParentUuidFromChildrens(
+    {
+      ...detailRecord,
+      ...manageRow,
+      uuid,
+    },
+    manageRows
   );
-  return mapAdminApiServiceToManageService(response, fallback);
+  const resolvedParentUuid =
+    manageParentUuid ?? detailParentUuid ?? inferredParentUuid;
+
+  const safeFallback = fallback ? { ...fallback, parentUuid: null } : fallback;
+  const mapped = mapAdminApiServiceToManageService(response, safeFallback);
+
+  if (resolvedParentUuid !== undefined) {
+    return { ...mapped, parentUuid: resolvedParentUuid };
+  }
+  return mapped;
 }
 
 /**

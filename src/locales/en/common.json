@@ -1002,7 +1002,15 @@
     "search": "Search services...",
     "noResults": "No services found",
     "filter": {
-      "all": "All categories"
+      "all": "All categories",
+      "allServices": "All services",
+      "mostUsed": "Most used",
+      "popular": "Most popular",
+      "newest": "Newest",
+      "multi": "Multi-model",
+      "single": "Single model",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "unsaved": {
       "title": "Unsaved changes",

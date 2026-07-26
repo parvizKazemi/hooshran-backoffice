@@ -23,6 +23,7 @@ import { useSearchParams } from "react-router-dom";
 import { ServiceDeleteDialog } from "./components/service-delete-dialog";
 import { ServiceFormDialog } from "./components/service-form-dialog";
 import { ServicesTable } from "./components/services-table";
+import { updateManageServiceCustomData } from "./api/service";
 import {
   useManageServiceDetail,
   useManageServices,
@@ -34,6 +35,7 @@ import type {
   ManageService,
   ServiceDeleteMode,
   ServiceFormSubmitValues,
+  ServiceSubmodel,
 } from "./types";
 import {
   applyCategoryServiceOrders,
@@ -47,6 +49,96 @@ import {
   sortServicesByCategoryOrder,
 } from "./utils/service.helpers";
 
+type ServiceListFilter =
+  | "all"
+  | "most_used"
+  | "popular"
+  | "newest"
+  | "multi"
+  | "single"
+  | "active"
+  | "inactive";
+
+function normalizeSubmodelOrder(items: ServiceSubmodel[]): ServiceSubmodel[] {
+  return items.map((item, index) => ({
+    ...item,
+    order: index + 1,
+  }));
+}
+
+function toSubmodelFromService(
+  service: ManageService,
+  order: number
+): ServiceSubmodel {
+  return {
+    uuid: service.uuid,
+    name: service.name,
+    description: service.description,
+    slug: service.slug,
+    imageUrl: service.imageUrl,
+    creditHint: service.creditHint,
+    badge: service.badge,
+    isActive: service.isActive,
+    inactiveReason: service.inactiveReason,
+    order,
+    isLocal: false,
+  };
+}
+
+function applyChildToParentMembership(
+  collection: ManageService[],
+  childService: ManageService,
+  previousParentUuid: string | null,
+  nextParentUuid: string | null
+): ManageService[] {
+  return collection.map((item) => {
+    if (item.modelType !== "multi") return item;
+
+    let nextSubmodels = item.submodels;
+    let changed = false;
+
+    if (previousParentUuid && item.uuid === previousParentUuid) {
+      const filtered = nextSubmodels.filter(
+        (submodel) => submodel.uuid !== childService.uuid
+      );
+      if (filtered.length !== nextSubmodels.length) {
+        nextSubmodels = normalizeSubmodelOrder(filtered);
+        changed = true;
+      }
+    }
+
+    if (nextParentUuid && item.uuid === nextParentUuid) {
+      const index = nextSubmodels.findIndex(
+        (submodel) => submodel.uuid === childService.uuid
+      );
+      const nextSubmodel = toSubmodelFromService(
+        childService,
+        index >= 0
+          ? (nextSubmodels[index]?.order ?? index + 1)
+          : nextSubmodels.length + 1
+      );
+
+      if (index >= 0) {
+        nextSubmodels = nextSubmodels.map((submodel, submodelIndex) =>
+          submodelIndex === index ? nextSubmodel : submodel
+        );
+      } else {
+        nextSubmodels = [...nextSubmodels, nextSubmodel];
+      }
+
+      nextSubmodels = normalizeSubmodelOrder(nextSubmodels);
+      changed = true;
+    }
+
+    if (!changed) return item;
+
+    return {
+      ...item,
+      submodels: nextSubmodels,
+    };
+  });
+}
+
 export default function ManageServices() {
   const { t } = useTranslation("common");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,6 +148,7 @@ export default function ManageServices() {
   const [items, setItems] = useState<ManageService[]>([]);
   const [baseline, setBaseline] = useState<ManageService[]>([]);
   const [search, setSearch] = useState("");
+  const [listFilter, setListFilter] = useState<ServiceListFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>(
     searchParams.get("category") || "all"
   );
@@ -139,14 +232,34 @@ export default function ManageServices() {
   /** Backend already filters by category slug when a category is selected. */
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query) ||
-        item.slug.toLowerCase().includes(query)
-    );
-  }, [items, search]);
+    const queried = !query
+      ? items
+      : items.filter(
+          (item) =>
+            item.name.toLowerCase().includes(query) ||
+            item.description.toLowerCase().includes(query) ||
+            item.slug.toLowerCase().includes(query)
+        );
+
+    switch (listFilter) {
+      case "most_used":
+        return queried.filter((item) => item.badge === "most_used");
+      case "popular":
+        return queried.filter((item) => item.badge === "popular");
+      case "newest":
+        return queried.filter((item) => item.badge === "newest");
+      case "multi":
+        return queried.filter((item) => item.modelType === "multi");
+      case "single":
+        return queried.filter((item) => item.modelType === "single");
+      case "active":
+        return queried.filter((item) => item.isActive);
+      case "inactive":
+        return queried.filter((item) => !item.isActive);
+      default:
+        return queried;
+    }
+  }, [items, search, listFilter]);
 
   const nextOrder = useMemo(() => {
     if (items.length === 0) return 1;
@@ -163,14 +276,53 @@ export default function ManageServices() {
   );
 
   const parentPickerOptions = useMemo(() => {
-    return catalogForPickers
-      .filter((service) => service.modelType === "multi")
-      .map((service) => ({
-        uuid: service.uuid,
-        name: service.name,
-        slug: service.slug,
-      }));
-  }, [catalogForPickers]);
+    const optionMap = new Map<
+      string,
+      { uuid: string; name: string; slug: string }
+    >();
+
+    const collect = (list: ManageService[]) => {
+      for (const service of list) {
+        if (service.modelType !== "multi") continue;
+        if (optionMap.has(service.uuid)) continue;
+        optionMap.set(service.uuid, {
+          uuid: service.uuid,
+          name: service.name,
+          slug: service.slug,
+        });
+      }
+    };
+
+    collect(catalogForPickers);
+    collect(fullCatalog);
+    collect(items);
+
+    const currentParentUuid = editingService?.parentUuid;
+    if (currentParentUuid && !optionMap.has(currentParentUuid)) {
+      const currentParent =
+        fullCatalog.find((service) => service.uuid === currentParentUuid) ??
+        catalogForPickers.find(
+          (service) => service.uuid === currentParentUuid
+        ) ??
+        items.find((service) => service.uuid === currentParentUuid);
+
+      if (currentParent?.modelType === "multi") {
+        optionMap.set(currentParent.uuid, {
+          uuid: currentParent.uuid,
+          name: currentParent.name,
+          slug: currentParent.slug,
+        });
+      } else {
+        optionMap.set(currentParentUuid, {
+          uuid: currentParentUuid,
+          name: currentParentUuid,
+          slug: currentParentUuid,
+        });
+      }
+    }
+
+    return Array.from(optionMap.values());
+  }, [catalogForPickers, fullCatalog, items, editingService?.parentUuid]);
 
   const submodelPickerOptions = useMemo(() => {
     return catalogForPickers
@@ -332,9 +484,11 @@ export default function ManageServices() {
 
   const handleFormSubmit = async (values: ServiceFormSubmitValues) => {
     if (editingService) {
+      const previousParentUuid = editingService.parentUuid ?? null;
       const next: ManageService = {
         ...editingService,
         ...values,
+        parentUuid: values.parentUuid,
         categoryOrders: buildCategoryOrdersPayload(
           values.categoryUuids,
           editingService.categoryOrders,
@@ -342,22 +496,106 @@ export default function ManageServices() {
         ),
       };
 
-      setItems((prev) =>
-        applyServiceOrders(
-          prev
-            .map((item) => (item.uuid === editingService.uuid ? next : item))
-            .sort((a, b) => a.order - b.order)
-        )
+      const nextParentUuid =
+        next.modelType === "single" ? (next.parentUuid ?? null) : null;
+      const shouldSyncParentMembership =
+        previousParentUuid !== nextParentUuid || Boolean(nextParentUuid);
+      const parentUuidsToSync = new Set<string>();
+      if (shouldSyncParentMembership) {
+        if (previousParentUuid) parentUuidsToSync.add(previousParentUuid);
+        if (nextParentUuid) parentUuidsToSync.add(nextParentUuid);
+      }
+
+      let nextItems = applyServiceOrders(
+        items
+          .map((item) => (item.uuid === editingService.uuid ? next : item))
+          .sort((a, b) => a.order - b.order)
       );
+
+      if (shouldSyncParentMembership) {
+        nextItems = applyChildToParentMembership(
+          nextItems,
+          next,
+          previousParentUuid,
+          nextParentUuid
+        );
+      }
+
+      setItems(nextItems);
 
       if (!editingService.isLocal) {
         try {
           await upsertCustomData.mutateAsync({ service: next });
-          setBaseline((prev) =>
-            prev.map((item) =>
-              item.uuid === next.uuid ? { ...item, ...next } : item
-            )
+
+          const touchedParentMap = new Map<string, ManageService>();
+
+          for (const parentUuid of parentUuidsToSync) {
+            const fromCurrentItems =
+              nextItems.find((item) => item.uuid === parentUuid) ??
+              items.find((item) => item.uuid === parentUuid);
+            const fromCatalog =
+              catalogForPickers.find((item) => item.uuid === parentUuid) ??
+              fullCatalog.find((item) => item.uuid === parentUuid) ??
+              fromCurrentItems;
+
+            if (!fromCatalog) continue;
+
+            let sourceParent = fromCatalog;
+            if (!sourceParent.isLocal) {
+              try {
+                sourceParent = await loadServiceDetail.mutateAsync({
+                  uuid: parentUuid,
+                  fallback: sourceParent,
+                });
+              } catch {
+                sourceParent = fromCatalog;
+              }
+            }
+
+            const [nextParent] = applyChildToParentMembership(
+              [sourceParent],
+              next,
+              previousParentUuid,
+              nextParentUuid
+            );
+
+            if (nextParent) {
+              touchedParentMap.set(parentUuid, nextParent);
+            }
+          }
+
+          const touchedParents = [...touchedParentMap.values()].filter(
+            (item): item is ManageService => !item.isLocal
           );
+
+          if (touchedParentMap.size > 0) {
+            setItems((prev) =>
+              prev.map((item) => touchedParentMap.get(item.uuid) ?? item)
+            );
+          }
+
+          for (const parentService of touchedParents) {
+            await updateManageServiceCustomData(parentService, {
+              submodels: parentService.submodels,
+            });
+          }
+
+          setBaseline((prev) => {
+            let nextBaseline = prev.map((item) =>
+              item.uuid === next.uuid ? { ...item, ...next } : item
+            );
+
+            if (shouldSyncParentMembership) {
+              nextBaseline = applyChildToParentMembership(
+                nextBaseline,
+                next,
+                previousParentUuid,
+                nextParentUuid
+              );
+            }
+
+            return nextBaseline;
+          });
         } catch {
           // keep local draft; user can retry via save all
         }
@@ -489,6 +727,44 @@ export default function ManageServices() {
                       {category.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={listFilter}
+                onValueChange={(value) =>
+                  setListFilter(value as ServiceListFilter)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={t("manageServices.filter.allServices")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {t("manageServices.filter.allServices")}
+                  </SelectItem>
+                  <SelectItem value="most_used">
+                    {t("manageServices.filter.mostUsed")}
+                  </SelectItem>
+                  <SelectItem value="popular">
+                    {t("manageServices.filter.popular")}
+                  </SelectItem>
+                  <SelectItem value="newest">
+                    {t("manageServices.filter.newest")}
+                  </SelectItem>
+                  <SelectItem value="multi">
+                    {t("manageServices.filter.multi")}
+                  </SelectItem>
+                  <SelectItem value="single">
+                    {t("manageServices.filter.single")}
+                  </SelectItem>
+                  <SelectItem value="active">
+                    {t("manageServices.filter.active")}
+                  </SelectItem>
+                  <SelectItem value="inactive">
+                    {t("manageServices.filter.inactive")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
