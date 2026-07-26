@@ -107,7 +107,15 @@ export function useUpsertServiceCustomData(category?: string | null) {
     }: {
       service: ManageService;
       patch?: Partial<
-        Pick<ManageService, "isActive" | "name" | "description" | "badge">
+        Pick<
+          ManageService,
+          | "isActive"
+          | "searchable"
+          | "display"
+          | "name"
+          | "description"
+          | "badge"
+        >
       >;
     }) => updateManageServiceCustomData(service, patch),
     onSuccess: (updated, variables) => {

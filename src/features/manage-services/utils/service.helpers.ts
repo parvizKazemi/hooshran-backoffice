@@ -197,6 +197,8 @@ function toComparable(items: ManageService[]) {
     categoryOrders: item.categoryOrders ?? {},
     isActive: item.isActive,
     inactiveReason: item.inactiveReason,
+    searchable: item.searchable,
+    display: item.display,
     categoryUuids: [...item.categoryUuids].sort(),
     parentUuid: item.parentUuid,
     isAutoCredit: item.isAutoCredit,
@@ -297,6 +299,8 @@ export function normalizeServicesResponse(
         categoryOrders: item.categoryOrders ?? {},
         parentUuid: item.parentUuid ?? null,
         inactiveReason: item.inactiveReason ?? "",
+        searchable: item.searchable ?? true,
+        display: item.display ?? false,
         creditHint: item.creditHint ?? "",
         imageUrl: item.imageUrl ?? "",
         isLocal: false,
@@ -382,40 +386,68 @@ export function syncServiceCategoryOrders(
   );
 }
 
+type ServiceCustomDataPatch = Partial<
+  Pick<
+    ManageService,
+    | "isActive"
+    | "searchable"
+    | "display"
+    | "name"
+    | "description"
+    | "badge"
+    | "slug"
+    | "order"
+    | "inactiveReason"
+    | "creditHint"
+    | "imageUrl"
+    | "isAutoCredit"
+    | "categoryUuids"
+    | "categoryOrders"
+  >
+>;
+
+function buildCustomDataUiMetadata(service: ManageService) {
+  const categoryOrders = buildCategoryOrdersPayload(
+    service.categoryUuids ?? [],
+    service.categoryOrders,
+    service.order
+  );
+
+  return {
+    service_order: service.order,
+    inactiveReason: service.inactiveReason || undefined,
+    cost_hint: service.isAutoCredit
+      ? undefined
+      : service.creditHint || undefined,
+    image: service.imageUrl || undefined,
+    category_orders: categoryOrders,
+    searchable: service.searchable,
+    display: service.display,
+  };
+}
+
 /**
  * Map catalog row → custom-data DTO.
  * `patch` can send a partial (e.g. only `{ isActive }`) for table toggles.
  */
 export function mapManageServiceToCustomData(
   service: ManageService,
-  patch?: Partial<
-    Pick<
-      ManageService,
-      | "isActive"
-      | "name"
-      | "description"
-      | "badge"
-      | "slug"
-      | "order"
-      | "inactiveReason"
-      | "creditHint"
-      | "imageUrl"
-      | "isAutoCredit"
-      | "categoryUuids"
-      | "categoryOrders"
-    >
-  >
+  patch?: ServiceCustomDataPatch
 ): ServiceCustomDataPayload {
   if (patch && Object.keys(patch).length === 1 && "isActive" in patch) {
     return { isActive: patch.isActive };
   }
 
   const merged = { ...service, ...patch };
-  const categoryOrders = buildCategoryOrdersPayload(
-    merged.categoryUuids ?? [],
-    merged.categoryOrders,
-    merged.order
-  );
+  const ui = buildCustomDataUiMetadata(merged);
+
+  if (
+    patch &&
+    Object.keys(patch).length === 1 &&
+    ("searchable" in patch || "display" in patch)
+  ) {
+    return { metadata: { ui } };
+  }
 
   return {
     name: merged.name,
@@ -423,17 +455,7 @@ export function mapManageServiceToCustomData(
     badge: merged.badge,
     slug: merged.slug || undefined,
     isActive: merged.isActive,
-    metadata: {
-      ui: {
-        service_order: merged.order,
-        inactiveReason: merged.inactiveReason || undefined,
-        cost_hint: merged.isAutoCredit
-          ? undefined
-          : merged.creditHint || undefined,
-        image: merged.imageUrl || undefined,
-        category_orders: categoryOrders,
-      },
-    },
+    metadata: { ui },
   };
 }
 

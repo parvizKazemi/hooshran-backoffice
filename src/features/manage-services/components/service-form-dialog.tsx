@@ -122,6 +122,8 @@ export function ServiceFormDialog({
         badge: SERVICE_BADGE_NONE,
         isActive: true,
         inactiveReason: "",
+        searchable: true,
+        display: true,
         order: nextOrder,
         isChildOfMulti: false,
         parentUuid: null,
@@ -143,6 +145,8 @@ export function ServiceFormDialog({
       badge: toServiceBadgeFormValue(service.badge),
       isActive: service.isActive,
       inactiveReason: service.inactiveReason,
+      searchable: service.searchable,
+      display: service.display,
       order: service.order,
       isChildOfMulti: Boolean(service.parentUuid),
       parentUuid: service.parentUuid,
@@ -157,6 +161,8 @@ export function ServiceFormDialog({
   const modelType = form.watch("modelType");
   const isAutoCredit = form.watch("isAutoCredit");
   const isActive = form.watch("isActive");
+  const searchable = form.watch("searchable");
+  const display = form.watch("display");
   const isChildOfMulti = form.watch("isChildOfMulti");
   const categoryUuids = form.watch("categoryUuids");
   const slugValue = form.watch("slug");
@@ -284,6 +290,8 @@ export function ServiceFormDialog({
       badge: normalizeServiceBadge(values.badge),
       isActive: values.isActive,
       inactiveReason: values.isActive ? "" : values.inactiveReason.trim(),
+      searchable: values.searchable,
+      display: values.display,
       order: values.order,
       parentUuid:
         values.modelType === "single" && values.isChildOfMulti
@@ -603,6 +611,45 @@ export function ServiceFormDialog({
                         form.setValue("isActive", checked)
                       }
                     />
+                  </div>
+                </Field>
+
+                <Field className="gap-2">
+                  <div className="bg-muted/30 flex flex-col gap-3 rounded-xl border p-3">
+                    <label className="flex cursor-pointer items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold">
+                          {t("manageServices.form.searchable")}
+                        </p>
+                        <p className="text-muted-foreground text-[10px]">
+                          {t("manageServices.form.searchableHint")}
+                        </p>
+                      </div>
+                      <Checkbox
+                        checked={searchable}
+                        onCheckedChange={(checked) =>
+                          form.setValue("searchable", checked === true)
+                        }
+                        aria-label={t("manageServices.form.searchable")}
+                      />
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold">
+                          {t("manageServices.form.display")}
+                        </p>
+                        <p className="text-muted-foreground text-[10px]">
+                          {t("manageServices.form.displayHint")}
+                        </p>
+                      </div>
+                      <Checkbox
+                        checked={display}
+                        onCheckedChange={(checked) =>
+                          form.setValue("display", checked === true)
+                        }
+                        aria-label={t("manageServices.form.display")}
+                      />
+                    </label>
                   </div>
                 </Field>
 

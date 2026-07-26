@@ -155,6 +155,33 @@ function resolveInactiveReason(raw: Record<string, unknown>): string {
   return asString(ui?.inactiveReason);
 }
 
+/** Prefer information, then metadata.ui — missing → searchable (opt-out). */
+function resolveSearchable(
+  raw: Record<string, unknown>,
+  fallback?: boolean
+): boolean {
+  const information = asRecord(raw.information);
+  if (typeof information?.searchable === "boolean")
+    return information.searchable;
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  if (typeof ui?.searchable === "boolean") return ui.searchable;
+  if (typeof raw.searchable === "boolean") return raw.searchable;
+  return fallback ?? true;
+}
+
+/** Prefer information, then metadata.ui — missing → hidden (opt-in). */
+function resolveDisplay(
+  raw: Record<string, unknown>,
+  fallback?: boolean
+): boolean {
+  const information = asRecord(raw.information);
+  if (typeof information?.display === "boolean") return information.display;
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  if (typeof ui?.display === "boolean") return ui.display;
+  if (typeof raw.display === "boolean") return raw.display;
+  return fallback ?? false;
+}
+
 function resolveOrder(raw: Record<string, unknown>): number {
   const order = asNumber(raw.order, 0);
   if (order > 0) return order;
@@ -225,6 +252,8 @@ export function mapAdminApiServiceToManageService(
     isActive: asBoolean(raw.isActive, fallback?.isActive ?? true),
     inactiveReason:
       resolveInactiveReason(raw) || fallback?.inactiveReason || "",
+    searchable: resolveSearchable(raw, fallback?.searchable),
+    display: resolveDisplay(raw, fallback?.display),
     categoryUuids,
     categoryOrders,
     parentUuid:

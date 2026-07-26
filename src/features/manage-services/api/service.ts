@@ -106,6 +106,8 @@ export async function updateManageServiceCustomData(
     Pick<
       ManageService,
       | "isActive"
+      | "searchable"
+      | "display"
       | "name"
       | "description"
       | "badge"

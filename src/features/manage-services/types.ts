@@ -40,6 +40,10 @@ export const ManageServiceSchema = z.object({
   order: z.number().int().positive(),
   isActive: z.boolean(),
   inactiveReason: z.string(),
+  /** Catalog visibility — `metadata.ui.display` / `information.display`. */
+  display: z.boolean().default(false),
+  /** Search index — `metadata.ui.searchable` / `information.searchable`. */
+  searchable: z.boolean().default(true),
   categoryUuids: z.array(z.string()),
   categoryOrders: z.record(z.string(), z.number()).optional(),
   parentUuid: z.string().nullable(),
@@ -74,6 +78,8 @@ export const serviceFormSchema = z
     badge: z.enum([...SERVICE_BADGE_VALUES, SERVICE_BADGE_NONE]),
     isActive: z.boolean(),
     inactiveReason: z.string(),
+    searchable: z.boolean(),
+    display: z.boolean(),
     order: z.number().int().positive("ترتیب باید عدد مثبت باشد"),
     isChildOfMulti: z.boolean(),
     parentUuid: z.string().nullable(),
@@ -151,6 +157,8 @@ export type ServiceFormSubmitValues = {
   badge: ServiceBadge;
   isActive: boolean;
   inactiveReason: string;
+  searchable: boolean;
+  display: boolean;
   order: number;
   parentUuid: string | null;
   submodels: ServiceSubmodel[];
