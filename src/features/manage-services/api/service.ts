@@ -535,19 +535,26 @@ export async function fetchManageServices(
   return normalizePlatformListResponse(response);
 }
 
+export async function fetchManageServicesBatch(): Promise<RawService[]> {
+  const response = await apiGet<unknown>(MANAGE_SERVICES_ENDPOINTS.batchList);
+  return extractRawServices(response);
+}
+
 /** Full service detail for edit dialog. */
 export async function fetchManageServiceDetail(
   uuid: string,
-  fallback?: Partial<ManageService>
+  fallback?: Partial<ManageService>,
+  cachedManageRows?: RawService[]
 ): Promise<ManageService> {
-  const [response, manageListResponse] = await Promise.all([
+  const [response, manageRows] = await Promise.all([
     apiGet<unknown>(MANAGE_SERVICES_ENDPOINTS.platformDetail(uuid)),
-    apiGet<unknown>(MANAGE_SERVICES_ENDPOINTS.batchList),
+    cachedManageRows
+      ? Promise.resolve(cachedManageRows)
+      : fetchManageServicesBatch(),
   ]);
 
   const detailRecord = unwrapServiceDetail(response);
   const detailParentUuid = readParentUuid(detailRecord);
-  const manageRows = extractRawServices(manageListResponse);
   const manageRow = manageRows.find((item) => asString(item.uuid) === uuid);
   const manageParentUuid = manageRow ? readParentUuid(manageRow) : undefined;
   const inferredParentUuid = resolveParentUuidFromChildrens(

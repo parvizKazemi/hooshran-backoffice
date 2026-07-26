@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CategoryOption } from "@/features/categories/hooks/use-category-options";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   IconArrowDown,
   IconArrowUp,
@@ -57,6 +58,8 @@ import type {
   ServiceSubmodel,
 } from "../types";
 import { serviceFormSchema } from "../types";
+import { MANAGE_SERVICES_STALE_TIME } from "../constants";
+import { manageParentSubmodelsQueryKey } from "../hooks/use-manage-services";
 import { fetchParentSubmodelsFromAcceptHint } from "../api/service";
 import {
   buildMultiModelSlugFromSuffix,
@@ -134,6 +137,7 @@ export function ServiceFormDialog({
   onEditSubmodelService,
 }: ServiceFormDialogProps) {
   const { t } = useTranslation("common");
+  const queryClient = useQueryClient();
   const isEditing = !!service;
   const [submodels, setSubmodels] = useState<ServiceSubmodel[]>([]);
 
@@ -239,10 +243,12 @@ export function ServiceFormDialog({
       }
 
       try {
-        const fromAcceptHint = await fetchParentSubmodelsFromAcceptHint(
-          service.uuid,
-          submodelOptions
-        );
+        const fromAcceptHint = await queryClient.fetchQuery({
+          queryKey: manageParentSubmodelsQueryKey(service.uuid),
+          staleTime: MANAGE_SERVICES_STALE_TIME,
+          queryFn: () =>
+            fetchParentSubmodelsFromAcceptHint(service.uuid, submodelOptions),
+        });
         if (cancelled) return;
 
         if (fromAcceptHint.length > 0) {
@@ -265,7 +271,7 @@ export function ServiceFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, defaultValues, form, service, submodelOptions]);
+  }, [open, defaultValues, form, service, submodelOptions, queryClient]);
 
   useEffect(() => {
     if (modelType !== "multi") return;

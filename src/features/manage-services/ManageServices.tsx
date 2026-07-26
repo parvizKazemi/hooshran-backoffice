@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useCategoryOptions } from "@/features/categories/hooks/use-category-options";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   IconAlertCircle,
   IconDeviceFloppy,
@@ -24,6 +25,7 @@ import { ServiceDeleteDialog } from "./components/service-delete-dialog";
 import { ServiceFormDialog } from "./components/service-form-dialog";
 import { ServicesTable } from "./components/services-table";
 import { updateManageServiceCustomData } from "./api/service";
+import { MANAGE_SERVICES_QUERY_KEY } from "./constants";
 import {
   useManageServiceDetail,
   useManageServices,
@@ -189,6 +191,7 @@ function applyChildToParentMembership(
 
 export default function ManageServices() {
   const { t } = useTranslation("common");
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const { options: categoryOptions, isLoading: isCategoriesLoading } =
     useCategoryOptions();
@@ -583,7 +586,10 @@ export default function ManageServices() {
 
       if (!editingService.isLocal) {
         try {
-          await upsertCustomData.mutateAsync({ service: next });
+          await upsertCustomData.mutateAsync({
+            service: next,
+            invalidate: false,
+          });
 
           const touchedParentMap = new Map<string, ManageService>();
 
@@ -653,6 +659,10 @@ export default function ManageServices() {
             }
 
             return nextBaseline;
+          });
+
+          await queryClient.invalidateQueries({
+            queryKey: MANAGE_SERVICES_QUERY_KEY,
           });
         } catch {
           // keep local draft; user can retry via save all

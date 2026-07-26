@@ -5,15 +5,36 @@ import { toast } from "sonner";
 import {
   fetchManageServiceDetail,
   fetchManageServices,
+  fetchManageServicesBatch,
   syncManageServicesChildrens,
   syncManageServicesUpdateData,
   updateManageServiceCustomData,
 } from "../api/service";
-import { MANAGE_SERVICES_QUERY_KEY } from "../constants";
+import {
+  MANAGE_SERVICES_QUERY_KEY,
+  MANAGE_SERVICES_STALE_TIME,
+} from "../constants";
 import type { ManageService } from "../types";
 
 export function manageServicesQueryKey(category?: string | null) {
-  return [...MANAGE_SERVICES_QUERY_KEY, category ?? "all"] as const;
+  return [...MANAGE_SERVICES_QUERY_KEY, "list", category ?? "all"] as const;
+}
+
+export function manageServiceDetailQueryKey(uuid: string) {
+  return [...MANAGE_SERVICES_QUERY_KEY, "detail", uuid] as const;
+}
+
+export const manageServicesBatchQueryKey = [
+  ...MANAGE_SERVICES_QUERY_KEY,
+  "batch",
+] as const;
+
+export function manageParentSubmodelsQueryKey(parentUuid: string) {
+  return [
+    ...MANAGE_SERVICES_QUERY_KEY,
+    "parent-submodels",
+    parentUuid,
+  ] as const;
 }
 
 /**
@@ -43,6 +64,7 @@ export function useManageServices(options?: {
       }
     },
     retry: 1,
+    staleTime: MANAGE_SERVICES_STALE_TIME,
     refetchOnWindowFocus: false,
   });
 }
@@ -116,6 +138,7 @@ export function useSyncManageServicesChildrens() {
 }
 
 export function useManageServiceDetail() {
+  const queryClient = useQueryClient();
   const { t } = useTranslation("common");
 
   return useMutation({
@@ -125,7 +148,19 @@ export function useManageServiceDetail() {
     }: {
       uuid: string;
       fallback?: Partial<ManageService>;
-    }) => fetchManageServiceDetail(uuid, fallback),
+    }) =>
+      queryClient.fetchQuery({
+        queryKey: manageServiceDetailQueryKey(uuid),
+        staleTime: MANAGE_SERVICES_STALE_TIME,
+        queryFn: async () => {
+          const manageRows = await queryClient.fetchQuery({
+            queryKey: manageServicesBatchQueryKey,
+            staleTime: MANAGE_SERVICES_STALE_TIME,
+            queryFn: fetchManageServicesBatch,
+          });
+          return fetchManageServiceDetail(uuid, fallback, manageRows);
+        },
+      }),
     onError: (error) => {
       toast.error(
         error instanceof Error
@@ -147,6 +182,7 @@ export function useUpsertServiceCustomData(category?: string | null) {
       patch,
     }: {
       service: ManageService;
+      invalidate?: boolean;
       patch?: Partial<
         Pick<
           ManageService,
@@ -159,7 +195,7 @@ export function useUpsertServiceCustomData(category?: string | null) {
         >
       >;
     }) => updateManageServiceCustomData(service, patch),
-    onSuccess: (updated, variables) => {
+    onSuccess: async (updated, variables) => {
       queryClient.setQueryData<ManageService[]>(
         manageServicesQueryKey(category),
         (current) =>
@@ -167,6 +203,12 @@ export function useUpsertServiceCustomData(category?: string | null) {
             item.uuid === updated.uuid ? { ...item, ...updated } : item
           )
       );
+
+      if (variables.invalidate !== false) {
+        await queryClient.invalidateQueries({
+          queryKey: MANAGE_SERVICES_QUERY_KEY,
+        });
+      }
 
       if (
         variables.patch &&

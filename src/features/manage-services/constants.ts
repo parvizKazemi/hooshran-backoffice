@@ -3,6 +3,7 @@ import type { ServiceBadge, ServiceModelType } from "./types";
 export const MANAGE_SERVICES_QUERY_KEY = ["manage-services"] as const;
 
 export const PLATFORM_SERVICES_LIMIT = 300;
+export const MANAGE_SERVICES_STALE_TIME = 5 * 60 * 1000;
 
 /** Backend / front convention for multi-model shell services. */
 export const PARENT_SERVICE_TEMPLATE_NAME = "ParentService";
