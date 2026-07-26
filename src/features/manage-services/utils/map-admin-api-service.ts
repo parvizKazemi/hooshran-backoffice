@@ -1,5 +1,10 @@
 import { PARENT_SERVICE_TEMPLATE_NAME } from "../constants";
-import type { ManageService, ServiceBadge, ServiceModelType } from "../types";
+import type {
+  ManageService,
+  ServiceBadge,
+  ServiceModelType,
+  ServiceSubmodel,
+} from "../types";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object"
@@ -182,6 +187,58 @@ function resolveDisplay(
   return fallback ?? false;
 }
 
+function mapRawSubmodel(record: Record<string, unknown>): ServiceSubmodel {
+  const order = asNumber(record.order, 0);
+  const introduction = asString(record.introduction).trim();
+  const description = asString(record.description).trim();
+
+  return {
+    uuid: asString(record.uuid),
+    name: asString(record.name),
+    description: description || introduction,
+    slug: asString(record.slug),
+    imageUrl: asString(record.imageUrl) || asString(record.image),
+    creditHint: asString(record.creditHint) || asString(record.cost),
+    badge: normalizeBadge(record.badge),
+    isActive: asBoolean(record.isActive, true),
+    inactiveReason: asString(record.inactiveReason),
+    order: order > 0 ? order : undefined,
+    isLocal: false,
+  };
+}
+
+function resolveChildrensSubmodels(
+  raw: Record<string, unknown>
+): ServiceSubmodel[] {
+  const information = asRecord(raw.information);
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  const candidates = [information?.childrens, ui?.childrens, raw.childrens];
+
+  for (const value of candidates) {
+    if (!Array.isArray(value) || value.length === 0) continue;
+    const parsed = value
+      .map((item) => {
+        const record = asRecord(item);
+        if (!record) return null;
+        const mapped = mapRawSubmodel(record);
+        return mapped.uuid ? mapped : null;
+      })
+      .filter((item): item is ServiceSubmodel => item !== null);
+
+    if (parsed.length === 0) continue;
+    if (parsed.some((item) => item.order !== undefined)) {
+      return [...parsed].sort(
+        (a, b) =>
+          (a.order ?? Number.MAX_SAFE_INTEGER) -
+          (b.order ?? Number.MAX_SAFE_INTEGER)
+      );
+    }
+    return parsed;
+  }
+
+  return [];
+}
+
 function resolveOrder(raw: Record<string, unknown>): number {
   const order = asNumber(raw.order, 0);
   if (order > 0) return order;
@@ -210,25 +267,22 @@ export function mapAdminApiServiceToManageService(
     asString(asRecord(asRecord(raw.metadata)?.ui)?.introduction).trim() ||
     fallback?.introduction;
 
+  const childrensSubmodels = resolveChildrensSubmodels(raw);
   const submodelsRaw = Array.isArray(raw.submodels) ? raw.submodels : [];
+  const legacySubmodels = submodelsRaw
+    .map((item) => {
+      const record = asRecord(item);
+      if (!record) return null;
+      const mapped = mapRawSubmodel(record);
+      return mapped.uuid ? mapped : null;
+    })
+    .filter((item): item is ServiceSubmodel => item !== null);
   const submodels =
-    submodelsRaw.length > 0
-      ? submodelsRaw.map((item) => {
-          const sub = asRecord(item) ?? {};
-          return {
-            uuid: asString(sub.uuid),
-            name: asString(sub.name),
-            description: asString(sub.description),
-            slug: asString(sub.slug),
-            imageUrl: asString(sub.imageUrl),
-            creditHint: asString(sub.creditHint),
-            badge: normalizeBadge(sub.badge),
-            isActive: asBoolean(sub.isActive, true),
-            inactiveReason: asString(sub.inactiveReason),
-            isLocal: false,
-          };
-        })
-      : (fallback?.submodels ?? []);
+    childrensSubmodels.length > 0
+      ? childrensSubmodels
+      : legacySubmodels.length > 0
+        ? legacySubmodels
+        : (fallback?.submodels ?? []);
 
   const resolvedOrders = resolveCategoryOrders(raw);
   const categoryOrders = {

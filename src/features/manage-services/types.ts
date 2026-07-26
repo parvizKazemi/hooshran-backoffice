@@ -23,6 +23,7 @@ export const ServiceSubmodelSchema = z.object({
   badge: ServiceBadgeSchema,
   isActive: z.boolean().default(true),
   inactiveReason: z.string().default(""),
+  order: z.number().int().positive().optional(),
   isLocal: z.boolean().optional(),
 });
 
@@ -174,10 +175,14 @@ export type ParentServiceOption = {
 
 /** Services selectable as multi-model children. */
 export type CatalogServiceOption = ParentServiceOption & {
+  endpoint?: string;
+  modelType?: ServiceModelType;
   description?: string;
   imageUrl?: string;
   creditHint?: string;
   badge?: ServiceBadge;
   isActive?: boolean;
   inactiveReason?: string;
+  order?: number;
+  parentUuid?: string | null;
 };

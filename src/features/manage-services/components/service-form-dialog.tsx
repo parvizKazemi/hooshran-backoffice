@@ -46,8 +46,8 @@ import {
   toServiceBadgeFormValue,
 } from "../constants";
 import type {
-  ManageService,
   CatalogServiceOption,
+  ManageService,
   ParentServiceOption,
   ServiceFormSubmitValues,
   ServiceFormValues,
@@ -59,6 +59,7 @@ import {
   buildMultiModelSlugFromSuffix,
   getCreditDisplay,
   getMultiModelSlugSuffix,
+  resolveParentSubmodelsFromCatalog,
   slugifyName,
 } from "../utils/service.helpers";
 import { ServiceMediaField } from "./service-media-field";
@@ -184,20 +185,30 @@ export function ServiceFormDialog({
         return;
       }
 
-      if (service?.modelType === "multi" && service.uuid && !service.isLocal) {
-        try {
-          const resolved = await fetchParentSubmodelsFromAcceptHint(
-            service.uuid,
-            submodelOptions
-          );
-          if (!cancelled) setSubmodels(resolved);
-        } catch {
-          if (!cancelled) setSubmodels([]);
-        }
+      if (service?.modelType !== "multi" || !service.uuid || service.isLocal) {
+        setSubmodels([]);
         return;
       }
 
-      setSubmodels([]);
+      try {
+        const fromAcceptHint = await fetchParentSubmodelsFromAcceptHint(
+          service.uuid,
+          submodelOptions
+        );
+        if (cancelled) return;
+
+        if (fromAcceptHint.length > 0) {
+          setSubmodels(fromAcceptHint);
+          return;
+        }
+      } catch {
+        // continue to catalog fallback
+      }
+
+      if (cancelled) return;
+      setSubmodels(
+        resolveParentSubmodelsFromCatalog(service.uuid, submodelOptions)
+      );
     }
 
     void seedSubmodels();

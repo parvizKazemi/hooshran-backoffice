@@ -1,5 +1,6 @@
 import { MULTI_MODEL_SLUG_PREFIX } from "../constants";
 import type {
+  CatalogServiceOption,
   ManageService,
   ManageServicePayload,
   ServiceSubmodel,
@@ -174,6 +175,55 @@ export function createLocalSubmodel(
   };
 }
 
+export function toServiceSubmodelFromCatalog(
+  item: Pick<
+    CatalogServiceOption,
+    | "uuid"
+    | "name"
+    | "description"
+    | "slug"
+    | "imageUrl"
+    | "creditHint"
+    | "badge"
+    | "isActive"
+    | "inactiveReason"
+    | "order"
+  >,
+  order?: number
+): ServiceSubmodel {
+  return {
+    uuid: item.uuid,
+    name: item.name,
+    description: item.description ?? "",
+    slug: item.slug,
+    imageUrl: item.imageUrl ?? "",
+    creditHint: item.creditHint ?? "",
+    badge: item.badge ?? null,
+    isActive: item.isActive ?? true,
+    inactiveReason: item.inactiveReason ?? "",
+    order,
+    isLocal: false,
+  };
+}
+
+export function resolveParentSubmodelsFromCatalog(
+  parentUuid: string,
+  catalog: CatalogServiceOption[]
+): ServiceSubmodel[] {
+  const children = catalog
+    .filter((item) => item.parentUuid === parentUuid && item.slug.trim())
+    .sort((a, b) => {
+      const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.name.localeCompare(b.name);
+    });
+
+  return children.map((item, index) =>
+    toServiceSubmodelFromCatalog(item, index + 1)
+  );
+}
+
 export function areServicesEqual(
   current: ManageService[],
   original: ManageService[]
@@ -214,6 +264,7 @@ function toComparable(items: ManageService[]) {
       badge: sub.badge,
       isActive: sub.isActive,
       inactiveReason: sub.inactiveReason,
+      order: sub.order,
       isLocal: Boolean(sub.isLocal),
     })),
   }));
@@ -306,6 +357,7 @@ export function normalizeServicesResponse(
         isLocal: false,
         submodels: (item.submodels ?? []).map((sub) => ({
           ...sub,
+          order: sub.order,
           isLocal: false,
         })),
       };
@@ -392,6 +444,7 @@ type ServiceCustomDataPatch = Partial<
     | "isActive"
     | "searchable"
     | "display"
+    | "submodels"
     | "name"
     | "description"
     | "badge"
@@ -406,12 +459,29 @@ type ServiceCustomDataPatch = Partial<
   >
 >;
 
+function buildChildrensPayload(submodels: ServiceSubmodel[]) {
+  return submodels.map((sub, index) => ({
+    uuid: sub.uuid,
+    order: sub.order ?? index + 1,
+    cost: sub.creditHint || undefined,
+    name: sub.name,
+    image: sub.imageUrl || undefined,
+    slug: sub.slug,
+    introduction: sub.description || undefined,
+    active: sub.isActive,
+  }));
+}
+
 function buildCustomDataUiMetadata(service: ManageService) {
   const categoryOrders = buildCategoryOrdersPayload(
     service.categoryUuids ?? [],
     service.categoryOrders,
     service.order
   );
+  const childrens =
+    service.modelType === "multi"
+      ? buildChildrensPayload(service.submodels)
+      : undefined;
 
   return {
     service_order: service.order,
@@ -423,6 +493,7 @@ function buildCustomDataUiMetadata(service: ManageService) {
     category_orders: categoryOrders,
     searchable: service.searchable,
     display: service.display,
+    childrens,
   };
 }
 
@@ -444,7 +515,7 @@ export function mapManageServiceToCustomData(
   if (
     patch &&
     Object.keys(patch).length === 1 &&
-    ("searchable" in patch || "display" in patch)
+    ("searchable" in patch || "display" in patch || "submodels" in patch)
   ) {
     return { metadata: { ui } };
   }

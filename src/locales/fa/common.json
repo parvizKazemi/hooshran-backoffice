@@ -1072,6 +1072,7 @@
     "actions": {
       "edit": "ویرایش",
       "delete": "حذف",
+      "syncChildrens": "همگام‌سازی فرزندان",
       "cancelChanges": "انصراف",
       "saveAll": "ثبت تغییرات نهایی"
     },
@@ -1143,7 +1144,10 @@
       "activated": "سرویس فعال شد",
       "deactivated": "سرویس غیرفعال شد",
       "toggleFailed": "خطا در تغییر وضعیت سرویس",
-      "customSaved": "ویرایش سرویس ذخیره شد"
+      "customSaved": "ویرایش سرویس ذخیره شد",
+      "childrensSynced": "{{updated}} سرویس والد از {{empty}} مورد نیاز (از {{total}} کل والد) همگام‌سازی شد",
+      "childrensSyncNoChanges": "همه موارد قبلا همگام بوده‌اند (۰ از {{empty}} مورد نیاز، از {{total}} کل والد)",
+      "childrensSyncFailed": "همگام‌سازی فرزندان با خطا مواجه شد"
     }
   },
   "userCredits": {

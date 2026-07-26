@@ -1033,6 +1033,7 @@
     "actions": {
       "edit": "Edit",
       "delete": "Delete",
+      "syncChildrens": "Sync children",
       "cancelChanges": "Cancel",
       "saveAll": "Save final changes"
     },
@@ -1104,7 +1105,10 @@
       "activated": "Service activated",
       "deactivated": "Service deactivated",
       "toggleFailed": "Failed to update service status",
-      "customSaved": "Service edits saved"
+      "customSaved": "Service edits saved",
+      "childrensSynced": "{{updated}} parent services synced out of {{empty}} required ({{total}} total parents)",
+      "childrensSyncNoChanges": "No migration needed (0 of {{empty}} required, {{total}} total parents)",
+      "childrensSyncFailed": "Failed to sync children"
     }
   },
   "userCredits": {
