@@ -44,6 +44,7 @@ import {
   buildCategoryOrdersPayload,
   cloneServices,
   createLocalService,
+  getCreditDisplay,
   getCategoryOrder,
   removeServiceFromCategory,
   sortServicesByCategoryOrder,
@@ -66,6 +67,24 @@ function normalizeSubmodelOrder(items: ServiceSubmodel[]): ServiceSubmodel[] {
   }));
 }
 
+function normalizeCostValue(value: unknown): string | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0 ? String(value) : undefined;
+  }
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^0+(?:\.0+)?$/.test(trimmed)) return undefined;
+  return trimmed;
+}
+
+function resolveSubmodelCost(service: ManageService): string | undefined {
+  const fromHint = normalizeCostValue(service.creditHint);
+  if (fromHint) return fromHint;
+  const fromCalculatedCost = getCreditDisplay(service.cost);
+  return fromCalculatedCost !== "-" ? fromCalculatedCost : undefined;
+}
+
 function toSubmodelFromService(
   service: ManageService,
   order: number
@@ -75,8 +94,10 @@ function toSubmodelFromService(
     name: service.name,
     description: service.description,
     slug: service.slug,
+    endpoint: service.endpoint,
     imageUrl: service.imageUrl,
     creditHint: service.creditHint,
+    cost: resolveSubmodelCost(service),
     badge: service.badge,
     isActive: service.isActive,
     inactiveReason: service.inactiveReason,
@@ -331,10 +352,14 @@ export default function ManageServices() {
         uuid: service.uuid,
         name: service.name,
         slug: service.slug,
+        endpoint: service.endpoint,
         description: service.description,
         imageUrl: service.imageUrl,
+        badge: service.badge,
         isActive: service.isActive,
+        inactiveReason: service.inactiveReason,
         creditHint: service.creditHint,
+        cost: resolveSubmodelCost(service),
         parentUuid: service.parentUuid,
         order: service.order,
       }));

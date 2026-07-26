@@ -24,6 +24,26 @@ function asNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function toTrimmedString(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return "";
+}
+
+function normalizeCostValue(value: unknown): string | undefined {
+  const normalized = toTrimmedString(value);
+  if (!normalized) return undefined;
+  if (/^0+(?:\.0+)?$/.test(normalized)) return undefined;
+  return normalized;
+}
+
+function endpointToSlug(endpoint: string): string {
+  return endpoint
+    .trim()
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\//g, "-");
+}
+
 function normalizeBadge(value: unknown): ServiceBadge {
   if (value === "popular" || value === "most_used" || value === "newest") {
     return value;
@@ -58,6 +78,17 @@ function resolveImageUrl(raw: Record<string, unknown>): string {
   const media = asRecord(raw.media);
   if (typeof media?.url === "string" && media.url) return media.url;
   return "";
+}
+
+function resolveEndpoint(raw: Record<string, unknown>): string {
+  const direct = asString(raw.endpoint).trim();
+  if (direct) return direct;
+  const information = asRecord(raw.information);
+  const fromInfo = asString(information?.endpoint).trim();
+  if (fromInfo) return fromInfo;
+  const metadata = asRecord(raw.metadata);
+  const ui = asRecord(metadata?.ui);
+  return asString(ui?.endpoint).trim();
 }
 
 function resolveDescription(raw: Record<string, unknown>): string {
@@ -135,15 +166,14 @@ function resolveCategoryOrders(
 }
 
 function resolveCreditHint(raw: Record<string, unknown>): string {
-  if (typeof raw.creditHint === "string" && raw.creditHint.trim()) {
-    return raw.creditHint.trim();
-  }
+  const fromRaw = normalizeCostValue(raw.creditHint);
+  if (fromRaw) return fromRaw;
   const information = asRecord(raw.information);
-  const fromInfo = asString(information?.cost_hint).trim();
+  const fromInfo = normalizeCostValue(information?.cost_hint);
   if (fromInfo) return fromInfo;
   const metadata = asRecord(raw.metadata);
   const ui = asRecord(metadata?.ui);
-  return asString(ui?.cost_hint).trim();
+  return normalizeCostValue(ui?.cost_hint) ?? "";
 }
 
 function resolveCost(raw: Record<string, unknown>): unknown {
@@ -189,18 +219,27 @@ function resolveDisplay(
 
 function mapRawSubmodel(record: Record<string, unknown>): ServiceSubmodel {
   const order = asNumber(record.order, 0);
+  const endpoint = asString(record.endpoint).trim();
+  const slug =
+    asString(record.slug).trim() || (endpoint ? endpointToSlug(endpoint) : "");
   const introduction = asString(record.introduction).trim();
   const description = asString(record.description).trim();
+  const cost =
+    normalizeCostValue(record.cost) ?? normalizeCostValue(record.creditHint);
+  const creditHint = normalizeCostValue(record.creditHint) ?? cost ?? "";
+  const isActiveCandidate = record.isActive ?? record.active;
 
   return {
     uuid: asString(record.uuid),
     name: asString(record.name),
     description: description || introduction,
-    slug: asString(record.slug),
+    slug,
+    endpoint: endpoint || undefined,
     imageUrl: asString(record.imageUrl) || asString(record.image),
-    creditHint: asString(record.creditHint) || asString(record.cost),
+    creditHint,
+    cost: cost || undefined,
     badge: normalizeBadge(record.badge),
-    isActive: asBoolean(record.isActive, true),
+    isActive: asBoolean(isActiveCandidate, true),
     inactiveReason: asString(record.inactiveReason),
     order: order > 0 ? order : undefined,
     isLocal: false,
@@ -299,6 +338,7 @@ export function mapAdminApiServiceToManageService(
     description,
     introduction: introduction || undefined,
     slug,
+    endpoint: resolveEndpoint(raw) || fallback?.endpoint,
     modelType,
     badge: normalizeBadge(raw.badge) ?? fallback?.badge ?? null,
     imageUrl: resolveImageUrl(raw) || fallback?.imageUrl || "",

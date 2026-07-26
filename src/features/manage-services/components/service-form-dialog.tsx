@@ -90,6 +90,28 @@ function normalizeSubmodelsOrder(items: ServiceSubmodel[]): ServiceSubmodel[] {
   }));
 }
 
+function normalizeCostValue(value: unknown): string | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0 ? String(value) : undefined;
+  }
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^0+(?:\.0+)?$/.test(trimmed)) return undefined;
+  return trimmed;
+}
+
+function normalizeSubmodelCostFields(item: ServiceSubmodel): ServiceSubmodel {
+  const normalizedCredit =
+    normalizeCostValue(item.creditHint) ?? normalizeCostValue(item.cost);
+  const normalizedCost = normalizeCostValue(item.cost) ?? normalizedCredit;
+  return {
+    ...item,
+    creditHint: normalizedCredit ?? "",
+    cost: normalizedCost,
+  };
+}
+
 function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   const next = [...items];
   const [moved] = next.splice(fromIndex, 1);
@@ -203,7 +225,9 @@ export function ServiceFormDialog({
       if (service?.submodels?.length) {
         setSubmodels(
           normalizeSubmodelsOrder(
-            service.submodels.map((item) => ({ ...item }))
+            service.submodels.map((item) =>
+              normalizeSubmodelCostFields({ ...item })
+            )
           )
         );
         return;
@@ -290,8 +314,15 @@ export function ServiceFormDialog({
           name: option.name,
           description: option.description ?? "",
           slug: option.slug,
+          endpoint: option.endpoint,
           imageUrl: option.imageUrl ?? "",
-          creditHint: option.creditHint ?? "",
+          creditHint:
+            normalizeCostValue(option.creditHint) ??
+            normalizeCostValue(option.cost) ??
+            "",
+          cost:
+            normalizeCostValue(option.cost) ??
+            normalizeCostValue(option.creditHint),
           badge: option.badge ?? null,
           isActive: option.isActive ?? true,
           inactiveReason: option.inactiveReason ?? "",

@@ -49,6 +49,17 @@ export function getCreditDisplay(cost: unknown): string {
   return "-";
 }
 
+function normalizeCostValue(value: unknown): string | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0 ? String(value) : undefined;
+  }
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^0+(?:\.0+)?$/.test(trimmed)) return undefined;
+  return trimmed;
+}
+
 export function sortServicesByOrder(items: ManageService[]): ManageService[] {
   return [...items].sort((a, b) => a.order - b.order);
 }
@@ -182,8 +193,10 @@ export function toServiceSubmodelFromCatalog(
     | "name"
     | "description"
     | "slug"
+    | "endpoint"
     | "imageUrl"
     | "creditHint"
+    | "cost"
     | "badge"
     | "isActive"
     | "inactiveReason"
@@ -196,8 +209,13 @@ export function toServiceSubmodelFromCatalog(
     name: item.name,
     description: item.description ?? "",
     slug: item.slug,
+    endpoint: item.endpoint,
     imageUrl: item.imageUrl ?? "",
-    creditHint: item.creditHint ?? "",
+    creditHint:
+      normalizeCostValue(item.creditHint) ??
+      normalizeCostValue(item.cost) ??
+      "",
+    cost: normalizeCostValue(item.cost) ?? normalizeCostValue(item.creditHint),
     badge: item.badge ?? null,
     isActive: item.isActive ?? true,
     inactiveReason: item.inactiveReason ?? "",
@@ -240,6 +258,7 @@ function toComparable(items: ManageService[]) {
     name: item.name,
     description: item.description,
     slug: item.slug,
+    endpoint: item.endpoint,
     modelType: item.modelType,
     badge: item.badge,
     imageUrl: item.imageUrl,
@@ -259,8 +278,10 @@ function toComparable(items: ManageService[]) {
       name: sub.name,
       description: sub.description,
       slug: sub.slug,
+      endpoint: sub.endpoint,
       imageUrl: sub.imageUrl,
       creditHint: sub.creditHint,
+      cost: sub.cost,
       badge: sub.badge,
       isActive: sub.isActive,
       inactiveReason: sub.inactiveReason,
@@ -276,8 +297,10 @@ function toSubmodelPayload(sub: ServiceSubmodel): ServiceSubmodelPayload {
     name: sub.name,
     description: sub.description,
     slug: sub.slug,
+    endpoint: sub.endpoint,
     imageUrl: sub.imageUrl,
     creditHint: sub.creditHint,
+    cost: sub.cost,
     badge: sub.badge,
     isActive: sub.isActive,
     inactiveReason: sub.inactiveReason,
@@ -346,6 +369,7 @@ export function normalizeServicesResponse(
         description,
         introduction: raw.introduction?.trim() || undefined,
         order: item.order > 0 ? item.order : 1,
+        endpoint: item.endpoint?.trim() || undefined,
         categoryUuids: item.categoryUuids ?? [],
         categoryOrders: item.categoryOrders ?? {},
         parentUuid: item.parentUuid ?? null,
@@ -357,6 +381,8 @@ export function normalizeServicesResponse(
         isLocal: false,
         submodels: (item.submodels ?? []).map((sub) => ({
           ...sub,
+          endpoint: sub.endpoint?.trim() || undefined,
+          cost: normalizeCostValue(sub.cost),
           order: sub.order,
           isLocal: false,
         })),
@@ -463,7 +489,8 @@ function buildChildrensPayload(submodels: ServiceSubmodel[]) {
   return submodels.map((sub, index) => ({
     uuid: sub.uuid,
     order: sub.order ?? index + 1,
-    cost: sub.creditHint || undefined,
+    endpoint: sub.endpoint || undefined,
+    cost: normalizeCostValue(sub.cost) ?? normalizeCostValue(sub.creditHint),
     name: sub.name,
     image: sub.imageUrl || undefined,
     slug: sub.slug,
@@ -575,6 +602,7 @@ export function buildModelsUpdatePayload(
 
     const key =
       (typeof detail?.endpoint === "string" && detail.endpoint) ||
+      item.endpoint ||
       item.slug.replace(/-/g, "/") ||
       item.slug;
 

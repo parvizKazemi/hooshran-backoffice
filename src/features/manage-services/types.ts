@@ -18,8 +18,10 @@ export const ServiceSubmodelSchema = z.object({
   name: z.string().min(1),
   description: z.string().default(""),
   slug: z.string().min(1),
+  endpoint: z.string().optional(),
   imageUrl: z.string().default(""),
   creditHint: z.string().default(""),
+  cost: z.string().optional(),
   badge: ServiceBadgeSchema,
   isActive: z.boolean().default(true),
   inactiveReason: z.string().default(""),
@@ -35,6 +37,7 @@ export const ManageServiceSchema = z.object({
   description: z.string(),
   introduction: z.string().optional(),
   slug: z.string().min(1),
+  endpoint: z.string().optional(),
   modelType: ServiceModelTypeSchema,
   badge: ServiceBadgeSchema,
   imageUrl: z.string(),
@@ -120,8 +123,10 @@ export type ServiceSubmodelPayload = {
   name: string;
   description: string;
   slug: string;
+  endpoint?: string;
   imageUrl: string;
   creditHint: string;
+  cost?: string;
   badge: ServiceBadge;
   isActive: boolean;
   inactiveReason: string;
@@ -176,6 +181,7 @@ export type ParentServiceOption = {
 /** Services selectable as multi-model children. */
 export type CatalogServiceOption = ParentServiceOption & {
   endpoint?: string;
+  cost?: string;
   modelType?: ServiceModelType;
   description?: string;
   imageUrl?: string;
