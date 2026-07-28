@@ -95,7 +95,24 @@ function SortableCategoryRow({
           {category.order}
         </span>
       </TableCell>
-      <TableCell className="font-semibold">{category.name}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <div className="bg-muted size-10 shrink-0 overflow-hidden rounded-lg border">
+            {category.imageUrl ? (
+              <img
+                src={category.imageUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              <div className="text-muted-foreground flex size-full items-center justify-center text-[10px]">
+                —
+              </div>
+            )}
+          </div>
+          <span className="font-semibold">{category.name}</span>
+        </div>
+      </TableCell>
       <TableCell>
         <code
           dir="ltr"

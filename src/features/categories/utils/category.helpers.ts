@@ -30,6 +30,7 @@ export function areCategoriesEqual(
       item.slug === source.slug &&
       item.order === source.order &&
       item.badge === source.badge &&
+      (item.imageUrl ?? "") === (source.imageUrl ?? "") &&
       Boolean(item.isLocal) === Boolean(source.isLocal)
     );
   });
@@ -42,6 +43,7 @@ export function toCategoryPayload(item: Category): CategoryPayload {
     slug: item.slug,
     order: item.order,
     badge: item.badge,
+    imageUrl: item.imageUrl?.trim() ?? "",
   };
 }
 
@@ -59,6 +61,12 @@ export function createLocalCategory(
   };
 }
 
+function resolveCategoryImageUrl(item: Category & { image?: unknown }): string {
+  if (typeof item.imageUrl === "string" && item.imageUrl) return item.imageUrl;
+  if (typeof item.image === "string" && item.image) return item.image;
+  return "";
+}
+
 export function normalizeCategoriesResponse(
   response: Category[] | { data: Category[] }
 ): Category[] {
@@ -66,6 +74,7 @@ export function normalizeCategoriesResponse(
   return sortCategoriesByOrder(
     list.map((item) => ({
       ...item,
+      imageUrl: resolveCategoryImageUrl(item),
       isLocal: false,
     }))
   );

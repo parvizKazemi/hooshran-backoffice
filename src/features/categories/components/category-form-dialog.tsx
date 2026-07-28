@@ -43,6 +43,7 @@ import {
   type CategoryFormValues,
   categoryFormSchema,
 } from "../types";
+import { CategoryImageField } from "./category-image-field";
 
 type CategoryFormDialogProps = {
   open: boolean;
@@ -74,12 +75,14 @@ export function CategoryFormDialog({
             slug: category.slug,
             order: category.order,
             badge: toCategoryBadgeFormValue(category.badge),
+            imageUrl: category.imageUrl ?? "",
           }
         : {
             name: "",
             slug: "",
             order: nextOrder,
             badge: CATEGORY_BADGE_NONE,
+            imageUrl: "",
           },
     [category, nextOrder]
   );
@@ -120,13 +123,14 @@ export function CategoryFormDialog({
       slug,
       order,
       badge: normalizeCategoryBadge(values.badge),
+      imageUrl: values.imageUrl.trim(),
     });
     onOpenChange(false);
   });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-lg">
@@ -149,6 +153,24 @@ export function CategoryFormDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <FieldGroup className="gap-4 space-y-4">
+            <Field>
+              <FieldLabel>{t("categories.form.imageLabel")}</FieldLabel>
+              <FieldDescription>
+                {t("categories.form.imageHint")}
+              </FieldDescription>
+              <Controller
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <CategoryImageField
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={form.formState.errors.imageUrl?.message}
+                  />
+                )}
+              />
+            </Field>
+
             <Field>
               <FieldLabel htmlFor="category-name">
                 {t("categories.form.name")}{" "}

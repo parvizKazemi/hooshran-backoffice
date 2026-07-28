@@ -15,6 +15,8 @@ export const CategorySchema = z.object({
   slug: z.string().min(1),
   order: z.number().int().positive(),
   badge: CategoryBadgeSchema,
+  /** Featured / cover image URL for the category. */
+  imageUrl: z.string().default(""),
   /** True for rows created locally and not yet persisted. */
   isLocal: z.boolean().optional(),
   createdAt: z.string().optional(),
@@ -31,6 +33,7 @@ export const categoryFormSchema = z.object({
     .regex(CATEGORY_SLUG_PATTERN, "اسلاگ فقط با حروف کوچک، عدد و خط تیره"),
   order: z.number().int().positive("ترتیب باید عدد مثبت باشد"),
   badge: z.enum([...CATEGORY_BADGE_VALUES, CATEGORY_BADGE_NONE]),
+  imageUrl: z.string(),
 });
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
@@ -42,6 +45,7 @@ export type CategoryPayload = {
   slug: string;
   order: number;
   badge: CategoryBadge;
+  imageUrl: string;
 };
 
 export type CategoryFormSubmitValues = {
@@ -49,4 +53,5 @@ export type CategoryFormSubmitValues = {
   slug: string;
   order: number;
   badge: CategoryBadge;
+  imageUrl: string;
 };

@@ -37,6 +37,7 @@
     "getHelp": "دریافت کمک",
     "search": "جستجو",
     "notifications": "اعلانات",
+    "monitoring": "مانیتورینگ",
     "paymentGateways": "درگاه پرداخت",
     "transactions": "تراکنش‌ها",
     "tickets": "تیکت‌ها",
@@ -985,6 +986,7 @@
       "name": "نام دسته‌بندی",
       "slug": "اسلاگ / URL",
       "badge": "بج راهنما",
+      "image": "تصویر",
       "actions": "عملیات ادمین"
     },
     "badges": {
@@ -1022,6 +1024,14 @@
       "orderPlaceholder": "مثال: ۱۰",
       "orderHint": "این شماره ترتیب رندر دسته‌بندی در سایدبار است و نباید تکراری باشد.",
       "orderDuplicate": "این شماره ترتیب قبلاً استفاده شده است",
+      "imageLabel": "تصویر شاخص دسته‌بندی",
+      "imageHint": "آپلود تصویر یا وارد کردن لینک مستقیم (نسبت پیشنهادی ۱۶:۹)",
+      "imageUpload": "آپلود تصویر",
+      "imageLink": "لینک مستقیم",
+      "imageLinkPlaceholder": "https://...",
+      "imagePreview": "پیش‌نمایش",
+      "imageClear": "حذف",
+      "imageEmpty": "هنوز تصویری انتخاب نشده",
       "submit": "اعمال در لیست",
       "cancel": "انصراف"
     },
@@ -2069,6 +2079,89 @@
       "invalidPhone": "لطفاً یک شماره موبایل معتبر وارد کنید (مثال: 09123456789)",
       "noOptionSelected": "لطفاً حداقل یک گزینه را جهت اعمال پاکسازی تیک بزنید.",
       "testModeDisabled": "این عملیات فقط در حالت تست (TEST_MODE) مجاز است."
+    }
+  },
+  "monitoring": {
+    "title": "مانیتورینگ خطاها",
+    "description": "مشاهده، فیلتر و تحلیل خطاهای گزارش‌شده از فرانت و سیستم",
+    "headerTitle": "گزارش خطاهای کلاینت",
+    "headerDescription": "داده‌ها از endpoint ادمین مانیتورینگ دریافت می‌شوند.",
+    "refresh": "بروزرسانی",
+    "stats": {
+      "total": "کل خطاها",
+      "criticalOrHigh": "بحرانی / بالا",
+      "uniqueTypes": "انواع یکتا",
+      "notifSent": "نوتیف ارسال‌شده"
+    },
+    "charts": {
+      "severityTitle": "توزیع شدت",
+      "typeTitle": "توزیع نوع",
+      "timelineTitle": "روند زمانی",
+      "sampleHint": "بر اساس نمونه فیلترشده (حداکثر ۱۰۰ مورد)",
+      "count": "تعداد",
+      "empty": "داده‌ای برای نمودار وجود ندارد"
+    },
+    "filters": {
+      "title": "فیلترها",
+      "searchPlaceholder": "جستجو در خطا، مسیر یا نوع…",
+      "type": "نوع",
+      "severity": "شدت",
+      "source": "منبع",
+      "dateFrom": "از تاریخ",
+      "dateTo": "تا تاریخ",
+      "pageSize": "تعداد در صفحه",
+      "all": "همه",
+      "apply": "اعمال فیلتر",
+      "reset": "بازنشانی"
+    },
+    "table": {
+      "severity": "شدت",
+      "type": "نوع",
+      "location": "مسیر",
+      "error": "پیام خطا",
+      "source": "منبع",
+      "createdAt": "زمان",
+      "actions": "عملیات",
+      "view": "جزئیات",
+      "empty": "خطایی یافت نشد"
+    },
+    "pagination": {
+      "showing": "نمایش {{start}} تا {{end}} از {{total}}"
+    },
+    "detail": {
+      "title": "جزئیات خطا",
+      "error": "پیام",
+      "location": "مسیر / مکان",
+      "createdAt": "زمان ثبت",
+      "notif": "وضعیت نوتیفیکیشن",
+      "notifYes": "ارسال شده",
+      "notifNo": "ارسال نشده",
+      "user": "کاربر",
+      "details": "جزئیات فنی",
+      "apiUrl": "API URL",
+      "httpStatus": "HTTP Status",
+      "browser": "مرورگر",
+      "os": "سیستم‌عامل",
+      "viewport": "Viewport",
+      "ip": "IP"
+    },
+    "type": {
+      "FRONTEND_ERROR": "خطای فرانت",
+      "API_FAILURE": "خطای API",
+      "SUSPICIOUS_ACTIVITY": "فعالیت مشکوک",
+      "SECURITY_ALERT": "هشدار امنیتی",
+      "UNCAUGHT_EXCEPTION": "Exception گرفته‌نشده"
+    },
+    "severity": {
+      "LOW": "کم",
+      "MEDIUM": "متوسط",
+      "HIGH": "بالا",
+      "CRITICAL": "بحرانی"
+    },
+    "source": {
+      "FRONTEND": "فرانت",
+      "BACKEND": "بک‌اند",
+      "SYSTEM": "سیستم"
     }
   }
 }
