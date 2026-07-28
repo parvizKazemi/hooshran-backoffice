@@ -1,4 +1,5 @@
 import {
+  IconActivityHeartbeat,
   IconApi,
   IconBell,
   IconCoins,
@@ -87,6 +88,11 @@ function useSidebarData() {
         title: t("nav.notifications"),
         url: "/notifications",
         icon: IconBell,
+      },
+      {
+        title: t("nav.monitoring"),
+        url: "/monitoring",
+        icon: IconActivityHeartbeat,
       },
       {
         title: t("nav.packages"),
@@ -232,6 +238,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             completedItems={[
               "/users-and-credits",
               "/notifications",
+              "/monitoring",
               "/packages",
               "/user-settings",
               "/user-settings/welcome-packages",
