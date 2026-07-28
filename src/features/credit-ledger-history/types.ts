@@ -34,6 +34,9 @@ export interface CreditLedgerMetadata {
   userCreditId?: number;
   reason?: string;
   endpoint?: string;
+  adminAction?: "create" | "update" | "cancel" | string;
+  previousBalance?: number;
+  newBalance?: number;
   [key: string]: unknown;
 }
 

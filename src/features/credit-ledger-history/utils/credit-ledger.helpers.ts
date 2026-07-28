@@ -161,6 +161,12 @@ export function getLedgerDescriptionParts(
         ? { title: "انتقال اعتبار به حساب", detail: increaseDetail }
         : { title: "انتقال اعتبار از حساب", detail: decreaseDetail };
     case CREDIT_LEDGER_TYPES.ADMIN:
+      if (entry.metadata?.adminAction === "cancel") {
+        return {
+          title: " لغو شده توسط ادمین",
+          detail: decreaseDetail,
+        };
+      }
       return entry.amount > 0
         ? { title: "افزایش اعتبار توسط پشتیبانی", detail: increaseDetail }
         : { title: "کاهش اعتبار توسط پشتیبانی", detail: decreaseDetail };
