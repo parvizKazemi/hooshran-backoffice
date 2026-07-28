@@ -37,6 +37,7 @@
     "getHelp": "Get Help",
     "search": "Search",
     "notifications": "Notifications",
+    "monitoring": "Monitoring",
     "paymentGateways": "Payment Gateways",
     "transactions": "Transactions",
     "tickets": "Tickets",
@@ -946,6 +947,7 @@
       "name": "Category name",
       "slug": "Slug / URL",
       "badge": "Guide badge",
+      "image": "Image",
       "actions": "Admin actions"
     },
     "badges": {
@@ -983,6 +985,14 @@
       "orderPlaceholder": "e.g. 10",
       "orderHint": "This number sets sidebar render order and must be unique.",
       "orderDuplicate": "This display order is already in use",
+      "imageLabel": "Category featured image",
+      "imageHint": "Upload an image or paste a direct link (recommended 16:9)",
+      "imageUpload": "Upload image",
+      "imageLink": "Direct link",
+      "imageLinkPlaceholder": "https://...",
+      "imagePreview": "Preview",
+      "imageClear": "Remove",
+      "imageEmpty": "No image selected yet",
       "submit": "Apply to list",
       "cancel": "Cancel"
     },
@@ -2034,6 +2044,89 @@
       "invalidPhone": "Please enter a valid mobile number (e.g. 09123456789)",
       "noOptionSelected": "Please select at least one purge option.",
       "testModeDisabled": "This operation is only allowed when TEST_MODE is enabled."
+    }
+  },
+  "monitoring": {
+    "title": "Error Monitoring",
+    "description": "Browse, filter, and analyze reported frontend and system errors",
+    "headerTitle": "Client error reports",
+    "headerDescription": "Data is loaded from the admin monitoring endpoint.",
+    "refresh": "Refresh",
+    "stats": {
+      "total": "Total errors",
+      "criticalOrHigh": "Critical / High",
+      "uniqueTypes": "Unique types",
+      "notifSent": "Notifications sent"
+    },
+    "charts": {
+      "severityTitle": "Severity distribution",
+      "typeTitle": "Type distribution",
+      "timelineTitle": "Timeline",
+      "sampleHint": "Based on filtered sample (max 100)",
+      "count": "Count",
+      "empty": "No chart data available"
+    },
+    "filters": {
+      "title": "Filters",
+      "searchPlaceholder": "Search error, location, or type…",
+      "type": "Type",
+      "severity": "Severity",
+      "source": "Source",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "pageSize": "Page size",
+      "all": "All",
+      "apply": "Apply filters",
+      "reset": "Reset"
+    },
+    "table": {
+      "severity": "Severity",
+      "type": "Type",
+      "location": "Location",
+      "error": "Error",
+      "source": "Source",
+      "createdAt": "Created at",
+      "actions": "Actions",
+      "view": "View details",
+      "empty": "No errors found"
+    },
+    "pagination": {
+      "showing": "Showing {{start}} to {{end}} of {{total}}"
+    },
+    "detail": {
+      "title": "Error details",
+      "error": "Message",
+      "location": "Location",
+      "createdAt": "Created at",
+      "notif": "Notification status",
+      "notifYes": "Sent",
+      "notifNo": "Not sent",
+      "user": "User",
+      "details": "Technical details",
+      "apiUrl": "API URL",
+      "httpStatus": "HTTP Status",
+      "browser": "Browser",
+      "os": "OS",
+      "viewport": "Viewport",
+      "ip": "IP"
+    },
+    "type": {
+      "FRONTEND_ERROR": "Frontend error",
+      "API_FAILURE": "API failure",
+      "SUSPICIOUS_ACTIVITY": "Suspicious activity",
+      "SECURITY_ALERT": "Security alert",
+      "UNCAUGHT_EXCEPTION": "Uncaught exception"
+    },
+    "severity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "source": {
+      "FRONTEND": "Frontend",
+      "BACKEND": "Backend",
+      "SYSTEM": "System"
     }
   }
 }

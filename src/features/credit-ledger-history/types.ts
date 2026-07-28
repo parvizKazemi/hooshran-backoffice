@@ -25,6 +25,8 @@ export type CreditLedgerStatus =
 export interface CreditLedgerMetadata {
   serviceRequestUuid?: string;
   serviceRequestId?: number;
+  apiServiceUuid?: string;
+  apiServiceId?: number;
   creditsConsumed?: number;
   creditsCredited?: number;
   paymentId?: number;
@@ -32,6 +34,9 @@ export interface CreditLedgerMetadata {
   userCreditId?: number;
   reason?: string;
   endpoint?: string;
+  adminAction?: "create" | "update" | "cancel" | string;
+  previousBalance?: number;
+  newBalance?: number;
   [key: string]: unknown;
 }
 

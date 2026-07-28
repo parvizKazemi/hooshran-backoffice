@@ -108,6 +108,7 @@ export default function Categories() {
                     slug: values.slug,
                     order: values.order,
                     badge: values.badge,
+                    imageUrl: values.imageUrl,
                   }
                 : item
             )
@@ -126,6 +127,7 @@ export default function Categories() {
             slug: values.slug,
             order: values.order,
             badge: values.badge,
+            imageUrl: values.imageUrl,
           }),
         ].sort((a, b) => a.order - b.order)
       )

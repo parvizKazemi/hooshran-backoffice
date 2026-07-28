@@ -39,6 +39,7 @@ import {
   getTransactionTypeBadgeClass,
   getTransactionTypeLabel,
   isRequestUsageEntry,
+  resolveLedgerServiceTitle,
 } from "../utils/credit-ledger.helpers";
 
 type CreditLedgerTableProps = {
@@ -46,6 +47,9 @@ type CreditLedgerTableProps = {
   isLoading?: boolean;
   filters: CreditLedgerQueryParams;
   onFiltersChange: (filters: CreditLedgerQueryParams) => void;
+  serviceNameByUuid?: Map<string, string>;
+  serviceNameByEndpoint?: Map<string, string>;
+  serviceTitleByRequestUuid?: Map<string, string>;
   pagination: {
     page: number;
     total: number;
@@ -85,8 +89,14 @@ function AmountCell({ entry }: { entry: CreditLedgerEntry }) {
   );
 }
 
-function LedgerDescription({ entry }: { entry: CreditLedgerEntry }) {
-  const { title, detail } = getLedgerDescriptionParts(entry);
+function LedgerDescription({
+  entry,
+  serviceTitle,
+}: {
+  entry: CreditLedgerEntry;
+  serviceTitle?: string;
+}) {
+  const { title, detail } = getLedgerDescriptionParts(entry, serviceTitle);
 
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -141,6 +151,9 @@ export const CreditLedgerTable = memo(function CreditLedgerTable({
   isLoading = false,
   filters,
   onFiltersChange,
+  serviceNameByUuid,
+  serviceNameByEndpoint,
+  serviceTitleByRequestUuid,
   pagination,
 }: CreditLedgerTableProps) {
   const { t } = useTranslation("common");
@@ -263,6 +276,11 @@ export const CreditLedgerTable = memo(function CreditLedgerTable({
                   const globalIndex = startIndex + index;
                   const balanceAfter = entry.balanceAfter ?? 0;
                   const requestUuid = extractServiceRequestUuid(entry);
+                  const serviceTitle = resolveLedgerServiceTitle(entry, {
+                    serviceNameByUuid,
+                    serviceNameByEndpoint,
+                    serviceTitleByRequestUuid,
+                  });
 
                   return (
                     <TableRow key={entry.uuid} className="text-xs">
@@ -273,7 +291,10 @@ export const CreditLedgerTable = memo(function CreditLedgerTable({
                         <TypeBadge entry={entry} />
                       </TableCell>
                       <TableCell className="font-bold">
-                        <LedgerDescription entry={entry} />
+                        <LedgerDescription
+                          entry={entry}
+                          serviceTitle={serviceTitle}
+                        />
                       </TableCell>
                       <TableCell className="text-center">
                         <AmountCell entry={entry} />
