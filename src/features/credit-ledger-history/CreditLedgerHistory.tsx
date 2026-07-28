@@ -9,6 +9,10 @@ import { CreditLedgerFilterDialog } from "./components/credit-ledger-filter-dial
 import { CreditLedgerTable } from "./components/credit-ledger-table";
 import { CREDIT_LEDGER_DEFAULT_LIMIT } from "./constants";
 import { useCreditLedgerHistory } from "./hooks/use-credit-ledger-history";
+import {
+  buildServiceTitleByRequestUuid,
+  useCreditLedgerServiceTitles,
+} from "./hooks/use-credit-ledger-service-titles";
 import type { CreditLedgerQueryParams } from "./types";
 import { downloadCreditLedgerCsv } from "./utils/credit-ledger.helpers";
 
@@ -29,6 +33,14 @@ export default function CreditLedgerHistory() {
     limit: CREDIT_LEDGER_DEFAULT_LIMIT,
     pages: 0,
   };
+
+  const {
+    serviceNameByUuid,
+    serviceNameByEndpoint,
+    serviceTitleByRequestUuid,
+  } = useCreditLedgerServiceTitles(entries, {
+    enabled: Boolean(filters.phoneNumber),
+  });
 
   const handleExport = useCallback(async () => {
     if (!filters.phoneNumber) {
@@ -51,7 +63,16 @@ export default function CreditLedgerHistory() {
         return;
       }
 
-      downloadCreditLedgerCsv(response.data, filters.phoneNumber);
+      const exportTitleByRequestUuid = await buildServiceTitleByRequestUuid(
+        response.data,
+        serviceNameByUuid
+      );
+
+      downloadCreditLedgerCsv(response.data, filters.phoneNumber, {
+        serviceNameByUuid,
+        serviceNameByEndpoint,
+        serviceTitleByRequestUuid: exportTitleByRequestUuid,
+      });
       toast.success(t("creditLedgerHistory.export.success"));
     } catch (error) {
       if (error instanceof ApiError) {
@@ -62,7 +83,7 @@ export default function CreditLedgerHistory() {
     } finally {
       setIsExporting(false);
     }
-  }, [filters, t]);
+  }, [filters, serviceNameByEndpoint, serviceNameByUuid, t]);
 
   return (
     <div className="flex flex-col gap-4 px-4 lg:px-6">
@@ -148,6 +169,9 @@ export default function CreditLedgerHistory() {
           isLoading={isLoading}
           filters={filters}
           onFiltersChange={setFilters}
+          serviceNameByUuid={serviceNameByUuid}
+          serviceNameByEndpoint={serviceNameByEndpoint}
+          serviceTitleByRequestUuid={serviceTitleByRequestUuid}
           pagination={{
             page: meta.page,
             total: meta.total,

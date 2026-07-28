@@ -15,6 +15,56 @@ export function extractServiceRequestUuid(
   return null;
 }
 
+export function extractApiServiceUuid(entry: CreditLedgerEntry): string | null {
+  const metadataUuid = entry.metadata?.apiServiceUuid;
+  if (typeof metadataUuid === "string" && metadataUuid.length > 0) {
+    return metadataUuid;
+  }
+  return null;
+}
+
+export function extractLedgerEndpoint(entry: CreditLedgerEntry): string | null {
+  const endpoint = entry.metadata?.endpoint;
+  if (typeof endpoint === "string" && endpoint.trim().length > 0) {
+    return endpoint.trim();
+  }
+  return null;
+}
+
+/** Resolve service display name from ledger metadata + service catalogs. */
+export function resolveLedgerServiceTitle(
+  entry: CreditLedgerEntry,
+  options?: {
+    serviceNameByUuid?: Map<string, string>;
+    serviceNameByEndpoint?: Map<string, string>;
+    /** Map keyed by serviceRequestUuid */
+    serviceTitleByRequestUuid?: Map<string, string>;
+  }
+): string | undefined {
+  const {
+    serviceNameByUuid,
+    serviceNameByEndpoint,
+    serviceTitleByRequestUuid,
+  } = options ?? {};
+
+  const apiServiceUuid = extractApiServiceUuid(entry);
+  if (apiServiceUuid && serviceNameByUuid?.has(apiServiceUuid)) {
+    return serviceNameByUuid.get(apiServiceUuid);
+  }
+
+  const endpoint = extractLedgerEndpoint(entry);
+  if (endpoint && serviceNameByEndpoint?.has(endpoint)) {
+    return serviceNameByEndpoint.get(endpoint);
+  }
+
+  const requestUuid = extractServiceRequestUuid(entry);
+  if (requestUuid && serviceTitleByRequestUuid?.has(requestUuid)) {
+    return serviceTitleByRequestUuid.get(requestUuid);
+  }
+
+  return undefined;
+}
+
 export function isInventoryEntry(entry: CreditLedgerEntry): boolean {
   return entry.type === CREDIT_LEDGER_TYPES.INVENTORY;
 }
@@ -81,7 +131,8 @@ export type LedgerDescriptionParts = {
 };
 
 export function getLedgerDescriptionParts(
-  entry: CreditLedgerEntry
+  entry: CreditLedgerEntry,
+  serviceTitle?: string | null
 ): LedgerDescriptionParts {
   const amount = Math.abs(entry.amount);
   const formattedAmount = amount.toString();
@@ -91,7 +142,9 @@ export function getLedgerDescriptionParts(
   switch (entry.type) {
     case CREDIT_LEDGER_TYPES.USAGE:
       return {
-        title: "استفاده از سرویس",
+        title: serviceTitle
+          ? `استفاده از سرویس ${serviceTitle}`
+          : "استفاده از سرویس",
         detail: decreaseDetail,
       };
     case CREDIT_LEDGER_TYPES.REFUND:
@@ -123,8 +176,11 @@ export function getLedgerDescriptionParts(
   }
 }
 
-export function getLedgerDescription(entry: CreditLedgerEntry): string {
-  const { title, detail } = getLedgerDescriptionParts(entry);
+export function getLedgerDescription(
+  entry: CreditLedgerEntry,
+  serviceTitle?: string | null
+): string {
+  const { title, detail } = getLedgerDescriptionParts(entry, serviceTitle);
   return detail ? `${title} (${detail})` : title;
 }
 
@@ -174,7 +230,12 @@ function escapeCsvCell(value: string): string {
 }
 
 export function buildCreditLedgerCsvContent(
-  entries: CreditLedgerEntry[]
+  entries: CreditLedgerEntry[],
+  serviceTitleOptions?: {
+    serviceNameByUuid?: Map<string, string>;
+    serviceNameByEndpoint?: Map<string, string>;
+    serviceTitleByRequestUuid?: Map<string, string>;
+  }
 ): string {
   const headers = [
     "ردیف",
@@ -189,11 +250,12 @@ export function buildCreditLedgerCsvContent(
   const rows = entries.map((entry, index) => {
     const amountDisplay = formatLedgerAmountForDisplay(entry);
     const balanceAfter = entry.balanceAfter ?? 0;
+    const serviceTitle = resolveLedgerServiceTitle(entry, serviceTitleOptions);
 
     return [
       String(index + 1),
       getTransactionTypeLabel(entry),
-      getLedgerDescription(entry),
+      getLedgerDescription(entry, serviceTitle),
       amountDisplay ?? "—",
       balanceAfter.toString(),
       getLedgerStatusLabel(entry.status),
@@ -208,9 +270,14 @@ export function buildCreditLedgerCsvContent(
 
 export function downloadCreditLedgerCsv(
   entries: CreditLedgerEntry[],
-  phoneNumber: string
+  phoneNumber: string,
+  serviceTitleOptions?: {
+    serviceNameByUuid?: Map<string, string>;
+    serviceNameByEndpoint?: Map<string, string>;
+    serviceTitleByRequestUuid?: Map<string, string>;
+  }
 ): void {
-  const csvContent = buildCreditLedgerCsvContent(entries);
+  const csvContent = buildCreditLedgerCsvContent(entries, serviceTitleOptions);
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const downloadUrl = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
