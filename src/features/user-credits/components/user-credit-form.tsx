@@ -298,30 +298,41 @@ export const UserCreditForm = memo(function UserCreditForm({
               {t("userCredits.form.status")}{" "}
               <span className="text-destructive">*</span>
             </FieldLabel>
-            <Controller
-              control={updateForm.control}
-              name="status"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={(value) =>
-                    field.onChange(value as EditableCreditStatus)
-                  }
-                  disabled={isLoading}
-                >
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EDITABLE_CREDIT_STATUSES.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {t(`userCredits.statuses.${status}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            {/* status of "expired" should be disabled */}
+            {updateForm.watch("status") === "expired" ? (
+              <Input
+                value={t("userCredits.statuses.expired")}
+                disabled
+                className="text-center"
+              />
+            ) : (
+              <Controller
+                control={updateForm.control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) =>
+                      field.onChange(value as EditableCreditStatus)
+                    }
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger id="status" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EDITABLE_CREDIT_STATUSES.filter(
+                        (status) => status !== "expired"
+                      ).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {t(`userCredits.statuses.${status}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            )}
           </Field>
 
           <div
