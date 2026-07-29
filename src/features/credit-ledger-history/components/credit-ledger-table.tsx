@@ -32,6 +32,7 @@ import { ApiError } from "@/services/api";
 import { fetchServiceRequestByUuid } from "../api/service";
 import type { CreditLedgerEntry, CreditLedgerQueryParams } from "../types";
 import {
+  CANCELATION_REASON,
   extractServiceRequestUuid,
   formatLedgerAmountForDisplay,
   getLedgerAmountClass,
@@ -120,6 +121,17 @@ function RequestActionButton({
   onView: (uuid: string) => void;
 }) {
   const { t } = useTranslation("common");
+  const cancelationReason = entry.metadata?.cancelationReason;
+
+  if (cancelationReason) {
+    return (
+      <span className="text-destructive text-xs font-bold dark:text-rose-400">
+        {cancelationReason === CANCELATION_REASON.enReason
+          ? CANCELATION_REASON.faReason
+          : `${cancelationReason}`}
+      </span>
+    );
+  }
 
   if (!isRequestUsageEntry(entry)) {
     return <span className="text-muted-foreground font-black">—</span>;

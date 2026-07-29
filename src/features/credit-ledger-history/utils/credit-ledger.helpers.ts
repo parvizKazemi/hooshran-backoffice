@@ -5,6 +5,11 @@ import {
   type CreditLedgerStatus,
 } from "../types";
 
+export const CANCELATION_REASON = {
+  enReason: "canceled after checking with bank endpoint",
+  faReason: "عدم تایید تراکنش از سمت پایانه بانکی",
+};
+
 export function extractServiceRequestUuid(
   entry: CreditLedgerEntry
 ): string | null {
@@ -163,7 +168,7 @@ export function getLedgerDescriptionParts(
     case CREDIT_LEDGER_TYPES.ADMIN:
       if (entry.metadata?.adminAction === "cancel") {
         return {
-          title: " لغو شده توسط ادمین",
+          title: "لغو شده توسط مدیر سیستم",
           detail: decreaseDetail,
         };
       }
