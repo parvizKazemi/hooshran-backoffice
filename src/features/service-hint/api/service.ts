@@ -60,7 +60,7 @@ export async function getPlatformServices(): Promise<PlatformService[]> {
     .map((service) => ({
       uuid: service.uuid,
       name: service.name,
-      slug: service.slug,
+      slug: service.slug ?? "",
       isActive: service.isActive ?? true,
       templateName: service.templateName ?? null,
       cost: service.cost ?? service.metadata?.cost,

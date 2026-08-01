@@ -41,8 +41,8 @@ const filterServices = (services: ServicePickerItem[], query: string) => {
 
   return services.filter(
     (service) =>
-      service.name.toLowerCase().includes(normalized) ||
-      service.slug.toLowerCase().includes(normalized)
+      (service.name ?? "").toLowerCase().includes(normalized) ||
+      (service.slug ?? "").toLowerCase().includes(normalized)
   );
 };
 
