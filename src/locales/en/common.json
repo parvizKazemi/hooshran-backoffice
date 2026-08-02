@@ -5,17 +5,26 @@
   "login": {
     "title": "Login to your account",
     "subtitle": "Enter your phone number below to login to your account",
+    "subtitlePassword": "Enter your phone number and password",
     "phone": "Phone Number",
     "phonePlaceholder": "09123456789",
+    "phoneRequired": "Phone number is required",
     "email": "Email",
     "emailPlaceholder": "m@example.com",
     "password": "Password",
+    "passwordPlaceholder": "Password",
+    "passwordRequired": "Password is required",
     "forgot": "Forgot your password?",
+    "modeOtp": "OTP",
+    "modePassword": "Password",
     "submit": "Login",
+    "submitOtp": "Send verification code",
     "google": "Login with Google",
     "noAccount": "Don't have an account?",
     "signup": "Sign up",
-    "support": "Support"
+    "support": "Support",
+    "errorSendOtp": "Failed to send verification code",
+    "errorPassword": "Failed to login with password"
   },
   "dashboard": {
     "recent": "Recent Activity",
@@ -88,9 +97,7 @@
   },
   "otp": {
     "title": "Enter verification code",
-    "subtitle": "We sent a 5-digit code to your email.",
-    "codeLabel": "Verification code",
-    "codeHelp": "Enter the 5-digit code sent to your email.",
+    "subtitle": "Enter the code sent to your phone number.",
     "verify": "Verify",
     "verifying": "Verifying...",
     "notReceived": "Didn't receive the code?",

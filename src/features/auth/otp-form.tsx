@@ -6,12 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
 import {
   InputOTP,
   InputOTPGroup,
@@ -42,7 +37,6 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
         <form onSubmit={handleVerify}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="otp">{t("otp.codeLabel")}</FieldLabel>
               <InputOTP
                 maxLength={5}
                 id="otp"
@@ -62,7 +56,6 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
                   <InputOTPSlot index={4} />
                 </InputOTPGroup>
               </InputOTP>
-              <FieldDescription>{t("otp.codeHelp")}</FieldDescription>
             </Field>
             <FieldGroup>
               <Button type="submit" disabled={loading} className="w-full">

@@ -5,17 +5,26 @@
   "login": {
     "title": "ورود به حساب کاربری",
     "subtitle": "شماره موبایل خود را وارد کنید",
+    "subtitlePassword": "شماره موبایل و رمز عبور خود را وارد کنید",
     "phone": "شماره موبایل",
     "phonePlaceholder": "09123456789",
+    "phoneRequired": "شماره موبایل الزامی است",
     "email": "ایمیل",
     "emailPlaceholder": "m@example.com",
     "password": "رمز عبور",
+    "passwordPlaceholder": "رمز عبور",
+    "passwordRequired": "رمز عبور الزامی است",
     "forgot": "رمز عبور را فراموش کرده‌اید؟",
+    "modeOtp": "کد تأیید",
+    "modePassword": "رمز عبور",
     "submit": "ورود",
+    "submitOtp": "ارسال کد تأیید",
     "google": "ورود با گوگل",
     "noAccount": "حسابی ندارید؟",
     "signup": "ثبت نام",
-    "support": "پشتیبانی"
+    "support": "پشتیبانی",
+    "errorSendOtp": "خطا در ارسال کد تأیید",
+    "errorPassword": "خطا در ورود با رمز عبور"
   },
   "dashboard": {
     "recent": "فعالیت‌های اخیر",
@@ -92,9 +101,7 @@
   },
   "otp": {
     "title": "کد تأیید را وارد کنید",
-    "subtitle": "ما یک کد ۵ رقمی به شماره موبایل شما ارسال کردیم.",
-    "codeLabel": "کد تأیید",
-    "codeHelp": "کد ۵ رقمی ارسال‌شده به شماره موبایل خود را وارد کنید.",
+    "subtitle": "کد ارسال شده به شماره موبایل خود را وارد کنید",
     "verify": "تأیید",
     "verifying": "در حال تأیید...",
     "notReceived": "کدی دریافت نکردید؟",

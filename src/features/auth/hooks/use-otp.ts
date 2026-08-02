@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { AUTH_ENDPOINTS } from "../api/endpoints";
 
-const RESEND_COOLDOWN_SECONDS = 120; // 2 minutes
+const OTP_LENGTH = 5;
+const RESEND_COOLDOWN_SECONDS = 120;
 
 export function useOtp() {
   const { t } = useTranslation("common");
@@ -15,8 +17,8 @@ export function useOtp() {
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN_SECONDS);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const submittingRef = useRef(false);
 
-  // Start countdown when component mounts
   useEffect(() => {
     setCountdown(RESEND_COOLDOWN_SECONDS);
 
@@ -40,13 +42,14 @@ export function useOtp() {
     };
   }, []);
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!otp.trim() || otp.length !== 5) {
+  const verifyOtp = async (code: string) => {
+    const trimmedCode = code.trim();
+    if (!trimmedCode || trimmedCode.length !== OTP_LENGTH) {
       toast.error(t("otp.invalidCode") || "کد تایید باید 5 رقم باشد");
       return;
     }
+
+    if (submittingRef.current) return;
 
     const phone = sessionStorage.getItem("otpPhone");
     if (!phone) {
@@ -55,30 +58,39 @@ export function useOtp() {
       return;
     }
 
+    submittingRef.current = true;
     setLoading(true);
     try {
-      const data = await apiPost<AuthData>("/admin/auth/login", {
+      const data = await apiPost<AuthData>(AUTH_ENDPOINTS.login, {
         phone: phone.trim(),
-        otp: otp.trim(),
+        otp: trimmedCode,
       });
 
-      // Server sets token in cookie automatically
-      // We only need to save user data to cookie via context
-      // Create auth data with only user (token is in server cookie)
       setAuthData({ user: data.user });
       sessionStorage.removeItem("otpPhone");
       navigate("/");
     } catch (error) {
-      // Error handling is centralized in api.ts
-      // Here we just display the error message
       if (error instanceof ApiError) {
         toast.error(error.message);
       } else {
         toast.error("خطا در تایید کد");
       }
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
+  };
+
+  const handleOtpChange = (value: string) => {
+    setOtp(value);
+    if (value.length === OTP_LENGTH) {
+      void verifyOtp(value);
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await verifyOtp(otp);
   };
 
   const handleResend = async () => {
@@ -92,13 +104,11 @@ export function useOtp() {
     }
 
     try {
-      // Call resend OTP endpoint (you may need to adjust this endpoint)
-      await apiPost("/admin/auth/resend-otp", {
+      await apiPost(AUTH_ENDPOINTS.resendOtp, {
         phone: phone.trim(),
       });
       toast.success("کد تایید مجدداً ارسال شد");
 
-      // Reset countdown
       setCountdown(RESEND_COOLDOWN_SECONDS);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -124,7 +134,6 @@ export function useOtp() {
     }
   };
 
-  // Format countdown as MM:SS
   const formatCountdown = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -135,7 +144,7 @@ export function useOtp() {
 
   return {
     otp,
-    setOtp,
+    setOtp: handleOtpChange,
     loading,
     handleVerify,
     handleResend,

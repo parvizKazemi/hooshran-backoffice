@@ -1,28 +1,58 @@
+import { useAuth, type AuthData } from "@/contexts/auth-context";
 import { ApiError, apiPost } from "@/services/api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { AUTH_ENDPOINTS } from "../api/endpoints";
+
+export type LoginMode = "otp" | "password";
 
 export function useLogin() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
+  const { setAuthData } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<LoginMode>("otp");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+
+  const changeMode = (next: LoginMode) => {
+    setMode(next);
+    setPassword("");
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!phone.trim()) {
-      toast.error(t("login.phoneRequired") || "شماره تلفن الزامی است");
+    const trimmedPhone = phone.trim();
+    if (!trimmedPhone) {
+      toast.error(t("login.phoneRequired"));
+      return;
+    }
+
+    if (mode === "password" && !password) {
+      toast.error(t("login.passwordRequired"));
       return;
     }
 
     setLoading(true);
     try {
+      if (mode === "password") {
+        const data = await apiPost<AuthData>(AUTH_ENDPOINTS.loginWithPassword, {
+          phone: trimmedPhone,
+          password,
+        });
+
+        setAuthData({ user: data.user });
+        setPassword("");
+        navigate("/");
+        return;
+      }
+
       const result = await apiPost<boolean | string>(
-        "/admin/auth/sendOtp",
-        { phone: phone.trim() },
+        AUTH_ENDPOINTS.sendOtp,
+        { phone: trimmedPhone },
         {
           headers: {
             accept: "*/*",
@@ -31,19 +61,20 @@ export function useLogin() {
       );
 
       if (result === true || result === "true") {
-        // Store phone in sessionStorage for OTP verification
-        sessionStorage.setItem("otpPhone", phone.trim());
+        sessionStorage.setItem("otpPhone", trimmedPhone);
         navigate("/otp");
       } else {
-        throw new Error("درخواست ناموفق بود");
+        throw new Error(t("login.errorSendOtp"));
       }
     } catch (error) {
-      // Error handling is centralized in api.ts
-      // Here we just display the error message
       if (error instanceof ApiError) {
         toast.error(error.message);
       } else {
-        toast.error("خطا در ارسال کد تایید");
+        toast.error(
+          mode === "password"
+            ? t("login.errorPassword")
+            : t("login.errorSendOtp")
+        );
       }
     } finally {
       setLoading(false);
@@ -51,8 +82,12 @@ export function useLogin() {
   };
 
   return {
+    mode,
+    setMode: changeMode,
     phone,
     setPhone,
+    password,
+    setPassword,
     loading,
     handleLogin,
   };
