@@ -712,6 +712,7 @@
     },
     "templates": {
       "service_result": "نتیجه سرویس",
+      "plan_expiration": "انقضای اشتراک",
       "payment_success": "پرداخت موفق",
       "security_alert": "هشدار امنیتی",
       "promotional": "بروزرسانی",
