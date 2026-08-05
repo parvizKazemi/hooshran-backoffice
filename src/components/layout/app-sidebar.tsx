@@ -121,6 +121,10 @@ function useSidebarData() {
         icon: IconSettings,
         items: [
           {
+            title: t("nav.userSettings.maintenanceMode"),
+            url: "/user-settings/maintenance-mode",
+          },
+          {
             title: t("nav.userSettings.freezeManagement"),
             url: "/user-settings/freeze-management",
           },

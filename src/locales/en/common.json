@@ -74,6 +74,7 @@
     "userSettings": {
       "title": "User Settings",
       "freezeManagement": "Crisis and Subscription Freeze",
+      "maintenanceMode": "Global Maintenance Mode",
       "purchasePayments": "Purchase and Payments",
       "registrations": "Registrations",
       "requestToolsGate": "Emergency Request Tools Gate",
@@ -239,7 +240,8 @@
       "toggleFreezeStatus": "Toggle global freeze status",
       "togglePurchaseStatus": "Toggle user purchase status",
       "toggleRegistrationStatus": "Toggle new registration status",
-      "toggleRequestGateStatus": "Toggle emergency request kill switch"
+      "toggleRequestGateStatus": "Toggle emergency request kill switch",
+      "toggleMaintenanceMode": "Toggle global system maintenance mode"
     },
     "toasts": {
       "freezeSaved": "Freeze settings saved successfully",
@@ -367,6 +369,47 @@
       },
       "actions": {
         "save": "Save settings"
+      }
+    },
+    "maintenancePage": {
+      "header": {
+        "title": "Global System Maintenance Status",
+        "description": "Control platform monitoring and temporarily lock user access during server upgrades"
+      },
+      "card": {
+        "title": "Maintenance Mode",
+        "description": "When enabled, payment gateway and request sending are disabled and a popup notification is sent to users."
+      },
+      "toggle": {
+        "title": "Enable \"System Update in Progress\" mode",
+        "description": "When enabled, user access to render tools is blocked and your message is shown on their dashboard."
+      },
+      "status": {
+        "active": "Global maintenance is active",
+        "inactive": "Platform is active and available"
+      },
+      "form": {
+        "descriptionLabel": "Maintenance description message for users",
+        "descriptionHint": "This message is shown in the client outage popup and disable-state messages.",
+        "estimatedTimeLabel": "Estimated outage duration",
+        "estimatedTimePlaceholder": "Example: in 2 hours"
+      },
+      "defaults": {
+        "description": "Our technical team is upgrading and optimizing Hooshran cloud infrastructure for faster output processing. Thank you for your patience.",
+        "estimatedTime": "in 1 hour",
+        "outageTitle": "System is being updated"
+      },
+      "actions": {
+        "save": "Save final changes"
+      },
+      "errors": {
+        "descriptionRequired": "Please enter a maintenance description before enabling.",
+        "missingNotification": "Maintenance notification ID was not found."
+      },
+      "toasts": {
+        "enabled": "Global maintenance mode enabled successfully.",
+        "disabled": "Platform is active and available to users again.",
+        "failed": "Failed to apply maintenance mode changes."
       }
     },
     "blacklistPage": {

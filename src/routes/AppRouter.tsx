@@ -54,6 +54,9 @@ const UserRegistrationSettings = lazy(
 const UserRequestToolsGateSettings = lazy(
   () => import("../features/user-settings/UserRequestToolsGateSettings.tsx")
 );
+const MaintenanceModeSettings = lazy(
+  () => import("../features/user-settings/MaintenanceModeSettings.tsx")
+);
 const WelcomePackagesSettings = lazy(
   () => import("../features/welcome-packages/WelcomePackagesSettings.tsx")
 );
@@ -205,6 +208,10 @@ const router = createBrowserRouter([
           {
             path: "/user-settings/freeze-management",
             element: <UserFreezeSettings />,
+          },
+          {
+            path: "/user-settings/maintenance-mode",
+            element: <MaintenanceModeSettings />,
           },
           {
             path: "/user-settings/purchase-payments",
