@@ -96,7 +96,7 @@ export default function MaintenanceModeSettings() {
       />
 
       <Card className="overflow-hidden">
-        <CardHeader className="bg-muted/30 border-b">
+        <CardHeader className="border-b">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
               <IconActivity className="size-5" />
@@ -158,7 +158,7 @@ export default function MaintenanceModeSettings() {
             )}
           >
             <div className="overflow-hidden">
-              <div className="mt-2 space-y-4 rounded-xl border border-amber-100 bg-amber-50/50 p-5">
+              <div className="mt-2 space-y-4 rounded-xl border border-amber-100 bg-gray-100 p-5 dark:bg-gray-800">
                 <div className="space-y-2">
                   <Label htmlFor="maintenance-description">
                     {t("userSettings.maintenancePage.form.descriptionLabel")}{" "}
@@ -177,7 +177,7 @@ export default function MaintenanceModeSettings() {
                         description: event.target.value,
                       }))
                     }
-                    className="resize-none bg-white"
+                    className="resize-none"
                   />
                 </div>
 
