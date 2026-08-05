@@ -701,6 +701,7 @@
     "templates": {
       "service_result": "Service Result",
       "plan_expiration": "Plan Expiration",
+      "discount_notification": "Discount Notification",
       "payment_success": "Payment Success",
       "security_alert": "Security Alert",
       "promotional": "Promotional",
