@@ -75,6 +75,7 @@ const SmsConfigSettings = lazy(
 const ClearUserData = lazy(
   () => import("../features/clear-user-data/ClearUserData.tsx")
 );
+const Monitoring = lazy(() => import("../features/monitoring/Monitoring.tsx"));
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -244,6 +245,10 @@ const router = createBrowserRouter([
           {
             path: "/system-settings/clear-user-data",
             element: <ClearUserData />,
+          },
+          {
+            path: "/monitoring",
+            element: <Monitoring />,
           },
         ],
       },

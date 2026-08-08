@@ -2120,7 +2120,8 @@
     },
     "filters": {
       "title": "Filters",
-      "searchPlaceholder": "Search error, location, or type…",
+      "search": "Search",
+      "searchPlaceholder": "Error, location, or type…",
       "type": "Type",
       "severity": "Severity",
       "source": "Source",
@@ -2128,7 +2129,7 @@
       "dateTo": "To date",
       "pageSize": "Page size",
       "all": "All",
-      "apply": "Apply filters",
+      "apply": "Apply",
       "reset": "Reset"
     },
     "table": {
