@@ -58,12 +58,12 @@ export const MonitoringStats = memo(function MonitoringStats({
 
   if (isLoading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-4 gap-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Card key={index} className="rounded-3xl">
-            <CardContent className="p-4">
-              <Skeleton className="mb-3 h-4 w-24" />
-              <Skeleton className="h-8 w-16" />
+          <Card key={index} className="rounded-xl">
+            <CardContent className="p-2.5">
+              <Skeleton className="mb-2 h-3 w-20" />
+              <Skeleton className="h-5 w-12" />
             </CardContent>
           </Card>
         ))}
@@ -72,19 +72,25 @@ export const MonitoringStats = memo(function MonitoringStats({
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.key} className="rounded-3xl">
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div>
-              <p className="text-muted-foreground text-xs font-medium">
+        <Card key={card.key} className="rounded-xl">
+          <CardContent className="flex items-center justify-between gap-2 px-3 py-2">
+            <div className="min-w-0 text-start">
+              <p className="text-muted-foreground truncate text-[11px] leading-tight font-medium">
                 {card.label}
               </p>
-              <p className="mt-1 font-mono text-2xl font-black" dir="ltr">
+              <p
+                className="mt-0.5 py-1 text-lg leading-none font-black tabular-nums"
+                dir="ltr"
+              >
                 {card.value.toLocaleString("fa-IR")}
               </p>
             </div>
-            <card.icon className={`size-8 opacity-80 ${card.tone}`} />
+            <card.icon
+              className={`size-5 shrink-0 opacity-75 ${card.tone}`}
+              aria-hidden
+            />
           </CardContent>
         </Card>
       ))}

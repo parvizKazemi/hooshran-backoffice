@@ -73,29 +73,43 @@ export const MonitoringTable = memo(function MonitoringTable({
 
   if (isLoading) {
     return (
-      <div className="bg-card space-y-3 rounded-3xl border p-4">
+      <div className="bg-card space-y-2 rounded-2xl border p-3">
         {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-12 w-full rounded-xl" />
+          <Skeleton key={index} className="h-10 w-full rounded-lg" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-card overflow-hidden rounded-3xl border">
+    <div className="space-y-3">
+      <div className="bg-card overflow-hidden rounded-2xl border">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-14 text-center">#</TableHead>
-                <TableHead>{t("monitoring.table.severity")}</TableHead>
-                <TableHead>{t("monitoring.table.type")}</TableHead>
-                <TableHead>{t("monitoring.table.location")}</TableHead>
-                <TableHead>{t("monitoring.table.error")}</TableHead>
-                <TableHead>{t("monitoring.table.source")}</TableHead>
-                <TableHead>{t("monitoring.table.createdAt")}</TableHead>
-                <TableHead className="text-center">
+                <TableHead className="w-12 text-center text-xs font-bold">
+                  #
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.severity")}
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.type")}
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.location")}
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.error")}
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.source")}
+                </TableHead>
+                <TableHead className="text-start text-xs font-bold">
+                  {t("monitoring.table.createdAt")}
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold">
                   {t("monitoring.table.actions")}
                 </TableHead>
               </TableRow>
@@ -105,7 +119,7 @@ export const MonitoringTable = memo(function MonitoringTable({
                 <TableRow>
                   <TableCell
                     colSpan={8}
-                    className="text-muted-foreground py-12 text-center"
+                    className="text-muted-foreground py-10 text-center"
                   >
                     {t("monitoring.table.empty")}
                   </TableCell>
@@ -113,14 +127,14 @@ export const MonitoringTable = memo(function MonitoringTable({
               ) : (
                 data.map((item, index) => (
                   <TableRow key={item.uuid} className="text-xs">
-                    <TableCell className="text-muted-foreground text-center font-medium">
+                    <TableCell className="text-muted-foreground text-center font-medium tabular-nums">
                       {(startIndex + index).toLocaleString("fa-IR")}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-start">
                       <Badge
                         variant="outline"
                         className={cn(
-                          "px-2.5 py-1 text-[10px] font-black",
+                          "px-2 py-0.5 text-[10px] font-bold",
                           getSeverityBadgeClass(item.severity)
                         )}
                       >
@@ -129,11 +143,11 @@ export const MonitoringTable = memo(function MonitoringTable({
                         })}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-start">
                       <Badge
                         variant="outline"
                         className={cn(
-                          "px-2.5 py-1 text-[10px] font-black",
+                          "px-2 py-0.5 text-[10px] font-bold",
                           getTypeBadgeClass(item.type)
                         )}
                       >
@@ -143,23 +157,32 @@ export const MonitoringTable = memo(function MonitoringTable({
                       </Badge>
                     </TableCell>
                     <TableCell
-                      className="max-w-[180px] truncate font-medium"
+                      className="max-w-[160px] truncate text-start font-medium"
                       title={item.location}
                     >
-                      <span dir="ltr">{item.location}</span>
+                      <span
+                        className="inline-block max-w-full truncate"
+                        dir="ltr"
+                      >
+                        {item.location}
+                      </span>
                     </TableCell>
                     <TableCell
-                      className="max-w-[260px] truncate"
+                      className="max-w-[240px] truncate text-start whitespace-normal"
                       title={item.error}
+                      dir="auto"
                     >
                       {item.error}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-start">
                       {t(`monitoring.source.${item.source}`, {
                         defaultValue: item.source,
                       })}
                     </TableCell>
-                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                    <TableCell
+                      className="text-muted-foreground text-start whitespace-nowrap tabular-nums"
+                      dir="ltr"
+                    >
                       {formatMonitoringDate(item.createdAt)}
                     </TableCell>
                     <TableCell className="text-center">
@@ -182,8 +205,8 @@ export const MonitoringTable = memo(function MonitoringTable({
       </div>
 
       {pagination.total > 0 && (
-        <div className="bg-card flex flex-col items-center justify-between gap-4 rounded-3xl border p-4 sm:flex-row">
-          <div className="text-muted-foreground text-xs">
+        <div className="bg-card flex flex-col items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 sm:flex-row">
+          <div className="text-muted-foreground text-start text-xs">
             {t("monitoring.pagination.showing", {
               start: startIndex.toLocaleString("fa-IR"),
               end: endIndex.toLocaleString("fa-IR"),
@@ -196,7 +219,7 @@ export const MonitoringTable = memo(function MonitoringTable({
               <Button
                 variant="outline"
                 size="icon"
-                className="size-9"
+                className="size-8"
                 disabled={pagination.page <= 1}
                 onClick={() =>
                   onFiltersChange({
@@ -238,7 +261,7 @@ export const MonitoringTable = memo(function MonitoringTable({
               <Button
                 variant="outline"
                 size="icon"
-                className="size-9"
+                className="size-8"
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() =>
                   onFiltersChange({

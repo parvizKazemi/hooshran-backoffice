@@ -55,43 +55,38 @@ export default function Monitoring() {
   };
 
   return (
-    <div className="flex flex-col gap-4 px-4 lg:px-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-3 px-4 lg:px-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t("monitoring.title")}</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <h1 className="text-xl font-bold sm:text-2xl">
+            {t("monitoring.title")}
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             {t("monitoring.description")}
           </p>
         </div>
         <Button
           variant="outline"
+          size="sm"
           onClick={handleRefresh}
           disabled={listQuery.isFetching}
         >
-          <IconRefresh className="mr-2 size-4" />
+          <IconRefresh className="size-4" />
           {t("monitoring.refresh")}
         </Button>
       </div>
 
-      <div className="bg-card flex items-center gap-2 rounded-3xl border p-4">
-        <IconActivityHeartbeat className="text-primary size-5" />
-        <div>
-          <h2 className="text-sm font-black">{t("monitoring.headerTitle")}</h2>
-          <p className="text-muted-foreground text-[11px]">
+      <div className="bg-card flex items-center gap-2 rounded-2xl border px-3 py-2">
+        <IconActivityHeartbeat className="text-primary size-4 shrink-0" />
+        <div className="min-w-0 text-start">
+          <h2 className="text-xs font-bold">{t("monitoring.headerTitle")}</h2>
+          <p className="text-muted-foreground truncate text-[11px]">
             {t("monitoring.headerDescription")}
           </p>
         </div>
       </div>
 
       <MonitoringFilters filters={filters} onChange={setFilters} />
-
-      <MonitoringStats
-        total={meta.itemCount}
-        items={chartItems}
-        isLoading={chartQuery.isLoading}
-      />
-
-      <MonitoringCharts items={chartItems} isLoading={chartQuery.isLoading} />
 
       <MonitoringTable
         data={entries}
@@ -107,6 +102,14 @@ export default function Monitoring() {
         }}
         onView={handleView}
       />
+
+      <MonitoringStats
+        total={meta.itemCount}
+        items={chartItems}
+        isLoading={chartQuery.isLoading}
+      />
+
+      <MonitoringCharts items={chartItems} isLoading={chartQuery.isLoading} />
 
       <MonitoringDetailSheet
         uuid={selectedUuid}

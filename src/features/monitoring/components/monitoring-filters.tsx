@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { IconFilter, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,23 @@ function toDraft(filters: MonitoringErrorsQueryParams): DraftState {
   };
 }
 
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <label className="text-muted-foreground text-[11px] leading-none font-medium">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
 export const MonitoringFilters = memo(function MonitoringFilters({
   filters,
   onChange,
@@ -93,126 +110,144 @@ export const MonitoringFilters = memo(function MonitoringFilters({
   };
 
   return (
-    <div className="bg-card rounded-3xl border p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <IconFilter className="text-primary size-4" />
-        <h2 className="text-sm font-black">{t("monitoring.filters.title")}</h2>
+    <div className="bg-card rounded-2xl border px-3 py-2.5">
+      <div className="mb-2 flex items-center gap-1.5">
+        <IconFilter className="text-primary size-3.5" />
+        <h2 className="text-xs font-bold">{t("monitoring.filters.title")}</h2>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <Input
-          value={draft.search}
-          onChange={(event) =>
-            setDraft((prev) => ({ ...prev, search: event.target.value }))
-          }
-          placeholder={t("monitoring.filters.searchPlaceholder")}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") apply();
-          }}
-        />
+      <div className="grid grid-cols-2 items-end gap-x-2 gap-y-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
+        <FilterField label={t("monitoring.filters.search")}>
+          <Input
+            value={draft.search}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, search: event.target.value }))
+            }
+            placeholder={t("monitoring.filters.searchPlaceholder")}
+            className="h-8 text-xs"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") apply();
+            }}
+          />
+        </FilterField>
 
-        <Select
-          value={draft.type}
-          onValueChange={(value) =>
-            setDraft((prev) => ({ ...prev, type: value }))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t("monitoring.filters.type")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
-            {MONITORING_TYPE_OPTIONS.map((type) => (
-              <SelectItem key={type} value={type}>
-                {t(`monitoring.type.${type}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterField label={t("monitoring.filters.type")}>
+          <Select
+            value={draft.type}
+            onValueChange={(value) =>
+              setDraft((prev) => ({ ...prev, type: value }))
+            }
+          >
+            <SelectTrigger size="sm" className="w-full text-xs">
+              <SelectValue placeholder={t("monitoring.filters.type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
+              {MONITORING_TYPE_OPTIONS.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {t(`monitoring.type.${type}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
 
-        <Select
-          value={draft.severity}
-          onValueChange={(value) =>
-            setDraft((prev) => ({ ...prev, severity: value }))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t("monitoring.filters.severity")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
-            {MONITORING_SEVERITY_OPTIONS.map((severity) => (
-              <SelectItem key={severity} value={severity}>
-                {t(`monitoring.severity.${severity}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterField label={t("monitoring.filters.severity")}>
+          <Select
+            value={draft.severity}
+            onValueChange={(value) =>
+              setDraft((prev) => ({ ...prev, severity: value }))
+            }
+          >
+            <SelectTrigger size="sm" className="w-full text-xs">
+              <SelectValue placeholder={t("monitoring.filters.severity")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
+              {MONITORING_SEVERITY_OPTIONS.map((severity) => (
+                <SelectItem key={severity} value={severity}>
+                  {t(`monitoring.severity.${severity}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
 
-        <Select
-          value={draft.source}
-          onValueChange={(value) =>
-            setDraft((prev) => ({ ...prev, source: value }))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t("monitoring.filters.source")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
-            {MONITORING_SOURCE_OPTIONS.map((source) => (
-              <SelectItem key={source} value={source}>
-                {t(`monitoring.source.${source}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterField label={t("monitoring.filters.source")}>
+          <Select
+            value={draft.source}
+            onValueChange={(value) =>
+              setDraft((prev) => ({ ...prev, source: value }))
+            }
+          >
+            <SelectTrigger size="sm" className="w-full text-xs">
+              <SelectValue placeholder={t("monitoring.filters.source")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("monitoring.filters.all")}</SelectItem>
+              {MONITORING_SOURCE_OPTIONS.map((source) => (
+                <SelectItem key={source} value={source}>
+                  {t(`monitoring.source.${source}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
 
-        <PersianDateInput
-          value={draft.dateFrom}
-          onChange={(value) =>
-            setDraft((prev) => ({ ...prev, dateFrom: value || "" }))
-          }
-          placeholder={t("monitoring.filters.dateFrom")}
-        />
+        <FilterField label={t("monitoring.filters.dateFrom")}>
+          <PersianDateInput
+            value={draft.dateFrom}
+            onChange={(value) =>
+              setDraft((prev) => ({ ...prev, dateFrom: value || "" }))
+            }
+            placeholder={t("monitoring.filters.dateFrom")}
+            className="h-8 text-xs"
+          />
+        </FilterField>
 
-        <PersianDateInput
-          value={draft.dateTo}
-          onChange={(value) =>
-            setDraft((prev) => ({ ...prev, dateTo: value || "" }))
-          }
-          placeholder={t("monitoring.filters.dateTo")}
-        />
+        <FilterField label={t("monitoring.filters.dateTo")}>
+          <PersianDateInput
+            value={draft.dateTo}
+            onChange={(value) =>
+              setDraft((prev) => ({ ...prev, dateTo: value || "" }))
+            }
+            placeholder={t("monitoring.filters.dateTo")}
+            className="h-8 text-xs"
+          />
+        </FilterField>
 
-        <Select
-          value={String(draft.take)}
-          onValueChange={(value) =>
-            setDraft((prev) => ({ ...prev, take: Number(value) }))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t("monitoring.filters.pageSize")} />
-          </SelectTrigger>
-          <SelectContent>
-            {MONITORING_PAGE_SIZES.map((size) => (
-              <SelectItem key={size} value={String(size)}>
-                {size.toLocaleString("fa-IR")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterField label={t("monitoring.filters.pageSize")}>
+          <Select
+            value={String(draft.take)}
+            onValueChange={(value) =>
+              setDraft((prev) => ({ ...prev, take: Number(value) }))
+            }
+          >
+            <SelectTrigger size="sm" className="w-full text-xs">
+              <SelectValue placeholder={t("monitoring.filters.pageSize")} />
+            </SelectTrigger>
+            <SelectContent>
+              {MONITORING_PAGE_SIZES.map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size.toLocaleString("fa-IR")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
 
-        <div className="flex gap-2">
-          <Button className="flex-1" onClick={apply}>
+        <div className="flex items-end gap-1.5">
+          <Button size="sm" className="h-8 flex-1 text-xs" onClick={apply}>
             {t("monitoring.filters.apply")}
           </Button>
           <Button
             variant="outline"
             size="icon"
+            className="size-8 shrink-0"
             onClick={reset}
             aria-label={t("monitoring.filters.reset")}
           >
-            <IconX className="size-4" />
+            <IconX className="size-3.5" />
           </Button>
         </div>
       </div>

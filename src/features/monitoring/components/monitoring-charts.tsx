@@ -43,6 +43,8 @@ type MonitoringChartsProps = {
   isLoading?: boolean;
 };
 
+const CHART_HEIGHT = 160;
+
 export const MonitoringCharts = memo(function MonitoringCharts({
   items,
   isLoading,
@@ -77,15 +79,18 @@ export const MonitoringCharts = memo(function MonitoringCharts({
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <Card key={index} className="rounded-3xl">
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-48" />
+          <Card key={index} className="rounded-xl">
+            <CardHeader className="space-y-1 px-3 py-2.5">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-3 w-40" />
             </CardHeader>
-            <CardContent>
-              <Skeleton className="h-[220px] w-full rounded-2xl" />
+            <CardContent className="px-3 pb-3">
+              <Skeleton
+                className="w-full rounded-xl"
+                style={{ height: CHART_HEIGHT }}
+              />
             </CardContent>
           </Card>
         ))}
@@ -96,21 +101,23 @@ export const MonitoringCharts = memo(function MonitoringCharts({
   const hasData = items.length > 0;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <Card className="rounded-3xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">
+    <div className="grid gap-2 lg:grid-cols-3">
+      <Card className="rounded-xl">
+        <CardHeader className="space-y-0.5 px-3 py-2.5 text-start">
+          <CardTitle className="text-sm">
             {t("monitoring.charts.severityTitle")}
           </CardTitle>
-          <CardDescription>{t("monitoring.charts.sampleHint")}</CardDescription>
+          <CardDescription className="text-[11px]">
+            {t("monitoring.charts.sampleHint")}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 pb-3">
           {!hasData ? (
             <EmptyChart label={t("monitoring.charts.empty")} />
           ) : (
             <ChartContainer
               config={severityConfig}
-              className="mx-auto h-[220px] w-full"
+              className="mx-auto aspect-auto h-[160px] w-full"
             >
               <PieChart>
                 <ChartTooltip
@@ -120,8 +127,8 @@ export const MonitoringCharts = memo(function MonitoringCharts({
                   data={severityData.filter((item) => item.value > 0)}
                   dataKey="value"
                   nameKey="key"
-                  innerRadius={48}
-                  outerRadius={78}
+                  innerRadius={36}
+                  outerRadius={58}
                   strokeWidth={2}
                 >
                   {severityData
@@ -143,30 +150,37 @@ export const MonitoringCharts = memo(function MonitoringCharts({
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">
+      <Card className="rounded-xl">
+        <CardHeader className="space-y-0.5 px-3 py-2.5 text-start">
+          <CardTitle className="text-sm">
             {t("monitoring.charts.typeTitle")}
           </CardTitle>
-          <CardDescription>{t("monitoring.charts.sampleHint")}</CardDescription>
+          <CardDescription className="text-[11px]">
+            {t("monitoring.charts.sampleHint")}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 pb-3">
           {!hasData ? (
             <EmptyChart label={t("monitoring.charts.empty")} />
           ) : (
-            <ChartContainer config={typeConfig} className="h-[220px] w-full">
+            <ChartContainer
+              config={typeConfig}
+              dir="ltr"
+              className="aspect-auto h-[160px] w-full"
+            >
               <BarChart
                 data={typeData}
                 layout="vertical"
-                margin={{ left: 8, right: 8 }}
+                margin={{ left: 4, right: 8, top: 4, bottom: 4 }}
               >
                 <CartesianGrid horizontal={false} />
                 <YAxis
                   dataKey="key"
                   type="category"
-                  width={110}
+                  width={96}
                   tickLine={false}
                   axisLine={false}
+                  tick={{ fontSize: 10 }}
                   tickFormatter={(value: string) =>
                     t(`monitoring.type.${value}`, { defaultValue: value })
                   }
@@ -176,9 +190,10 @@ export const MonitoringCharts = memo(function MonitoringCharts({
                   allowDecimals={false}
                   tickLine={false}
                   axisLine={false}
+                  tick={{ fontSize: 10 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="value" radius={6}>
+                <Bar dataKey="value" radius={4}>
                   {typeData.map((item) => (
                     <Cell
                       key={item.key}
@@ -196,27 +211,30 @@ export const MonitoringCharts = memo(function MonitoringCharts({
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">
+      <Card className="rounded-xl">
+        <CardHeader className="space-y-0.5 px-3 py-2.5 text-start">
+          <CardTitle className="text-sm">
             {t("monitoring.charts.timelineTitle")}
           </CardTitle>
-          <CardDescription>{t("monitoring.charts.sampleHint")}</CardDescription>
+          <CardDescription className="text-[11px]">
+            {t("monitoring.charts.sampleHint")}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 pb-3">
           {!hasData ? (
             <EmptyChart label={t("monitoring.charts.empty")} />
           ) : (
             <ChartContainer
               config={timelineConfig}
-              className="h-[220px] w-full"
+              className="aspect-auto h-[160px] w-full"
             >
-              <AreaChart data={timelineData}>
+              <AreaChart data={timelineData} margin={{ top: 4, bottom: 0 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickLine={false}
                   axisLine={false}
+                  tick={{ fontSize: 10 }}
                   tickFormatter={(value: string) =>
                     new Date(value).toLocaleDateString("fa-IR", {
                       month: "short",
@@ -244,7 +262,10 @@ export const MonitoringCharts = memo(function MonitoringCharts({
 
 function EmptyChart({ label }: { label: string }) {
   return (
-    <div className="text-muted-foreground flex h-[220px] items-center justify-center text-sm">
+    <div
+      className="text-muted-foreground flex items-center justify-center text-xs"
+      style={{ height: CHART_HEIGHT }}
+    >
       {label}
     </div>
   );

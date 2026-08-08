@@ -2103,7 +2103,8 @@
     },
     "filters": {
       "title": "فیلترها",
-      "searchPlaceholder": "جستجو در خطا، مسیر یا نوع…",
+      "search": "جستجو",
+      "searchPlaceholder": "خطا، مسیر یا نوع…",
       "type": "نوع",
       "severity": "شدت",
       "source": "منبع",
@@ -2111,7 +2112,7 @@
       "dateTo": "تا تاریخ",
       "pageSize": "تعداد در صفحه",
       "all": "همه",
-      "apply": "اعمال فیلتر",
+      "apply": "اعمال",
       "reset": "بازنشانی"
     },
     "table": {
