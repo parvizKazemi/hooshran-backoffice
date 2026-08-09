@@ -4,7 +4,7 @@ export const PLATFORM_SERVICES_LIMIT = 300;
 
 export const SERVICE_HINT_LIMITS = {
   minSections: 1,
-  maxSections: 8,
+  maxSections: 10,
   minBlocksPerSection: 1,
   maxBlocksPerSection: 6,
   tipMaxLength: 150,
