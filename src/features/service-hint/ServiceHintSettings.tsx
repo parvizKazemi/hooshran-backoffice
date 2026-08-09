@@ -104,7 +104,8 @@ const createSectionId = (sections: ServiceHintConfig) => {
 const cloneConfig = (sections: ServiceHintConfig): ServiceHintConfig =>
   sections.map((section) => structuredClone(section));
 
-const hasHtmlTag = (value: string) => /<[^>]+>/.test(value);
+const hasHtmlTag = (value: string) =>
+  /<[^>]+>/.test(value.replace(/<\/?(?:u|mark|sup|sub)>/gi, ""));
 
 const moveItem = <T,>(items: T[], index: number, direction: 1 | -1): T[] => {
   const nextIndex = index + direction;
