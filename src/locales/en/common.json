@@ -69,7 +69,9 @@
       "title": "Services",
       "categories": "Manage Categories",
       "manageServices": "Manage Services",
-      "serviceHint": "Service Guide"
+      "serviceHint": "Service Guide",
+      "promptAssistant": "Prompt Assistant",
+      "promptAssistantServices": "Prompt Assistant (Service)"
     },
     "userSettings": {
       "title": "User Settings",
@@ -1830,6 +1832,123 @@
       "uploadInProgress": "Please wait until file uploads finish.",
       "pendingUpload": "Media file is not uploaded yet. Complete upload before saving.",
       "loadFailed": "Failed to load service guide."
+    }
+  },
+  "promptAssistant": {
+    "loading": "Loading...",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "save": "Save",
+      "delete": "Delete",
+      "refresh": "Refresh",
+      "addCategory": "Add New Parameter",
+      "editValues": "Edit Options",
+      "configure": "Configure Parameters",
+      "saveOrder": "Save Order",
+      "cancelChanges": "Discard Order Changes"
+    },
+    "table": {
+      "row": "Row",
+      "title": "Parameter Title",
+      "systemKey": "System Key",
+      "options": "Options Count",
+      "optionsCount": "{{count}} options",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "categories": {
+      "pageTitle": "Prompt Assistant",
+      "pageDescription": "Manage advanced prompt parameters and option values for client display.",
+      "title": "Advanced Prompt Assistant Parameters",
+      "description": "Manage categories, option counts and related media values.",
+      "searchPlaceholder": "Search categories...",
+      "empty": "No parameters defined yet."
+    },
+    "categoryForm": {
+      "createTitle": "Add New Parameter",
+      "editTitle": "Edit Parameter",
+      "description": "Set Persian title, system key and icon for this parameter.",
+      "title": "Parameter Title",
+      "titlePlaceholder": "e.g. Lighting Type",
+      "titleRequired": "Title is required.",
+      "systemKey": "System Key",
+      "systemKeyPlaceholder": "lighting",
+      "systemKeyInvalid": "System key may only include letters, numbers and _.",
+      "icon": "Icon",
+      "iconPlaceholder": "Select icon",
+      "defaultInactiveHint": "New parameters are created as inactive by default."
+    },
+    "valuesDialog": {
+      "title": "Manage options and prompts: {{title}}",
+      "description": "Add options, edit prompt text and upload sample media",
+      "addOption": "Add New Option",
+      "empty": "No options yet. Click Add New Option to create the first one.",
+      "optionTitle": "Option Title",
+      "optionTitlePlaceholder": "e.g. Cinematic",
+      "optionPrompt": "Prompt Structure (English)",
+      "optionPromptPlaceholder": "cinematic lighting, god rays...",
+      "mediaType": "Media Preview Type",
+      "picture": "Still Image",
+      "video": "Video",
+      "status": "Option Status",
+      "media": "Media Files (URL array)",
+      "save": "Save Options",
+      "validationRequired": "Title and prompt text are required for every option."
+    },
+    "media": {
+      "urlPlaceholder": "https://example.com/media.jpg",
+      "addLink": "Add Link"
+    },
+    "services": {
+      "pageTitle": "Prompt Assistant (Service)",
+      "pageDescription": "Set priority and activation of prompt assistant parameters per service.",
+      "title": "Parameter Access by Service",
+      "description": "Enable, disable and prioritize advanced parameters for each client service.",
+      "searchPlaceholder": "Search services...",
+      "serviceName": "Service Name",
+      "serviceKey": "Service Key",
+      "activeParams": "Active Parameters",
+      "activeCount": "Active Count",
+      "activeBadge": "{{count}} active",
+      "noneActive": "None (default off)",
+      "empty": "No services available."
+    },
+    "assignDialog": {
+      "title": "Priority and activation: {{name}}",
+      "description": "Reorder parameters and toggle client visibility.",
+      "empty": "No parameters available to assign.",
+      "save": "Save Service Settings"
+    },
+    "deleteCategory": {
+      "title": "Delete Parameter",
+      "description": "Delete «{{title}}» and all related options permanently?"
+    },
+    "toasts": {
+      "categoryCreated": "Parameter created successfully",
+      "categoryCreateFailed": "Failed to create parameter",
+      "categoryUpdated": "Parameter updated successfully",
+      "categoryUpdateFailed": "Failed to update parameter",
+      "categoryDeleted": "Parameter deleted",
+      "categoryDeleteFailed": "Failed to delete parameter",
+      "categoryEnabled": "Parameter enabled",
+      "categoryDisabled": "Parameter disabled",
+      "orderSaved": "Parameter order saved",
+      "orderSaveFailed": "Failed to save order",
+      "promptsSaved": "Parameter options saved",
+      "promptsSaveFailed": "Failed to save options",
+      "promptEnabled": "Option enabled",
+      "promptDisabled": "Option disabled",
+      "promptUpdateFailed": "Failed to update option",
+      "assignmentSaved": "Service settings saved",
+      "assignmentSaveFailed": "Failed to save service settings"
+    },
+    "errors": {
+      "loadFailed": "Failed to load prompt assistant data."
     }
   },
   "discountCodes": {

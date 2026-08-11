@@ -66,6 +66,12 @@ const UserBlacklistSettings = lazy(
 const ServiceHintSettings = lazy(
   () => import("../features/service-hint/ServiceHintSettings.tsx")
 );
+const PromptAssistantCategories = lazy(
+  () => import("../features/prompt-assistant/PromptAssistantCategories.tsx")
+);
+const PromptAssistantServices = lazy(
+  () => import("../features/prompt-assistant/PromptAssistantServices.tsx")
+);
 const ManageServices = lazy(
   () => import("../features/manage-services/ManageServices.tsx")
 );
@@ -237,6 +243,14 @@ const router = createBrowserRouter([
           {
             path: "/services/service-hint",
             element: <ServiceHintSettings />,
+          },
+          {
+            path: "/services/prompt-assistant",
+            element: <PromptAssistantCategories />,
+          },
+          {
+            path: "/services/prompt-assistant/services",
+            element: <PromptAssistantServices />,
           },
           {
             path: "/system-settings/sms-config",

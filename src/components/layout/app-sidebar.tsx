@@ -120,6 +120,14 @@ function useSidebarData() {
             title: t("nav.services.serviceHint"),
             url: "/services/service-hint",
           },
+          {
+            title: t("nav.services.promptAssistant"),
+            url: "/services/prompt-assistant",
+          },
+          {
+            title: t("nav.services.promptAssistantServices"),
+            url: "/services/prompt-assistant/services",
+          },
         ],
       },
       {
@@ -249,6 +257,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/discount-codes",
               "/services/categories",
               "/services/manage",
+              "/services/prompt-assistant",
               "/system-settings/sms-config",
               ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}

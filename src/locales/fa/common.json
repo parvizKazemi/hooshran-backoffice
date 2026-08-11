@@ -69,7 +69,9 @@
       "title": "سرویس‌ها",
       "categories": "مدیریت دسته‌بندی‌ها",
       "manageServices": "مدیریت سرویس‌ها",
-      "serviceHint": "راهنمای سرویس"
+      "serviceHint": "راهنمای سرویس",
+      "promptAssistant": "دستیار پرامپت",
+      "promptAssistantServices": "دستیار پرامپت (سرویس)"
     },
     "userSettings": {
       "title": "تنظیمات کاربران",
@@ -1865,6 +1867,123 @@
       "uploadInProgress": "لطفاً تا پایان آپلود فایل‌ها صبر کنید.",
       "pendingUpload": "فایل رسانه هنوز آپلود نشده است. ابتدا آپلود را کامل کنید.",
       "loadFailed": "دریافت راهنمای سرویس با خطا مواجه شد."
+    }
+  },
+  "promptAssistant": {
+    "loading": "در حال بارگذاری...",
+    "status": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "actions": {
+      "cancel": "انصراف",
+      "create": "ایجاد",
+      "save": "ذخیره",
+      "delete": "حذف",
+      "refresh": "بروزرسانی",
+      "addCategory": "افزودن پارامتر جدید",
+      "editValues": "ویرایش گزینه‌ها",
+      "configure": "تنظیم پارامترها",
+      "saveOrder": "ذخیره ترتیب",
+      "cancelChanges": "لغو تغییرات ترتیب"
+    },
+    "table": {
+      "row": "ردیف",
+      "title": "عنوان پارامتر (فارسی)",
+      "systemKey": "کلید سیستم (System Key)",
+      "options": "تعداد کل مقادیر",
+      "optionsCount": "{{count}} گزینه",
+      "status": "وضعیت نمایش",
+      "actions": "عملیات"
+    },
+    "categories": {
+      "pageTitle": "دستیار پرامپت",
+      "pageDescription": "مدیریت پارامترهای پیشرفته و مقادیر پرامپت برای نمایش در کلاینت.",
+      "title": "لیست پارامترهای پیشرفته دستیار پرامپت",
+      "description": "مدیریت ردیفی حوزه‌ها، تعداد گزینه‌ها و مقادیر متناظر تصویرساز کاربران.",
+      "searchPlaceholder": "جستجوی دسته‌بندی...",
+      "empty": "هنوز پارامتری تعریف نشده است."
+    },
+    "categoryForm": {
+      "createTitle": "افزودن پارامتر جدید",
+      "editTitle": "ویرایش پارامتر",
+      "description": "عنوان فارسی، کلید سیستم و آیکون پارامتر را مشخص کنید.",
+      "title": "عنوان پارامتر (فارسی)",
+      "titlePlaceholder": "مثال: نوع نورپردازی",
+      "titleRequired": "عنوان پارامتر الزامی است.",
+      "systemKey": "کلید سیستم",
+      "systemKeyPlaceholder": "lighting",
+      "systemKeyInvalid": "کلید سیستم فقط شامل حروف، عدد و _ باشد.",
+      "icon": "آیکون",
+      "iconPlaceholder": "انتخاب آیکون",
+      "defaultInactiveHint": "پارامتر جدید به‌صورت پیش‌فرض غیرفعال ایجاد می‌شود."
+    },
+    "valuesDialog": {
+      "title": "مدیریت مقادیر و پرامپت‌های: {{title}}",
+      "description": "افزودن گزینه‌ها، ویرایش متن پرامپت و آپلود چندرسانه‌ای نمونه",
+      "addOption": "افزودن مقدار جدید",
+      "empty": "هنوز مقداری تعریف نشده است؛ برای ثبت اولین گزینه روی «افزودن مقدار جدید» کلیک کنید.",
+      "optionTitle": "عنوان گزینه (فارسی)",
+      "optionTitlePlaceholder": "مثال: سینمایی (Cinematic)",
+      "optionPrompt": "ساختار پرامپت (انگلیسی)",
+      "optionPromptPlaceholder": "cinematic lighting, god rays...",
+      "mediaType": "نوع پیش‌نمایش چندرسانه‌ای",
+      "picture": "تصویر ثابت",
+      "video": "ویدیو",
+      "status": "وضعیت نمایش گزینه",
+      "media": "فایل‌های رسانه (آرایه لینک)",
+      "save": "ذخیره نهایی مقادیر",
+      "validationRequired": "عنوان و متن پرامپت برای همه گزینه‌ها الزامی است."
+    },
+    "media": {
+      "urlPlaceholder": "https://example.com/media.jpg",
+      "addLink": "افزودن لینک"
+    },
+    "services": {
+      "pageTitle": "دستیار پرامپت (سرویس)",
+      "pageDescription": "تعیین اولویت و فعال‌سازی پارامترهای دستیار پرامپت برای هر سرویس.",
+      "title": "مدیریت دسترسی پارامترها در سرویس‌ها",
+      "description": "تعیین اولویت، فعال‌سازی و غیرفعال‌سازی پارامترهای پیشرفته مجاز برای هر سرویس کلاینت.",
+      "searchPlaceholder": "جستجوی سرویس...",
+      "serviceName": "نام سرویس",
+      "serviceKey": "کلید سرویس (Service Key)",
+      "activeParams": "پارامترهای فعال",
+      "activeCount": "تعداد فعال",
+      "activeBadge": "{{count}} فعال",
+      "noneActive": "هیچکدام (پیش‌فرض خاموش)",
+      "empty": "سرویسی برای نمایش وجود ندارد."
+    },
+    "assignDialog": {
+      "title": "مدیریت اولویت و فعال‌سازی: {{name}}",
+      "description": "ترتیب نمایش پارامترها را تنظیم کرده و سوئیچ فعال بودن آن‌ها در کلاینت را مشخص کنید.",
+      "empty": "هنوز پارامتری برای تخصیص وجود ندارد.",
+      "save": "ثبت نهایی تنظیمات سرویس"
+    },
+    "deleteCategory": {
+      "title": "حذف پارامتر",
+      "description": "آیا از حذف دائم «{{title}}» و تمامی مقادیر و پرامپت‌های مربوطه اطمینان دارید؟"
+    },
+    "toasts": {
+      "categoryCreated": "پارامتر جدید با موفقیت ایجاد شد",
+      "categoryCreateFailed": "ایجاد پارامتر ناموفق بود",
+      "categoryUpdated": "پارامتر با موفقیت به‌روزرسانی شد",
+      "categoryUpdateFailed": "به‌روزرسانی پارامتر ناموفق بود",
+      "categoryDeleted": "پارامتر حذف شد",
+      "categoryDeleteFailed": "حذف پارامتر ناموفق بود",
+      "categoryEnabled": "پارامتر فعال شد",
+      "categoryDisabled": "پارامتر غیرفعال شد",
+      "orderSaved": "ترتیب پارامترها ذخیره شد",
+      "orderSaveFailed": "ذخیره ترتیب ناموفق بود",
+      "promptsSaved": "مقادیر پارامتر ذخیره شد",
+      "promptsSaveFailed": "ذخیره مقادیر ناموفق بود",
+      "promptEnabled": "گزینه فعال شد",
+      "promptDisabled": "گزینه غیرفعال شد",
+      "promptUpdateFailed": "به‌روزرسانی گزینه ناموفق بود",
+      "assignmentSaved": "تنظیمات سرویس ذخیره شد",
+      "assignmentSaveFailed": "ذخیره تنظیمات سرویس ناموفق بود"
+    },
+    "errors": {
+      "loadFailed": "بارگذاری اطلاعات دستیار پرامپت با خطا مواجه شد."
     }
   },
   "discountCodes": {
