@@ -1,10 +1,21 @@
 import { z } from "zod";
-import { PROMPT_DISPLAY_TYPE, PROMPT_STATUS } from "./constants";
+import {
+  PROMPT_DISPLAY_KIND,
+  PROMPT_DISPLAY_KIND_FILTER,
+  PROMPT_DISPLAY_TYPE,
+  PROMPT_STATUS,
+} from "./constants";
 
 export type PromptStatus = (typeof PROMPT_STATUS)[keyof typeof PROMPT_STATUS];
 
 export type PromptDisplayType =
   (typeof PROMPT_DISPLAY_TYPE)[keyof typeof PROMPT_DISPLAY_TYPE];
+
+export type PromptDisplayKind =
+  (typeof PROMPT_DISPLAY_KIND)[keyof typeof PROMPT_DISPLAY_KIND];
+
+export type PromptDisplayKindFilter =
+  (typeof PROMPT_DISPLAY_KIND_FILTER)[keyof typeof PROMPT_DISPLAY_KIND_FILTER];
 
 export type PageMeta = {
   page: number;
@@ -75,6 +86,7 @@ export type ServiceCategoryConfigItem = {
   title: string;
   icon: string | null;
   systemKey: string | null;
+  displayKind: PromptDisplayKind;
   active: boolean;
   priority: number;
 };
@@ -112,6 +124,11 @@ export type AssignCategoriesPayload = {
   }>;
 };
 
+export type BulkAssignCategoriesPayload = {
+  serviceUuids: string[];
+  categoryUuids: string[];
+};
+
 export const categoryFormSchema = z.object({
   title: z.string().trim().min(1).max(120),
   systemKey: z
@@ -121,6 +138,7 @@ export const categoryFormSchema = z.object({
     .max(80)
     .regex(/^[a-z0-9_]+$/i, "invalidSystemKey"),
   icon: z.string().trim().max(120).optional().or(z.literal("")),
+  displayKind: z.enum([PROMPT_DISPLAY_KIND.PROMPT, PROMPT_DISPLAY_KIND.STYLE]),
 });
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;

@@ -2,11 +2,57 @@ import type {
   EditablePromptOption,
   PageResult,
   PromptCategory,
+  PromptDisplayKind,
+  PromptDisplayKindFilter,
   PromptItem,
   PromptStatus,
   ServicePromptAssignment,
 } from "../types";
-import { PROMPT_DISPLAY_TYPE, PROMPT_STATUS } from "../constants";
+import {
+  PROMPT_DISPLAY_KIND,
+  PROMPT_DISPLAY_KIND_FILTER,
+  PROMPT_DISPLAY_TYPE,
+  PROMPT_STATUS,
+} from "../constants";
+
+export function getCategoryDisplayKind(
+  tags: string[] | undefined | null
+): PromptDisplayKind {
+  if (tags?.includes(PROMPT_DISPLAY_KIND.STYLE)) {
+    return PROMPT_DISPLAY_KIND.STYLE;
+  }
+  return PROMPT_DISPLAY_KIND.PROMPT;
+}
+
+export function tagsFromDisplayKind(displayKind: PromptDisplayKind): string[] {
+  return displayKind === PROMPT_DISPLAY_KIND.STYLE
+    ? [PROMPT_DISPLAY_KIND.STYLE]
+    : [PROMPT_DISPLAY_KIND.PROMPT];
+}
+
+export function isCategoryGloballyActive(
+  status: PromptStatus | string | undefined | null
+): boolean {
+  return status === PROMPT_STATUS.ACTIVE;
+}
+
+export function filterActiveCategories(
+  categories: PromptCategory[]
+): PromptCategory[] {
+  return categories.filter((category) =>
+    isCategoryGloballyActive(category.status)
+  );
+}
+
+export function filterCategoriesByDisplayKind(
+  categories: PromptCategory[],
+  filter: PromptDisplayKindFilter
+): PromptCategory[] {
+  if (filter === PROMPT_DISPLAY_KIND_FILTER.ALL) return categories;
+  return categories.filter(
+    (category) => getCategoryDisplayKind(category.tags) === filter
+  );
+}
 
 export function normalizeCategory(
   raw: Record<string, unknown>
@@ -133,7 +179,7 @@ export function promptToEditable(prompt: PromptItem): EditablePromptOption {
 }
 
 export function createEmptyPromptOption(
-  status: PromptStatus = PROMPT_STATUS.INACTIVE
+  status: PromptStatus = PROMPT_STATUS.ACTIVE
 ): EditablePromptOption {
   return {
     localId: `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -151,7 +197,7 @@ export function buildPromptOptionPayload(option: EditablePromptOption) {
     prompt: option.prompt.trim(),
     pictures: option.pictures.filter(Boolean),
     displayType: option.displayType,
-    status: option.status ?? PROMPT_STATUS.INACTIVE,
+    status: option.status ?? PROMPT_STATUS.ACTIVE,
   };
 }
 

@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SettingsPageHeader } from "@/features/user-settings/components/settings-page-header";
-import { IconAlertCircle, IconRefresh, IconSearch } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconLink,
+  IconRefresh,
+  IconSearch,
+} from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BulkAssignDialog } from "./components/bulk-assign-dialog";
 import { ServiceAssignDialog } from "./components/service-assign-dialog";
 import { ServiceAssignmentsTable } from "./components/service-assignments-table";
 import {
@@ -17,6 +23,7 @@ import type {
   ServiceAssignmentRow,
   ServicePromptAssignment,
 } from "./types";
+import { filterActiveCategories } from "./utils/prompt-assistant.helpers";
 
 const EMPTY_SERVICES: PlatformServiceOption[] = [];
 const EMPTY_ASSIGNMENTS: ServicePromptAssignment[] = [];
@@ -40,10 +47,16 @@ export default function PromptAssistantServices() {
   } = useServiceAssignments();
   const { data: categories = EMPTY_CATEGORIES } = usePromptCategories();
 
+  const assignableCategories = useMemo(
+    () => filterActiveCategories(categories),
+    [categories]
+  );
+
   const [search, setSearch] = useState("");
   const [selectedRow, setSelectedRow] = useState<ServiceAssignmentRow | null>(
     null
   );
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
 
   const rows = useMemo<ServiceAssignmentRow[]>(() => {
     const grouped = new Map<
@@ -102,6 +115,14 @@ export default function PromptAssistantServices() {
         </div>
         <Button
           type="button"
+          variant="secondary"
+          onClick={() => setIsBulkOpen(true)}
+        >
+          <IconLink className="size-4" />
+          {t("promptAssistant.actions.bulkAssign")}
+        </Button>
+        <Button
+          type="button"
           variant="outline"
           disabled={isFetching}
           onClick={() => {
@@ -133,7 +154,14 @@ export default function PromptAssistantServices() {
           if (!open) setSelectedRow(null);
         }}
         row={selectedRow}
-        categories={categories}
+        categories={assignableCategories}
+      />
+
+      <BulkAssignDialog
+        open={isBulkOpen}
+        onOpenChange={setIsBulkOpen}
+        services={services}
+        categories={assignableCategories}
       />
     </div>
   );

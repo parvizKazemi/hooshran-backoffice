@@ -6,11 +6,13 @@ import {
 } from "../constants";
 import type {
   AssignCategoriesPayload,
+  BulkAssignCategoriesPayload,
   CreatePromptCategoryPayload,
   CreatePromptPayload,
   PageResult,
   PlatformServiceOption,
   PromptCategory,
+  PromptDisplayKindFilter,
   PromptItem,
   ServicePromptAssignment,
   UpdatePromptCategoryPayload,
@@ -24,9 +26,19 @@ import {
 } from "../utils/prompt-assistant.helpers";
 import { PROMPT_ASSISTANT_ENDPOINTS } from "./endpoints";
 
-export async function fetchPromptCategories(): Promise<PromptCategory[]> {
+export async function fetchPromptCategories(
+  displayKind: PromptDisplayKindFilter = "all"
+): Promise<PromptCategory[]> {
+  const params = new URLSearchParams({
+    page: "1",
+    take: String(PROMPT_ASSISTANT_PAGE_TAKE),
+  });
+  if (displayKind !== "all") {
+    params.set("displayKind", displayKind);
+  }
+
   const response = await apiGet<unknown>(
-    `${PROMPT_ASSISTANT_ENDPOINTS.categories}?page=1&take=${PROMPT_ASSISTANT_PAGE_TAKE}`
+    `${PROMPT_ASSISTANT_ENDPOINTS.categories}?${params.toString()}`
   );
   const page = normalizePageResult(response, (item) => normalizeCategory(item));
   return page.data;
@@ -98,7 +110,7 @@ export async function createPrompt(
     {
       ...payload,
       pictures: payload.pictures ?? [],
-      status: payload.status ?? PROMPT_STATUS.INACTIVE,
+      status: payload.status ?? PROMPT_STATUS.ACTIVE,
     }
   );
   return normalizePrompt(response);
@@ -123,6 +135,12 @@ export async function assignCategoriesToService(
   payload: AssignCategoriesPayload
 ): Promise<void> {
   await apiPost(PROMPT_ASSISTANT_ENDPOINTS.assignToService, payload);
+}
+
+export async function bulkAssignCategoriesToServices(
+  payload: BulkAssignCategoriesPayload
+): Promise<void> {
+  await apiPost(PROMPT_ASSISTANT_ENDPOINTS.bulkAssignToServices, payload);
 }
 
 export async function fetchServiceAssignments(): Promise<

@@ -1850,12 +1850,19 @@
       "editValues": "Edit Options",
       "configure": "Configure Parameters",
       "saveOrder": "Save Order",
-      "cancelChanges": "Discard Order Changes"
+      "cancelChanges": "Discard Order Changes",
+      "bulkAssign": "Bulk Assign"
+    },
+    "displayKind": {
+      "all": "All",
+      "style": "Style",
+      "prompt": "Prompt"
     },
     "table": {
       "row": "Row",
       "title": "Parameter Title",
       "systemKey": "System Key",
+      "displayKind": "Display Type",
       "options": "Options Count",
       "optionsCount": "{{count}} options",
       "status": "Status",
@@ -1881,6 +1888,8 @@
       "systemKeyInvalid": "System key may only include letters, numbers and _.",
       "icon": "Icon",
       "iconPlaceholder": "Select icon",
+      "displayKind": "Display Type",
+      "displayKindPlaceholder": "Style or Prompt",
       "defaultInactiveHint": "New parameters are created as inactive by default."
     },
     "valuesDialog": {
@@ -1921,8 +1930,17 @@
     "assignDialog": {
       "title": "Priority and activation: {{name}}",
       "description": "Reorder parameters and toggle client visibility.",
+      "filterHint": "Filter parameter list",
       "empty": "No parameters available to assign.",
       "save": "Save Service Settings"
+    },
+    "bulkAssign": {
+      "title": "Bulk Assign Parameters to Services",
+      "description": "Add one or more parameters (style/prompt) to multiple services at once.",
+      "services": "Services",
+      "categories": "Parameters",
+      "selectedCount": "{{count}} selected",
+      "submit": "Add to Selected Services"
     },
     "deleteCategory": {
       "title": "Delete Parameter",
@@ -1945,7 +1963,9 @@
       "promptDisabled": "Option disabled",
       "promptUpdateFailed": "Failed to update option",
       "assignmentSaved": "Service settings saved",
-      "assignmentSaveFailed": "Failed to save service settings"
+      "assignmentSaveFailed": "Failed to save service settings",
+      "bulkAssignmentSaved": "Parameters added to selected services",
+      "bulkAssignmentSaveFailed": "Bulk assign failed"
     },
     "errors": {
       "loadFailed": "Failed to load prompt assistant data."

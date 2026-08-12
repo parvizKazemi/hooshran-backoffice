@@ -16,6 +16,7 @@ import {
   useUpdatePromptCategory,
 } from "./hooks/use-prompt-assistant";
 import type { CategoryFormValues, PromptCategory } from "./types";
+import { tagsFromDisplayKind } from "./utils/prompt-assistant.helpers";
 
 export default function PromptAssistantCategories() {
   const { t } = useTranslation("common");
@@ -39,10 +40,12 @@ export default function PromptAssistantCategories() {
 
   useEffect(() => {
     if (!data) return;
-    setItems(data);
+    setItems(data as PromptCategory[]);
   }, [data]);
 
   const handleFormSubmit = async (values: CategoryFormValues) => {
+    const tags = tagsFromDisplayKind(values.displayKind);
+
     if (editingCategory) {
       await updateMutation.mutateAsync({
         uuid: editingCategory.uuid,
@@ -50,6 +53,7 @@ export default function PromptAssistantCategories() {
           title: values.title.trim(),
           systemKey: values.systemKey.trim(),
           icon: values.icon?.trim() || undefined,
+          tags,
         },
       });
       setIsFormOpen(false);
@@ -62,6 +66,7 @@ export default function PromptAssistantCategories() {
       systemKey: values.systemKey.trim(),
       icon: values.icon?.trim() || undefined,
       status: PROMPT_STATUS.INACTIVE,
+      tags,
     });
     setIsFormOpen(false);
   };
@@ -119,6 +124,7 @@ export default function PromptAssistantCategories() {
           void toggleMutation.mutateAsync({
             uuid: category.uuid,
             status: active ? PROMPT_STATUS.ACTIVE : PROMPT_STATUS.INACTIVE,
+            tags: category.tags,
           });
         }}
       />

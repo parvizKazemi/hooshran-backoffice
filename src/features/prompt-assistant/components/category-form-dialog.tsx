@@ -21,12 +21,13 @@ import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { PROMPT_CATEGORY_ICONS } from "../constants";
+import { PROMPT_CATEGORY_ICONS, PROMPT_DISPLAY_KIND } from "../constants";
 import {
   categoryFormSchema,
   type CategoryFormValues,
   type PromptCategory,
 } from "../types";
+import { getCategoryDisplayKind } from "../utils/prompt-assistant.helpers";
 
 type CategoryFormDialogProps = {
   open: boolean;
@@ -51,6 +52,7 @@ export function CategoryFormDialog({
       title: category?.title ?? "",
       systemKey: category?.systemKey ?? "",
       icon: category?.icon ?? "sparkles",
+      displayKind: getCategoryDisplayKind(category?.tags),
     }),
     [category]
   );
@@ -121,34 +123,67 @@ export function CategoryFormDialog({
               ) : null}
             </Field>
 
-            <Field>
-              <FieldLabel>{t("promptAssistant.categoryForm.icon")}</FieldLabel>
-              <Controller
-                control={form.control}
-                name="icon"
-                render={({ field }) => (
-                  <Select
-                    value={field.value || "sparkles"}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={t(
-                          "promptAssistant.categoryForm.iconPlaceholder"
-                        )}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PROMPT_CATEGORY_ICONS.map((icon) => (
-                        <SelectItem key={icon} value={icon}>
-                          {icon}
+            <div className="flex items-center justify-between gap-2">
+              <Field>
+                <FieldLabel>
+                  {t("promptAssistant.categoryForm.displayKind")}
+                </FieldLabel>
+                <Controller
+                  control={form.control}
+                  name="displayKind"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={t(
+                            "promptAssistant.categoryForm.displayKindPlaceholder"
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={PROMPT_DISPLAY_KIND.PROMPT}>
+                          {t("promptAssistant.displayKind.prompt")}
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </Field>
+                        <SelectItem value={PROMPT_DISPLAY_KIND.STYLE}>
+                          {t("promptAssistant.displayKind.style")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel>
+                  {t("promptAssistant.categoryForm.icon")}
+                </FieldLabel>
+                <Controller
+                  control={form.control}
+                  name="icon"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || "sparkles"}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={t(
+                            "promptAssistant.categoryForm.iconPlaceholder"
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PROMPT_CATEGORY_ICONS.map((icon) => (
+                          <SelectItem key={icon} value={icon}>
+                            {icon}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
+            </div>
           </FieldGroup>
 
           {!isEditing ? (

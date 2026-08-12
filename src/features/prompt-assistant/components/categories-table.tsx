@@ -3,6 +3,13 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,8 +26,16 @@ import {
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PROMPT_STATUS } from "../constants";
-import type { PromptCategory } from "../types";
+import {
+  PROMPT_DISPLAY_KIND,
+  PROMPT_DISPLAY_KIND_FILTER,
+  PROMPT_STATUS,
+} from "../constants";
+import type { PromptCategory, PromptDisplayKindFilter } from "../types";
+import {
+  filterCategoriesByDisplayKind,
+  getCategoryDisplayKind,
+} from "../utils/prompt-assistant.helpers";
 
 type CategoriesTableProps = {
   items: PromptCategory[];
@@ -43,16 +58,19 @@ export function CategoriesTable({
 }: CategoriesTableProps) {
   const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
+  const [displayKindFilter, setDisplayKindFilter] =
+    useState<PromptDisplayKindFilter>(PROMPT_DISPLAY_KIND_FILTER.ALL);
 
   const filteredItems = useMemo(() => {
+    const byKind = filterCategoriesByDisplayKind(items, displayKindFilter);
     const query = search.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter(
+    if (!query) return byKind;
+    return byKind.filter(
       (item) =>
         item.title.toLowerCase().includes(query) ||
         (item.systemKey ?? "").toLowerCase().includes(query)
     );
-  }, [items, search]);
+  }, [items, search, displayKindFilter]);
 
   return (
     <div className="overflow-hidden rounded-2xl border">
@@ -66,14 +84,37 @@ export function CategoriesTable({
             {t("promptAssistant.categories.description")}
           </p>
         </div>
-        <div className="relative w-full sm:w-64">
-          <IconSearch className="text-muted-foreground absolute top-2.5 right-3 size-4" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t("promptAssistant.categories.searchPlaceholder")}
-            className="pr-9"
-          />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <Select
+            value={displayKindFilter}
+            onValueChange={(value) =>
+              setDisplayKindFilter(value as PromptDisplayKindFilter)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={PROMPT_DISPLAY_KIND_FILTER.ALL}>
+                {t("promptAssistant.displayKind.all")}
+              </SelectItem>
+              <SelectItem value={PROMPT_DISPLAY_KIND_FILTER.STYLE}>
+                {t("promptAssistant.displayKind.style")}
+              </SelectItem>
+              <SelectItem value={PROMPT_DISPLAY_KIND_FILTER.PROMPT}>
+                {t("promptAssistant.displayKind.prompt")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="relative w-full sm:w-64">
+            <IconSearch className="text-muted-foreground absolute top-2.5 right-3 size-4" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("promptAssistant.categories.searchPlaceholder")}
+              className="pr-9"
+            />
+          </div>
         </div>
       </div>
 
@@ -86,6 +127,9 @@ export function CategoriesTable({
               </TableHead>
               <TableHead>{t("promptAssistant.table.title")}</TableHead>
               <TableHead>{t("promptAssistant.table.systemKey")}</TableHead>
+              <TableHead className="text-center">
+                {t("promptAssistant.table.displayKind")}
+              </TableHead>
               <TableHead className="text-center">
                 {t("promptAssistant.table.options")}
               </TableHead>
@@ -101,7 +145,7 @@ export function CategoriesTable({
             {isLoading
               ? Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={`skeleton-${index}`}>
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={7}>
                       <Skeleton className="h-10 w-full" />
                     </TableCell>
                   </TableRow>
@@ -111,7 +155,7 @@ export function CategoriesTable({
             {!isLoading && filteredItems.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-muted-foreground py-12 text-center text-sm"
                 >
                   {t("promptAssistant.categories.empty")}
@@ -122,6 +166,8 @@ export function CategoriesTable({
             {!isLoading
               ? filteredItems.map((category, index) => {
                   const isActive = category.status === PROMPT_STATUS.ACTIVE;
+                  const displayKind = getCategoryDisplayKind(category.tags);
+                  const isStyle = displayKind === PROMPT_DISPLAY_KIND.STYLE;
                   return (
                     <TableRow key={category.uuid}>
                       <TableCell className="text-center">
@@ -152,6 +198,20 @@ export function CategoriesTable({
                           dir="ltr"
                         >
                           {category.systemKey || "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span
+                          className={cn(
+                            "inline-flex rounded-full border px-3 py-1 text-[10px] font-bold",
+                            isStyle
+                              ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                              : "border-primary/20 bg-primary/10 text-primary"
+                          )}
+                        >
+                          {isStyle
+                            ? t("promptAssistant.displayKind.style")
+                            : t("promptAssistant.displayKind.prompt")}
                         </span>
                       </TableCell>
                       <TableCell className="text-center">

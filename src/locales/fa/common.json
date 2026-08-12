@@ -1885,12 +1885,19 @@
       "editValues": "ویرایش گزینه‌ها",
       "configure": "تنظیم پارامترها",
       "saveOrder": "ذخیره ترتیب",
-      "cancelChanges": "لغو تغییرات ترتیب"
+      "cancelChanges": "لغو تغییرات ترتیب",
+      "bulkAssign": "اعمال گروهی"
+    },
+    "displayKind": {
+      "all": "همه",
+      "style": "استایل",
+      "prompt": "پرامپت"
     },
     "table": {
       "row": "ردیف",
       "title": "عنوان پارامتر (فارسی)",
       "systemKey": "کلید سیستم (System Key)",
+      "displayKind": "نوع نمایش",
       "options": "تعداد کل مقادیر",
       "optionsCount": "{{count}} گزینه",
       "status": "وضعیت نمایش",
@@ -1916,6 +1923,8 @@
       "systemKeyInvalid": "کلید سیستم فقط شامل حروف، عدد و _ باشد.",
       "icon": "آیکون",
       "iconPlaceholder": "انتخاب آیکون",
+      "displayKind": "نوع نمایش",
+      "displayKindPlaceholder": "استایل یا پرامپت",
       "defaultInactiveHint": "پارامتر جدید به‌صورت پیش‌فرض غیرفعال ایجاد می‌شود."
     },
     "valuesDialog": {
@@ -1956,8 +1965,17 @@
     "assignDialog": {
       "title": "مدیریت اولویت و فعال‌سازی: {{name}}",
       "description": "ترتیب نمایش پارامترها را تنظیم کرده و سوئیچ فعال بودن آن‌ها در کلاینت را مشخص کنید.",
+      "filterHint": "فیلتر نمایش لیست پارامترها",
       "empty": "هنوز پارامتری برای تخصیص وجود ندارد.",
       "save": "ثبت نهایی تنظیمات سرویس"
+    },
+    "bulkAssign": {
+      "title": "اعمال گروهی پارامترها به سرویس‌ها",
+      "description": "یک یا چند پارامتر (استایل/پرامپت) را همزمان به چند سرویس اضافه کنید.",
+      "services": "سرویس‌ها",
+      "categories": "پارامترها",
+      "selectedCount": "{{count}} انتخاب‌شده",
+      "submit": "افزودن به سرویس‌های انتخاب‌شده"
     },
     "deleteCategory": {
       "title": "حذف پارامتر",
@@ -1980,7 +1998,9 @@
       "promptDisabled": "گزینه غیرفعال شد",
       "promptUpdateFailed": "به‌روزرسانی گزینه ناموفق بود",
       "assignmentSaved": "تنظیمات سرویس ذخیره شد",
-      "assignmentSaveFailed": "ذخیره تنظیمات سرویس ناموفق بود"
+      "assignmentSaveFailed": "ذخیره تنظیمات سرویس ناموفق بود",
+      "bulkAssignmentSaved": "پارامترها به سرویس‌های انتخاب‌شده اضافه شد",
+      "bulkAssignmentSaveFailed": "اعمال گروهی ناموفق بود"
     },
     "errors": {
       "loadFailed": "بارگذاری اطلاعات دستیار پرامپت با خطا مواجه شد."

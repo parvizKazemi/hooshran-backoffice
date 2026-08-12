@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   assignCategoriesToService,
+  bulkAssignCategoriesToServices,
   createPrompt,
   createPromptCategory,
   deletePrompt,
@@ -16,6 +17,7 @@ import {
 } from "../api/service";
 import type {
   AssignCategoriesPayload,
+  BulkAssignCategoriesPayload,
   CreatePromptCategoryPayload,
   EditablePromptOption,
   PromptStatus,
@@ -42,7 +44,7 @@ export const platformServicesQueryKey = [
 export function usePromptCategories() {
   return useQuery({
     queryKey: promptCategoriesQueryKey,
-    queryFn: fetchPromptCategories,
+    queryFn: () => fetchPromptCategories(),
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -132,8 +134,15 @@ export function useToggleCategoryStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, status }: { uuid: string; status: PromptStatus }) =>
-      updatePromptCategory(uuid, { status }),
+    mutationFn: ({
+      uuid,
+      status,
+      tags,
+    }: {
+      uuid: string;
+      status: PromptStatus;
+      tags?: string[];
+    }) => updatePromptCategory(uuid, { status, tags }),
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: promptCategoriesQueryKey,
@@ -278,6 +287,27 @@ export function useAssignCategoriesToService() {
     onError: (error: Error) => {
       toast.error(
         error.message || t("promptAssistant.toasts.assignmentSaveFailed")
+      );
+    },
+  });
+}
+
+export function useBulkAssignCategoriesToServices() {
+  const { t } = useTranslation("common");
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: BulkAssignCategoriesPayload) =>
+      bulkAssignCategoriesToServices(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: serviceAssignmentsQueryKey,
+      });
+      toast.success(t("promptAssistant.toasts.bulkAssignmentSaved"));
+    },
+    onError: (error: Error) => {
+      toast.error(
+        error.message || t("promptAssistant.toasts.bulkAssignmentSaveFailed")
       );
     },
   });
