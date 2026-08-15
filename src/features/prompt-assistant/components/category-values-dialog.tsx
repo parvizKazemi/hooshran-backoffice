@@ -29,6 +29,7 @@ import {
   createEmptyPromptOption,
   promptToEditable,
 } from "../utils/prompt-assistant.helpers";
+import { FilterTagsField } from "./filter-tags-field";
 import { MultiMediaField } from "./multi-media-field";
 
 const EMPTY_PROMPTS: PromptItem[] = [];
@@ -194,6 +195,16 @@ export function CategoryValuesDialog({
                         placeholder={t(
                           "promptAssistant.valuesDialog.optionPromptPlaceholder"
                         )}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label>{t("promptAssistant.valuesDialog.filter")}</Label>
+                      <FilterTagsField
+                        value={option.filter}
+                        onChange={(filter) =>
+                          updateOption(option.localId, { filter })
+                        }
                       />
                     </div>
 

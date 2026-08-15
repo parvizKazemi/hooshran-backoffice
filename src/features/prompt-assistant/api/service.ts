@@ -110,6 +110,7 @@ export async function createPrompt(
     {
       ...payload,
       pictures: payload.pictures ?? [],
+      filter: payload.filter ?? [],
       status: payload.status ?? PROMPT_STATUS.ACTIVE,
     }
   );

@@ -49,6 +49,7 @@ export type PromptItem = {
   title: string;
   prompt: string;
   pictures: string[];
+  filter: string[];
   displayType: PromptDisplayType;
   status: PromptStatus;
   createdAt?: string;
@@ -106,6 +107,7 @@ export type CreatePromptPayload = {
   title: string;
   prompt: string;
   pictures?: string[];
+  filter?: string[];
   displayType?: PromptDisplayType;
   status?: PromptStatus;
 };
@@ -149,6 +151,7 @@ export type EditablePromptOption = {
   title: string;
   prompt: string;
   pictures: string[];
+  filter: string[];
   displayType: PromptDisplayType;
   status: PromptStatus;
 };

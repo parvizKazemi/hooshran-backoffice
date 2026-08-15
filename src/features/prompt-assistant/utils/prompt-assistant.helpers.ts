@@ -80,6 +80,23 @@ export function normalizeCategory(
   };
 }
 
+export function normalizePromptFilters(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+
+  const seen = new Set<string>();
+  const filters: string[] = [];
+
+  for (const item of raw) {
+    if (typeof item !== "string") continue;
+    const value = item.trim();
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    filters.push(value);
+  }
+
+  return filters;
+}
+
 export function normalizePrompt(raw: Record<string, unknown>): PromptItem {
   const pictures = Array.isArray(raw.pictures)
     ? raw.pictures.filter((item): item is string => typeof item === "string")
@@ -94,6 +111,7 @@ export function normalizePrompt(raw: Record<string, unknown>): PromptItem {
     title: String(raw.title ?? ""),
     prompt: String(raw.prompt ?? ""),
     pictures,
+    filter: normalizePromptFilters(raw.filter),
     displayType:
       raw.displayType === PROMPT_DISPLAY_TYPE.VIDEO
         ? PROMPT_DISPLAY_TYPE.VIDEO
@@ -173,6 +191,7 @@ export function promptToEditable(prompt: PromptItem): EditablePromptOption {
     title: prompt.title,
     prompt: prompt.prompt,
     pictures: [...prompt.pictures],
+    filter: [...(prompt.filter ?? [])],
     displayType: prompt.displayType,
     status: prompt.status,
   };
@@ -186,6 +205,7 @@ export function createEmptyPromptOption(
     title: "",
     prompt: "",
     pictures: [],
+    filter: [],
     displayType: PROMPT_DISPLAY_TYPE.PICTURE,
     status,
   };
@@ -196,6 +216,7 @@ export function buildPromptOptionPayload(option: EditablePromptOption) {
     title: option.title.trim(),
     prompt: option.prompt.trim(),
     pictures: option.pictures.filter(Boolean),
+    filter: normalizePromptFilters(option.filter),
     displayType: option.displayType,
     status: option.status ?? PROMPT_STATUS.ACTIVE,
   };
@@ -212,7 +233,8 @@ export function isSamePromptOption(
     a.prompt === b.prompt &&
     a.displayType === b.displayType &&
     a.status === b.status &&
-    a.pictures.join("|") === b.pictures.join("|")
+    a.pictures.join("|") === b.pictures.join("|") &&
+    a.filter.join("|") === b.filter.join("|")
   );
 }
 
