@@ -1851,7 +1851,8 @@
       "configure": "Configure Parameters",
       "saveOrder": "Save Order",
       "cancelChanges": "Discard Order Changes",
-      "bulkAssign": "Bulk Assign"
+      "bulkAssign": "Bulk Assign",
+      "manageFilters": "Manage Filters"
     },
     "displayKind": {
       "all": "All",
@@ -1903,7 +1904,7 @@
       "optionPromptPlaceholder": "cinematic lighting, god rays...",
       "filter": "Filters",
       "filterPlaceholder": "e.g. portrait",
-      "filterHint": "Press Enter or comma to add. Leave empty to show the option everywhere.",
+      "filterHint": "Choose from the defined filter list. Leave empty to show the option everywhere.",
       "filterRemoveAria": "Remove filter",
       "mediaType": "Media Preview Type",
       "picture": "Still Image",
@@ -1935,6 +1936,9 @@
       "title": "Priority and activation: {{name}}",
       "description": "Reorder parameters and toggle client visibility.",
       "filterHint": "Filter parameter list",
+      "serviceFiltersTitle": "Filters for this service",
+      "serviceFiltersHint": "Only selected filters will appear for this service on the client.",
+      "serviceFiltersSelected": "{{count}} filters active",
       "empty": "No parameters available to assign.",
       "save": "Save Service Settings"
     },
@@ -1973,6 +1977,35 @@
     },
     "errors": {
       "loadFailed": "Failed to load prompt assistant data."
+    }
+  },
+  "serviceFilters": {
+    "title": "Manage Filters",
+    "description": "View, create, edit or delete global filters, then assign them to each service.",
+    "add": "Add",
+    "placeholder": "e.g. portrait",
+    "searchPlaceholder": "Search filters...",
+    "loading": "Loading...",
+    "empty": "No filters defined yet.",
+    "assignEmpty": "Create at least one filter from Manage Filters first.",
+    "loadFailed": "Failed to load filters.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteTitle": "Delete filter",
+    "deleteDescription": "Remove «{{name}}» from the master list?",
+    "validation": {
+      "required": "Filter name is required.",
+      "duplicate": "This filter already exists."
+    },
+    "toasts": {
+      "created": "Filter added",
+      "createFailed": "Failed to add filter",
+      "updated": "Filter updated",
+      "updateFailed": "Failed to update filter",
+      "deleted": "Filter deleted",
+      "deleteFailed": "Failed to delete filter",
+      "serviceUpdateFailed": "Failed to save service filters"
     }
   },
   "discountCodes": {

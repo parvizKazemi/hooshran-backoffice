@@ -29,7 +29,11 @@ import {
   createEmptyPromptOption,
   promptToEditable,
 } from "../utils/prompt-assistant.helpers";
-import { FilterTagsField } from "./filter-tags-field";
+import {
+  EMPTY_FILTERS,
+  ServiceFiltersAssignList,
+  useMasterFilters,
+} from "@/features/filters";
 import { MultiMediaField } from "./multi-media-field";
 
 const EMPTY_PROMPTS: PromptItem[] = [];
@@ -51,6 +55,9 @@ export function CategoryValuesDialog({
     open ? categoryUuid : undefined
   );
   const saveMutation = useSaveCategoryPrompts();
+  const { data: masterFilters = EMPTY_FILTERS, isLoading: isFiltersLoading } =
+    useMasterFilters(open);
+  const allowedFilters = new Set(masterFilters);
   const [options, setOptions] = useState<EditablePromptOption[]>([]);
   const [baselineOptions, setBaselineOptions] = useState<
     EditablePromptOption[]
@@ -89,7 +96,10 @@ export function CategoryValuesDialog({
 
     await saveMutation.mutateAsync({
       categoryUuid,
-      options,
+      options: options.map((item) => ({
+        ...item,
+        filter: item.filter.filter((tag) => allowedFilters.has(tag)),
+      })),
       baselineOptions,
     });
     onOpenChange(false);
@@ -200,12 +210,18 @@ export function CategoryValuesDialog({
 
                     <div className="space-y-1.5">
                       <Label>{t("promptAssistant.valuesDialog.filter")}</Label>
-                      <FilterTagsField
+                      <ServiceFiltersAssignList
+                        idPrefix={`option-filter-${option.localId}`}
+                        filters={masterFilters}
                         value={option.filter}
                         onChange={(filter) =>
                           updateOption(option.localId, { filter })
                         }
+                        isLoading={isFiltersLoading}
                       />
+                      <p className="text-muted-foreground text-[11px]">
+                        {t("promptAssistant.valuesDialog.filterHint")}
+                      </p>
                     </div>
 
                     <div className="space-y-1.5">
@@ -300,7 +316,7 @@ export function CategoryValuesDialog({
           </Button>
           <Button
             type="button"
-            disabled={saveMutation.isPending || isLoading}
+            disabled={saveMutation.isPending || isLoading || isFiltersLoading}
             onClick={() => void handleSave()}
           >
             {saveMutation.isPending ? (

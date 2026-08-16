@@ -22,7 +22,7 @@ import {
   IconLoader2,
   IconSparkles,
 } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PROMPT_DISPLAY_KIND, PROMPT_DISPLAY_KIND_FILTER } from "../constants";
 import { useAssignCategoriesToService } from "../hooks/use-prompt-assistant";
@@ -37,6 +37,14 @@ import {
   getCategoryDisplayKind,
   moveItem,
 } from "../utils/prompt-assistant.helpers";
+import {
+  EMPTY_FILTERS,
+  ServiceFiltersAssignList,
+  useMasterFilters,
+  useServiceFilters,
+  useUpdateServiceFilters,
+} from "@/features/filters";
+import { isSameFilterList } from "@/features/filters/utils";
 
 const EMPTY_CATEGORIES: PromptCategory[] = [];
 
@@ -82,12 +90,32 @@ export function ServiceAssignDialog({
 }: ServiceAssignDialogProps) {
   const { t } = useTranslation("common");
   const assignMutation = useAssignCategoriesToService();
+  const updateServiceFilters = useUpdateServiceFilters();
   const [displayKindFilter, setDisplayKindFilter] =
     useState<PromptDisplayKindFilter>(PROMPT_DISPLAY_KIND_FILTER.ALL);
   const [assignmentOverrides, setAssignmentOverrides] = useState<
     Record<string, boolean>
   >({});
   const [orderOverrides, setOrderOverrides] = useState<string[] | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const filtersHydratedFor = useRef<string | null>(null);
+
+  const serviceUuid = row?.service.uuid;
+  const {
+    data: masterFilters = EMPTY_FILTERS,
+    isLoading: isMasterFiltersLoading,
+  } = useMasterFilters(open);
+  const {
+    data: assignedFilters = EMPTY_FILTERS,
+    isFetched: isServiceFiltersFetched,
+  } = useServiceFilters(serviceUuid, open && Boolean(serviceUuid));
+
+  useEffect(() => {
+    if (!open || !serviceUuid || !isServiceFiltersFetched) return;
+    if (filtersHydratedFor.current === serviceUuid) return;
+    filtersHydratedFor.current = serviceUuid;
+    setSelectedFilters(assignedFilters);
+  }, [assignedFilters, isServiceFiltersFetched, open, serviceUuid]);
 
   const activeCategories = useMemo(
     () => filterActiveCategories(categories),
@@ -135,6 +163,8 @@ export function ServiceAssignDialog({
       setAssignmentOverrides({});
       setOrderOverrides(null);
       setDisplayKindFilter(PROMPT_DISPLAY_KIND_FILTER.ALL);
+      setSelectedFilters([]);
+      filtersHydratedFor.current = null;
     }
     onOpenChange(nextOpen);
   };
@@ -155,8 +185,18 @@ export function ServiceAssignDialog({
       serviceUuid: row.service.uuid,
       assignments,
     });
+
+    if (!isSameFilterList(selectedFilters, assignedFilters)) {
+      await updateServiceFilters.mutateAsync({
+        uuid: row.service.uuid,
+        filters: selectedFilters,
+      });
+    }
+
     handleOpenChange(false);
   };
+
+  const isSaving = assignMutation.isPending || updateServiceFilters.isPending;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -199,7 +239,32 @@ export function ServiceAssignDialog({
           </Select>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-6 py-4">
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
+          <section className="space-y-3 rounded-2xl border p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold">
+                  {t("promptAssistant.assignDialog.serviceFiltersTitle")}
+                </p>
+                <p className="text-muted-foreground text-[11px]">
+                  {t("promptAssistant.assignDialog.serviceFiltersHint")}
+                </p>
+              </div>
+              <span className="bg-primary/10 text-primary border-primary/20 inline-flex rounded-full border px-3 py-1 text-[10px] font-bold">
+                {t("promptAssistant.assignDialog.serviceFiltersSelected", {
+                  count: selectedFilters.length,
+                })}
+              </span>
+            </div>
+            <ServiceFiltersAssignList
+              filters={masterFilters}
+              value={selectedFilters}
+              onChange={setSelectedFilters}
+              isLoading={isMasterFiltersLoading || !isServiceFiltersFetched}
+              disabled={isSaving}
+            />
+          </section>
+
           {visibleItems.length === 0 ? (
             <div className="text-muted-foreground rounded-2xl border border-dashed py-16 text-center text-xs">
               {t("promptAssistant.assignDialog.empty")}
@@ -311,19 +376,17 @@ export function ServiceAssignDialog({
           <Button
             type="button"
             variant="outline"
-            disabled={assignMutation.isPending}
+            disabled={isSaving}
             onClick={() => handleOpenChange(false)}
           >
             {t("promptAssistant.actions.cancel")}
           </Button>
           <Button
             type="button"
-            disabled={assignMutation.isPending}
+            disabled={isSaving}
             onClick={() => void handleSave()}
           >
-            {assignMutation.isPending ? (
-              <IconLoader2 className="size-4 animate-spin" />
-            ) : null}
+            {isSaving ? <IconLoader2 className="size-4 animate-spin" /> : null}
             {t("promptAssistant.assignDialog.save")}
           </Button>
         </DialogFooter>

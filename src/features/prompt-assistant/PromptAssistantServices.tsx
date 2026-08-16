@@ -3,12 +3,14 @@ import { Input } from "@/components/ui/input";
 import { SettingsPageHeader } from "@/features/user-settings/components/settings-page-header";
 import {
   IconAlertCircle,
+  IconFilter,
   IconLink,
   IconRefresh,
   IconSearch,
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiltersManagerDialog } from "@/features/filters";
 import { BulkAssignDialog } from "./components/bulk-assign-dialog";
 import { ServiceAssignDialog } from "./components/service-assign-dialog";
 import { ServiceAssignmentsTable } from "./components/service-assignments-table";
@@ -57,6 +59,7 @@ export default function PromptAssistantServices() {
     null
   );
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const rows = useMemo<ServiceAssignmentRow[]>(() => {
     const grouped = new Map<
@@ -116,6 +119,14 @@ export default function PromptAssistantServices() {
         <Button
           type="button"
           variant="secondary"
+          onClick={() => setIsFiltersOpen(true)}
+        >
+          <IconFilter className="size-4" />
+          {t("promptAssistant.actions.manageFilters")}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
           onClick={() => setIsBulkOpen(true)}
         >
           <IconLink className="size-4" />
@@ -155,6 +166,11 @@ export default function PromptAssistantServices() {
         }}
         row={selectedRow}
         categories={assignableCategories}
+      />
+
+      <FiltersManagerDialog
+        open={isFiltersOpen}
+        onOpenChange={setIsFiltersOpen}
       />
 
       <BulkAssignDialog
