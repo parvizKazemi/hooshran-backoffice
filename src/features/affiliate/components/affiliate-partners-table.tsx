@@ -24,7 +24,7 @@ type AffiliatePartnersTableProps = {
   partners: AffiliatePartner[];
   isLoading?: boolean;
   isToggling?: boolean;
-  togglingPartnerId?: number | null;
+  togglingPartnerId?: string | null;
   onToggleStatus: (partner: AffiliatePartner) => void;
 };
 

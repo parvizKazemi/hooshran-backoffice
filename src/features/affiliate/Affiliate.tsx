@@ -147,7 +147,11 @@ export default function Affiliate() {
               togglePartnerMutation.variables?.partnerId ?? null
             }
             onToggleStatus={(partner) =>
-              togglePartnerMutation.mutate({ partnerId: partner.id })
+              togglePartnerMutation.mutate({
+                partnerId: partner.id,
+                nextStatus:
+                  partner.status === "active" ? "SUSPENDED" : "ACTIVE",
+              })
             }
           />
         </TabsContent>

@@ -42,7 +42,7 @@ export type AffiliateAdminStats = {
 };
 
 export type AffiliatePayoutRequest = {
-  id: number;
+  id: string;
   affiliateName: string;
   affiliateCode: string;
   amount: number;
@@ -54,7 +54,7 @@ export type AffiliatePayoutRequest = {
 };
 
 export type AffiliatePartner = {
-  id: number;
+  id: string;
   name: string;
   code: string;
   buyersCount: number;
@@ -96,15 +96,16 @@ export type AffiliateAdminDashboard = {
 export type AffiliatePayoutFilter = AffiliatePayoutStatus | "all";
 
 export type ApproveAffiliatePayoutPayload = {
-  payoutId: number;
+  payoutId: string;
   payaTrackingCode: string;
 };
 
 export type RejectAffiliatePayoutPayload = {
-  payoutId: number;
+  payoutId: string;
   reason: string;
 };
 
 export type ToggleAffiliatePartnerPayload = {
-  partnerId: number;
+  partnerId: string;
+  nextStatus: "ACTIVE" | "SUSPENDED";
 };

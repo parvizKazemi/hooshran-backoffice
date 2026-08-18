@@ -176,6 +176,36 @@ export function mapAffiliateAdminDashboard(
   };
 }
 
+export function mapAccountStatusToUi(
+  status: unknown
+): AffiliatePartner["status"] {
+  if (status === "SUSPENDED" || status === "suspended") {
+    return AFFILIATE_PARTNER_STATUSES.suspended;
+  }
+  return AFFILIATE_PARTNER_STATUSES.active;
+}
+
+export function mapPayoutStatusToUi(
+  status: unknown
+): AffiliatePayoutRequest["status"] {
+  if (status === "PAID" || status === "paid" || status === "APPROVED") {
+    return AFFILIATE_PAYOUT_STATUSES.paid;
+  }
+  if (status === "REJECTED" || status === "rejected") {
+    return AFFILIATE_PAYOUT_STATUSES.rejected;
+  }
+  return AFFILIATE_PAYOUT_STATUSES.pending;
+}
+
+export function mapCommissionStatusToUi(
+  status: unknown
+): AffiliateCommissionLog["status"] {
+  if (status === "AVAILABLE" || status === "available") {
+    return AFFILIATE_COMMISSION_STATUSES.available;
+  }
+  return AFFILIATE_COMMISSION_STATUSES.pending;
+}
+
 export function filterAffiliatePayouts(
   payouts: AffiliatePayoutRequest[],
   status: AffiliatePayoutRequest["status"] | "all"

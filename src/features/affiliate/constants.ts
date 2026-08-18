@@ -1,15 +1,17 @@
 export const AFFILIATE_ADMIN_QUERY_KEY = "affiliate-admin-dashboard";
 
 export const AFFILIATE_ADMIN_ENDPOINTS = {
-  dashboard: "/admin/affiliate/dashboard",
-  payouts: "/admin/affiliate/payouts",
-  approvePayout: (id: number) => `/admin/affiliate/payouts/${id}/approve`,
-  rejectPayout: (id: number) => `/admin/affiliate/payouts/${id}/reject`,
-  partners: "/admin/affiliate/partners",
-  togglePartner: (id: number) =>
-    `/admin/affiliate/partners/${id}/toggle-status`,
+  accounts: "/admin/affiliate/accounts",
+  payoutRequests: "/admin/affiliate/payout-requests",
+  approvePayoutRequest: (uuid: string) =>
+    `/admin/affiliate/payout-requests/${uuid}/approve`,
+  rejectPayoutRequest: (uuid: string) =>
+    `/admin/affiliate/payout-requests/${uuid}/reject`,
+  updateAccountStatus: (uuid: string) =>
+    `/admin/affiliate/accounts/${uuid}/status`,
   commissions: "/admin/affiliate/commissions",
-  rules: "/admin/affiliate/rules",
+  config: "/admin/affiliate/config",
+  reports: "/admin/affiliate/reports",
 } as const;
 
 export const AFFILIATE_DEFAULT_RULES = {
