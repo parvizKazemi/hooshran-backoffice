@@ -65,7 +65,11 @@ function readNumber(
 function mapAccounts(raw: unknown): AffiliatePartner[] {
   return asArray(raw).map((item, index) => ({
     id: readString(item, ["uuid", "id"], `affiliate-${index}`),
-    name: readString(item, ["fullName", "name", "accountHolderName"], "—"),
+    name: readString(
+      item,
+      ["userFullName", "fullName", "name", "accountHolderName"],
+      "—"
+    ),
     code: readString(
       item,
       ["discountCode", "discount_code", "affiliateCode", "affiliate_code"],
@@ -123,7 +127,7 @@ function mapCommissions(raw: unknown): AffiliateCommissionLog[] {
     affiliateName: readString(item, ["affiliateName", "affiliate_name"], "—"),
     buyerName: readString(
       item,
-      ["buyerMaskedName", "buyerName", "buyer_name"],
+      ["buyerUserFullName", "buyerMaskedName", "buyerName", "buyer_name"],
       "—"
     ),
     purchaseType:
@@ -240,7 +244,7 @@ export async function rejectAffiliatePayout(
 ): Promise<AffiliateAdminDashboard> {
   await apiPost(
     AFFILIATE_ADMIN_ENDPOINTS.rejectPayoutRequest(payload.payoutId),
-    { reason: payload.reason }
+    { rejectionReason: payload.reason }
   );
   return fetchAffiliateAdminDashboard();
 }
@@ -259,15 +263,12 @@ export async function saveAffiliateProgramRules(
   rules: AffiliateProgramRules
 ): Promise<AffiliateAdminDashboard> {
   await apiPut(AFFILIATE_ADMIN_ENDPOINTS.config, {
-    firstCommissionRate: rules.firstCommissionRate,
-    capAmount: rules.capAmount,
-    renewalCommissionRate: rules.renewalCommissionRate,
-    renewalSunsetDays: rules.renewalSunsetDays,
-    holdDays: rules.holdDays,
+    firstPurchasePercentage: rules.firstCommissionRate,
+    transactionCap: rules.capAmount,
+    renewalPercentage: rules.renewalCommissionRate,
+    cookieDurationDays: rules.renewalSunsetDays,
+    holdPeriodDays: rules.holdDays,
     minPayoutAmount: rules.minPayoutAmount,
-    // Compat aliases for older dto names
-    commission: rules.firstCommissionRate,
-    renewalCommission: rules.renewalCommissionRate,
   });
 
   return fetchAffiliateAdminDashboard();
