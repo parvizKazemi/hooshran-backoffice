@@ -45,7 +45,7 @@ export function AffiliateCommissionsTable({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableRow className="bg-muted/40 hover:bg-muted/40 *:text-start">
               <TableHead className="text-xs font-bold">
                 {t("affiliate.commissions.table.invoiceId")}
               </TableHead>
