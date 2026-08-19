@@ -124,7 +124,11 @@ function mapCommissions(raw: unknown): AffiliateCommissionLog[] {
       ["paymentUuid", "invoiceId", "uuid", "id"],
       `invoice-${index}`
     ),
-    affiliateName: readString(item, ["affiliateName", "affiliate_name"], "—"),
+    affiliateName: readString(
+      item,
+      ["affiliateName", "affiliate_name", "affiliateUserFullName"],
+      "—"
+    ),
     buyerName: readString(
       item,
       ["buyerUserFullName", "buyerMaskedName", "buyerName", "buyer_name"],
