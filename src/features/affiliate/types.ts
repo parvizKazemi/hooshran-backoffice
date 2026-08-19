@@ -70,6 +70,7 @@ export type AffiliateCommissionLog = {
   purchaseType: AffiliatePurchaseType;
   paidAmount: number;
   commissionAmount: number;
+  commissionRate: number;
   isCapped?: boolean;
   status: AffiliateCommissionStatus;
   unlockDate: string;

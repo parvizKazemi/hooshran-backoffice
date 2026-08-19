@@ -140,6 +140,7 @@ function mapCommissions(raw: unknown): AffiliateCommissionLog[] {
       ["calculatedCommissionAmount", "calculated_commission_amount"],
       0
     ),
+    commissionRate: readNumber(item, ["commissionRate"], 0),
     isCapped: item.isCapped === true || item.is_capped === true,
     status: mapCommissionStatusToUi(item.status),
     unlockDate: readString(

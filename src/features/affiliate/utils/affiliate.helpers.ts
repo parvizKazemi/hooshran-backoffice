@@ -3,7 +3,6 @@ import {
   AFFILIATE_COMMISSION_STATUSES,
   AFFILIATE_PARTNER_STATUSES,
   AFFILIATE_PAYOUT_STATUSES,
-  AFFILIATE_PURCHASE_TYPES,
   type AffiliateAdminDashboard,
   type AffiliateAdminStats,
   type AffiliateCommissionLog,
@@ -228,14 +227,8 @@ export function filterAffiliatePartners(
   );
 }
 
-export function getPurchaseTypePercentLabel(
-  purchaseType: AffiliateCommissionLog["purchaseType"],
-  rules: AffiliateProgramRules
-): string {
-  if (purchaseType === AFFILIATE_PURCHASE_TYPES.firstPurchase) {
-    return `${rules.firstCommissionRate.toLocaleString("fa-IR")}٪`;
-  }
-  return `${rules.renewalCommissionRate.toLocaleString("fa-IR")}٪`;
+export function getPurchaseTypePercentLabel(commissionRate: number): string {
+  return `${commissionRate.toLocaleString("fa-IR")}٪`;
 }
 
 export function isPartnerActive(status: AffiliatePartner["status"]): boolean {

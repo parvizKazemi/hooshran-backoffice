@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { AffiliateCommissionLog, AffiliateProgramRules } from "../types";
+import type { AffiliateCommissionLog } from "../types";
 import {
   formatToman,
   getPurchaseTypePercentLabel,
@@ -19,13 +19,11 @@ import {
 
 type AffiliateCommissionsTableProps = {
   commissions: AffiliateCommissionLog[];
-  rules: AffiliateProgramRules;
   isLoading?: boolean;
 };
 
 export function AffiliateCommissionsTable({
   commissions,
-  rules,
   isLoading,
 }: AffiliateCommissionsTableProps) {
   const { t } = useTranslation("common");
@@ -114,14 +112,12 @@ export function AffiliateCommissionsTable({
                       {item.purchaseType === "first_purchase"
                         ? t("affiliate.commissions.types.firstPurchase", {
                             percent: getPurchaseTypePercentLabel(
-                              item.purchaseType,
-                              rules
+                              item.commissionRate
                             ),
                           })
                         : t("affiliate.commissions.types.renewal", {
                             percent: getPurchaseTypePercentLabel(
-                              item.purchaseType,
-                              rules
+                              item.commissionRate
                             ),
                           })}
                     </Badge>

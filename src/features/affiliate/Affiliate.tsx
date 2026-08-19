@@ -159,7 +159,6 @@ export default function Affiliate() {
         <TabsContent value="commissions">
           <AffiliateCommissionsTable
             commissions={data?.commissions ?? []}
-            rules={rules}
             isLoading={isLoading}
           />
         </TabsContent>
