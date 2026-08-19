@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { AffiliateCommissionLog } from "../types";
 import {
+  formatAffiliateDate,
   formatToman,
   getPurchaseTypePercentLabel,
   isCommissionAvailable,
@@ -148,7 +149,7 @@ export function AffiliateCommissionsTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">
-                    {item.unlockDate}
+                    {formatAffiliateDate(item.unlockDate)}
                   </TableCell>
                 </TableRow>
               ))

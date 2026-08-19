@@ -23,6 +23,13 @@ export function formatCount(value: number): string {
   return value.toLocaleString("fa-IR");
 }
 
+export function formatAffiliateDate(value: string): string {
+  if (!value || value === "—") return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("fa-IR");
+}
+
 function readNumber(
   source: Record<string, unknown>,
   keys: readonly string[],
