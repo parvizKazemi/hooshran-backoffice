@@ -16,7 +16,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function formatToman(value: number): string {
-  return `${Math.round(value).toLocaleString("fa-IR")} تومان`;
+  const toman = Math.round(value / 10);
+  return `${toman.toLocaleString("fa-IR")} تومان`;
 }
 
 export function formatCount(value: number): string {
