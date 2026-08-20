@@ -68,7 +68,7 @@ export const AffiliateStatsCards = memo(function AffiliateStatsCards({
       unit: t("affiliate.stats.personUnit"),
       hint: stats
         ? t("affiliate.stats.marketersThisMonth", {
-            count: stats.marketersWithSalesThisMonth.toLocaleString("fa-IR"),
+            count: stats.marketersWithSalesThisMonth,
           })
         : "",
       icon: IconUsers,
