@@ -47,6 +47,7 @@
     "search": "جستجو",
     "notifications": "اعلانات",
     "monitoring": "مانیتورینگ",
+    "affiliate": "مدیریت افیلیت",
     "paymentGateways": "درگاه پرداخت",
     "transactions": "تراکنش‌ها",
     "tickets": "تیکت‌ها",
@@ -2391,6 +2392,147 @@
       "FRONTEND": "فرانت",
       "BACKEND": "بک‌اند",
       "SYSTEM": "سیستم"
+    }
+  },
+  "affiliate": {
+    "title": "مدیریت افیلیت و همکاری در فروش",
+    "description": "مدیریت تسویه‌حساب، همکاران فروش، لاگ پورسانت‌ها و قوانین سیستم",
+    "headerTitle": "پنل مدیریت افیلیت (مدیریت کل)",
+    "headerDescription": "فعلاً داده‌ها از mock محلی بارگذاری می‌شوند؛ پس از آماده شدن API جایگزین می‌شوند.",
+    "antiFraudActive": "سیستم ضد تقلب فعال",
+    "tabs": {
+      "payouts": "درخواست‌های تسویه‌حساب",
+      "partners": "مدیریت همکاران فروش",
+      "commissions": "لاگ تمام پورسانت‌ها",
+      "rules": "تنظیمات عمومی و قوانین افیلیت"
+    },
+    "stats": {
+      "pendingPayouts": "درخواست‌های در انتظار تسویه",
+      "totalPaid": "کل پورسانت‌های واریزشده",
+      "totalPaidHint": "تسویه‌شده از طریق پایا",
+      "generatedSales": "فروش ایجادشده توسط افیلیت‌ها",
+      "generatedSalesHint": "درآمد خالص شاپرکی جذب‌شده",
+      "activePartners": "همکاران فروش فعال",
+      "personUnit": "نفر",
+      "marketersThisMonth": "{{count}} بازاریاب دارای فروش در این ماه"
+    },
+    "payouts": {
+      "title": "درخواست‌های تسویه‌حساب ریالی (پایا)",
+      "description": "تطبیق نام صاحب شبا با مدارک و ثبت شماره پیگیری پایا الزامی است.",
+      "empty": "هیچ درخواست تسویه‌حسابی در این وضعیت یافت نشد.",
+      "filters": {
+        "all": "همه وضعیت‌ها",
+        "pending": "در انتظار تسویه (Pending)",
+        "paid": "واریزشده (Paid)",
+        "rejected": "ردشده (Rejected)"
+      },
+      "table": {
+        "affiliate": "همکار فروش",
+        "amount": "مبلغ درخواستی",
+        "sheba": "شماره شبا و حساب",
+        "nameMatch": "تطبیق هویتی",
+        "status": "وضعیت",
+        "requestedAt": "تاریخ درخواست",
+        "actions": "عملیات ادمین"
+      },
+      "nameMatch": {
+        "ok": "تطبیق کامل",
+        "mismatch": "مغایرت نام"
+      },
+      "status": {
+        "pending": "در انتظار تسویه",
+        "paid": "واریزشده ({{code}})",
+        "rejected": "ردشده"
+      },
+      "actions": {
+        "approve": "تایید و واریز",
+        "reject": "رد",
+        "completed": "تکمیل‌شده"
+      }
+    },
+    "partners": {
+      "title": "لیست و وضعیت همکاران فروش",
+      "description": "مشاهده عملکرد، کد اختصاصی و کنترل دسترسی بازاریابان.",
+      "searchPlaceholder": "جستجو بر اساس نام یا کد...",
+      "empty": "همکار فروشی یافت نشد.",
+      "table": {
+        "name": "نام همکار",
+        "code": "کد تخفیف",
+        "buyers": "خریداران موفق",
+        "totalEarned": "کل درآمد تاریخ",
+        "availableBalance": "موجودی فعلی",
+        "status": "وضعیت دسترسی",
+        "actions": "مدیریت"
+      },
+      "status": {
+        "active": "فعال",
+        "suspended": "مسدودشده"
+      },
+      "actions": {
+        "suspend": "مسدودسازی",
+        "activate": "فعال‌سازی"
+      }
+    },
+    "commissions": {
+      "title": "لاگ دقیق محاسبه پورسانت‌ها (Audit Log)",
+      "description": "ثبت ریز فاکتورها، سنجش سقف و آزادسازی دوره‌ای.",
+      "empty": "پورسانتی ثبت نشده است.",
+      "capped": "سقف",
+      "table": {
+        "invoiceId": "شناسه فاکتور",
+        "affiliate": "همکار فروش",
+        "buyer": "خریدار ارجاعی",
+        "purchaseType": "نوع خرید",
+        "paidAmount": "مبلغ شاپرکی",
+        "commission": "پورسانت محاسبه‌شده",
+        "releaseStatus": "وضعیت آزادشدن",
+        "unlockDate": "تاریخ آزادسازی"
+      },
+      "types": {
+        "firstPurchase": "خرید اول ({{percent}})",
+        "renewal": "تمدید ({{percent}})"
+      },
+      "status": {
+        "available": "Available",
+        "pending": "Pending"
+      }
+    },
+    "rules": {
+      "title": "تنظیمات پویا و پارامترهای اصلی افیلیت",
+      "description": "تغییر این مقادیر بلافاصله روی نرخ‌های محاسبه جدید اعمال خواهد شد.",
+      "save": "ذخیره تنظیمات افیلیت",
+      "firstCommissionRate": "درصد پورسانت خرید اول (%):",
+      "firstCommissionRateHint": "پیش‌فرض: ۲۰٪ از مبلغ خالص درگاه شاپرک",
+      "capAmount": "سقف ریالی پورسانت هر تراکنش (ریال):",
+      "capAmountHint": "حداکثر سقف پرداختی برای یک فاکتور اول",
+      "renewalCommissionRate": "درصد پورسانت تمدیدها (%):",
+      "renewalCommissionRateHint": "پورسانت خریدهای بعدی کاربر ارجاع‌شده",
+      "renewalSunsetDays": "مدت اعتبار پورسانت تمدید (روز):",
+      "renewalSunsetDaysHint": "مدت زمان سوددهی تمدید پس از اولین ثبت‌نام",
+      "holdDays": "مدت زمان دوره انتظار آزادسازی (روز):",
+      "holdDaysHint": "زمان قرنطینه عدم عودت فاکتور",
+      "minPayoutAmount": "حداقل مبلغ قابل درخواست تسویه‌حساب (ریال):",
+      "minPayoutAmountHint": "کف موجودی جهت ثبت درخواست تسویه‌حساب پایا"
+    },
+    "approveDialog": {
+      "title": "تایید و واریز درخواست پایا",
+      "subtitle": "همکار: {{name}}",
+      "amountLabel": "مبلغ واریزی:",
+      "trackingLabel": "شماره پیگیری بانک / حواله پایا *:",
+      "trackingPlaceholder": "مثال: PAYA-9982310",
+      "submit": "ثبت نهایی و علامت‌گذاری به عنوان واریزشده"
+    },
+    "rejectDialog": {
+      "title": "رد درخواست تسویه‌حساب",
+      "description": "مبلغ به حساب بازاریاب بازگردانده می‌شود.",
+      "reasonLabel": "دلیل رد درخواست (نمایش به بازاریاب):",
+      "submit": "رد درخواست و بازگشت موجودی"
+    },
+    "toasts": {
+      "approveSuccess": "درخواست تسویه با موفقیت تایید شد.",
+      "rejectSuccess": "درخواست تسویه رد شد.",
+      "partnerStatusUpdated": "وضعیت همکار فروش به‌روزرسانی شد.",
+      "rulesSaved": "تنظیمات افیلیت ذخیره شد."
     }
   }
 }

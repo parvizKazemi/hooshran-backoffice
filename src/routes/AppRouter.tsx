@@ -82,6 +82,7 @@ const ClearUserData = lazy(
   () => import("../features/clear-user-data/ClearUserData.tsx")
 );
 const Monitoring = lazy(() => import("../features/monitoring/Monitoring.tsx"));
+const Affiliate = lazy(() => import("../features/affiliate/Affiliate.tsx"));
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -263,6 +264,10 @@ const router = createBrowserRouter([
           {
             path: "/monitoring",
             element: <Monitoring />,
+          },
+          {
+            path: "/affiliate",
+            element: <Affiliate />,
           },
         ],
       },

@@ -95,6 +95,11 @@ function useSidebarData() {
         icon: IconActivityHeartbeat,
       },
       {
+        title: t("nav.affiliate"),
+        url: "/affiliate",
+        icon: IconCoins,
+      },
+      {
         title: t("nav.packages"),
         url: "/packages",
         icon: IconPackage,
@@ -251,6 +256,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/users-and-credits",
               "/notifications",
               "/monitoring",
+              "/affiliate",
               "/packages",
               "/user-settings",
               "/user-settings/welcome-packages",

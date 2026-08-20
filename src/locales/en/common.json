@@ -47,6 +47,7 @@
     "search": "Search",
     "notifications": "Notifications",
     "monitoring": "Monitoring",
+    "affiliate": "Affiliate Management",
     "paymentGateways": "Payment Gateways",
     "transactions": "Transactions",
     "tickets": "Tickets",
@@ -2356,6 +2357,147 @@
       "FRONTEND": "Frontend",
       "BACKEND": "Backend",
       "SYSTEM": "System"
+    }
+  },
+  "affiliate": {
+    "title": "Affiliate & Partner Sales Management",
+    "description": "Manage payouts, partners, commission audit logs, and program rules",
+    "headerTitle": "Global affiliate admin panel",
+    "headerDescription": "Data is currently loaded from local mock storage and will switch to API later.",
+    "antiFraudActive": "Anti-fraud system active",
+    "tabs": {
+      "payouts": "Payout requests",
+      "partners": "Partner management",
+      "commissions": "Commission audit log",
+      "rules": "Program rules"
+    },
+    "stats": {
+      "pendingPayouts": "Pending payout requests",
+      "totalPaid": "Total paid commissions",
+      "totalPaidHint": "Settled via PAYA",
+      "generatedSales": "Affiliate-attributed sales",
+      "generatedSalesHint": "Net Shaparak revenue",
+      "activePartners": "Active partners",
+      "personUnit": "people",
+      "marketersThisMonth": "{{count}} marketers with sales this month"
+    },
+    "payouts": {
+      "title": "Rial payout requests (PAYA)",
+      "description": "SHEBA name verification and PAYA tracking code are required.",
+      "empty": "No payout requests found for this status.",
+      "filters": {
+        "all": "All statuses",
+        "pending": "Pending",
+        "paid": "Paid",
+        "rejected": "Rejected"
+      },
+      "table": {
+        "affiliate": "Partner",
+        "amount": "Requested amount",
+        "sheba": "SHEBA / account",
+        "nameMatch": "Identity match",
+        "status": "Status",
+        "requestedAt": "Requested at",
+        "actions": "Admin actions"
+      },
+      "nameMatch": {
+        "ok": "Full match",
+        "mismatch": "Name mismatch"
+      },
+      "status": {
+        "pending": "Pending payout",
+        "paid": "Paid ({{code}})",
+        "rejected": "Rejected"
+      },
+      "actions": {
+        "approve": "Approve & pay",
+        "reject": "Reject",
+        "completed": "Completed"
+      }
+    },
+    "partners": {
+      "title": "Partner directory",
+      "description": "Review performance, promo codes, and access control.",
+      "searchPlaceholder": "Search by name or code...",
+      "empty": "No partners found.",
+      "table": {
+        "name": "Partner name",
+        "code": "Promo code",
+        "buyers": "Successful buyers",
+        "totalEarned": "Lifetime earnings",
+        "availableBalance": "Current balance",
+        "status": "Access status",
+        "actions": "Manage"
+      },
+      "status": {
+        "active": "Active",
+        "suspended": "Suspended"
+      },
+      "actions": {
+        "suspend": "Suspend",
+        "activate": "Activate"
+      }
+    },
+    "commissions": {
+      "title": "Commission audit log",
+      "description": "Invoice-level commission records, caps, and release timing.",
+      "empty": "No commission records found.",
+      "capped": "cap hit",
+      "table": {
+        "invoiceId": "Invoice ID",
+        "affiliate": "Partner",
+        "buyer": "Referred buyer",
+        "purchaseType": "Purchase type",
+        "paidAmount": "Gateway amount",
+        "commission": "Calculated commission",
+        "releaseStatus": "Release status",
+        "unlockDate": "Unlock date"
+      },
+      "types": {
+        "firstPurchase": "First purchase ({{percent}})",
+        "renewal": "Renewal ({{percent}})"
+      },
+      "status": {
+        "available": "Available",
+        "pending": "Pending"
+      }
+    },
+    "rules": {
+      "title": "Dynamic affiliate program rules",
+      "description": "Changes apply immediately to new commission calculations.",
+      "save": "Save affiliate settings",
+      "firstCommissionRate": "First purchase commission (%):",
+      "firstCommissionRateHint": "Default: 20% of net gateway amount",
+      "capAmount": "Per-transaction commission cap (Toman):",
+      "capAmountHint": "Maximum payout for a first invoice",
+      "renewalCommissionRate": "Renewal commission (%):",
+      "renewalCommissionRateHint": "Commission on subsequent referred purchases",
+      "renewalSunsetDays": "Renewal commission window (days):",
+      "renewalSunsetDaysHint": "How long renewals stay commissionable",
+      "holdDays": "Release hold period (days):",
+      "holdDaysHint": "Chargeback protection hold period",
+      "minPayoutAmount": "Minimum payout request amount (Toman):",
+      "minPayoutAmountHint": "Minimum balance required for PAYA payout"
+    },
+    "approveDialog": {
+      "title": "Approve PAYA payout",
+      "subtitle": "Partner: {{name}}",
+      "amountLabel": "Payout amount:",
+      "trackingLabel": "Bank / PAYA tracking code *:",
+      "trackingPlaceholder": "Example: PAYA-9982310",
+      "submit": "Mark as paid"
+    },
+    "rejectDialog": {
+      "title": "Reject payout request",
+      "description": "The amount will be returned to the partner balance.",
+      "reasonLabel": "Rejection reason (shown to partner):",
+      "submit": "Reject and restore balance"
+    },
+    "toasts": {
+      "approveSuccess": "Payout approved successfully.",
+      "rejectSuccess": "Payout rejected.",
+      "partnerStatusUpdated": "Partner status updated.",
+      "rulesSaved": "Affiliate rules saved."
     }
   }
 }
