@@ -77,7 +77,12 @@ function mapAccounts(raw: unknown): AffiliatePartner[] {
     ),
     buyersCount: readNumber(
       item,
-      ["referredBuyersCount", "buyersCount", "referred_buyers_count"],
+      [
+        "referredBuyersCount",
+        "buyersCount",
+        "referred_buyers_count",
+        "succesBuyerUserCount",
+      ],
       0
     ),
     totalEarned: readNumber(item, ["totalEarned", "total_earned"], 0),
