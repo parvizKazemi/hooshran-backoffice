@@ -2425,6 +2425,7 @@
       "empty": "No partners found.",
       "table": {
         "name": "Partner name",
+        "phone": "Phone",
         "code": "Promo code",
         "buyers": "Successful buyers",
         "totalEarned": "Lifetime earnings",

@@ -29,7 +29,7 @@ const RULE_FIELDS: RuleField[] = [
     hintKey: "affiliate.rules.firstCommissionRateHint",
     toneClass: "text-emerald-600 dark:text-emerald-400",
     min: 1,
-    max: 50,
+    max: 100,
   },
   {
     key: "capAmount",
@@ -44,7 +44,7 @@ const RULE_FIELDS: RuleField[] = [
     hintKey: "affiliate.rules.renewalCommissionRateHint",
     toneClass: "text-indigo-600 dark:text-indigo-400",
     min: 1,
-    max: 30,
+    max: 100,
   },
   {
     key: "renewalSunsetDays",
@@ -60,7 +60,7 @@ const RULE_FIELDS: RuleField[] = [
     hintKey: "affiliate.rules.holdDaysHint",
     toneClass: "text-amber-600 dark:text-amber-400",
     min: 1,
-    max: 30,
+    max: 90,
   },
   {
     key: "minPayoutAmount",

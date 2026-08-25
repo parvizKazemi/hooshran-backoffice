@@ -70,6 +70,7 @@ function mapAccounts(raw: unknown): AffiliatePartner[] {
       ["userFullName", "fullName", "name", "accountHolderName"],
       "—"
     ),
+    phone: readString(item, ["userPhone"], "—"),
     code: readString(
       item,
       ["discountCode", "discount_code", "affiliateCode", "affiliate_code"],

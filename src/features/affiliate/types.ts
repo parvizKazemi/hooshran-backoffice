@@ -56,6 +56,7 @@ export type AffiliatePayoutRequest = {
 export type AffiliatePartner = {
   id: string;
   name: string;
+  phone: string;
   code: string;
   buyersCount: number;
   totalEarned: number;

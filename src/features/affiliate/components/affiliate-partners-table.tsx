@@ -75,6 +75,9 @@ export function AffiliatePartnersTable({
                 {t("affiliate.partners.table.name")}
               </TableHead>
               <TableHead className="text-xs font-bold">
+                {t("affiliate.partners.table.phone")}
+              </TableHead>
+              <TableHead className="text-xs font-bold">
                 {t("affiliate.partners.table.code")}
               </TableHead>
               <TableHead className="text-xs font-bold">
@@ -119,6 +122,9 @@ export function AffiliatePartnersTable({
                 <TableRow key={item.id} className="hover:bg-muted/30">
                   <TableCell className="text-xs font-bold">
                     {item.name}
+                  </TableCell>
+                  <TableCell className="text-xs font-bold">
+                    {item.phone}
                   </TableCell>
                   <TableCell className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
                     {item.code}
