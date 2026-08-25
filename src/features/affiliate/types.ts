@@ -74,6 +74,8 @@ export type AffiliateCommissionLog = {
   isCapped?: boolean;
   status: AffiliateCommissionStatus;
   unlockDate: string;
+  affiliateUserPhone: string;
+  buyerUserPhone: string;
 };
 
 /** Backend program rules — field names may change; mapper handles aliases. */

@@ -2449,7 +2449,9 @@
       "table": {
         "invoiceId": "Invoice ID",
         "affiliate": "Partner",
+        "affiliatePhone": "Partner phone",
         "buyer": "Referred buyer",
+        "buyerPhone": "Buyer phone",
         "purchaseType": "Purchase type",
         "paidAmount": "Gateway amount",
         "commission": "Calculated commission",
@@ -2463,7 +2465,8 @@
       "status": {
         "available": "Available",
         "pending": "Pending"
-      }
+      },
+      "invoiceIdCopied": "Invoice ID copied."
     },
     "rules": {
       "title": "Dynamic affiliate program rules",

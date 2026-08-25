@@ -17,6 +17,7 @@ import {
   getPurchaseTypePercentLabel,
   isCommissionAvailable,
 } from "../utils/affiliate.helpers";
+import { toast } from "sonner";
 
 type AffiliateCommissionsTableProps = {
   commissions: AffiliateCommissionLog[];
@@ -52,7 +53,13 @@ export function AffiliateCommissionsTable({
                 {t("affiliate.commissions.table.affiliate")}
               </TableHead>
               <TableHead className="text-xs font-bold">
+                {t("affiliate.commissions.table.affiliatePhone")}
+              </TableHead>
+              <TableHead className="text-xs font-bold">
                 {t("affiliate.commissions.table.buyer")}
+              </TableHead>
+              <TableHead className="text-xs font-bold">
+                {t("affiliate.commissions.table.buyerPhone")}
               </TableHead>
               <TableHead className="text-xs font-bold">
                 {t("affiliate.commissions.table.purchaseType")}
@@ -94,13 +101,27 @@ export function AffiliateCommissionsTable({
             ) : (
               commissions.map((item) => (
                 <TableRow key={item.invoiceId} className="hover:bg-muted/30">
-                  <TableCell className="text-muted-foreground font-mono text-xs">
+                  <TableCell
+                    title={item.invoiceId}
+                    onClick={() => {
+                      // copy invoice id to clipboard
+                      navigator.clipboard.writeText(item.invoiceId);
+                      toast.success(t("affiliate.commissions.invoiceIdCopied"));
+                    }}
+                    className="text-muted-foreground hover:text-accent-1 max-w-[120px] cursor-pointer truncate font-mono text-xs"
+                  >
                     {item.invoiceId}
                   </TableCell>
                   <TableCell className="text-xs font-bold">
                     {item.affiliateName}
                   </TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">
+                    {item.affiliateUserPhone}
+                  </TableCell>
                   <TableCell className="text-xs">{item.buyerName}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">
+                    {item.buyerUserPhone}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"

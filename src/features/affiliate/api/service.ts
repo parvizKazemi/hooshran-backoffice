@@ -129,16 +129,10 @@ function mapCommissions(raw: unknown): AffiliateCommissionLog[] {
       ["paymentUuid", "invoiceId", "uuid", "id"],
       `invoice-${index}`
     ),
-    affiliateName: readString(
-      item,
-      ["affiliateName", "affiliate_name", "affiliateUserFullName"],
-      "—"
-    ),
-    buyerName: readString(
-      item,
-      ["buyerUserFullName", "buyerMaskedName", "buyerName", "buyer_name"],
-      "—"
-    ),
+    affiliateName: readString(item, ["affiliateUserFullName"], "—"),
+    buyerName: readString(item, ["buyerUserFullName"], "—"),
+    affiliateUserPhone: readString(item, ["affiliateUserPhone"], "—"),
+    buyerUserPhone: readString(item, ["buyerUserPhone"], "—"),
     purchaseType:
       item.isFirstPurchase === true || item.is_first_purchase === true
         ? "first_purchase"

@@ -2431,6 +2431,7 @@
       },
       "table": {
         "affiliate": "همکار فروش",
+        "affiliatePhone": "شماره موبایل همکار فروش",
         "amount": "مبلغ درخواستی",
         "sheba": "شماره شبا و حساب",
         "nameMatch": "تطبیق هویتی",
@@ -2484,7 +2485,9 @@
       "table": {
         "invoiceId": "شناسه فاکتور",
         "affiliate": "همکار فروش",
+        "affiliatePhone": "تلفن همکار",
         "buyer": "خریدار ارجاعی",
+        "buyerPhone": "تلفن خریدار",
         "purchaseType": "نوع خرید",
         "paidAmount": "مبلغ شاپرکی",
         "commission": "پورسانت محاسبه‌شده",
@@ -2498,7 +2501,8 @@
       "status": {
         "available": "Available",
         "pending": "Pending"
-      }
+      },
+      "invoiceIdCopied": "شناسه فاکتور کپی شد."
     },
     "rules": {
       "title": "تنظیمات پویا و پارامترهای اصلی افیلیت",
