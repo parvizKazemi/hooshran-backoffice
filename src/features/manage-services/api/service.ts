@@ -1,4 +1,4 @@
-import { apiGet, apiPut } from "@/services/api";
+import { apiGet, apiPost, apiPut } from "@/services/api";
 import type {
   CatalogServiceOption,
   ManageService,
@@ -874,4 +874,13 @@ export async function syncManageServicesChildrens(): Promise<SyncChildrensResult
     emptyParents,
     updatedParents,
   };
+}
+
+export type ReindexSearchResult = {
+  success?: boolean;
+  indexedCount?: number;
+};
+
+export async function reindexManageServicesSearch(): Promise<ReindexSearchResult> {
+  return apiPost<ReindexSearchResult>(MANAGE_SERVICES_ENDPOINTS.reindexSearch);
 }

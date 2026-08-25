@@ -1146,6 +1146,7 @@
       "edit": "ویرایش",
       "delete": "حذف",
       "syncChildrens": "همگام‌سازی فرزندان",
+      "reindexSearch": "بازسازی ایندکس جستجو (Meilisearch)",
       "cancelChanges": "انصراف",
       "saveAll": "ثبت تغییرات نهایی"
     },
@@ -1220,7 +1221,9 @@
       "customSaved": "ویرایش سرویس ذخیره شد",
       "childrensSynced": "{{updated}} سرویس والد از {{empty}} مورد نیاز (از {{total}} کل والد) همگام‌سازی شد",
       "childrensSyncNoChanges": "همه موارد قبلا همگام بوده‌اند (۰ از {{empty}} مورد نیاز، از {{total}} کل والد)",
-      "childrensSyncFailed": "همگام‌سازی فرزندان با خطا مواجه شد"
+      "childrensSyncFailed": "همگام‌سازی فرزندان با خطا مواجه شد",
+      "reindexSuccess": "ایندکس جستجو بازسازی شد ({{count}} سرویس)",
+      "reindexFailed": "بازسازی ایندکس جستجو با خطا مواجه شد"
     }
   },
   "userCredits": {

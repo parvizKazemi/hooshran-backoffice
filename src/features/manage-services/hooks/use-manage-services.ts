@@ -6,6 +6,7 @@ import {
   fetchManageServiceDetail,
   fetchManageServices,
   fetchManageServicesBatch,
+  reindexManageServicesSearch,
   syncManageServicesChildrens,
   syncManageServicesUpdateData,
   updateManageServiceCustomData,
@@ -243,4 +244,31 @@ export function useUpsertServiceCustomData(category?: string | null) {
 /** @deprecated use useUpsertServiceCustomData */
 export function useToggleManageServiceActive(category?: string | null) {
   return useUpsertServiceCustomData(category);
+}
+
+export function useReindexManageServicesSearch() {
+  const { t } = useTranslation("common");
+
+  return useMutation({
+    mutationFn: () => reindexManageServicesSearch(),
+    onSuccess: (result) => {
+      if (result?.success === false) {
+        toast.error(t("manageServices.toasts.reindexFailed"));
+        return;
+      }
+
+      toast.success(
+        t("manageServices.toasts.reindexSuccess", {
+          count: result?.indexedCount ?? 0,
+        })
+      );
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("manageServices.toasts.reindexFailed")
+      );
+    },
+  });
 }

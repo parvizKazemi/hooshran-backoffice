@@ -34,4 +34,6 @@ export const MANAGE_SERVICES_ENDPOINTS = {
    * External `/api/v1/models` sync only — NOT for admin catalog save.
    */
   updateData: "/admin/api-service/update-data",
+  /** POST → rebuild Meilisearch index from all API services */
+  reindexSearch: "/admin/api-services/reindex-search",
 } as const;

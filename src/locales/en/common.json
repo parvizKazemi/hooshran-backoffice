@@ -1107,6 +1107,7 @@
       "edit": "Edit",
       "delete": "Delete",
       "syncChildrens": "Sync children",
+      "reindexSearch": "Reindex search",
       "cancelChanges": "Cancel",
       "saveAll": "Save final changes"
     },
@@ -1181,7 +1182,9 @@
       "customSaved": "Service edits saved",
       "childrensSynced": "{{updated}} parent services synced out of {{empty}} required ({{total}} total parents)",
       "childrensSyncNoChanges": "No migration needed (0 of {{empty}} required, {{total}} total parents)",
-      "childrensSyncFailed": "Failed to sync children"
+      "childrensSyncFailed": "Failed to sync children",
+      "reindexSuccess": "Search index rebuilt ({{count}} services)",
+      "reindexFailed": "Failed to rebuild search index"
     }
   },
   "userCredits": {

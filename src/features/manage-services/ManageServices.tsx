@@ -12,6 +12,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   IconAlertCircle,
+  IconBuildingCarousel,
   IconDeviceFloppy,
   IconLayersSubtract,
   IconLoader2,
@@ -29,6 +30,7 @@ import { MANAGE_SERVICES_QUERY_KEY } from "./constants";
 import {
   useManageServiceDetail,
   useManageServices,
+  useReindexManageServicesSearch,
   useSaveManageServices,
   useSyncManageServicesChildrens,
   useUpsertServiceCustomData,
@@ -244,6 +246,7 @@ export default function ManageServices() {
   const saveServices = useSaveManageServices();
   const loadServiceDetail = useManageServiceDetail();
   const syncChildrens = useSyncManageServicesChildrens();
+  const reindexSearch = useReindexManageServicesSearch();
   const upsertCustomData = useUpsertServiceCustomData(categoryParam);
 
   useEffect(() => {
@@ -706,13 +709,28 @@ export default function ManageServices() {
 
   return (
     <div className="flex flex-col gap-6 px-4 lg:px-6">
-      <div>
-        <h1 className="text-2xl font-bold md:text-3xl">
-          {t("manageServices.title")}
-        </h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          {t("manageServices.description")}
-        </p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold md:text-3xl">
+            {t("manageServices.title")}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            {t("manageServices.description")}
+          </p>
+        </div>
+        <Button
+          className="shrink-0"
+          variant="outline"
+          disabled={reindexSearch.isPending}
+          onClick={() => reindexSearch.mutate()}
+        >
+          {reindexSearch.isPending ? (
+            <IconLoader2 className="size-4 animate-spin" />
+          ) : (
+            <IconBuildingCarousel className="size-4" />
+          )}
+          {t("manageServices.actions.reindexSearch")}
+        </Button>
       </div>
 
       {isDirty ? (
