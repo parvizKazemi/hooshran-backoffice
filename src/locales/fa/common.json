@@ -74,11 +74,15 @@
       "promptAssistant": "دستیار پرامپت",
       "promptAssistantServices": "دستیار پرامپت (سرویس)"
     },
+    "purchasePayments": {
+      "title": "مدیریت خرید و پرداخت‌ها",
+      "gateStatus": "وضعیت درگاه پرداخت",
+      "methods": "مدیریت روش‌های پرداخت"
+    },
     "userSettings": {
       "title": "تنظیمات کاربران",
       "freezeManagement": "مدیریت بحران و فریز اشتراک",
       "maintenanceMode": "حالت به‌روزرسانی سراسری",
-      "purchasePayments": "مدیریت خرید و پرداخت‌ها",
       "registrations": "مدیریت ثبت‌نام‌ها",
       "requestToolsGate": "قطع اضطراری ارسال درخواست",
       "welcomePackages": "مدیریت جذب و هدایای خوش‌آمدگویی",
@@ -307,8 +311,8 @@
     },
     "purchasePage": {
       "header": {
-        "title": "مدیریت خرید و پرداخت‌ها",
-        "description": "کنترل درگاه‌ها و دکمه‌های خرید در پنل کاربران"
+        "title": "وضعیت درگاه پرداخت",
+        "description": "قطع یا فعال‌سازی سراسری امکان خرید برای تمام کاربران"
       },
       "card": {
         "title": "وضعیت درگاه پرداخت",
@@ -782,6 +786,77 @@
     "toast": {
       "activated": "درگاه {{gateway}} فعال شد",
       "deactivated": "درگاه {{gateway}} غیرفعال شد"
+    }
+  },
+  "paymentMethods": {
+    "header": {
+      "title": "مدیریت روش‌ها و درگاه‌های پرداخت",
+      "description": "پیکربندی فعال‌سازی آنلاین، کارت‌به‌کارت (تایید تلگرام)، اقساط و تنظیمات کلیدهای ارتباطی."
+    },
+    "providers": {
+      "zarinpal": "درگاه زرین‌پال",
+      "zibal": "درگاه زیبال",
+      "snapppay": "اسنپ‌پی (SnappPay)"
+    },
+    "bankPortal": {
+      "title": "روش اول: پرداخت آنلاین (درگاه‌های شتاب)",
+      "description": "مدیریت درگاه‌های شاخص و انتخاب درگاه پیش‌فرض برای پاپ‌آپ",
+      "defaultProvider": "پیش‌فرض پاپ‌آپ کاربر",
+      "secondaryProvider": "درگاه ثانویه",
+      "merchantId": "مرچنت کد (Merchant ID)",
+      "merchantIdPlaceholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "merchantKey": "مرچنت کد زیبال (Merchant Key)",
+      "merchantKeyPlaceholder": "zibal_merchant_key",
+      "sandbox": "حالت سندباکس",
+      "defaultBadge": "پیش‌فرض",
+      "setDefault": "انتخاب به‌عنوان پیش‌فرض"
+    },
+    "cardToCard": {
+      "title": "روش دوم: کارت به کارت (با بررسی ادمین در تلگرام)",
+      "description": "تنظیمات شماره کارت مقصد و اتصال ربات تلگرامی بررسی رسیدها",
+      "bankInfoTitle": "اطلاعات حساب بانکی (جهت نمایش در پاپ‌آپ کاربر)",
+      "cardNumber": "شماره کارت (۱۶ رقمی)",
+      "cardNumberPlaceholder": "6037-9919-1234-5678",
+      "cardHolder": "نام صاحب حساب",
+      "cardHolderPlaceholder": "شرکت داده‌پردازان هوشران",
+      "bankName": "نام بانک",
+      "bankNamePlaceholder": "بانک ملی",
+      "iban": "شماره شبا",
+      "ibanPlaceholder": "IR820170000000123456789012",
+      "notifierTitle": "تنظیمات نوتیفایر ادمین (ارسال رسید و تایید سریع)",
+      "notifierHint": "پس از آپلود رسید توسط کاربر، عکس و شماره سفارش مستقیماً به کانال نوتیفایر ارسال می‌شود. ادمین با تایید، بسته را به‌صورت خودکار فعال می‌کند.",
+      "appSecret": "کلید امنیتی نوتیفایر (App Secret)",
+      "appSecretPlaceholder": "nk_live_system_default",
+      "recipient": "شناسه چت ادمین (Admin Chat ID)",
+      "recipientPlaceholder": "-100192837465",
+      "channel": "کانال نوتیفایر"
+    },
+    "installment": {
+      "title": "روش سوم: پرداخت اقساطی (سفته الکترونیک)",
+      "description": "اتصال به پلتفرم‌های اعتبارسنجی لندتک برای خرید اقساطی",
+      "defaultProvider": "ارائه‌دهنده سرویس اقساط",
+      "providerPlaceholder": "انتخاب ارائه‌دهنده",
+      "isDefault": "ارائه‌دهنده پیش‌فرض",
+      "providerHint": "فعال‌سازی این ارائه‌دهنده برای کاربران"
+    },
+    "actions": {
+      "cancel": "انصراف",
+      "save": "ذخیره تنظیمات پرداخت"
+    },
+    "aria": {
+      "toggleBankPortal": "فعال‌سازی پرداخت آنلاین",
+      "toggleCardToCard": "فعال‌سازی کارت به کارت",
+      "toggleInstallment": "فعال‌سازی پرداخت اقساطی",
+      "toggleProvider": "فعال‌سازی {{provider}}"
+    },
+    "errors": {
+      "bankPortalProviderRequired": "حداقل یک درگاه آنلاین باید فعال باشد.",
+      "defaultProviderMustBeEnabled": "درگاه پیش‌فرض باید فعال باشد.",
+      "cardInfoRequired": "برای کارت به کارت، شماره کارت، نام صاحب حساب و نام بانک الزامی است."
+    },
+    "toasts": {
+      "saved": "تنظیمات روش‌های پرداخت با موفقیت بروزرسانی شد.",
+      "saveFailed": "ذخیره تنظیمات روش‌های پرداخت با خطا مواجه شد."
     }
   },
   "tickets": {

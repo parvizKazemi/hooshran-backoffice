@@ -74,11 +74,15 @@
       "promptAssistant": "Prompt Assistant",
       "promptAssistantServices": "Prompt Assistant (Service)"
     },
+    "purchasePayments": {
+      "title": "Purchase & Payments",
+      "gateStatus": "Payment Gate Status",
+      "methods": "Payment Methods"
+    },
     "userSettings": {
       "title": "User Settings",
       "freezeManagement": "Crisis and Subscription Freeze",
       "maintenanceMode": "Global Maintenance Mode",
-      "purchasePayments": "Purchase and Payments",
       "registrations": "Registrations",
       "requestToolsGate": "Emergency Request Tools Gate",
       "welcomePackages": "Acquisition & Welcome Gifts",
@@ -303,8 +307,8 @@
     },
     "purchasePage": {
       "header": {
-        "title": "Purchase and Payments Management",
-        "description": "Control gateways and purchase buttons in user panel"
+        "title": "Payment Gate Status",
+        "description": "Globally enable or disable purchasing for all users"
       },
       "card": {
         "title": "Disable user purchase capability (Kill Switch)",
@@ -770,6 +774,77 @@
     "toast": {
       "activated": "Gateway {{gateway}} activated",
       "deactivated": "Gateway {{gateway}} deactivated"
+    }
+  },
+  "paymentMethods": {
+    "header": {
+      "title": "Payment Methods & Gateways",
+      "description": "Configure online gateways, card-to-card (Telegram review), installments, and notifier credentials."
+    },
+    "providers": {
+      "zarinpal": "ZarinPal Gateway",
+      "zibal": "Zibal Gateway",
+      "snapppay": "SnappPay"
+    },
+    "bankPortal": {
+      "title": "Method 1: Online Payment (Shetab Gateways)",
+      "description": "Manage primary gateways and choose the default provider for checkout",
+      "defaultProvider": "Default user checkout provider",
+      "secondaryProvider": "Secondary gateway",
+      "merchantId": "Merchant ID",
+      "merchantIdPlaceholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "merchantKey": "Zibal Merchant Key",
+      "merchantKeyPlaceholder": "zibal_merchant_key",
+      "sandbox": "Sandbox mode",
+      "defaultBadge": "Default",
+      "setDefault": "Set as default"
+    },
+    "cardToCard": {
+      "title": "Method 2: Card-to-Card (Admin Telegram Review)",
+      "description": "Configure destination card details and Telegram receipt review bot",
+      "bankInfoTitle": "Bank account details (shown in user checkout)",
+      "cardNumber": "Card number (16 digits)",
+      "cardNumberPlaceholder": "6037-9919-1234-5678",
+      "cardHolder": "Account holder name",
+      "cardHolderPlaceholder": "Hooshran Data Processors Co.",
+      "bankName": "Bank name",
+      "bankNamePlaceholder": "Melli Bank",
+      "iban": "IBAN",
+      "ibanPlaceholder": "IR820170000000123456789012",
+      "notifierTitle": "Admin notifier settings (receipt & quick approve)",
+      "notifierHint": "After the user uploads a slip, the image and order number are sent to the notifier channel. Approving activates the package automatically.",
+      "appSecret": "Notifier App Secret",
+      "appSecretPlaceholder": "nk_live_system_default",
+      "recipient": "Admin Chat ID",
+      "recipientPlaceholder": "-100192837465",
+      "channel": "Notifier channel"
+    },
+    "installment": {
+      "title": "Method 3: Installment (E-Promissory)",
+      "description": "Connect to landtech BNPL platforms for installment purchases",
+      "defaultProvider": "Installment provider",
+      "providerPlaceholder": "Select provider",
+      "isDefault": "Default provider",
+      "providerHint": "Enable this provider for users"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save payment settings"
+    },
+    "aria": {
+      "toggleBankPortal": "Toggle online payment",
+      "toggleCardToCard": "Toggle card-to-card",
+      "toggleInstallment": "Toggle installment payment",
+      "toggleProvider": "Toggle {{provider}}"
+    },
+    "errors": {
+      "bankPortalProviderRequired": "At least one online gateway must be enabled.",
+      "defaultProviderMustBeEnabled": "The default gateway must be enabled.",
+      "cardInfoRequired": "Card number, holder name, and bank name are required for card-to-card."
+    },
+    "toasts": {
+      "saved": "Payment methods settings updated successfully.",
+      "saveFailed": "Failed to save payment methods settings."
     }
   },
   "tickets": {

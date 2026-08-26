@@ -48,6 +48,9 @@ const UserFreezeSettings = lazy(
 const UserPurchasePaymentSettings = lazy(
   () => import("../features/user-settings/UserPurchasePaymentSettings.tsx")
 );
+const PaymentMethodsSettings = lazy(
+  () => import("../features/payment-methods/PaymentMethodsSettings.tsx")
+);
 const UserRegistrationSettings = lazy(
   () => import("../features/user-settings/UserRegistrationSettings.tsx")
 );
@@ -222,8 +225,16 @@ const router = createBrowserRouter([
             element: <MaintenanceModeSettings />,
           },
           {
-            path: "/user-settings/purchase-payments",
+            path: "/purchase-payments/gate-status",
             element: <UserPurchasePaymentSettings />,
+          },
+          {
+            path: "/purchase-payments/methods",
+            element: <PaymentMethodsSettings />,
+          },
+          {
+            path: "/user-settings/purchase-payments",
+            element: <Navigate to="/purchase-payments/gate-status" replace />,
           },
           {
             path: "/user-settings/registrations",

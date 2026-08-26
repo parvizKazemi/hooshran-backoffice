@@ -3,6 +3,7 @@ import {
   IconApi,
   IconBell,
   IconCoins,
+  IconCreditCard,
   IconInnerShadowTop,
   IconLogout,
   IconPackage,
@@ -110,6 +111,20 @@ function useSidebarData() {
         icon: IconTicket,
       },
       {
+        title: t("nav.purchasePayments.title"),
+        icon: IconCreditCard,
+        items: [
+          {
+            title: t("nav.purchasePayments.gateStatus"),
+            url: "/purchase-payments/gate-status",
+          },
+          {
+            title: t("nav.purchasePayments.methods"),
+            url: "/purchase-payments/methods",
+          },
+        ],
+      },
+      {
         title: t("nav.services.title"),
         icon: IconApi,
         items: [
@@ -150,10 +165,6 @@ function useSidebarData() {
           {
             title: t("nav.userSettings.requestToolsGate"),
             url: "/user-settings/request-tools-gate",
-          },
-          {
-            title: t("nav.userSettings.purchasePayments"),
-            url: "/user-settings/purchase-payments",
           },
           // {
           //   title: t("nav.userSettings.registrations"),
@@ -258,6 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/monitoring",
               "/affiliate",
               "/packages",
+              "/purchase-payments",
               "/user-settings",
               "/user-settings/welcome-packages",
               "/discount-codes",
