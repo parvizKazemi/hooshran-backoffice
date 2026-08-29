@@ -3,7 +3,7 @@ import {
   IconApi,
   IconBell,
   IconCoins,
-  IconCreditCard,
+  // IconCreditCard,
   IconInnerShadowTop,
   IconLogout,
   IconPackage,
@@ -110,20 +110,20 @@ function useSidebarData() {
         url: "/discount-codes",
         icon: IconTicket,
       },
-      {
-        title: t("nav.purchasePayments.title"),
-        icon: IconCreditCard,
-        items: [
-          {
-            title: t("nav.purchasePayments.gateStatus"),
-            url: "/purchase-payments/gate-status",
-          },
-          {
-            title: t("nav.purchasePayments.methods"),
-            url: "/purchase-payments/methods",
-          },
-        ],
-      },
+      // {
+      //   title: t("nav.purchasePayments.title"),
+      //   icon: IconCreditCard,
+      //   items: [
+      //     {
+      //       title: t("nav.purchasePayments.gateStatus"),
+      //       url: "/purchase-payments/gate-status",
+      //     },
+      //     {
+      //       title: t("nav.purchasePayments.methods"),
+      //       url: "/purchase-payments/methods",
+      //     },
+      //   ],
+      // },
       {
         title: t("nav.services.title"),
         icon: IconApi,
