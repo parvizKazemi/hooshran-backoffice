@@ -7,7 +7,6 @@ import {
   fetchManageServices,
   fetchManageServicesBatch,
   reindexManageServicesSearch,
-  syncManageServicesChildrens,
   syncManageServicesUpdateData,
   updateManageServiceCustomData,
 } from "../api/service";
@@ -99,46 +98,6 @@ export function useSaveManageServices() {
         error instanceof Error
           ? error.message
           : t("manageServices.toasts.saveFailed")
-      );
-    },
-  });
-}
-
-export function useSyncManageServicesChildrens() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation("common");
-
-  return useMutation({
-    mutationFn: () => syncManageServicesChildrens(),
-    onSuccess: async ({ updatedParents, scannedParents, emptyParents }) => {
-      await queryClient.invalidateQueries({
-        queryKey: MANAGE_SERVICES_QUERY_KEY,
-      });
-      if (updatedParents === 0) {
-        toast.info(
-          t("manageServices.toasts.childrensSyncNoChanges", {
-            empty: emptyParents,
-            total: scannedParents,
-          }),
-          { id: "manage-services-childrens-sync" }
-        );
-        return;
-      }
-
-      toast.success(
-        t("manageServices.toasts.childrensSynced", {
-          updated: updatedParents,
-          empty: emptyParents,
-          total: scannedParents,
-        }),
-        { id: "manage-services-childrens-sync" }
-      );
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("manageServices.toasts.childrensSyncFailed")
       );
     },
   });

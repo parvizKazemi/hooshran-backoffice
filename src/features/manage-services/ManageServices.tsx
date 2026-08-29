@@ -17,7 +17,6 @@ import {
   IconLayersSubtract,
   IconLoader2,
   IconPlus,
-  IconRefresh,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,7 +31,6 @@ import {
   useManageServices,
   useReindexManageServicesSearch,
   useSaveManageServices,
-  useSyncManageServicesChildrens,
   useUpsertServiceCustomData,
 } from "./hooks/use-manage-services";
 import type {
@@ -245,7 +243,6 @@ export default function ManageServices() {
 
   const saveServices = useSaveManageServices();
   const loadServiceDetail = useManageServiceDetail();
-  const syncChildrens = useSyncManageServicesChildrens();
   const reindexSearch = useReindexManageServicesSearch();
   const upsertCustomData = useUpsertServiceCustomData(categoryParam);
 
@@ -397,11 +394,6 @@ export default function ManageServices() {
         order: service.order,
       }));
   }, [catalogForPickers]);
-
-  const handleSyncChildrens = async () => {
-    if (syncChildrens.isPending) return;
-    await syncChildrens.mutateAsync();
-  };
 
   const handleCategoryFilterChange = (value: string) => {
     setCategoryFilter(value);
@@ -768,24 +760,6 @@ export default function ManageServices() {
               >
                 <IconPlus className="size-4" />
                 {t("manageServices.addService")}
-              </Button>
-              <Button
-                className="shrink-0"
-                variant="outline"
-                disabled={
-                  isDirty ||
-                  syncChildrens.isPending ||
-                  isLoading ||
-                  (isFetching && items.length === 0)
-                }
-                onClick={handleSyncChildrens}
-              >
-                {syncChildrens.isPending ? (
-                  <IconLoader2 className="size-4 animate-spin" />
-                ) : (
-                  <IconRefresh className="size-4" />
-                )}
-                {t("manageServices.actions.syncChildrens")}
               </Button>
             </div>
           </div>

@@ -6,7 +6,6 @@ import type {
 } from "../types";
 import { mapAdminApiServiceToManageService } from "@/features/manage-services/utils/map-admin-api-service";
 import {
-  getCreditDisplay,
   mapManageServiceToCustomData,
   normalizeServicesResponse,
   resolveParentSubmodelsFromCatalog,
@@ -219,10 +218,6 @@ function readChildrens(raw: Record<string, unknown>): unknown[] {
   const direct = raw.childrens;
   const candidate = information?.childrens ?? ui?.childrens ?? direct;
   return Array.isArray(candidate) ? candidate : [];
-}
-
-function hasChildrens(raw: Record<string, unknown>): boolean {
-  return readChildrens(raw).length > 0;
 }
 
 function resolveSubmodelsFromAcceptHint(
@@ -490,25 +485,6 @@ function resolveParentUuidFromChildrens(
   return undefined;
 }
 
-function areSubmodelListsEqual(
-  current: ServiceSubmodel[],
-  expected: ServiceSubmodel[]
-): boolean {
-  if (current.length !== expected.length) return false;
-  for (let index = 0; index < current.length; index += 1) {
-    const a = current[index];
-    const b = expected[index];
-    if (!a || !b) return false;
-    if (a.uuid !== b.uuid) return false;
-    if ((a.order ?? index + 1) !== (b.order ?? index + 1)) return false;
-    if ((a.slug || "").trim() !== (b.slug || "").trim()) return false;
-    if ((a.endpoint || "").trim() !== (b.endpoint || "").trim()) return false;
-    if (normalizeCostValue(a.cost) !== normalizeCostValue(b.cost)) return false;
-    if (a.isActive !== b.isActive) return false;
-  }
-  return true;
-}
-
 function normalizePlatformListResponse(
   response: unknown,
   manageRows: RawService[] = []
@@ -681,44 +657,6 @@ export async function syncManageServicesUpdateData(
   return results.map((item) => ({ ...item, isLocal: false }));
 }
 
-type SyncChildrensResult = {
-  scannedParents: number;
-  emptyParents: number;
-  updatedParents: number;
-};
-
-function resolveCatalogCost(item: ManageService): string | undefined {
-  const fromHint = normalizeCostValue(item.creditHint);
-  if (fromHint) return fromHint;
-
-  const displayCost = getCreditDisplay(item.cost);
-  if (displayCost !== "-") return displayCost;
-
-  return normalizeCostValue(item.cost);
-}
-
-function toCatalogOptions(
-  items: ManageService[],
-  options?: { endpointByUuid?: Map<string, string> }
-): CatalogServiceOption[] {
-  return items.map((item) => ({
-    uuid: item.uuid,
-    name: item.name,
-    slug: item.slug,
-    endpoint: options?.endpointByUuid?.get(item.uuid) ?? item.endpoint,
-    modelType: item.modelType,
-    description: item.description,
-    imageUrl: item.imageUrl,
-    creditHint: item.creditHint,
-    cost: resolveCatalogCost(item),
-    badge: item.badge,
-    isActive: item.isActive,
-    inactiveReason: item.inactiveReason,
-    order: item.order,
-    parentUuid: item.parentUuid,
-  }));
-}
-
 /**
  * Legacy fallback:
  * reads `inputs.service.frontend.accept_hint` and resolves children by catalog.
@@ -739,141 +677,6 @@ export async function fetchParentSubmodelsFromAcceptHint(
   );
   if (fromAcceptHint.length > 0) return fromAcceptHint;
   return resolveParentSubmodelsFromCatalog(parentUuid, catalog);
-}
-
-/** Backfill `metadata.ui.childrens` for multi-model services once. */
-export async function syncManageServicesChildrens(): Promise<SyncChildrensResult> {
-  const listResponse = await apiGet<unknown>(
-    MANAGE_SERVICES_ENDPOINTS.batchList
-  );
-  const rawList = extractRawServices(listResponse);
-  const adminListResponse = await apiGet<unknown>(
-    MANAGE_SERVICES_ENDPOINTS.platformListAll(PLATFORM_SERVICES_LIMIT)
-  );
-  const rawAdminList = extractRawServices(adminListResponse);
-  const adminServiceByUuid = new Map(
-    rawAdminList.flatMap((item) => {
-      const uuid = asString(item.uuid).trim();
-      return uuid
-        ? ([[uuid, mapAdminApiServiceToManageService(item)]] as const)
-        : [];
-    })
-  );
-  const endpointByUuid = new Map(
-    [...rawList, ...rawAdminList].flatMap((item) => {
-      const uuid = String(item.uuid ?? "");
-      const endpoint =
-        typeof item.endpoint === "string"
-          ? normalizeEndpoint(item.endpoint)
-          : "";
-      return uuid && endpoint ? ([[uuid, endpoint]] as const) : [];
-    })
-  );
-  const catalog = normalizeServicesResponse(
-    rawList.map((item) => {
-      const uuid = asString(item.uuid).trim();
-      return mapAdminApiServiceToManageService(
-        item,
-        uuid ? adminServiceByUuid.get(uuid) : undefined
-      );
-    })
-  );
-  const catalogOptions = toCatalogOptions(catalog, { endpointByUuid });
-  const parents = catalog.filter(
-    (item) => item.modelType === "multi" && !item.isLocal
-  );
-  const detailByUuid = new Map<string, Promise<ManageService>>();
-  const loadCatalogDetail = (uuid: string): Promise<ManageService> => {
-    const cached = detailByUuid.get(uuid);
-    if (cached) return cached;
-
-    const fallback = catalog.find((item) => item.uuid === uuid);
-    const request = apiGet<PlatformServiceDetail>(
-      MANAGE_SERVICES_ENDPOINTS.platformDetail(uuid)
-    ).then((response) =>
-      mapAdminApiServiceToManageService(unwrapServiceDetail(response), fallback)
-    );
-    detailByUuid.set(uuid, request);
-    return request;
-  };
-
-  const hydrateSubmodels = async (
-    submodels: ServiceSubmodel[]
-  ): Promise<ServiceSubmodel[]> =>
-    Promise.all(
-      submodels.map(async (submodel) => {
-        try {
-          const detail = await loadCatalogDetail(submodel.uuid);
-          const cost = resolveCatalogCost(detail);
-          return {
-            ...submodel,
-            name: detail.name || submodel.name,
-            description: detail.description || submodel.description,
-            slug: detail.slug || submodel.slug,
-            endpoint: detail.endpoint || submodel.endpoint,
-            imageUrl: detail.imageUrl || submodel.imageUrl,
-            creditHint:
-              normalizeCostValue(detail.creditHint) ??
-              cost ??
-              submodel.creditHint,
-            cost: cost ?? normalizeCostValue(submodel.cost),
-            badge: detail.badge,
-            isActive: detail.isActive,
-            inactiveReason: detail.inactiveReason,
-          };
-        } catch {
-          return submodel;
-        }
-      })
-    );
-
-  let updatedParents = 0;
-  let emptyParents = 0;
-
-  for (const parent of parents) {
-    const detailResponse = await apiGet<PlatformServiceDetail>(
-      MANAGE_SERVICES_ENDPOINTS.platformDetail(parent.uuid)
-    );
-    const rawDetail = unwrapServiceDetail(detailResponse);
-    if (!hasChildrens(rawDetail)) emptyParents += 1;
-
-    const acceptHintOptions = normalizeAcceptHint(readAcceptHint(rawDetail));
-
-    const expectedSubmodelsFromAcceptHint = resolveSubmodelsFromAcceptHint(
-      acceptHintOptions,
-      catalogOptions,
-      parent.uuid
-    );
-
-    const expectedSubmodelsFromCatalog = resolveParentSubmodelsFromCatalog(
-      parent.uuid,
-      catalogOptions
-    );
-
-    const resolvedSubmodels =
-      expectedSubmodelsFromAcceptHint.length > 0
-        ? expectedSubmodelsFromAcceptHint
-        : expectedSubmodelsFromCatalog;
-    const expectedSubmodels = await hydrateSubmodels(resolvedSubmodels);
-    if (expectedSubmodels.length === 0) continue;
-
-    const currentSubmodels = mapAdminApiServiceToManageService(
-      rawDetail,
-      parent
-    ).submodels;
-    if (areSubmodelListsEqual(currentSubmodels, expectedSubmodels)) continue;
-
-    await updateManageServiceCustomData(parent, {
-      submodels: expectedSubmodels,
-    });
-    updatedParents += 1;
-  }
-
-  return {
-    scannedParents: parents.length,
-    emptyParents,
-    updatedParents,
-  };
 }
 
 export type ReindexSearchResult = {
