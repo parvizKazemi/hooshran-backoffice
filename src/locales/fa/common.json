@@ -692,7 +692,11 @@
         "buttonText": "متن دکمه / لینک",
         "targetUrl": "URL مقصد",
         "mediaOptional": "رسانه",
-        "badge": "متن Badge"
+        "badge": "متن Badge",
+        "bannerVariant": "نوع بنر فوری",
+        "bannerVariantCritical": "قرمز — هشدار اضطراری",
+        "bannerVariantUpdate": "زرد — اطلاعیه مهم",
+        "bannerVariantNotice": "آبی — اطلاعیه عمومی"
       },
       "promotionalNotificationTypeWarning": "نوع نوتیفیکیشن به صورت خودکار به اطلاعیه تغییر کرده است"
     },

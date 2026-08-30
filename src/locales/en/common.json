@@ -680,7 +680,11 @@
         "buttonText": "Button / Link Text",
         "targetUrl": "Target URL",
         "mediaOptional": "Media (Optional)",
-        "badge": "Badge Text (Optional)"
+        "badge": "Badge Text (Optional)",
+        "bannerVariant": "Urgent Banner Style",
+        "bannerVariantCritical": "Red — Emergency",
+        "bannerVariantUpdate": "Amber — Important",
+        "bannerVariantNotice": "Blue — General Notice"
       },
       "promotionalNotificationTypeWarning": "Notification type has been automatically changed to information"
     },

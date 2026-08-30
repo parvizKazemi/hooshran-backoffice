@@ -68,6 +68,9 @@ type NotificationVisibility = {
 };
 const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
 const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
+const BANNER_VARIANT_VALUES = ["notice" , "update" , "critical"] as const;
+const DEFAULT_BANNER_VARIANT = "notice";
+
 const TEMPLATE_TRANSITION_SHARED_FIELDS = new Set([
   "title",
   "message",
@@ -76,6 +79,7 @@ const TEMPLATE_TRANSITION_SHARED_FIELDS = new Set([
   "button_text",
   "target_url",
   "changelog",
+  "variant",
 ]);
 const TARGETING_TEMPLATE_FIELDS = new Set([
   "urlTargets",
@@ -543,6 +547,15 @@ export function NotificationForm({
       if (!(metaDataData as Record<string, unknown>).targetMode) {
         setValue("metaData.data.targetMode", "all");
       }
+      const currentVariant = (metaDataData as Record<string, unknown>).variant;
+      if (
+        typeof currentVariant !== "string" ||
+        !BANNER_VARIANT_VALUES.includes(
+          currentVariant as (typeof BANNER_VARIANT_VALUES)[number]
+        )
+      ) {
+        setValue("metaData.data.variant", DEFAULT_BANNER_VARIANT);
+      }
       if (typeof targetGroupValue !== "string" || !targetGroupValue.trim()) {
         setValue("targetGroup", "ALL");
       }
@@ -644,9 +657,17 @@ export function NotificationForm({
       }
       const currentData = (data.metaData.data || {}) as Record<string, unknown>;
       const sanitizedData = stripLegacyTargetingFields(currentData);
+      const variant =
+        typeof sanitizedData.variant === "string" &&
+        BANNER_VARIANT_VALUES.includes(
+          sanitizedData.variant as (typeof BANNER_VARIANT_VALUES)[number]
+        )
+          ? sanitizedData.variant
+          : DEFAULT_BANNER_VARIANT;
 
       data.metaData.data = {
         ...sanitizedData,
+        variant,
         visibility: buildVisibilityFromRules(
           normalizedRules,
           targetMode !== "custom"
@@ -878,7 +899,35 @@ export function NotificationForm({
                 {t(field.label)}
                 {field.required && <span className="text-destructive"> *</span>}
               </FieldLabel>
-              {field.type === "textarea" ? (
+              {field.type === "select" ? (
+                <Select
+                  value={
+                    ((metaDataData as Record<string, unknown>)[
+                      field.name
+                    ] as string) ||
+                    field.options?.[0]?.value ||
+                    ""
+                  }
+                  onValueChange={(value) =>
+                    updateMetaDataField(field.name, value)
+                  }
+                  disabled={
+                    createNotification.isPending ||
+                    updateNotification.isPending
+                  }
+                >
+                  <SelectTrigger id={`metaData.data.${field.name}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(field.options || []).map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {t(option.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : field.type === "textarea" ? (
                 <div>
                   {(() => {
                     const currentValue =
