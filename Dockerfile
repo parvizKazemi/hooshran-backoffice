@@ -1,8 +1,8 @@
 # ---------- Build stage ----------
 FROM node:20-alpine AS build
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm via corepack for deterministic version
+RUN corepack enable && corepack prepare pnpm@10.27.0 --activate
 
 # Set pnpm registry to Runflare mirror
 # RUN pnpm config set registry https://mirror-npm.runflare.com
@@ -10,7 +10,7 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
