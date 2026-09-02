@@ -1601,7 +1601,15 @@
       "boughtLimit": "محدودیت تعداد خرید",
       "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
       "toolboxAccess": "دسترسی به جعبه ابزار",
-      "isSpecialOffer": "پیشنهاد ویژه"
+      "isSpecialOffer": "بسته تست/ویژه",
+      "userVisibility": "نمایش برای کاربران",
+      "userVisibilityPlaceholder": "نمایش برای کاربران را انتخاب کنید",
+      "userVisibilityOptions": {
+        "all": "همه کاربران",
+        "nobody": "هیچ کاربری",
+        "benefited": "کاربرانی که هدیه دریافت کرده اند",
+        "unbenefited": "کاربرانی که هدیه دریافت نکرده اند"
+      }
     }
   },
   "plans": {

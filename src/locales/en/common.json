@@ -1557,6 +1557,14 @@
       "boughtLimitPlaceholder": "Enter purchase limit",
       "toolboxAccess": "Toolbox access",
       "isSpecialOffer": "Special offer",
+      "userVisibility": "User visibility",
+      "userVisibilityPlaceholder": "Select user visibility",
+      "userVisibilityOptions": {
+        "all": "All users",
+        "nobody": "No users",
+        "benefited": "Users who have received a gift",
+        "unbenefited": "Users who have not received a gift"
+      },
       "displayParts": "Display parts for user",
       "mainParts": "Main package parts",
       "mainPriceDisplay": "Main price (Rials)",

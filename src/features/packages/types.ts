@@ -1,7 +1,16 @@
 import { z } from "zod";
 
+export const PACKAGE_USER_VISIBILITY_OPTIONS = {
+  ALL: "all",
+  NOBODY: "nobody",
+  BENEFITED: "benefited",
+  UNBENEFITED: "unbenefited",
+} as const;
+
 export const PackageTypeSchema = z.enum(["PERMANENT", "SUBSCRIPTION"]);
 export type PackageType = z.infer<typeof PackageTypeSchema>;
+export const PackageUserVisibilitySchema = z.enum(Object.values(PACKAGE_USER_VISIBILITY_OPTIONS));
+export type PackageUserVisibility = z.infer<typeof PackageUserVisibilitySchema>;
 
 export const PlanQueueSchema = z.enum(["hero", "adventurer", "explorer"]);
 export type PlanQueue = z.infer<typeof PlanQueueSchema>;
@@ -25,6 +34,7 @@ export const PackageSchema = z.object({
     queueProcessingSpeed: z.number().int().min(1).optional(),
     planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
+    userVisibility: PackageUserVisibilitySchema,
     isWelcomePackage: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -48,6 +58,7 @@ export interface PackagesQueryParams {
   type?: PackageType | "all";
   is_active?: boolean;
   isSpecialOffer?: boolean;
+  userVisibility?: PackageUserVisibility;
 }
 
 export const createPackageSchema = PackageSchema.omit({
@@ -62,6 +73,7 @@ export const createPackageSchema = PackageSchema.omit({
     queueProcessingSpeed: z.number().int().min(1).optional(),
     planQueue: PlanQueueSchema,
     isSpecialOffer: z.boolean().optional(),
+    userVisibility: PackageUserVisibilitySchema,
     isWelcomePackage: z.boolean().optional(),
     toolboxAccess: z.boolean().optional(),
   }),
@@ -77,6 +89,7 @@ export const updatePackageSchema = createPackageSchema.partial().extend({
       queueProcessingSpeed: z.number().int().min(1).optional(),
       planQueue: PlanQueueSchema.optional(),
       isSpecialOffer: z.boolean().optional(),
+      userVisibility: PackageUserVisibilitySchema.optional(),
       isWelcomePackage: z.boolean().optional(),
       toolboxAccess: z.boolean().optional(),
     })

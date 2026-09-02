@@ -26,6 +26,8 @@ import {
   PlanQueue,
   PLAN_QUEUE_OPTIONS,
   DEFAULT_PLAN_QUEUE,
+  PACKAGE_USER_VISIBILITY_OPTIONS,
+  PackageUserVisibility,
 } from "../types";
 import { useCreatePackage, useUpdatePackage } from "../hooks/use-packages";
 
@@ -102,6 +104,9 @@ export const PackageForm = memo(function PackageForm({
             planQueue: pkg.properties?.planQueue ?? DEFAULT_PLAN_QUEUE,
             toolboxAccess: pkg.properties?.toolboxAccess ?? true,
             isSpecialOffer: pkg.properties?.isSpecialOffer || undefined,
+            userVisibility:
+              pkg.properties?.userVisibility ||
+              PACKAGE_USER_VISIBILITY_OPTIONS.NOBODY,
           },
         }
       : {
@@ -121,6 +126,7 @@ export const PackageForm = memo(function PackageForm({
             planQueue: DEFAULT_PLAN_QUEUE,
             toolboxAccess: true,
             isSpecialOffer: undefined,
+            userVisibility: PACKAGE_USER_VISIBILITY_OPTIONS.NOBODY,
           },
         },
   });
@@ -511,6 +517,43 @@ export const PackageForm = memo(function PackageForm({
                 {form.formState.errors.properties.isSpecialOffer.message}
               </FieldDescription>
             )}
+          </Field>
+          <Field>
+            <div className="flex flex-row items-center justify-between gap-2">
+              <FieldLabel htmlFor="properties.userVisibility">
+                {t("packages.form.userVisibility")}
+              </FieldLabel>
+              <Select
+                value={form.watch("properties.userVisibility")}
+                onValueChange={(value) =>
+                  form.setValue(
+                    "properties.userVisibility",
+                    value as PackageUserVisibility
+                  )
+                }
+                disabled={isLoading}
+              >
+                <SelectTrigger id="properties.userVisibility">
+                  <SelectValue
+                    placeholder={t("packages.form.userVisibilityPlaceholder")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(PACKAGE_USER_VISIBILITY_OPTIONS).map(
+                    (option) => (
+                      <SelectItem key={option} value={option}>
+                        {t(`packages.form.userVisibilityOptions.${option}`)}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.properties?.userVisibility && (
+                <FieldDescription className="text-destructive">
+                  {form.formState.errors.properties.userVisibility.message}
+                </FieldDescription>
+              )}
+            </div>
           </Field>
         </div>
       </FieldGroup>
