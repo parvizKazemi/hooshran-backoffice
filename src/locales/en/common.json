@@ -1559,9 +1559,9 @@
       "isSpecialOffer": "Special offer",
       "displayParts": "Display parts for user",
       "mainParts": "Main package parts",
-      "mainPriceDisplay": "Main price (Toman)",
+      "mainPriceDisplay": "Main price (Rials)",
       "mainPriceDisplayPlaceholder": "Main price shown to user",
-      "buyPriceDisplay": "Buy price (Toman)",
+      "buyPriceDisplay": "Buy price (Rials)",
       "buyPriceDisplayPlaceholder": "Buy price shown to user"
     }
   },
