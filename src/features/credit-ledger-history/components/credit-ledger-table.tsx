@@ -122,13 +122,24 @@ function RequestActionButton({
 }) {
   const { t } = useTranslation("common");
   const cancelationReason = entry.metadata?.cancelationReason;
+  const metadataReason = entry.metadata?.reason;
+  const canShowMetadataReason =
+    entry.type === "admin" || typeof entry.metadata?.adminAction === "string";
+  const actionReason =
+    typeof cancelationReason === "string" && cancelationReason.trim().length > 0
+      ? cancelationReason === CANCELATION_REASON.enReason
+        ? CANCELATION_REASON.faReason
+        : cancelationReason
+      : canShowMetadataReason &&
+          typeof metadataReason === "string" &&
+          metadataReason.trim().length > 0
+        ? metadataReason.trim()
+        : null;
 
-  if (cancelationReason) {
+  if (actionReason) {
     return (
       <span className="text-destructive text-xs font-bold dark:text-rose-400">
-        {cancelationReason === CANCELATION_REASON.enReason
-          ? CANCELATION_REASON.faReason
-          : `${cancelationReason}`}
+        {actionReason}
       </span>
     );
   }

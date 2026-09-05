@@ -1375,6 +1375,8 @@
       "status": "Subscription Status",
       "cancelationReason": "Cancellation Reason",
       "cancelationReasonPlaceholder": "Enter the cancellation reason...",
+      "adjustmentReason": "Credit adjustment note",
+      "adjustmentReasonPlaceholder": "For example: enter the reason for increasing/decreasing credit...",
       "readOnlyFields": "Read-only Fields",
       "selectPackage": "Select Package",
       "selectPackageDescription": "Select a package from the table below",

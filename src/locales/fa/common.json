@@ -1414,6 +1414,8 @@
       "status": "وضعیت اشتراک",
       "cancelationReason": "علت کنسل شدن اشتراک",
       "cancelationReasonPlaceholder": "توضیحات علت کنسلی را وارد کنید...",
+      "adjustmentReason": "توضیحات عملیات تغییر اعتبار",
+      "adjustmentReasonPlaceholder": "مثلاً علت افزایش یا کاهش اعتبار را وارد کنید...",
       "readOnlyFields": "فیلدهای فقط خواندنی",
       "selectPackage": "انتخاب پکیج",
       "selectPackageDescription": "پکیج مورد نظر را از جدول زیر انتخاب کنید",

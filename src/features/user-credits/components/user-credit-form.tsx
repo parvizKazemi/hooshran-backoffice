@@ -55,6 +55,7 @@ const updateCreditSchema = z.object({
   creditBalance: z.number().min(0, "موجودی اعتبار باید بیشتر از صفر باشد"),
   status: EditableCreditStatusSchema,
   cancelationReason: z.string().optional(),
+  reason: z.string().max(500, "توضیحات عملیات نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد").optional(),
   expiresAt: z.string().min(1, "تاریخ انقضا الزامی است"),
 });
 
@@ -172,12 +173,20 @@ export const UserCreditForm = memo(function UserCreditForm({
       creditBalance: credit?.creditBalance ?? 0,
       status: toEditableStatus(credit?.status),
       cancelationReason: credit?.cancelationReason ?? "",
+      reason: "",
       expiresAt: toDateInputValue(credit?.expiresAt),
     },
   });
 
   const watchedStatus = updateForm.watch("status");
+  const watchedCreditBalance = updateForm.watch("creditBalance");
   const showCancelReason = watchedStatus === "canceled";
+  const showAdjustmentReason = useMemo(() => {
+    if (!credit) return false;
+    const nextBalance = Number(watchedCreditBalance);
+    if (!Number.isFinite(nextBalance)) return false;
+    return nextBalance !== Number(credit.creditBalance);
+  }, [credit, watchedCreditBalance]);
 
   useEffect(() => {
     if (credit) {
@@ -185,6 +194,7 @@ export const UserCreditForm = memo(function UserCreditForm({
         creditBalance: credit.creditBalance,
         status: toEditableStatus(credit.status),
         cancelationReason: credit.cancelationReason ?? "",
+        reason: "",
         expiresAt: toDateInputValue(credit.expiresAt),
       });
     }
@@ -228,6 +238,9 @@ export const UserCreditForm = memo(function UserCreditForm({
       return;
     }
 
+    const hasCreditBalanceChanged =
+      Number(data.creditBalance) !== Number(credit.creditBalance);
+
     const payload: UpdateUserCreditInput = {
       creditBalance: data.creditBalance,
       status: data.status,
@@ -235,6 +248,7 @@ export const UserCreditForm = memo(function UserCreditForm({
         data.status === "canceled"
           ? data.cancelationReason?.trim() || null
           : null,
+      reason: hasCreditBalanceChanged ? data.reason?.trim() || undefined : undefined,
       expiresAt: convertDateToISO(data.expiresAt, credit.expiresAt),
     };
 
@@ -361,6 +375,28 @@ export const UserCreditForm = memo(function UserCreditForm({
               />
             </Field>
           </div>
+
+          {showAdjustmentReason && (
+            <Field>
+              <FieldLabel htmlFor="reason">
+                {t("userCredits.form.adjustmentReason")}
+              </FieldLabel>
+              <Textarea
+                id="reason"
+                rows={3}
+                dir="rtl"
+                className="resize-none text-right"
+                placeholder={t("userCredits.form.adjustmentReasonPlaceholder")}
+                {...updateForm.register("reason")}
+                disabled={isLoading}
+              />
+              {updateForm.formState.errors.reason && (
+                <FieldDescription className="text-destructive">
+                  {updateForm.formState.errors.reason.message}
+                </FieldDescription>
+              )}
+            </Field>
+          )}
 
           <div className="space-y-4 rounded-2xl border p-4">
             <h3 className="text-muted-foreground text-[10px] font-black tracking-wider uppercase">
