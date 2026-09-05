@@ -2430,6 +2430,7 @@
     },
     "type": {
       "FRONTEND_ERROR": "Frontend error",
+      "BACKEND_ERROR": "Backend error",
       "API_FAILURE": "API failure",
       "SUSPICIOUS_ACTIVITY": "Suspicious activity",
       "SECURITY_ALERT": "Security alert",

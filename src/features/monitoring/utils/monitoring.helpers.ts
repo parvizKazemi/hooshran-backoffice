@@ -49,6 +49,8 @@ export function getTypeBadgeClass(type: string): string {
       return "border-orange-500/40 bg-orange-500/10 text-orange-700 dark:text-orange-300";
     case MONITORING_ERROR_TYPES.FRONTEND_ERROR:
       return "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-300";
+    case MONITORING_ERROR_TYPES.BACKEND_ERROR:
+      return "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300";
     default:
       return "border-border bg-muted text-muted-foreground";
   }

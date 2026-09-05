@@ -45,6 +45,7 @@ export const MONITORING_SEVERITY_COLORS: Record<MonitoringSeverity, string> = {
 
 export const MONITORING_TYPE_COLORS: Record<MonitoringErrorType, string> = {
   FRONTEND_ERROR: "hsl(221 83% 53%)",
+  BACKEND_ERROR: "hsl(221 83% 53%)",
   API_FAILURE: "hsl(0 84% 60%)",
   UNCAUGHT_EXCEPTION: "hsl(280 67% 50%)",
   SUSPICIOUS_ACTIVITY: "hsl(25 95% 53%)",
