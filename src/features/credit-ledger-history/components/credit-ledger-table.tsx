@@ -3,6 +3,7 @@ import {
   IconChevronRight,
   IconCoins,
   IconEye,
+  IconInfoCircle,
 } from "@tabler/icons-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -32,9 +38,9 @@ import { ApiError } from "@/services/api";
 import { fetchServiceRequestByUuid } from "../api/service";
 import type { CreditLedgerEntry, CreditLedgerQueryParams } from "../types";
 import {
-  CANCELATION_REASON,
   extractServiceRequestUuid,
   formatLedgerAmountForDisplay,
+  getLedgerActionReason,
   getLedgerAmountClass,
   getLedgerDescriptionParts,
   getTransactionTypeBadgeClass,
@@ -111,6 +117,44 @@ function LedgerDescription({
   );
 }
 
+function LedgerActionReasonInfo({ reason }: { reason: string }) {
+  const { t } = useTranslation("common");
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1 px-2 dark:text-rose-400 dark:hover:bg-rose-400/10 dark:hover:text-rose-400"
+          aria-label={t("creditLedgerHistory.actions.viewReason")}
+        >
+          <IconInfoCircle className="size-4" />
+          <span className="text-[11px] font-bold">
+            {t("creditLedgerHistory.actions.reason")}
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="center"
+        side="top"
+        sideOffset={8}
+        collisionPadding={16}
+        dir="rtl"
+        className="w-[min(20rem,calc(100vw-2rem))] max-h-64 overflow-y-auto p-3"
+      >
+        <p className="text-muted-foreground mb-1.5 text-[11px] font-bold">
+          {t("creditLedgerHistory.actions.reason")}
+        </p>
+        <p className="text-destructive whitespace-pre-wrap break-words text-xs font-medium leading-relaxed dark:text-rose-400">
+          {reason}
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function RequestActionButton({
   entry,
   isLoading,
@@ -121,27 +165,10 @@ function RequestActionButton({
   onView: (uuid: string) => void;
 }) {
   const { t } = useTranslation("common");
-  const cancelationReason = entry.metadata?.cancelationReason;
-  const metadataReason = entry.metadata?.reason;
-  const canShowMetadataReason =
-    entry.type === "admin" || typeof entry.metadata?.adminAction === "string";
-  const actionReason =
-    typeof cancelationReason === "string" && cancelationReason.trim().length > 0
-      ? cancelationReason === CANCELATION_REASON.enReason
-        ? CANCELATION_REASON.faReason
-        : cancelationReason
-      : canShowMetadataReason &&
-          typeof metadataReason === "string" &&
-          metadataReason.trim().length > 0
-        ? metadataReason.trim()
-        : null;
+  const actionReason = getLedgerActionReason(entry);
 
   if (actionReason) {
-    return (
-      <span className="text-destructive text-xs font-bold dark:text-rose-400">
-        {actionReason}
-      </span>
-    );
+    return <LedgerActionReasonInfo reason={actionReason} />;
   }
 
   if (!isRequestUsageEntry(entry)) {

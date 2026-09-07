@@ -1475,7 +1475,9 @@
     "actions": {
       "viewRequest": "View request",
       "loadingRequest": "Loading...",
-      "loadRequestFailed": "Failed to load request details"
+      "loadRequestFailed": "Failed to load request details",
+      "reason": "Details",
+      "viewReason": "View details"
     },
     "export": {
       "button": "Export CSV",

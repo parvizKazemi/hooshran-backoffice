@@ -1514,7 +1514,9 @@
     "actions": {
       "viewRequest": "مشاهده درخواست",
       "loadingRequest": "در حال بارگذاری...",
-      "loadRequestFailed": "خطا در دریافت جزئیات درخواست"
+      "loadRequestFailed": "خطا در دریافت جزئیات درخواست",
+      "reason": "توضیحات",
+      "viewReason": "مشاهده توضیحات"
     },
     "export": {
       "button": "خروجی CSV",
