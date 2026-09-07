@@ -1257,6 +1257,13 @@
       "creditHint": "میزان اعتبار پردازش",
       "creditPlaceholder": "مثال: ۸ یا از ۲",
       "autoCredit": "محاسبه خودکار از بک‌اند",
+      "creditModes": {
+        "auto": "محاسبه خودکار",
+        "manual": "ورود دستی",
+        "minRequiredCredit": "حداقل اعتبار"
+      },
+      "minRequiredCreditPlaceholder": "مثال: ۲۰",
+      "minRequiredCreditHint": "کاربر باید حداقل این مقدار اعتبار را داشته باشد تا بتواند درخواست ارسال کند",
       "badge": "بج نمایش روی کارت",
       "badgeNone": "بدون بج",
       "isActive": "وضعیت فعالیت سرویس",

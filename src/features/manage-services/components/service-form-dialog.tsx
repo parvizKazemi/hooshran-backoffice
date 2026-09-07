@@ -51,13 +51,14 @@ import {
 } from "../constants";
 import type {
   CatalogServiceOption,
+  CreditMode,
   ManageService,
   ParentServiceOption,
   ServiceFormSubmitValues,
   ServiceFormValues,
   ServiceSubmodel,
 } from "../types";
-import { serviceFormSchema } from "../types";
+import { CREDIT_MODES, serviceFormSchema } from "../types";
 import { MANAGE_SERVICES_STALE_TIME } from "../constants";
 import { manageParentSubmodelsQueryKey } from "../hooks/use-manage-services";
 import { fetchParentSubmodelsFromAcceptHint } from "../api/service";
@@ -164,8 +165,9 @@ export function ServiceFormDialog({
         slug: "",
         categoryUuids: [],
         imageUrl: "",
-        isAutoCredit: true,
+        creditMode: "auto" as CreditMode,
         creditHint: "",
+        minRequiredCredit: "",
         badge: SERVICE_BADGE_NONE,
         isActive: true,
         inactiveReason: "",
@@ -178,6 +180,12 @@ export function ServiceFormDialog({
     }
 
     const creditHint = service.creditHint?.trim() || "";
+    const minRequiredCredit = service.minRequiredCredit?.trim() || "";
+
+    let creditMode: CreditMode = "auto";
+    if (minRequiredCredit) {
+      creditMode = "minRequiredCredit";
+    }
 
     return {
       modelType: service.modelType,
@@ -187,8 +195,9 @@ export function ServiceFormDialog({
       slug: service.slug,
       categoryUuids: service.categoryUuids,
       imageUrl: service.imageUrl,
-      isAutoCredit: !creditHint,
+      creditMode,
       creditHint,
+      minRequiredCredit,
       badge: toServiceBadgeFormValue(service.badge),
       isActive: service.isActive,
       inactiveReason: service.inactiveReason,
@@ -206,7 +215,7 @@ export function ServiceFormDialog({
   });
 
   const modelType = form.watch("modelType");
-  const isAutoCredit = form.watch("isAutoCredit");
+  const creditMode = form.watch("creditMode");
   const isActive = form.watch("isActive");
   const searchable = form.watch("searchable");
   const display = form.watch("display");
@@ -377,8 +386,15 @@ export function ServiceFormDialog({
       slug,
       categoryUuids: values.categoryUuids,
       imageUrl: values.imageUrl.trim(),
-      isAutoCredit: values.isAutoCredit,
-      creditHint: values.creditHint.trim(),
+      isAutoCredit: values.creditMode === "auto",
+      creditHint:
+        values.creditMode === "minRequiredCredit"
+          ? values.creditHint.trim()
+          : "",
+      minRequiredCredit:
+        values.creditMode === "minRequiredCredit"
+          ? values.minRequiredCredit.trim()
+          : "",
       badge: normalizeServiceBadge(values.badge),
       isActive: values.isActive,
       inactiveReason: values.isActive ? "" : values.inactiveReason.trim(),
@@ -611,24 +627,40 @@ export function ServiceFormDialog({
                 </Field>
 
                 <Field className="gap-2">
-                  <div className="mb-0.5 flex items-center justify-between gap-2">
-                    <FieldLabel htmlFor="service-credit">
-                      {t("manageServices.form.creditHint")}{" "}
-                      {isRequiredField("creditHint") ? (
-                        <span className="text-destructive">*</span>
-                      ) : null}
-                    </FieldLabel>
-                    <label className="text-primary flex items-center gap-1.5 text-[11px] font-bold">
-                      <Checkbox
-                        checked={isAutoCredit}
-                        onCheckedChange={(checked) =>
-                          form.setValue("isAutoCredit", checked === true)
-                        }
-                      />
-                      {t("manageServices.form.autoCredit")}
-                    </label>
-                  </div>
-                  {isAutoCredit ? (
+                  <FieldLabel>
+                    {t("manageServices.form.creditHint")}{" "}
+                    {isRequiredField("creditHint") ? (
+                      <span className="text-destructive">*</span>
+                    ) : null}
+                  </FieldLabel>
+                  <Controller
+                    control={form.control}
+                    name="creditMode"
+                    render={({ field }) => (
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {CREDIT_MODES.map((mode) => {
+                          const selected = field.value === mode;
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              onClick={() => field.onChange(mode)}
+                              className={cn(
+                                "rounded-lg border px-2 py-2 text-[11px] font-bold transition-all",
+                                selected
+                                  ? "border-emerald-600 bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-600/30"
+                                  : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-emerald-500/50"
+                              )}
+                            >
+                              {t(`manageServices.form.creditModes.${mode}`)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  />
+
+                  {creditMode === "auto" ? (
                     <div
                       id="service-credit"
                       className="border-input bg-muted/40 text-foreground flex h-9 items-center rounded-md border px-3 text-sm"
@@ -637,14 +669,29 @@ export function ServiceFormDialog({
                     </div>
                   ) : (
                     <Input
-                      id="service-credit"
-                      placeholder={t("manageServices.form.creditPlaceholder")}
-                      {...form.register("creditHint")}
+                      id="service-min-credit"
+                      type="number"
+                      min={0}
+                      placeholder={t(
+                        "manageServices.form.minRequiredCreditPlaceholder"
+                      )}
+                      {...form.register("minRequiredCredit")}
                     />
                   )}
+
+                  {creditMode === "minRequiredCredit" ? (
+                    <FieldDescription>
+                      {t("manageServices.form.minRequiredCreditHint")}
+                    </FieldDescription>
+                  ) : null}
                   {form.formState.errors.creditHint ? (
                     <FieldDescription className="text-destructive">
                       {form.formState.errors.creditHint.message}
+                    </FieldDescription>
+                  ) : null}
+                  {form.formState.errors.minRequiredCredit ? (
+                    <FieldDescription className="text-destructive">
+                      {form.formState.errors.minRequiredCredit.message}
                     </FieldDescription>
                   ) : null}
                 </Field>

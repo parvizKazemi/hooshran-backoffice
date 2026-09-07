@@ -183,6 +183,19 @@ function resolveCost(raw: Record<string, unknown>): unknown {
   return undefined;
 }
 
+function resolveMinRequiredCredit(raw: Record<string, unknown>): string {
+  const direct = raw.minRequiredCredit ?? raw.min_required_credit;
+  if (typeof direct === "number" && Number.isFinite(direct) && direct > 0)
+    return String(direct);
+  if (typeof direct === "string" && direct.trim()) return direct.trim();
+  const ui = asRecord(asRecord(raw.metadata)?.ui);
+  const fromUi = ui?.min_required_credit;
+  if (typeof fromUi === "number" && Number.isFinite(fromUi) && fromUi > 0)
+    return String(fromUi);
+  if (typeof fromUi === "string" && fromUi.trim()) return fromUi.trim();
+  return "";
+}
+
 function resolveInactiveReason(raw: Record<string, unknown>): string {
   if (typeof raw.inactiveReason === "string") return raw.inactiveReason;
   const metadata = asRecord(raw.metadata);
@@ -359,6 +372,8 @@ export function mapAdminApiServiceToManageService(
       !(resolveCreditHint(raw) || fallback?.creditHint || "").trim()
     ),
     creditHint: resolveCreditHint(raw) || fallback?.creditHint || "",
+    minRequiredCredit:
+      resolveMinRequiredCredit(raw) || fallback?.minRequiredCredit || "",
     submodels,
     cost: resolveCost(raw) ?? fallback?.cost,
     isLocal: false,

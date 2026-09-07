@@ -619,6 +619,7 @@ export async function updateManageServiceCustomData(
       | "order"
       | "inactiveReason"
       | "creditHint"
+      | "minRequiredCredit"
       | "imageUrl"
       | "isAutoCredit"
     >

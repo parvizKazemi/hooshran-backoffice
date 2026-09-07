@@ -272,6 +272,7 @@ function toComparable(items: ManageService[]) {
     parentUuid: item.parentUuid,
     isAutoCredit: item.isAutoCredit,
     creditHint: item.creditHint,
+    minRequiredCredit: item.minRequiredCredit,
     isLocal: Boolean(item.isLocal),
     submodels: item.submodels.map((sub) => ({
       uuid: sub.uuid,
@@ -377,6 +378,7 @@ export function normalizeServicesResponse(
         searchable: item.searchable ?? true,
         display: item.display ?? true,
         creditHint: item.creditHint ?? "",
+        minRequiredCredit: item.minRequiredCredit ?? "",
         imageUrl: item.imageUrl ?? "",
         isLocal: false,
         submodels: (item.submodels ?? []).map((sub) => ({
@@ -478,6 +480,7 @@ type ServiceCustomDataPatch = Partial<
     | "order"
     | "inactiveReason"
     | "creditHint"
+    | "minRequiredCredit"
     | "imageUrl"
     | "isAutoCredit"
     | "categoryUuids"
@@ -510,12 +513,18 @@ function buildCustomDataUiMetadata(service: ManageService) {
       ? buildChildrensPayload(service.submodels)
       : undefined;
 
+  const minCredit = service.minRequiredCredit?.trim();
+
   return {
     service_order: service.order,
     inactiveReason: service.inactiveReason || undefined,
     cost_hint: service.isAutoCredit
       ? undefined
       : service.creditHint || undefined,
+    min_required_credit:
+      minCredit && !service.isAutoCredit && !service.creditHint
+        ? Number(minCredit) || undefined
+        : undefined,
     image: service.imageUrl || undefined,
     category_orders: categoryOrders,
     searchable: service.searchable,
