@@ -436,6 +436,8 @@ export type ServiceCustomDataPayload = {
   slug?: string;
   isActive?: boolean;
   metadata?: Record<string, unknown>;
+  /** Top-level custom-data column — not `metadata.ui`. */
+  minRequiredCredit?: number | null;
 };
 
 /**
@@ -502,6 +504,18 @@ function buildChildrensPayload(submodels: ServiceSubmodel[]) {
   }));
 }
 
+function toMinRequiredCreditPayload(
+  value: string | undefined,
+  isAutoCredit: boolean
+): number | null {
+  if (isAutoCredit) return null;
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
 function buildCustomDataUiMetadata(service: ManageService) {
   const categoryOrders = buildCategoryOrdersPayload(
     service.categoryUuids ?? [],
@@ -513,18 +527,12 @@ function buildCustomDataUiMetadata(service: ManageService) {
       ? buildChildrensPayload(service.submodels)
       : undefined;
 
-  const minCredit = service.minRequiredCredit?.trim();
-
   return {
     service_order: service.order,
     inactiveReason: service.inactiveReason || undefined,
     cost_hint: service.isAutoCredit
       ? undefined
       : service.creditHint || undefined,
-    min_required_credit:
-      minCredit && !service.isAutoCredit && !service.creditHint
-        ? Number(minCredit) || undefined
-        : undefined,
     image: service.imageUrl || undefined,
     category_orders: categoryOrders,
     searchable: service.searchable,
@@ -563,6 +571,10 @@ export function mapManageServiceToCustomData(
     slug: merged.slug || undefined,
     isActive: merged.isActive,
     metadata: { ui },
+    minRequiredCredit: toMinRequiredCreditPayload(
+      merged.minRequiredCredit,
+      merged.isAutoCredit
+    ),
   };
 }
 

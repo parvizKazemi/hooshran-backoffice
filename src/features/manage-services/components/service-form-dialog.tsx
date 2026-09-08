@@ -379,6 +379,8 @@ export function ServiceFormDialog({
       return;
     }
 
+    const isMinRequiredCredit = values.creditMode === "minRequiredCredit";
+
     onSubmit({
       modelType: values.modelType,
       name: values.name.trim(),
@@ -387,14 +389,10 @@ export function ServiceFormDialog({
       categoryUuids: values.categoryUuids,
       imageUrl: values.imageUrl.trim(),
       isAutoCredit: values.creditMode === "auto",
-      creditHint:
-        values.creditMode === "minRequiredCredit"
-          ? values.creditHint.trim()
-          : "",
-      minRequiredCredit:
-        values.creditMode === "minRequiredCredit"
-          ? values.minRequiredCredit.trim()
-          : "",
+      creditHint: "",
+      minRequiredCredit: isMinRequiredCredit
+        ? values.minRequiredCredit.trim()
+        : "",
       badge: normalizeServiceBadge(values.badge),
       isActive: values.isActive,
       inactiveReason: values.isActive ? "" : values.inactiveReason.trim(),
@@ -637,7 +635,7 @@ export function ServiceFormDialog({
                     control={form.control}
                     name="creditMode"
                     render={({ field }) => (
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="grid grid-cols-2 gap-1.5">
                         {CREDIT_MODES.map((mode) => {
                           const selected = field.value === mode;
                           return (
