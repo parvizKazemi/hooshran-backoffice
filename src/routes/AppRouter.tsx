@@ -84,6 +84,9 @@ const SmsConfigSettings = lazy(
 const ClearUserData = lazy(
   () => import("../features/clear-user-data/ClearUserData.tsx")
 );
+const VpnDetectionSettings = lazy(
+  () => import("../features/vpn-detection/VpnDetectionSettings.tsx")
+);
 const Monitoring = lazy(() => import("../features/monitoring/Monitoring.tsx"));
 const Affiliate = lazy(() => import("../features/affiliate/Affiliate.tsx"));
 
@@ -267,6 +270,10 @@ const router = createBrowserRouter([
           {
             path: "/system-settings/sms-config",
             element: <SmsConfigSettings />,
+          },
+          {
+            path: "/system-settings/vpn-detection",
+            element: <VpnDetectionSettings />,
           },
           {
             path: "/system-settings/clear-user-data",

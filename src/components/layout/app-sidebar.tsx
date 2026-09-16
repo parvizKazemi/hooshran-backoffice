@@ -50,6 +50,10 @@ function useSidebarData() {
       title: t("nav.systemSettings.smsConfig"),
       url: "/system-settings/sms-config",
     },
+    {
+      title: t("nav.systemSettings.vpnDetection"),
+      url: "/system-settings/vpn-detection",
+    },
     ...(isTestMode
       ? [
           {
@@ -277,6 +281,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/services/manage",
               "/services/prompt-assistant",
               "/system-settings/sms-config",
+              "/system-settings/vpn-detection",
               ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}
             // badges={{

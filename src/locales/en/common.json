@@ -91,6 +91,7 @@
     "systemSettings": {
       "title": "System Settings",
       "smsConfig": "SMS Gateway Settings",
+      "vpnDetection": "VPN Detection",
       "clearUserData": "Clear & Reset User"
     },
 
@@ -2363,6 +2364,25 @@
       "invalidPhone": "Please enter a valid mobile number (e.g. 09123456789)",
       "noOptionSelected": "Please select at least one purge option.",
       "testModeDisabled": "This operation is only allowed when TEST_MODE is enabled."
+    }
+  },
+  "vpnDetection": {
+    "header": {
+      "title": "VPN Detection",
+      "description": "Enable or disable the VPN warning banner in the front app for users with non-Iranian IPs."
+    },
+    "card": {
+      "title": "VPN Detection Status",
+      "description": "When disabled, IP checks and the VPN banner are stopped in the front app."
+    },
+    "statusEnabled": "Enabled — VPN banner is shown",
+    "statusDisabled": "Disabled — VPN banner is hidden",
+    "hint": "Changes apply to all users immediately.",
+    "ariaLabel": "Enable or disable VPN detection",
+    "toasts": {
+      "enabled": "VPN detection enabled",
+      "disabled": "VPN detection disabled",
+      "updateFailed": "Failed to update VPN detection settings"
     }
   },
   "monitoring": {
