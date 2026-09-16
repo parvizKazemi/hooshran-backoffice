@@ -1,17 +1,11 @@
-import { useMemo } from "react";
-import { getRequiredFields } from "../config/field-config";
+import { getRequiredFields, type FormData } from "../config/field-config";
 
 export function useFormValidation(templateType: string) {
-  const requiredFields = useMemo(
-    () => getRequiredFields(templateType),
-    [templateType]
-  );
-
   const validateRequiredFields = (data: Record<string, unknown>): string[] => {
+    const requiredFields = getRequiredFields(templateType, data as FormData);
     const errors: string[] = [];
 
     requiredFields.forEach((fieldName) => {
-      // Handle nested fields like "metaData.data.title"
       const value = getNestedValue(data, fieldName);
       if (
         !value ||
@@ -26,7 +20,6 @@ export function useFormValidation(templateType: string) {
   };
 
   return {
-    requiredFields,
     validateRequiredFields,
   };
 }

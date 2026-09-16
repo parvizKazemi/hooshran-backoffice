@@ -694,6 +694,7 @@
         "mediaOptional": "رسانه",
         "badge": "متن Badge",
         "bannerVariant": "نوع بنر فوری",
+        "bannerVariantOneLine": "تک خطی - مینیمال",
         "bannerVariantCritical": "قرمز — هشدار اضطراری",
         "bannerVariantUpdate": "زرد — اطلاعیه مهم",
         "bannerVariantNotice": "آبی — اطلاعیه عمومی"

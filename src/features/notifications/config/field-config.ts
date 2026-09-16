@@ -213,6 +213,10 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       required: true,
       options: [
         {
+          value: "oneline",
+          label: "notifications.form.fields.bannerVariantOneLine",
+        },
+        {
           value: "notice",
           label: "notifications.form.fields.bannerVariantNotice",
         },
@@ -223,7 +227,7 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
         {
           value: "critical",
           label: "notifications.form.fields.bannerVariantCritical",
-        }
+        },
       ],
     },
     {
@@ -237,18 +241,21 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
       label: "notifications.form.fields.message",
       type: "textarea",
       required: true,
+      condition: (formData) => formData.metaData?.data?.variant !== "oneline",
     },
     {
       name: "badge",
       label: "notifications.form.fields.badge",
       type: "text",
       required: false,
+      condition: (formData) => formData.metaData?.data?.variant !== "oneline",
     },
     {
       name: "button_text",
       label: "notifications.form.fields.buttonText",
       type: "text",
       required: false,
+      condition: (formData) => formData.metaData?.data?.variant !== "oneline",
     },
     {
       name: "target_url",
@@ -296,19 +303,49 @@ export const FORM_FIELD_CONFIGS: Record<string, FieldConfig> = {
   },
 };
 
+const isFloatBannerOnelineVariant = (formData: FormData): boolean =>
+  formData.metaData?.type === "float_banner" &&
+  formData.metaData?.data?.variant === "oneline";
+
+const isTemplateFieldVisible = (
+  field: FieldConfig,
+  formData: FormData
+): boolean => !field.condition || field.condition(formData);
+
+const isTemplateFieldRequired = (
+  field: FieldConfig,
+  formData: FormData
+): boolean => {
+  if (!isTemplateFieldVisible(field, formData)) {
+    return false;
+  }
+
+  if (field.name === "target_url" && isFloatBannerOnelineVariant(formData)) {
+    return true;
+  }
+
+  return field.required ?? false;
+};
+
 // Helper function to get required fields for a template
-export function getRequiredFields(templateType: string): string[] {
+export function getRequiredFields(
+  templateType: string,
+  formData?: FormData
+): string[] {
   const fields = TEMPLATE_FIELD_CONFIGS[templateType] || [];
+  const effectiveFormData: FormData = formData ?? {
+    metaData: { type: templateType, data: {} },
+  };
+
   const requiredFields = fields
-    .filter((field) => field.required)
+    .filter((field) => isTemplateFieldRequired(field, effectiveFormData))
     .map((field) => `metaData.data.${field.name}`);
 
   // Add form-level required fields
   Object.values(FORM_FIELD_CONFIGS).forEach((config) => {
     if (
       config.required &&
-      (!config.condition ||
-        config.condition({ metaData: { type: templateType } }))
+      (!config.condition || config.condition(effectiveFormData))
     ) {
       requiredFields.push(config.name);
     }
@@ -327,7 +364,7 @@ export function isFieldRequired(
   const field = fields.find((f) => f.name === fieldName);
 
   if (field) {
-    return field.required || false;
+    return isTemplateFieldRequired(field, formData);
   }
 
   // Check form-level fields

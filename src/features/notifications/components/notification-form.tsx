@@ -68,8 +68,13 @@ type NotificationVisibility = {
 };
 const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
 const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
-const BANNER_VARIANT_VALUES = ["notice" , "update" , "critical"] as const;
+const BANNER_VARIANT_VALUES = ["notice" , "update" , "critical" , "oneline"] as const;
 const DEFAULT_BANNER_VARIANT = "notice";
+const ONELINE_BANNER_DEFAULTS = {
+  message: "اعلان",
+  badge: "جدید",
+  button_text: "مشاهده",
+} as const;
 
 const TEMPLATE_TRANSITION_SHARED_FIELDS = new Set([
   "title",
@@ -565,6 +570,15 @@ export function NotificationForm({
   const currentTemplateFields =
     TEMPLATE_FIELD_CONFIGS[templateType || "simple"] ||
     TEMPLATE_FIELD_CONFIGS.simple;
+  const formDataForFields = {
+    metaData: {
+      type: templateType,
+      data: metaDataData as Record<string, unknown>,
+    },
+  };
+  const visibleTemplateFields = (currentTemplateFields ?? []).filter(
+    (field) => !field.condition || field.condition(formDataForFields)
+  );
 
   const onSubmit: SubmitHandler<
     CreateNotificationInput | UpdateNotificationInput
@@ -664,6 +678,22 @@ export function NotificationForm({
         )
           ? sanitizedData.variant
           : DEFAULT_BANNER_VARIANT;
+
+      if (variant === "oneline") {
+        sanitizedData.message =
+          typeof sanitizedData.message === "string" && sanitizedData.message.trim()
+            ? sanitizedData.message.trim()
+            : ONELINE_BANNER_DEFAULTS.message;
+        sanitizedData.badge =
+          typeof sanitizedData.badge === "string" && sanitizedData.badge.trim()
+            ? sanitizedData.badge.trim()
+            : ONELINE_BANNER_DEFAULTS.badge;
+        sanitizedData.button_text =
+          typeof sanitizedData.button_text === "string" &&
+          sanitizedData.button_text.trim()
+            ? sanitizedData.button_text.trim()
+            : ONELINE_BANNER_DEFAULTS.button_text;
+      }
 
       data.metaData.data = {
         ...sanitizedData,
@@ -892,12 +922,13 @@ export function NotificationForm({
         </div>
 
         {/* Dynamic fields based on template type */}
-        {currentTemplateFields &&
-          currentTemplateFields.map((field) => (
+        {visibleTemplateFields.map((field) => (
             <Field key={field.name}>
               <FieldLabel htmlFor={`metaData.data.${field.name}`}>
                 {t(field.label)}
-                {field.required && <span className="text-destructive"> *</span>}
+                {isFieldRequired(field.name, formDataForFields) && (
+                  <span className="text-destructive"> *</span>
+                )}
               </FieldLabel>
               {field.type === "select" ? (
                 <Select
