@@ -77,7 +77,8 @@
     "purchasePayments": {
       "title": "مدیریت خرید و پرداخت‌ها",
       "gateStatus": "وضعیت درگاه پرداخت",
-      "methods": "مدیریت روش‌های پرداخت"
+      "methods": "مدیریت روش‌های پرداخت",
+      "planDiscounts": "تخفیف‌های داینامیک پلن‌ها"
     },
     "userSettings": {
       "title": "تنظیمات کاربران",
@@ -2657,6 +2658,118 @@
       "rejectSuccess": "درخواست تسویه رد شد.",
       "partnerStatusUpdated": "وضعیت همکار فروش به‌روزرسانی شد.",
       "rulesSaved": "تنظیمات افیلیت ذخیره شد."
+    }
+  },
+  "planCampaigns": {
+    "pageTitle": "مدیریت فعالیت‌های کمپینی و تخفیف‌های بسته‌ها",
+    "pageDescription": "پیکربندی و مدیریت داینامیک تخفیف سرویس‌ها بر اساس اشتراک کاربران.",
+    "rulesTitle": "قوانین تخفیف",
+    "rulesDescription": "مشخص کنید کدام سرویس‌ها شامل تخفیف اختصاصی پلن‌ها می‌شوند.",
+    "actions": {
+      "create": "افزودن قانون تخفیف جدید"
+    },
+    "tiers": {
+      "basic": "عمومی (مهمان و پایه)",
+      "explorer": "کاشف",
+      "adventurer": "ماجراجو",
+      "hero": "قهرمان ⭐"
+    },
+    "table": {
+      "targetService": "سرویس هدف",
+      "endStatus": "مهلت اعتبار",
+      "visibility": "نمایش",
+      "actions": "عملیات",
+      "empty": "هنوز کمپین تخفیفی ثبت نشده است.",
+      "noServices": "بدون سرویس",
+      "oneService": "۱ مدل",
+      "serviceCount": "{{count}} مدل اختصاصی",
+      "groupLabel": "کمپین گروهی ({{subtitle}})",
+      "indefiniteEnd": "بدون پایان",
+      "expired": "پایان یافته",
+      "untilDate": "تا {{date}}"
+    },
+    "form": {
+      "createTitle": "ایجاد قانون تخفیف و کمپین جدید",
+      "editTitle": "ویرایش کمپین تخفیف",
+      "title": "عنوان عمومی کمپین",
+      "titlePlaceholder": "مثال: جشنواره تخفیف مدل‌های پریمیوم",
+      "internalName": "نام داخلی (اختیاری)",
+      "internalNamePlaceholder": "برای گزارش‌گیری ادمین",
+      "priority": "اولویت نمایش",
+      "bannerTeaser": "متن بنر و تیزر",
+      "bannerTeaserPlaceholder": "تا ۵۰٪ تخفیف ویژه روی مدل‌های منتخب",
+      "description": "توضیحات (اختیاری)",
+      "mode": {
+        "group": "تخصیص گروهی (یکسان برای مدل‌ها)",
+        "individual": "تخصیص تکی (ردیف‌های مجزا)"
+      },
+      "groupServices": "انتخاب سرویس / مدل هدف",
+      "addService": "افزودن سرویس",
+      "tierAssignment": "تخصیص درصد تخفیف اختصاصی هر پلن",
+      "minOneTier": "حداقل ۱ پلن انتخاب شود",
+      "percentPlaceholder": "مثلاً ۲۰",
+      "selectServicePlaceholder": "انتخاب کنید...",
+      "selectDedicatedService": "انتخاب سرویس اختصاصی",
+      "rowTierLabel": "درصد تخفیف اختصاصی روی پلن‌ها",
+      "addIndividualRow": "افزودن سرویس و تخصیص تخفیف",
+      "removeRow": "حذف این سرویس",
+      "campaignEndSettings": "تنظیمات پایان کمپین",
+      "endDate": "تاریخ پایان کمپین (شمسی)",
+      "endDatePlaceholder": "انتخاب تاریخ پایان",
+      "endTime": "زمان پایان (ساعت)",
+      "noEndHint": "کمپین بدون تاریخ پایان ثبت می‌شود.",
+      "expirationType": "نحوه اعمال و انقضای تخفیف پس از پایان کمپین",
+      "expiration": {
+        "subscription_bound": {
+          "title": "پیوسته (معتبر تا پایان دوره اشتراک کاربر)",
+          "description": "اگر کاربر در بازه کمپین اشتراک بخرد، تخفیف تا آخر اعتبار اشتراک او در پروفایل ثبت می‌ماند."
+        },
+        "campaign_bound": {
+          "title": "محدود به بازه کمپین (موقت برای همه)",
+          "description": "تخفیف دقیقاً در تاریخ پایان کمپین برای همه کاربران حذف می‌شود."
+        }
+      },
+      "visibility": "تنظیمات نمایش و اطلاع‌رسانی",
+      "visibilityOptions": {
+        "planPage": {
+          "title": "نمایش در صفحه پلن‌ها",
+          "description": "باکس و نوتیفیکیشن اختصاصی در صفحه خرید اشتراک"
+        },
+        "planCard": {
+          "title": "نمایش در کارت پلن‌ها",
+          "description": "برچسب و نشان ویژه روی کارت اشتراک‌ها"
+        },
+        "banner": {
+          "title": "نمایش به صورت بنر",
+          "description": "نوار اعلان هدر و پاپ‌آپ سراسری در کل پلتفرم"
+        }
+      },
+      "submit": "ثبت کمپین تخفیف",
+      "cancel": "انصراف"
+    },
+    "errors": {
+      "titleRequired": "عنوان کمپین الزامی است.",
+      "bannerTeaserRequired": "متن بنر الزامی است.",
+      "endDateRequired": "تاریخ پایان کمپین را انتخاب کنید.",
+      "servicesRequired": "حداقل یک سرویس انتخاب کنید.",
+      "tierRequired": "حداقل برای یک پلن درصد تخفیف وارد کنید.",
+      "individualRowsRequired": "حداقل یک ردیف تخصیص تکی اضافه کنید.",
+      "rowServiceRequired": "برای هر ردیف یک سرویس انتخاب کنید.",
+      "rowTierRequired": "برای هر ردیف حداقل یک پلن با تخفیف مشخص کنید.",
+      "missingServiceId": "شناسه داخلی این سرویس‌ها در دسترس نیست: {{services}}. پس از ثبت اولین کمپین شامل این سرویس‌ها دوباره تلاش کنید."
+    },
+    "delete": {
+      "title": "حذف کمپین",
+      "description": "آیا از حذف «{{name}}» مطمئن هستید؟",
+      "confirm": "حذف کمپین"
+    },
+    "toast": {
+      "created": "کمپین تخفیف با موفقیت ثبت شد.",
+      "updated": "کمپین تخفیف به‌روزرسانی شد.",
+      "deleted": "کمپین حذف شد.",
+      "createFailed": "ثبت کمپین ناموفق بود.",
+      "updateFailed": "به‌روزرسانی کمپین ناموفق بود.",
+      "deleteFailed": "حذف کمپین ناموفق بود."
     }
   }
 }

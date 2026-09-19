@@ -77,7 +77,8 @@
     "purchasePayments": {
       "title": "Purchase & Payments",
       "gateStatus": "Payment Gate Status",
-      "methods": "Payment Methods"
+      "methods": "Payment Methods",
+      "planDiscounts": "Dynamic Plan Discounts"
     },
     "userSettings": {
       "title": "User Settings",
@@ -2613,6 +2614,118 @@
       "rejectSuccess": "Payout rejected.",
       "partnerStatusUpdated": "Partner status updated.",
       "rulesSaved": "Affiliate rules saved."
+    }
+  },
+  "planCampaigns": {
+    "pageTitle": "Financial & Package Discount Management",
+    "pageDescription": "Configure and manage dynamic service discounts by subscription tier.",
+    "rulesTitle": "Discount Rules",
+    "rulesDescription": "Choose which services receive plan-specific discounts.",
+    "actions": {
+      "create": "Add Discount Rule"
+    },
+    "tiers": {
+      "basic": "Public (Guest & Basic)",
+      "explorer": "Explorer",
+      "adventurer": "Adventurer",
+      "hero": "Hero ⭐"
+    },
+    "table": {
+      "targetService": "Target",
+      "endStatus": "Validity",
+      "visibility": "Visibility",
+      "actions": "Actions",
+      "empty": "No discount campaigns yet.",
+      "noServices": "No services",
+      "oneService": "1 model",
+      "serviceCount": "{{count}} dedicated models",
+      "groupLabel": "Group campaign ({{subtitle}})",
+      "indefiniteEnd": "No end date",
+      "expired": "Expired",
+      "untilDate": "Until {{date}}"
+    },
+    "form": {
+      "createTitle": "Create Discount Campaign",
+      "editTitle": "Edit Discount Campaign",
+      "title": "Public campaign title",
+      "titlePlaceholder": "e.g. Premium models festival",
+      "internalName": "Internal name (optional)",
+      "internalNamePlaceholder": "For admin reporting",
+      "priority": "Display priority",
+      "bannerTeaser": "Banner teaser text",
+      "bannerTeaserPlaceholder": "Up to 50% off selected models",
+      "description": "Description (optional)",
+      "mode": {
+        "group": "Group assignment (same for models)",
+        "individual": "Individual rows"
+      },
+      "groupServices": "Target services / models",
+      "addService": "Add service",
+      "tierAssignment": "Discount percentage per plan",
+      "minOneTier": "Select at least one plan",
+      "percentPlaceholder": "e.g. 20",
+      "selectServicePlaceholder": "Select...",
+      "selectDedicatedService": "Select dedicated service",
+      "rowTierLabel": "Plan discount percentages",
+      "addIndividualRow": "Add service & discount row",
+      "removeRow": "Remove this service",
+      "campaignEndSettings": "Campaign end settings",
+      "endDate": "Campaign end date",
+      "endDatePlaceholder": "Select end date",
+      "endTime": "End time",
+      "noEndHint": "Campaign will be saved without an end date.",
+      "expirationType": "Discount behavior after campaign ends",
+      "expiration": {
+        "subscription_bound": {
+          "title": "Continuous (valid until subscription ends)",
+          "description": "If a user buys during the campaign, the discount stays on their profile until subscription expiry."
+        },
+        "campaign_bound": {
+          "title": "Campaign-bound (temporary for everyone)",
+          "description": "Discount is removed for all users when the campaign ends."
+        }
+      },
+      "visibility": "Display & notification settings",
+      "visibilityOptions": {
+        "planPage": {
+          "title": "Show on plans page",
+          "description": "Dedicated box on the subscription purchase page"
+        },
+        "planCard": {
+          "title": "Show on plan cards",
+          "description": "Badge on subscription cards"
+        },
+        "banner": {
+          "title": "Show as banner",
+          "description": "Global header bar and popup"
+        }
+      },
+      "submit": "Save discount campaign",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "titleRequired": "Campaign title is required.",
+      "bannerTeaserRequired": "Banner teaser is required.",
+      "endDateRequired": "Select a campaign end date.",
+      "servicesRequired": "Select at least one service.",
+      "tierRequired": "Set a discount for at least one plan.",
+      "individualRowsRequired": "Add at least one individual row.",
+      "rowServiceRequired": "Select a service for each row.",
+      "rowTierRequired": "Set a discount for each row.",
+      "missingServiceId": "Internal IDs unavailable for: {{services}}. Try again after these services appear in an existing campaign."
+    },
+    "delete": {
+      "title": "Delete campaign",
+      "description": "Delete \"{{name}}\"?",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "created": "Discount campaign created.",
+      "updated": "Discount campaign updated.",
+      "deleted": "Campaign deleted.",
+      "createFailed": "Failed to create campaign.",
+      "updateFailed": "Failed to update campaign.",
+      "deleteFailed": "Failed to delete campaign."
     }
   }
 }

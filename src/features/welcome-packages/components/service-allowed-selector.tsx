@@ -2,7 +2,9 @@ import { ServicePicker } from "@/components/common/ServicePicker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import {
+  ServiceSelectorPanel,
+} from "@/components/common/service-selector-panel";
 import {
   Popover,
   PopoverContent,
@@ -12,16 +14,11 @@ import { cn } from "@/lib/utils";
 import {
   IconChevronDown,
   IconPlus,
-  IconSearch,
   IconX,
 } from "@tabler/icons-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PlatformService } from "../types";
-import {
-  filterServicesByQuery,
-  sortServicesWithSelectedFirst,
-} from "../utils/filter-services";
 
 type BaseProps = {
   services: PlatformService[];
@@ -47,91 +44,6 @@ type DropdownVariantProps = BaseProps & {
 export type ServiceAllowedSelectorProps =
   | ChipVariantProps
   | DropdownVariantProps;
-
-type ServiceSelectorSearchProps = {
-  value: string;
-  onChange: (value: string) => void;
-};
-
-function ServiceSelectorSearch({
-  value,
-  onChange,
-}: ServiceSelectorSearchProps) {
-  const { t } = useTranslation("common");
-
-  return (
-    <div className="border-b px-3 py-2">
-      <div className="relative">
-        <IconSearch className="text-muted-foreground absolute top-1/2 right-3 size-3.5 -translate-y-1/2" />
-        <Input
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={t("welcomePackages.services.searchPlaceholder")}
-          className="h-8 rounded-lg pr-9 text-xs"
-        />
-      </div>
-    </div>
-  );
-}
-
-type ServiceSelectorPanelProps = {
-  open: boolean;
-  title: string;
-  headerActions?: ReactNode;
-  services: PlatformService[];
-  selectedUuids?: string[];
-  emptyMessage: string;
-  children: (filteredServices: PlatformService[]) => ReactNode;
-};
-
-function ServiceSelectorPanel({
-  open,
-  title,
-  headerActions,
-  services,
-  selectedUuids = [],
-  emptyMessage,
-  children,
-}: ServiceSelectorPanelProps) {
-  const { t } = useTranslation("common");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredServices = useMemo(() => {
-    const filtered = filterServicesByQuery(services, searchQuery);
-    return sortServicesWithSelectedFirst(filtered, selectedUuids);
-  }, [services, searchQuery, selectedUuids]);
-
-  useEffect(() => {
-    if (!open) {
-      setSearchQuery("");
-    }
-  }, [open]);
-
-  return (
-    <>
-      <div className="border-b px-3 py-2">
-        <div className="flex items-center justify-between gap-2 text-xs">
-          <span className="text-muted-foreground font-bold">{title}</span>
-          {headerActions}
-        </div>
-      </div>
-      <ServiceSelectorSearch value={searchQuery} onChange={setSearchQuery} />
-      <div className="max-h-60 overflow-y-auto p-1.5">
-        {services.length === 0 ? (
-          <p className="text-muted-foreground p-3 text-center text-xs">
-            {emptyMessage}
-          </p>
-        ) : filteredServices.length === 0 ? (
-          <p className="text-muted-foreground p-3 text-center text-xs">
-            {t("welcomePackages.services.noSearchResults")}
-          </p>
-        ) : (
-          children(filteredServices)
-        )}
-      </div>
-    </>
-  );
-}
 
 function ServiceAllowedSelectorChips({
   services,

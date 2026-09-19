@@ -38,7 +38,9 @@ const Packages = lazy(() => import("../features/packages/Packages.tsx"));
 const DiscountCodes = lazy(
   () => import("../features/discount-codes/DiscountCodes.tsx")
 );
-const Plans = lazy(() => import("../features/plans/Plans.tsx"));
+const FinancialPackagesManagement = lazy(
+  () => import("../features/plan-campaigns/FinancialPackagesManagement.tsx")
+);
 const Referrals = lazy(() => import("../features/referrals/Referrals.tsx"));
 const Media = lazy(() => import("../features/media/Media.tsx"));
 const Payments = lazy(() => import("../features/payments/Payments.tsx"));
@@ -205,7 +207,13 @@ const router = createBrowserRouter([
           },
           {
             path: "/plans",
-            element: <Plans />,
+            element: (
+              <Navigate to="/purchase-payments/plan-discounts" replace />
+            ),
+          },
+          {
+            path: "/purchase-payments/plan-discounts",
+            element: <FinancialPackagesManagement />,
           },
           {
             path: "/referrals",

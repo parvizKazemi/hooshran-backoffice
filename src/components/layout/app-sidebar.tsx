@@ -126,6 +126,10 @@ function useSidebarData() {
             title: t("nav.purchasePayments.methods"),
             url: "/purchase-payments/methods",
           },
+          {
+            title: t("nav.purchasePayments.planDiscounts"),
+            url: "/purchase-payments/plan-discounts",
+          },
         ],
       },
       {
