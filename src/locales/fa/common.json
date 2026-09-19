@@ -692,7 +692,11 @@
         "buttonText": "متن دکمه / لینک",
         "targetUrl": "URL مقصد",
         "mediaOptional": "رسانه",
-        "badge": "متن Badge"
+        "badge": "متن Badge",
+        "bannerVariant": "نوع بنر فوری",
+        "bannerVariantCritical": "قرمز — هشدار اضطراری",
+        "bannerVariantUpdate": "زرد — اطلاعیه مهم",
+        "bannerVariantNotice": "آبی — اطلاعیه عمومی"
       },
       "promotionalNotificationTypeWarning": "نوع نوتیفیکیشن به صورت خودکار به اطلاعیه تغییر کرده است"
     },
@@ -1253,6 +1257,13 @@
       "creditHint": "میزان اعتبار پردازش",
       "creditPlaceholder": "مثال: ۸ یا از ۲",
       "autoCredit": "محاسبه خودکار از بک‌اند",
+      "creditModes": {
+        "auto": "محاسبه خودکار",
+        "manual": "ورود دستی",
+        "minRequiredCredit": "حداقل اعتبار"
+      },
+      "minRequiredCreditPlaceholder": "مثال: ۲۰",
+      "minRequiredCreditHint": "کاربر باید حداقل این مقدار اعتبار را داشته باشد تا بتواند درخواست ارسال کند",
       "badge": "بج نمایش روی کارت",
       "badgeNone": "بدون بج",
       "isActive": "وضعیت فعالیت سرویس",
@@ -1410,6 +1421,8 @@
       "status": "وضعیت اشتراک",
       "cancelationReason": "علت کنسل شدن اشتراک",
       "cancelationReasonPlaceholder": "توضیحات علت کنسلی را وارد کنید...",
+      "adjustmentReason": "توضیحات عملیات تغییر اعتبار",
+      "adjustmentReasonPlaceholder": "مثلاً علت افزایش یا کاهش اعتبار را وارد کنید...",
       "readOnlyFields": "فیلدهای فقط خواندنی",
       "selectPackage": "انتخاب پکیج",
       "selectPackageDescription": "پکیج مورد نظر را از جدول زیر انتخاب کنید",
@@ -1508,7 +1521,9 @@
     "actions": {
       "viewRequest": "مشاهده درخواست",
       "loadingRequest": "در حال بارگذاری...",
-      "loadRequestFailed": "خطا در دریافت جزئیات درخواست"
+      "loadRequestFailed": "خطا در دریافت جزئیات درخواست",
+      "reason": "توضیحات",
+      "viewReason": "مشاهده توضیحات"
     },
     "export": {
       "button": "خروجی CSV",
@@ -1581,9 +1596,9 @@
       "mainParts": "قسمت‌های اصلی پکیج ",
       "namePlaceholder": "نام پکیج را وارد کنید",
       "name": "نام",
-      "mainPriceDisplay": "قیمت اصلی (تومان)",
+      "mainPriceDisplay": "قیمت اصلی (ریال)",
       "mainPriceDisplayPlaceholder": "قیمت اصلی که به کاربر نشان داده می‌شود",
-      "buyPriceDisplay": "قیمت خرید (تومان)",
+      "buyPriceDisplay": "قیمت خرید (ریال)",
       "buyPriceDisplayPlaceholder": "قیمت خرید که به کاربر نشان داده می‌شود",
       "properties": "ویژگی‌ها",
       "transferLimit": "انتقال مانده",
@@ -1597,7 +1612,15 @@
       "boughtLimit": "محدودیت تعداد خرید",
       "boughtLimitPlaceholder": "محدودیت تعداد خرید را وارد کنید",
       "toolboxAccess": "دسترسی به جعبه ابزار",
-      "isSpecialOffer": "پیشنهاد ویژه"
+      "isSpecialOffer": "بسته تست/ویژه",
+      "userVisibility": "نمایش برای کاربران",
+      "userVisibilityPlaceholder": "نمایش برای کاربران را انتخاب کنید",
+      "userVisibilityOptions": {
+        "all": "همه کاربران",
+        "nobody": "هیچ کاربری",
+        "benefited": "کاربرانی که هدیه دریافت کرده اند",
+        "unbenefited": "کاربرانی که هدیه دریافت نکرده اند"
+      }
     }
   },
   "plans": {
@@ -2451,6 +2474,7 @@
     },
     "type": {
       "FRONTEND_ERROR": "خطای فرانت",
+      "BACKEND_ERROR": "خطای بک‌اند",
       "API_FAILURE": "خطای API",
       "SUSPICIOUS_ACTIVITY": "فعالیت مشکوک",
       "SECURITY_ALERT": "هشدار امنیتی",

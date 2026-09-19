@@ -5,6 +5,7 @@ import {
   CreatePackageInput,
   DEFAULT_PLAN_QUEUE,
   Package,
+  PACKAGE_USER_VISIBILITY_OPTIONS,
   PackagesQueryParams,
   PaginatedResponse,
   UpdatePackageInput,
@@ -157,6 +158,9 @@ export const useUpdatePackage = () => {
                   updatePayload.properties.isSpecialOffer !== undefined
                     ? updatePayload.properties.isSpecialOffer
                     : false,
+                userVisibility:
+                  updatePayload.properties.userVisibility ??
+                  PACKAGE_USER_VISIBILITY_OPTIONS.NOBODY,
               }
             : {
                 transferLimit: 0,
@@ -166,6 +170,7 @@ export const useUpdatePackage = () => {
                 planQueue: DEFAULT_PLAN_QUEUE,
                 toolboxAccess: false,
                 isSpecialOffer: false,
+                userVisibility: PACKAGE_USER_VISIBILITY_OPTIONS.NOBODY,
               },
         };
 

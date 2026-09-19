@@ -680,7 +680,11 @@
         "buttonText": "Button / Link Text",
         "targetUrl": "Target URL",
         "mediaOptional": "Media (Optional)",
-        "badge": "Badge Text (Optional)"
+        "badge": "Badge Text (Optional)",
+        "bannerVariant": "Urgent Banner Style",
+        "bannerVariantCritical": "Red — Emergency",
+        "bannerVariantUpdate": "Amber — Important",
+        "bannerVariantNotice": "Blue — General Notice"
       },
       "promotionalNotificationTypeWarning": "Notification type has been automatically changed to information"
     },
@@ -1371,6 +1375,8 @@
       "status": "Subscription Status",
       "cancelationReason": "Cancellation Reason",
       "cancelationReasonPlaceholder": "Enter the cancellation reason...",
+      "adjustmentReason": "Credit adjustment note",
+      "adjustmentReasonPlaceholder": "For example: enter the reason for increasing/decreasing credit...",
       "readOnlyFields": "Read-only Fields",
       "selectPackage": "Select Package",
       "selectPackageDescription": "Select a package from the table below",
@@ -1469,7 +1475,9 @@
     "actions": {
       "viewRequest": "View request",
       "loadingRequest": "Loading...",
-      "loadRequestFailed": "Failed to load request details"
+      "loadRequestFailed": "Failed to load request details",
+      "reason": "Details",
+      "viewReason": "View details"
     },
     "export": {
       "button": "Export CSV",
@@ -1553,11 +1561,19 @@
       "boughtLimitPlaceholder": "Enter purchase limit",
       "toolboxAccess": "Toolbox access",
       "isSpecialOffer": "Special offer",
+      "userVisibility": "User visibility",
+      "userVisibilityPlaceholder": "Select user visibility",
+      "userVisibilityOptions": {
+        "all": "All users",
+        "nobody": "No users",
+        "benefited": "Users who have received a gift",
+        "unbenefited": "Users who have not received a gift"
+      },
       "displayParts": "Display parts for user",
       "mainParts": "Main package parts",
-      "mainPriceDisplay": "Main price (Toman)",
+      "mainPriceDisplay": "Main price (Rials)",
       "mainPriceDisplayPlaceholder": "Main price shown to user",
-      "buyPriceDisplay": "Buy price (Toman)",
+      "buyPriceDisplay": "Buy price (Rials)",
       "buyPriceDisplayPlaceholder": "Buy price shown to user"
     }
   },
@@ -2416,6 +2432,7 @@
     },
     "type": {
       "FRONTEND_ERROR": "Frontend error",
+      "BACKEND_ERROR": "Backend error",
       "API_FAILURE": "API failure",
       "SUSPICIOUS_ACTIVITY": "Suspicious activity",
       "SECURITY_ALERT": "Security alert",

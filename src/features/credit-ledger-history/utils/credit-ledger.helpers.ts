@@ -10,6 +10,28 @@ export const CANCELATION_REASON = {
   faReason: "عدم تایید تراکنش از سمت پایانه بانکی",
 };
 
+export function getLedgerActionReason(entry: CreditLedgerEntry): string | null {
+  const cancelationReason = entry.metadata?.cancelationReason;
+  if (typeof cancelationReason === "string" && cancelationReason.trim().length > 0) {
+    return cancelationReason === CANCELATION_REASON.enReason
+      ? CANCELATION_REASON.faReason
+      : cancelationReason;
+  }
+
+  const canShowMetadataReason =
+    entry.type === "admin" || typeof entry.metadata?.adminAction === "string";
+  const metadataReason = entry.metadata?.reason;
+  if (
+    canShowMetadataReason &&
+    typeof metadataReason === "string" &&
+    metadataReason.trim().length > 0
+  ) {
+    return metadataReason.trim();
+  }
+
+  return null;
+}
+
 export function extractServiceRequestUuid(
   entry: CreditLedgerEntry
 ): string | null {

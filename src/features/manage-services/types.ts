@@ -31,6 +31,10 @@ export const ServiceSubmodelSchema = z.object({
 
 export type ServiceSubmodel = z.infer<typeof ServiceSubmodelSchema>;
 
+export const CREDIT_MODES = ["auto", "minRequiredCredit"] as const;
+export const CreditModeSchema = z.enum(CREDIT_MODES);
+export type CreditMode = z.infer<typeof CreditModeSchema>;
+
 export const ManageServiceSchema = z.object({
   uuid: z.string().min(1),
   name: z.string().min(1),
@@ -53,6 +57,7 @@ export const ManageServiceSchema = z.object({
   parentUuid: z.string().nullable(),
   isAutoCredit: z.boolean(),
   creditHint: z.string(),
+  minRequiredCredit: z.string().default(""),
   submodels: z.array(ServiceSubmodelSchema).default([]),
   /** Raw platform cost from detail (for auto credit display). */
   cost: z.unknown().optional(),
@@ -77,8 +82,9 @@ export const serviceFormSchema = z
     slug: z.string().min(1, "اسلاگ الزامی است"),
     categoryUuids: z.array(z.string()).min(1, "حداقل یک دسته‌بندی لازم است"),
     imageUrl: z.string().min(1, "رسانه شاخص الزامی است"),
-    isAutoCredit: z.boolean(),
+    creditMode: CreditModeSchema,
     creditHint: z.string(),
+    minRequiredCredit: z.string(),
     badge: z.enum([...SERVICE_BADGE_VALUES, SERVICE_BADGE_NONE]),
     isActive: z.boolean(),
     inactiveReason: z.string(),
@@ -89,11 +95,14 @@ export const serviceFormSchema = z
     parentUuid: z.string().nullable(),
   })
   .superRefine((values, ctx) => {
-    if (!values.isAutoCredit && !values.creditHint.trim()) {
+    if (
+      values.creditMode === "minRequiredCredit" &&
+      !values.minRequiredCredit.trim()
+    ) {
       ctx.addIssue({
         code: "custom",
-        path: ["creditHint"],
-        message: "میزان اعتبار را وارد کنید یا محاسبه خودکار را فعال کنید",
+        path: ["minRequiredCredit"],
+        message: "حداقل اعتبار مورد نیاز را وارد کنید",
       });
     }
     if (!values.isActive && !values.inactiveReason.trim()) {
@@ -160,6 +169,7 @@ export type ServiceFormSubmitValues = {
   imageUrl: string;
   isAutoCredit: boolean;
   creditHint: string;
+  minRequiredCredit: string;
   badge: ServiceBadge;
   isActive: boolean;
   inactiveReason: string;

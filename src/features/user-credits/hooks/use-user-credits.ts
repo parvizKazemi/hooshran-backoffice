@@ -135,6 +135,7 @@ export interface UpdateUserCreditInput {
   creditBalance?: number;
   status?: string;
   cancelationReason?: string | null;
+  reason?: string;
   expiresAt?: string;
 }
 

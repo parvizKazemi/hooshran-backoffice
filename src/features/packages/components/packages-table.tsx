@@ -17,13 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -85,9 +78,6 @@ export const PackagesTable = memo(function PackagesTable({
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(filters.q || "");
-  const [typeFilter, setTypeFilter] = useState<
-    "all" | "SUBSCRIPTION" | "PERMANENT"
-  >((filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all");
   const [specialOfferOnly, setSpecialOfferOnly] = useState(
     Boolean(filters.isSpecialOffer)
   );
@@ -100,9 +90,6 @@ export const PackagesTable = memo(function PackagesTable({
 
   useEffect(() => {
     setSearchQuery(filters.q || "");
-    setTypeFilter(
-      (filters.type as "all" | "SUBSCRIPTION" | "PERMANENT") || "all"
-    );
     setSpecialOfferOnly(Boolean(filters.isSpecialOffer));
   }, [filters]);
 
@@ -278,35 +265,6 @@ export const PackagesTable = memo(function PackagesTable({
             className="max-w-sm"
           />
           <div className="flex items-center gap-2">
-            <Select
-              value={typeFilter}
-              onValueChange={(value) => {
-                const typedValue = value as
-                  | "all"
-                  | "SUBSCRIPTION"
-                  | "PERMANENT";
-                setTypeFilter(typedValue);
-                applyFilters({
-                  type:
-                    typedValue === "all"
-                      ? undefined
-                      : (typedValue as Package["type"]),
-                });
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("packages.allTypes")}</SelectItem>
-                <SelectItem value="PERMANENT">
-                  {t("packages.types.permanent")}
-                </SelectItem>
-                <SelectItem value="SUBSCRIPTION">
-                  {t("packages.types.subscription")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
             <label className="flex items-center gap-2 text-sm">
               <Checkbox
                 checked={specialOfferOnly}

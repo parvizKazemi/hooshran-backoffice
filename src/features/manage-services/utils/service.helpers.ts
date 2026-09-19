@@ -272,6 +272,7 @@ function toComparable(items: ManageService[]) {
     parentUuid: item.parentUuid,
     isAutoCredit: item.isAutoCredit,
     creditHint: item.creditHint,
+    minRequiredCredit: item.minRequiredCredit,
     isLocal: Boolean(item.isLocal),
     submodels: item.submodels.map((sub) => ({
       uuid: sub.uuid,
@@ -377,6 +378,7 @@ export function normalizeServicesResponse(
         searchable: item.searchable ?? true,
         display: item.display ?? true,
         creditHint: item.creditHint ?? "",
+        minRequiredCredit: item.minRequiredCredit ?? "",
         imageUrl: item.imageUrl ?? "",
         isLocal: false,
         submodels: (item.submodels ?? []).map((sub) => ({
@@ -434,6 +436,8 @@ export type ServiceCustomDataPayload = {
   slug?: string;
   isActive?: boolean;
   metadata?: Record<string, unknown>;
+  /** Top-level custom-data column — not `metadata.ui`. */
+  minRequiredCredit?: number | null;
 };
 
 /**
@@ -478,6 +482,7 @@ type ServiceCustomDataPatch = Partial<
     | "order"
     | "inactiveReason"
     | "creditHint"
+    | "minRequiredCredit"
     | "imageUrl"
     | "isAutoCredit"
     | "categoryUuids"
@@ -497,6 +502,18 @@ function buildChildrensPayload(submodels: ServiceSubmodel[]) {
     introduction: sub.description || undefined,
     active: sub.isActive,
   }));
+}
+
+function toMinRequiredCreditPayload(
+  value: string | undefined,
+  isAutoCredit: boolean
+): number | null {
+  if (isAutoCredit) return null;
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return parsed;
 }
 
 function buildCustomDataUiMetadata(service: ManageService) {
@@ -554,6 +571,10 @@ export function mapManageServiceToCustomData(
     slug: merged.slug || undefined,
     isActive: merged.isActive,
     metadata: { ui },
+    minRequiredCredit: toMinRequiredCreditPayload(
+      merged.minRequiredCredit,
+      merged.isAutoCredit
+    ),
   };
 }
 

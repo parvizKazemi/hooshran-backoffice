@@ -207,6 +207,26 @@ export const TEMPLATE_FIELD_CONFIGS: Record<string, FieldConfig[]> = {
   ],
   float_banner: [
     {
+      name: "variant",
+      label: "notifications.form.fields.bannerVariant",
+      type: "select",
+      required: true,
+      options: [
+        {
+          value: "notice",
+          label: "notifications.form.fields.bannerVariantNotice",
+        },
+        {
+          value: "update",
+          label: "notifications.form.fields.bannerVariantUpdate",
+        },
+        {
+          value: "critical",
+          label: "notifications.form.fields.bannerVariantCritical",
+        }
+      ],
+    },
+    {
       name: "title",
       label: "notifications.form.fields.title",
       type: "text",
