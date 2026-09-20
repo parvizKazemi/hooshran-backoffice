@@ -18,6 +18,8 @@ type CampaignGroupServiceSelectorProps = {
   selectedUuids: string[];
   onChange: (uuids: string[]) => void;
   disabled?: boolean;
+  /** Fallback labels when uuid is not in `services` (e.g. edit mode) */
+  labelByUuid?: Record<string, string>;
 };
 
 export function CampaignGroupServiceSelector({
@@ -25,17 +27,23 @@ export function CampaignGroupServiceSelector({
   selectedUuids,
   onChange,
   disabled = false,
+  labelByUuid = {},
 }: CampaignGroupServiceSelectorProps) {
   const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
 
-  const selectedServices = useMemo(
-    () =>
-      selectedUuids
-        .map((uuid) => services.find((service) => service.uuid === uuid))
-        .filter((service): service is CampaignPlatformService => Boolean(service)),
-    [selectedUuids, services]
-  );
+  const selectedServices = useMemo(() => {
+    return selectedUuids.map((uuid) => {
+      const fromCatalog = services.find((service) => service.uuid === uuid);
+      if (fromCatalog) return fromCatalog;
+      return {
+        uuid,
+        name: labelByUuid[uuid] || uuid,
+        slug: "",
+        isActive: true,
+      } satisfies CampaignPlatformService;
+    });
+  }, [selectedUuids, services, labelByUuid]);
 
   const toggleService = (uuid: string, checked: boolean) => {
     if (checked) {

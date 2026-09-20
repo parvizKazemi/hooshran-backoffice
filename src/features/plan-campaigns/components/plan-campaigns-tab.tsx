@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { IconPlus } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CampaignFormDialog } from "./campaign-form-dialog";
 import { CampaignsTable } from "./campaigns-table";
@@ -38,10 +38,6 @@ export function PlanCampaignsTab() {
 
   const campaigns = data?.data ?? [];
   const services = platformData?.services ?? [];
-  const serviceIdByUuid = useMemo(
-    () => platformData?.serviceIdByUuid ?? new Map<string, number>(),
-    [platformData?.serviceIdByUuid]
-  );
 
   const handleCreate = () => {
     setEditingCampaign(null);
@@ -93,7 +89,6 @@ export function PlanCampaignsTab() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         services={services}
-        serviceIdByUuid={serviceIdByUuid}
         campaign={editingCampaign}
       />
 

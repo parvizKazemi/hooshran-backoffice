@@ -105,16 +105,27 @@ function serializeTierMap(tiers: TierDiscountState): string {
   ).join("|");
 }
 
+function getDiscountServiceUuid(
+  discount: CampaignServiceDiscount
+): string | undefined {
+  const uuid = discount.serviceUuid ?? discount.apiServiceUuid;
+  return uuid?.trim() || undefined;
+}
+
 export function detectAllocationMode(
   discounts: CampaignServiceDiscount[] = []
 ): CampaignAllocationMode {
   if (discounts.length === 0) return "group";
 
-  const byService = new Map<number, CampaignServiceDiscount[]>();
+  const byService = new Map<string, CampaignServiceDiscount[]>();
   for (const discount of discounts) {
-    const list = byService.get(discount.apiServiceId) ?? [];
+    const key =
+      getDiscountServiceUuid(discount) ??
+      (discount.apiServiceId != null ? `id:${discount.apiServiceId}` : "");
+    if (!key) continue;
+    const list = byService.get(key) ?? [];
     list.push(discount);
-    byService.set(discount.apiServiceId, list);
+    byService.set(key, list);
   }
 
   if (byService.size <= 1) {
@@ -161,7 +172,7 @@ export function campaignToFormState(campaign: PlanCampaign): CampaignFormState {
     base.groupServiceUuids = [
       ...new Set(
         discounts
-          .map((item) => item.apiServiceUuid)
+          .map(getDiscountServiceUuid)
           .filter((uuid): uuid is string => Boolean(uuid))
       ),
     ];
@@ -171,7 +182,10 @@ export function campaignToFormState(campaign: PlanCampaign): CampaignFormState {
 
   const rowsByService = new Map<string, CampaignServiceDiscount[]>();
   for (const discount of discounts) {
-    const key = discount.apiServiceUuid ?? String(discount.apiServiceId);
+    const key =
+      getDiscountServiceUuid(discount) ??
+      (discount.apiServiceId != null ? `id:${discount.apiServiceId}` : "");
+    if (!key || key.startsWith("id:")) continue;
     const list = rowsByService.get(key) ?? [];
     list.push(discount);
     rowsByService.set(key, list);
@@ -202,7 +216,7 @@ function buildEndsAtIso(form: CampaignFormState): string {
 }
 
 function buildTierDiscountItems(
-  apiServiceId: number,
+  serviceUuid: string,
   tiers: TierDiscountState
 ): CreateCampaignDiscountItem[] {
   return CAMPAIGN_TIER_KEYS.flatMap((tier) => {
@@ -212,7 +226,7 @@ function buildTierDiscountItems(
     }
     return [
       {
-        apiServiceId,
+        serviceUuid,
         tier,
         discountPercentage: Math.min(100, Math.max(1, Math.round(state.percentage))),
       },
@@ -221,31 +235,23 @@ function buildTierDiscountItems(
 }
 
 export function buildDiscountPayload(
-  form: CampaignFormState,
-  serviceIdByUuid: Map<string, number>
+  form: CampaignFormState
 ): CreateCampaignDiscountItem[] {
-  const resolveServiceId = (uuid: string): number | null =>
-    serviceIdByUuid.get(uuid) ?? null;
-
   if (form.allocationMode === "group") {
     return form.groupServiceUuids.flatMap((uuid) => {
-      const apiServiceId = resolveServiceId(uuid);
-      if (!apiServiceId) return [];
-      return buildTierDiscountItems(apiServiceId, form.groupTiers);
+      if (!uuid) return [];
+      return buildTierDiscountItems(uuid, form.groupTiers);
     });
   }
 
   return form.individualRows.flatMap((row) => {
     if (!row.serviceUuid) return [];
-    const apiServiceId = resolveServiceId(row.serviceUuid);
-    if (!apiServiceId) return [];
-    return buildTierDiscountItems(apiServiceId, row.tiers);
+    return buildTierDiscountItems(row.serviceUuid, row.tiers);
   });
 }
 
 export function buildCampaignPayload(
   form: CampaignFormState,
-  serviceIdByUuid: Map<string, number>,
   existingStartsAt?: string
 ): CreateCampaignInput {
   const trimmedTitle = form.title.trim();
@@ -266,7 +272,7 @@ export function buildCampaignPayload(
     showOnPlanPage: form.showOnPlanPage,
     showOnPlanCard: form.showOnPlanCard,
     priority: form.priority,
-    discounts: buildDiscountPayload(form, serviceIdByUuid),
+    discounts: buildDiscountPayload(form),
   };
 }
 
@@ -310,18 +316,6 @@ export function validateCampaignForm(form: CampaignFormState): string | null {
   }
 
   return null;
-}
-
-export function findMissingServiceIds(
-  form: CampaignFormState,
-  serviceIdByUuid: Map<string, number>
-): string[] {
-  const uuids =
-    form.allocationMode === "group"
-      ? form.groupServiceUuids
-      : form.individualRows.map((row) => row.serviceUuid).filter(Boolean);
-
-  return uuids.filter((uuid) => !serviceIdByUuid.has(uuid));
 }
 
 export function toCampaignEndDateLabel(endsAt: string): {

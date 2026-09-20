@@ -10,11 +10,13 @@ export type CampaignPlatformService = {
   name: string;
   slug: string;
   isActive: boolean;
-  id?: number;
 };
 
 export type CampaignServiceDiscount = {
-  apiServiceId: number;
+  apiServiceId?: number;
+  /** Backend DTO field */
+  serviceUuid?: string;
+  /** Legacy / alias */
   apiServiceUuid?: string;
   serviceName?: string;
   packageId?: number | null;
@@ -64,7 +66,8 @@ export type PaginatedCampaignsResponse = {
 };
 
 export type CreateCampaignDiscountItem = {
-  apiServiceId: number;
+  serviceUuid: string;
+  apiServiceId?: number;
   packageId?: number;
   packageUuid?: string;
   modelName?: string;

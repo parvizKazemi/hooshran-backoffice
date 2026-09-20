@@ -2711,8 +2711,7 @@
       "tierRequired": "Set a discount for at least one plan.",
       "individualRowsRequired": "Add at least one individual row.",
       "rowServiceRequired": "Select a service for each row.",
-      "rowTierRequired": "Set a discount for each row.",
-      "missingServiceId": "Internal IDs unavailable for: {{services}}. Try again after these services appear in an existing campaign."
+      "rowTierRequired": "Set a discount for each row."
     },
     "delete": {
       "title": "Delete campaign",

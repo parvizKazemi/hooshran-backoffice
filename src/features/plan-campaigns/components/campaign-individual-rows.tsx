@@ -12,6 +12,7 @@ type CampaignIndividualRowsProps = {
   onChange: (rows: IndividualDiscountRow[]) => void;
   onAddRow: () => void;
   disabled?: boolean;
+  labelByUuid?: Record<string, string>;
 };
 
 export function CampaignIndividualRows({
@@ -20,6 +21,7 @@ export function CampaignIndividualRows({
   onChange,
   onAddRow,
   disabled = false,
+  labelByUuid = {},
 }: CampaignIndividualRowsProps) {
   const { t } = useTranslation("common");
 
@@ -59,6 +61,7 @@ export function CampaignIndividualRows({
               selectedUuid={row.serviceUuid}
               usedUuids={usedUuids}
               disabled={disabled}
+              labelByUuid={labelByUuid}
               onChange={(uuid) => updateRow(row.id, { serviceUuid: uuid })}
             />
           </div>

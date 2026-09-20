@@ -25,70 +25,6 @@ const buildListQuery = (params: CampaignsQueryParams = {}): string => {
   return query ? `?${query}` : "";
 };
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object"
-    ? (value as Record<string, unknown>)
-    : null;
-}
-
-function extractRawServices(response: unknown): Record<string, unknown>[] {
-  const list = Array.isArray(response)
-    ? response
-    : response && typeof response === "object"
-      ? ((response as { data?: unknown[]; services?: unknown[] }).data ??
-        (response as { services?: unknown[] }).services ??
-        [])
-      : [];
-  return list.map((item) => asRecord(item) ?? {});
-}
-
-function readNumericId(record: Record<string, unknown>): number | undefined {
-  const candidates = [record.id, record.serviceId, record.apiServiceId];
-  for (const candidate of candidates) {
-    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate > 0) {
-      return candidate;
-    }
-  }
-  return undefined;
-}
-
-export function buildServiceIdMapFromCampaigns(
-  campaigns: PlanCampaign[]
-): Map<string, number> {
-  const map = new Map<string, number>();
-
-  for (const campaign of campaigns) {
-    for (const discount of campaign.serviceDiscounts ?? []) {
-      if (discount.apiServiceUuid && discount.apiServiceId) {
-        map.set(discount.apiServiceUuid, discount.apiServiceId);
-      }
-    }
-  }
-
-  return map;
-}
-
-async function fetchServiceIdMapFromBatch(): Promise<Map<string, number>> {
-  const map = new Map<string, number>();
-
-  try {
-    const response = await apiGet<unknown>(
-      PLAN_CAMPAIGN_ENDPOINTS.manageServicesBatch
-    );
-    for (const item of extractRawServices(response)) {
-      const uuid = typeof item.uuid === "string" ? item.uuid : "";
-      const id = readNumericId(item);
-      if (uuid && id) {
-        map.set(uuid, id);
-      }
-    }
-  } catch {
-    // Optional enrichment — campaigns list remains primary source.
-  }
-
-  return map;
-}
-
 export async function fetchCampaigns(
   params: CampaignsQueryParams = {}
 ): Promise<PaginatedCampaignsResponse> {
@@ -133,26 +69,16 @@ type AdminPlatformServicesResponse = {
 
 export async function fetchCampaignPlatformServices(): Promise<{
   services: CampaignPlatformService[];
-  serviceIdByUuid: Map<string, number>;
 }> {
-  const [servicesResponse, campaignsResponse, batchIdMap] = await Promise.all([
-    apiGet<AdminPlatformServicesResponse | AdminPlatformServicesResponse["services"]>(
-      `${PLAN_CAMPAIGN_ENDPOINTS.platformServices}?type=all&limit=${PLATFORM_SERVICES_LIMIT}`
-    ),
-    fetchCampaigns({ page: 1, limit: 500 }),
-    fetchServiceIdMapFromBatch(),
-  ]);
+  const servicesResponse = await apiGet<
+    AdminPlatformServicesResponse | AdminPlatformServicesResponse["services"]
+  >(
+    `${PLAN_CAMPAIGN_ENDPOINTS.platformServices}?type=all&limit=${PLATFORM_SERVICES_LIMIT}`
+  );
 
   const rawList = Array.isArray(servicesResponse)
     ? servicesResponse
     : (servicesResponse?.services ?? []);
-
-  const serviceIdByUuid = buildServiceIdMapFromCampaigns(campaignsResponse.data);
-  for (const [uuid, id] of batchIdMap) {
-    if (!serviceIdByUuid.has(uuid)) {
-      serviceIdByUuid.set(uuid, id);
-    }
-  }
 
   const services = rawList
     .filter((service) => Boolean(service?.uuid && service?.name))
@@ -161,9 +87,8 @@ export async function fetchCampaignPlatformServices(): Promise<{
       name: service.name,
       slug: service.slug ?? "",
       isActive: service.isActive ?? true,
-      id: serviceIdByUuid.get(service.uuid),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "fa"));
 
-  return { services, serviceIdByUuid };
+  return { services };
 }

@@ -18,6 +18,7 @@ type CampaignSingleServiceSelectorProps = {
   onChange: (uuid: string) => void;
   disabled?: boolean;
   usedUuids?: string[];
+  labelByUuid?: Record<string, string>;
 };
 
 export function CampaignSingleServiceSelector({
@@ -26,6 +27,7 @@ export function CampaignSingleServiceSelector({
   onChange,
   disabled = false,
   usedUuids = [],
+  labelByUuid = {},
 }: CampaignSingleServiceSelectorProps) {
   const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
@@ -35,8 +37,12 @@ export function CampaignSingleServiceSelector({
       return t("planCampaigns.form.selectServicePlaceholder");
     }
     const service = services.find((item) => item.uuid === selectedUuid);
-    return service?.name ?? t("planCampaigns.form.selectServicePlaceholder");
-  }, [selectedUuid, services, t]);
+    return (
+      service?.name ??
+      labelByUuid[selectedUuid] ??
+      t("planCampaigns.form.selectServicePlaceholder")
+    );
+  }, [selectedUuid, services, labelByUuid, t]);
 
   const selectService = (uuid: string) => {
     onChange(uuid);

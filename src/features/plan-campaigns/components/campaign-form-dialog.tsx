@@ -29,7 +29,6 @@ import {
   campaignToFormState,
   createIndividualDiscountRow,
   createInitialCampaignForm,
-  findMissingServiceIds,
   normalizeTime24,
   validateCampaignForm,
 } from "../utils/campaign-form.helpers";
@@ -41,7 +40,6 @@ type CampaignFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   services: CampaignPlatformService[];
-  serviceIdByUuid: Map<string, number>;
   campaign?: PlanCampaign | null;
 };
 
@@ -49,7 +47,6 @@ export function CampaignFormDialog({
   open,
   onOpenChange,
   services,
-  serviceIdByUuid,
   campaign = null,
 }: CampaignFormDialogProps) {
   const { t } = useTranslation("common");
@@ -78,22 +75,25 @@ export function CampaignFormDialog({
 
   const validationErrorKey = useMemo(() => validateCampaignForm(form), [form]);
 
+  const serviceLabelByUuid = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const discount of campaign?.serviceDiscounts ?? []) {
+      const uuid = discount.serviceUuid ?? discount.apiServiceUuid;
+      const name = discount.serviceName?.trim();
+      if (uuid && name) {
+        map[uuid] = name;
+      }
+    }
+    return map;
+  }, [campaign?.serviceDiscounts]);
+
   const handleSubmit = async () => {
     const errorKey = validateCampaignForm(form);
     if (errorKey) {
       return;
     }
 
-    const missingIds = findMissingServiceIds(form, serviceIdByUuid);
-    if (missingIds.length > 0) {
-      return;
-    }
-
-    const payload = buildCampaignPayload(
-      form,
-      serviceIdByUuid,
-      campaign?.startsAt
-    );
+    const payload = buildCampaignPayload(form, campaign?.startsAt);
 
     if (isEditMode && campaign) {
       await updateCampaign.mutateAsync({ uuid: campaign.uuid, payload });
@@ -103,12 +103,6 @@ export function CampaignFormDialog({
 
     onOpenChange(false);
   };
-
-  const missingServiceNames = findMissingServiceIds(form, serviceIdByUuid)
-    .map(
-      (uuid) => services.find((service) => service.uuid === uuid)?.name ?? uuid
-    )
-    .join("، ");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -224,6 +218,7 @@ export function CampaignFormDialog({
                 <CampaignGroupServiceSelector
                   services={services}
                   selectedUuids={form.groupServiceUuids}
+                  labelByUuid={serviceLabelByUuid}
                   onChange={(uuids) => setField("groupServiceUuids", uuids)}
                 />
               </div>
@@ -244,6 +239,7 @@ export function CampaignFormDialog({
             <CampaignIndividualRows
               rows={form.individualRows}
               services={services}
+              labelByUuid={serviceLabelByUuid}
               onAddRow={() =>
                 setField("individualRows", [
                   ...form.individualRows,
@@ -386,13 +382,6 @@ export function CampaignFormDialog({
           {validationErrorKey ? (
             <p className="text-destructive text-sm">
               {t(`planCampaigns.errors.${validationErrorKey}`)}
-            </p>
-          ) : null}
-          {missingServiceNames ? (
-            <p className="text-destructive text-sm">
-              {t("planCampaigns.errors.missingServiceId", {
-                services: missingServiceNames,
-              })}
             </p>
           ) : null}
         </div>

@@ -31,8 +31,11 @@ type CampaignsTableProps = {
 
 function countUniqueServices(campaign: PlanCampaign): number {
   const ids = new Set(
-    (campaign.serviceDiscounts ?? []).map((item) => item.apiServiceId)
+    (campaign.serviceDiscounts ?? []).map(
+      (item) => item.serviceUuid ?? item.apiServiceUuid ?? String(item.apiServiceId ?? "")
+    )
   );
+  ids.delete("");
   return ids.size;
 }
 
