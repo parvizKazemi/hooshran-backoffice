@@ -1,5 +1,8 @@
 import { apiGet, apiPost, apiPut } from "@/services/api";
-import { AFFILIATE_ADMIN_ENDPOINTS } from "../constants";
+import {
+  AFFILIATE_ACCOUNTS_PAGE_LIMIT,
+  AFFILIATE_ADMIN_ENDPOINTS,
+} from "../constants";
 import type {
   AffiliateAdminDashboard,
   AffiliateAdminStats,
@@ -9,6 +12,7 @@ import type {
   AffiliateProgramRules,
   ApproveAffiliatePayoutPayload,
   RejectAffiliatePayoutPayload,
+  SetAffiliateCodePayload,
   ToggleAffiliatePartnerPayload,
 } from "../types";
 import {
@@ -62,38 +66,69 @@ function readNumber(
   return fallback;
 }
 
+function readNullableNumber(
+  source: Record<string, unknown>,
+  keys: string[]
+): number | null {
+  for (const key of keys) {
+    const value = source[key];
+    if (value === null || value === undefined || value === "") continue;
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim()) {
+      const parsed = Number(value.replace(/,/g, ""));
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return null;
+}
+
 function mapAccounts(raw: unknown): AffiliatePartner[] {
-  return asArray(raw).map((item, index) => ({
-    id: readString(item, ["uuid", "id"], `affiliate-${index}`),
-    name: readString(
+  return asArray(raw).map((item, index) => {
+    const affiliateCode = readString(
       item,
-      ["userFullName", "fullName", "name", "accountHolderName"],
-      "—"
-    ),
-    phone: readString(item, ["userPhone"], "—"),
-    code: readString(
+      ["affiliateCode", "affiliate_code"],
+      ""
+    );
+    const discountCode = readString(
       item,
-      ["discountCode", "discount_code", "affiliateCode", "affiliate_code"],
-      "—"
-    ),
-    buyersCount: readNumber(
-      item,
-      [
-        "referredBuyersCount",
-        "buyersCount",
-        "referred_buyers_count",
-        "succesBuyerUserCount",
-      ],
-      0
-    ),
-    totalEarned: readNumber(item, ["totalEarned", "total_earned"], 0),
-    availableBalance: readNumber(
-      item,
-      ["availableBalance", "available_balance"],
-      0
-    ),
-    status: mapAccountStatusToUi(item.status),
-  }));
+      ["discountCode", "discount_code"],
+      ""
+    );
+
+    return {
+      id: readString(item, ["uuid", "id"], `affiliate-${index}`),
+      name: readString(
+        item,
+        ["userFullName", "fullName", "name", "accountHolderName"],
+        "—"
+      ),
+      phone: readString(item, ["userPhone"], "—"),
+      affiliateCode,
+      discountCode,
+      code: discountCode || affiliateCode || "—",
+      discountPercentage: readNullableNumber(item, [
+        "discountPercentage",
+        "discount_percentage",
+      ]),
+      buyersCount: readNumber(
+        item,
+        [
+          "referredBuyersCount",
+          "buyersCount",
+          "referred_buyers_count",
+          "succesBuyerUserCount",
+        ],
+        0
+      ),
+      totalEarned: readNumber(item, ["totalEarned", "total_earned"], 0),
+      availableBalance: readNumber(
+        item,
+        ["availableBalance", "available_balance"],
+        0
+      ),
+      status: mapAccountStatusToUi(item.status),
+    };
+  });
 }
 
 function mapPayoutRequests(raw: unknown): AffiliatePayoutRequest[] {
@@ -212,9 +247,10 @@ function buildDashboard(
 }
 
 export async function fetchAffiliateAdminDashboard(): Promise<AffiliateAdminDashboard> {
+  const accountsUrl = `${AFFILIATE_ADMIN_ENDPOINTS.accounts}?page=1&limit=${AFFILIATE_ACCOUNTS_PAGE_LIMIT}`;
   const [accountsRaw, payoutsRaw, commissionsRaw, configRaw, reportsRaw] =
     await Promise.all([
-      apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.accounts),
+      apiGet<unknown>(accountsUrl),
       apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.payoutRequests),
       apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.commissions),
       apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.config),
@@ -272,5 +308,29 @@ export async function saveAffiliateProgramRules(
     minPayoutAmount: rules.minPayoutAmount,
   });
 
+  return fetchAffiliateAdminDashboard();
+}
+
+export async function setAffiliateCode(
+  payload: SetAffiliateCodePayload
+): Promise<AffiliateAdminDashboard> {
+  const body: Record<string, string | number> = {
+    affiliateCode: payload.body.affiliateCode,
+  };
+
+  if (payload.body.discountPercentage !== undefined) {
+    body.discountPercentage = payload.body.discountPercentage;
+  }
+
+  if (payload.body.discountCode) {
+    body.discountCode = payload.body.discountCode;
+  }
+
+  const url =
+    payload.mode === "create"
+      ? AFFILIATE_ADMIN_ENDPOINTS.setUserAffiliateCode(payload.phoneNumber)
+      : AFFILIATE_ADMIN_ENDPOINTS.updateAccountCode(payload.accountUuid);
+
+  await apiPut(url, body);
   return fetchAffiliateAdminDashboard();
 }

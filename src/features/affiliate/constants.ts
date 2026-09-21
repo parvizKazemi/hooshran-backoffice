@@ -9,10 +9,19 @@ export const AFFILIATE_ADMIN_ENDPOINTS = {
     `/admin/affiliate/payout-requests/${uuid}/reject`,
   updateAccountStatus: (uuid: string) =>
     `/admin/affiliate/accounts/${uuid}/status`,
+  setUserAffiliateCode: (phoneNumber: string) =>
+    `/admin/affiliate/users/${encodeURIComponent(phoneNumber)}/code`,
+  updateAccountCode: (uuid: string) =>
+    `/admin/affiliate/accounts/${uuid}/code`,
   commissions: "/admin/affiliate/commissions",
   config: "/admin/affiliate/config",
   reports: "/admin/affiliate/reports",
 } as const;
+
+/** Backend defaults to limit=10; request a larger page for the partners table. */
+export const AFFILIATE_ACCOUNTS_PAGE_LIMIT = 100;
+
+export const AFFILIATE_CODE_PATTERN = /^[a-zA-Z0-9_-]{3,32}$/;
 
 export const AFFILIATE_DEFAULT_RULES = {
   firstCommissionRate: 20,

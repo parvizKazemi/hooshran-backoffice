@@ -4,7 +4,6 @@ import {
   IconArrowDownLeft,
   IconReceipt,
   IconSettings,
-  IconShieldCheck,
   IconUsers,
 } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
@@ -17,14 +16,25 @@ import { AffiliateRulesForm } from "./components/affiliate-rules-form";
 import { AffiliateStatsCards } from "./components/affiliate-stats-cards";
 import { ApprovePayoutDialog } from "./components/approve-payout-dialog";
 import { RejectPayoutDialog } from "./components/reject-payout-dialog";
+import { SetAffiliateCodeDialog } from "./components/set-affiliate-code-dialog";
 import {
   useAffiliateAdminDashboard,
   useApproveAffiliatePayout,
   useRejectAffiliatePayout,
   useSaveAffiliateProgramRules,
+  useSetAffiliateCode,
   useToggleAffiliatePartnerStatus,
 } from "./hooks/use-affiliate-admin";
-import type { AffiliatePayoutRequest, AffiliateProgramRules } from "./types";
+import type {
+  AffiliatePartner,
+  AffiliatePayoutRequest,
+  AffiliateProgramRules,
+} from "./types";
+
+type CodeDialogState =
+  | { open: false }
+  | { open: true; mode: "create"; partner: null }
+  | { open: true; mode: "edit"; partner: AffiliatePartner };
 
 export default function Affiliate() {
   const { t } = useTranslation("common");
@@ -33,12 +43,16 @@ export default function Affiliate() {
   const rejectMutation = useRejectAffiliatePayout();
   const togglePartnerMutation = useToggleAffiliatePartnerStatus();
   const saveRulesMutation = useSaveAffiliateProgramRules();
+  const setCodeMutation = useSetAffiliateCode();
 
   const [activeTab, setActiveTab] = useState("payouts");
   const [approveTarget, setApproveTarget] =
     useState<AffiliatePayoutRequest | null>(null);
   const [rejectTarget, setRejectTarget] =
     useState<AffiliatePayoutRequest | null>(null);
+  const [codeDialog, setCodeDialog] = useState<CodeDialogState>({
+    open: false,
+  });
 
   const data = dashboardQuery.data;
   const isLoading = dashboardQuery.isLoading;
@@ -78,16 +92,6 @@ export default function Affiliate() {
           <span className="me-2 inline-block size-2 animate-pulse rounded-full bg-emerald-500" />
           {t("affiliate.antiFraudActive")}
         </Badge>
-      </div>
-
-      <div className="bg-card flex items-center gap-2 rounded-2xl border px-3 py-2">
-        <IconShieldCheck className="text-primary size-4 shrink-0" />
-        <div className="min-w-0 text-start">
-          <h2 className="text-xs font-bold">{t("affiliate.headerTitle")}</h2>
-          <p className="text-muted-foreground truncate text-[11px]">
-            {t("affiliate.headerDescription")}
-          </p>
-        </div>
       </div>
 
       <AffiliateStatsCards stats={data?.stats} isLoading={isLoading} />
@@ -153,6 +157,12 @@ export default function Affiliate() {
                   partner.status === "active" ? "SUSPENDED" : "ACTIVE",
               })
             }
+            onCreateCode={() =>
+              setCodeDialog({ open: true, mode: "create", partner: null })
+            }
+            onEditCode={(partner) =>
+              setCodeDialog({ open: true, mode: "edit", partner })
+            }
           />
         </TabsContent>
 
@@ -189,6 +199,21 @@ export default function Affiliate() {
           if (!open) setRejectTarget(null);
         }}
         onConfirm={handleReject}
+      />
+
+      <SetAffiliateCodeDialog
+        open={codeDialog.open}
+        mode={codeDialog.open ? codeDialog.mode : "create"}
+        partner={codeDialog.open ? codeDialog.partner : null}
+        isSubmitting={setCodeMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setCodeDialog({ open: false });
+        }}
+        onConfirm={(payload) =>
+          setCodeMutation.mutate(payload, {
+            onSuccess: () => setCodeDialog({ open: false }),
+          })
+        }
       />
     </div>
   );

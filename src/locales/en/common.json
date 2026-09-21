@@ -2474,8 +2474,6 @@
   "affiliate": {
     "title": "Affiliate & Partner Sales Management",
     "description": "Manage payouts, partners, commission audit logs, and program rules",
-    "headerTitle": "Global affiliate admin panel",
-    "headerDescription": "Data is currently loaded from local mock storage and will switch to API later.",
     "antiFraudActive": "Anti-fraud system active",
     "tabs": {
       "payouts": "Payout requests",
@@ -2530,12 +2528,16 @@
     "partners": {
       "title": "Partner directory",
       "description": "Review performance, promo codes, and access control.",
-      "searchPlaceholder": "Search by name or code...",
+      "searchPlaceholder": "Search by name, phone, or code...",
       "empty": "No partners found.",
+      "defaultDiscount": "System default",
       "table": {
         "name": "Partner name",
         "phone": "Phone",
         "code": "Promo code",
+        "affiliateCode": "Affiliate code",
+        "discountCode": "Discount code",
+        "discountPercentage": "Discount %",
         "buyers": "Successful buyers",
         "totalEarned": "Lifetime earnings",
         "availableBalance": "Current balance",
@@ -2548,7 +2550,36 @@
       },
       "actions": {
         "suspend": "Suspend",
-        "activate": "Activate"
+        "activate": "Activate",
+        "setCode": "Set code for user",
+        "editCode": "Edit code"
+      }
+    },
+    "codeDialog": {
+      "createTitle": "Create / set affiliate code for a user",
+      "createDescription": "Enter the user's mobile number to create or update their affiliate account and linked discount code.",
+      "editTitle": "Edit affiliate code & discount %",
+      "editDescription": "Partner: {{name}}",
+      "phoneNumberLabel": "User mobile number *",
+      "phoneNumberPlaceholder": "e.g. 09123456789",
+      "phoneNumberHint": "Iranian 11-digit mobile (unique in the system).",
+      "affiliateCodeLabel": "Affiliate code *",
+      "affiliateCodePlaceholder": "e.g. VIPGOLD",
+      "affiliateCodeHint": "3–32 chars: letters, numbers, _ or -",
+      "discountPercentageLabel": "Buyer discount %",
+      "discountPercentagePlaceholder": "e.g. 25",
+      "discountPercentageHint": "Optional; if empty, keeps current rate or system default (10%).",
+      "customDiscountCodeToggle": "Custom discount code (advanced)",
+      "discountCodeLabel": "Custom discount code",
+      "discountCodePlaceholder": "e.g. VIPGOLD25",
+      "previewLabel": "Final discount code (auto):",
+      "submit": "Save code & discount",
+      "submitting": "Saving...",
+      "errors": {
+        "phoneNumberInvalid": "Invalid mobile number (e.g. 09123456789).",
+        "affiliateCodeInvalid": "Invalid affiliate code (3–32 allowed characters).",
+        "discountPercentageInvalid": "Percentage must be an integer from 0 to 100.",
+        "discountCodeInvalid": "Invalid discount code (3–32 allowed characters)."
       }
     },
     "commissions": {
@@ -2613,7 +2644,8 @@
       "approveSuccess": "Payout approved successfully.",
       "rejectSuccess": "Payout rejected.",
       "partnerStatusUpdated": "Partner status updated.",
-      "rulesSaved": "Affiliate rules saved."
+      "rulesSaved": "Affiliate rules saved.",
+      "codeSaved": "Affiliate code and discount saved."
     }
   },
   "planCampaigns": {

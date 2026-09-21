@@ -2517,8 +2517,6 @@
   "affiliate": {
     "title": "مدیریت افیلیت و همکاری در فروش",
     "description": "مدیریت تسویه‌حساب، همکاران فروش، لاگ پورسانت‌ها و قوانین سیستم",
-    "headerTitle": "پنل مدیریت افیلیت (مدیریت کل)",
-    "headerDescription": "فعلاً داده‌ها از mock محلی بارگذاری می‌شوند؛ پس از آماده شدن API جایگزین می‌شوند.",
     "antiFraudActive": "سیستم ضد تقلب فعال",
     "tabs": {
       "payouts": "درخواست‌های تسویه‌حساب",
@@ -2574,12 +2572,16 @@
     "partners": {
       "title": "لیست و وضعیت همکاران فروش",
       "description": "مشاهده عملکرد، کد اختصاصی و کنترل دسترسی بازاریابان.",
-      "searchPlaceholder": "جستجو بر اساس نام یا کد...",
+      "searchPlaceholder": "جستجو بر اساس نام، موبایل یا کد...",
       "empty": "همکار فروشی یافت نشد.",
+      "defaultDiscount": "پیش‌فرض سیستم",
       "table": {
         "name": "نام همکار",
         "phone": "شماره موبایل",
         "code": "کد تخفیف",
+        "affiliateCode": "کد افیلیت",
+        "discountCode": "کد تخفیف",
+        "discountPercentage": "درصد تخفیف",
         "buyers": "خریداران موفق",
         "totalEarned": "کل درآمد تاریخ",
         "availableBalance": "موجودی فعلی",
@@ -2592,7 +2594,36 @@
       },
       "actions": {
         "suspend": "مسدودسازی",
-        "activate": "فعال‌سازی"
+        "activate": "فعال‌سازی",
+        "setCode": "تنظیم کد برای کاربر",
+        "editCode": "ویرایش کد"
+      }
+    },
+    "codeDialog": {
+      "createTitle": "ایجاد / تنظیم کد افیلیت برای کاربر",
+      "createDescription": "با وارد کردن شماره موبایل، اکانت افیلیت و کدتخفیف اختصاصی ساخته یا به‌روزرسانی می‌شود.",
+      "editTitle": "ویرایش کد و درصد تخفیف",
+      "editDescription": "همکار: {{name}}",
+      "phoneNumberLabel": "شماره موبایل کاربر *",
+      "phoneNumberPlaceholder": "09123456789",
+      "phoneNumberHint": "شماره موبایل ۱۱ رقمی ایرانی (یکتا در سیستم).",
+      "affiliateCodeLabel": "کد افیلیت *",
+      "affiliateCodePlaceholder": "VIPGOLD",
+      "affiliateCodeHint": "۳ تا ۳۲ کاراکتر: حروف انگلیسی، عدد، _ یا -",
+      "discountPercentageLabel": "درصد تخفیف خریدار",
+      "discountPercentagePlaceholder": "۲۵",
+      "discountPercentageHint": "اختیاری؛ اگر خالی باشد از درصد فعلی یا پیش‌فرض سیستم (۱۰٪) استفاده می‌شود.",
+      "customDiscountCodeToggle": "کدتخفیف سفارشی (پیشرفته)",
+      "discountCodeLabel": "کدتخفیف سفارشی",
+      "discountCodePlaceholder": "VIPGOLD25",
+      "previewLabel": "کدتخفیف نهایی (خودکار):",
+      "submit": "ذخیره کد و درصد تخفیف",
+      "submitting": "در حال ذخیره...",
+      "errors": {
+        "phoneNumberInvalid": "شماره موبایل معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹).",
+        "affiliateCodeInvalid": "کد افیلیت معتبر نیست (۳–۳۲ کاراکتر مجاز).",
+        "discountPercentageInvalid": "درصد باید عدد صحیح بین ۰ تا ۱۰۰ باشد.",
+        "discountCodeInvalid": "کدتخفیف معتبر نیست (۳–۳۲ کاراکتر مجاز)."
       }
     },
     "commissions": {
@@ -2657,7 +2688,8 @@
       "approveSuccess": "درخواست تسویه با موفقیت تایید شد.",
       "rejectSuccess": "درخواست تسویه رد شد.",
       "partnerStatusUpdated": "وضعیت همکار فروش به‌روزرسانی شد.",
-      "rulesSaved": "تنظیمات افیلیت ذخیره شد."
+      "rulesSaved": "تنظیمات افیلیت ذخیره شد.",
+      "codeSaved": "کد افیلیت و درصد تخفیف ذخیره شد."
     }
   },
   "planCampaigns": {

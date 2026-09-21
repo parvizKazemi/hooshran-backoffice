@@ -7,6 +7,7 @@ import {
   fetchAffiliateAdminDashboard,
   rejectAffiliatePayout,
   saveAffiliateProgramRules,
+  setAffiliateCode,
   toggleAffiliatePartnerStatus,
 } from "../api/service";
 import { AFFILIATE_ADMIN_QUERY_KEY } from "../constants";
@@ -14,6 +15,7 @@ import type {
   ApproveAffiliatePayoutPayload,
   RejectAffiliatePayoutPayload,
   AffiliateProgramRules,
+  SetAffiliateCodePayload,
   ToggleAffiliatePartnerPayload,
 } from "../types";
 
@@ -76,5 +78,12 @@ export function useSaveAffiliateProgramRules() {
   return useAffiliateAdminMutation<AffiliateProgramRules>(
     saveAffiliateProgramRules,
     "affiliate.toasts.rulesSaved"
+  );
+}
+
+export function useSetAffiliateCode() {
+  return useAffiliateAdminMutation<SetAffiliateCodePayload>(
+    setAffiliateCode,
+    "affiliate.toasts.codeSaved"
   );
 }

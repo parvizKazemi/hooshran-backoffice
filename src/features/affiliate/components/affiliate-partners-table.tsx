@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconSearch, IconUsers } from "@tabler/icons-react";
+import { IconPlus, IconSearch, IconTicket, IconUsers } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,11 @@ type AffiliatePartnersTableProps = {
   isToggling?: boolean;
   togglingPartnerId?: string | null;
   onToggleStatus: (partner: AffiliatePartner) => void;
+  onCreateCode: () => void;
+  onEditCode: (partner: AffiliatePartner) => void;
 };
+
+const COLUMN_COUNT = 9;
 
 export function AffiliatePartnersTable({
   partners,
@@ -34,6 +38,8 @@ export function AffiliatePartnersTable({
   isToggling,
   togglingPartnerId,
   onToggleStatus,
+  onCreateCode,
+  onEditCode,
 }: AffiliatePartnersTableProps) {
   const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
@@ -56,14 +62,24 @@ export function AffiliatePartnersTable({
           </p>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <IconSearch className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t("affiliate.partners.searchPlaceholder")}
-            className="h-10 rounded-xl pr-10 text-xs"
-          />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <IconSearch className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("affiliate.partners.searchPlaceholder")}
+              className="h-10 rounded-xl pr-10 text-xs"
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={onCreateCode}
+            className="h-10 shrink-0 rounded-xl bg-emerald-600 px-4 text-xs font-bold hover:bg-emerald-500"
+          >
+            <IconPlus className="size-4" />
+            {t("affiliate.partners.actions.setCode")}
+          </Button>
         </div>
       </div>
 
@@ -78,16 +94,19 @@ export function AffiliatePartnersTable({
                 {t("affiliate.partners.table.phone")}
               </TableHead>
               <TableHead className="text-xs font-bold">
-                {t("affiliate.partners.table.code")}
+                {t("affiliate.partners.table.affiliateCode")}
+              </TableHead>
+              <TableHead className="text-xs font-bold">
+                {t("affiliate.partners.table.discountCode")}
+              </TableHead>
+              <TableHead className="text-xs font-bold">
+                {t("affiliate.partners.table.discountPercentage")}
               </TableHead>
               <TableHead className="text-xs font-bold">
                 {t("affiliate.partners.table.buyers")}
               </TableHead>
               <TableHead className="text-xs font-bold">
                 {t("affiliate.partners.table.totalEarned")}
-              </TableHead>
-              <TableHead className="text-xs font-bold">
-                {t("affiliate.partners.table.availableBalance")}
               </TableHead>
               <TableHead className="text-xs font-bold">
                 {t("affiliate.partners.table.status")}
@@ -101,7 +120,7 @@ export function AffiliatePartnersTable({
             {isLoading ? (
               Array.from({ length: 4 }).map((_, index) => (
                 <TableRow key={index}>
-                  {Array.from({ length: 7 }).map((__, cellIndex) => (
+                  {Array.from({ length: COLUMN_COUNT }).map((__, cellIndex) => (
                     <TableCell key={cellIndex}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
@@ -111,7 +130,7 @@ export function AffiliatePartnersTable({
             ) : filteredPartners.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={COLUMN_COUNT}
                   className="text-muted-foreground py-10 text-center text-sm"
                 >
                   {t("affiliate.partners.empty")}
@@ -126,8 +145,23 @@ export function AffiliatePartnersTable({
                   <TableCell className="text-xs font-bold">
                     {item.phone}
                   </TableCell>
-                  <TableCell className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    {item.code}
+                  <TableCell
+                    className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400"
+                    dir="ltr"
+                  >
+                    {item.affiliateCode || "—"}
+                  </TableCell>
+                  <TableCell
+                    className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400"
+                    dir="ltr"
+                  >
+                    {item.discountCode || item.code || "—"}
+                  </TableCell>
+                  <TableCell className="text-xs font-bold">
+                    {item.discountPercentage === null ||
+                    item.discountPercentage === undefined
+                      ? t("affiliate.partners.defaultDiscount")
+                      : `${item.discountPercentage.toLocaleString("fa-IR")}٪`}
                   </TableCell>
                   <TableCell className="text-xs font-bold">
                     {item.buyersCount.toLocaleString("fa-IR")}{" "}
@@ -135,9 +169,6 @@ export function AffiliatePartnersTable({
                   </TableCell>
                   <TableCell className="text-xs font-bold text-blue-600 dark:text-blue-400">
                     {formatToman(item.totalEarned)}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {formatToman(item.availableBalance)}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -153,18 +184,29 @@ export function AffiliatePartnersTable({
                         : t("affiliate.partners.status.suspended")}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="h-auto p-0 text-xs"
-                      disabled={isToggling && togglingPartnerId === item.id}
-                      onClick={() => onToggleStatus(item)}
-                    >
-                      {isPartnerActive(item.status)
-                        ? t("affiliate.partners.actions.suspend")
-                        : t("affiliate.partners.actions.activate")}
-                    </Button>
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-3">
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="h-auto gap-1 p-0 text-xs text-emerald-600 dark:text-emerald-400"
+                        onClick={() => onEditCode(item)}
+                      >
+                        <IconTicket className="size-3.5" />
+                        {t("affiliate.partners.actions.editCode")}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="h-auto p-0 text-xs"
+                        disabled={isToggling && togglingPartnerId === item.id}
+                        onClick={() => onToggleStatus(item)}
+                      >
+                        {isPartnerActive(item.status)
+                          ? t("affiliate.partners.actions.suspend")
+                          : t("affiliate.partners.actions.activate")}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
