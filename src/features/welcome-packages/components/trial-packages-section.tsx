@@ -99,10 +99,6 @@ export function TrialPackagesSection({ enabled }: TrialPackagesSectionProps) {
           ))}
         </div>
       )}
-
-      <div className="rounded-lg border border-amber-200/70 bg-amber-50 p-2.5 text-[11px] font-bold text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-        {t("welcomePackages.trialPackages.note")}
-      </div>
     </div>
   );
 }
