@@ -145,6 +145,10 @@ function useSidebarData() {
             url: "/services/manage",
           },
           {
+            title: t("nav.services.textChatModels"),
+            url: "/services/text-chat-models",
+          },
+          {
             title: t("nav.services.serviceHint"),
             url: "/services/service-hint",
           },

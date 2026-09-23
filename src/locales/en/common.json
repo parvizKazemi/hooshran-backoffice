@@ -72,7 +72,8 @@
       "manageServices": "Manage Services",
       "serviceHint": "Service Guide",
       "promptAssistant": "Prompt Assistant",
-      "promptAssistantServices": "Prompt Assistant (Service)"
+      "promptAssistantServices": "Prompt Assistant (Service)",
+      "textChatModels": "Chat Models"
     },
     "purchasePayments": {
       "title": "Purchase & Payments",
@@ -2384,6 +2385,67 @@
       "enabled": "VPN detection enabled",
       "disabled": "VPN detection disabled",
       "updateFailed": "Failed to update VPN detection settings"
+    }
+  },
+  "textChatModels": {
+    "title": "Chat models",
+    "description": "Manage display name, price ratio, availability, and token ceilings for chat models.",
+    "add": "New model",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search by name or code…",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "empty": "No models found",
+    "loadError": "Failed to load models",
+    "retry": "Try again",
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "priceRatio": "Price ratio",
+      "outputToken": "Output cap",
+      "inputToken": "Input cap",
+      "maxToken": "Context window",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "notSet": "—",
+    "tokenHint": "Leave blank to keep the current value. The API cannot clear a token ceiling.",
+    "outputOverMax": "Output cap cannot be larger than the context window.",
+    "inputOverMax": "Input cap cannot be larger than the context window.",
+    "form": {
+      "createTitle": "New model",
+      "editTitle": "Edit model",
+      "createDescription": "The model is created or updated in the chat service.",
+      "editDescription": "Only the fields you submit are saved.",
+      "code": "Model code",
+      "codeHint": "Unique id, for example grok-4.6",
+      "name": "Display name",
+      "priceRatio": "Price ratio",
+      "priceRatioHint": "Minimum credit = ratio × chat fixed price ÷ 100",
+      "isActive": "Available in chat",
+      "maxToken": "Context window",
+      "inputToken": "Input token cap",
+      "outputToken": "Output token cap",
+      "tokenOptional": "Optional, minimum 1",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "validation": {
+      "code": "Enter a code using letters, numbers, dots, or hyphens.",
+      "priceRatio": "Price ratio must be a number of zero or more.",
+      "token": "Token cap must be a whole number of at least 1."
+    },
+    "toasts": {
+      "created": "Model saved",
+      "updated": "Model updated",
+      "activated": "Model activated",
+      "deactivated": "Model deactivated",
+      "failed": "Failed to save the model"
     }
   },
   "monitoring": {

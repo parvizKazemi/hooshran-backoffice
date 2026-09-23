@@ -72,7 +72,8 @@
       "manageServices": "مدیریت سرویس‌ها",
       "serviceHint": "راهنمای سرویس",
       "promptAssistant": "دستیار پرامپت",
-      "promptAssistantServices": "دستیار پرامپت (سرویس)"
+      "promptAssistantServices": "دستیار پرامپت (سرویس)",
+      "textChatModels": "مدل‌های چت"
     },
     "purchasePayments": {
       "title": "مدیریت خرید و پرداخت‌ها",
@@ -2427,6 +2428,67 @@
       "enabled": "شناسایی VPN فعال شد",
       "disabled": "شناسایی VPN غیرفعال شد",
       "updateFailed": "به‌روزرسانی تنظیمات VPN با خطا مواجه شد"
+    }
+  },
+  "textChatModels": {
+    "title": "مدل‌های چت",
+    "description": "نام، ضریب قیمت، وضعیت و سقف توکن مدل‌های گفتگو را مدیریت کنید.",
+    "add": "مدل جدید",
+    "refresh": "بروزرسانی",
+    "searchPlaceholder": "جستجو بر اساس نام یا کد…",
+    "filterAll": "همه",
+    "filterActive": "فعال",
+    "filterInactive": "غیرفعال",
+    "empty": "مدلی پیدا نشد",
+    "loadError": "بارگذاری مدل‌ها ناموفق بود",
+    "retry": "تلاش مجدد",
+    "columns": {
+      "name": "نام",
+      "code": "کد",
+      "priceRatio": "ضریب قیمت",
+      "outputToken": "سقف خروجی",
+      "inputToken": "سقف ورودی",
+      "maxToken": "پنجره context",
+      "status": "وضعیت",
+      "actions": "عملیات"
+    },
+    "active": "فعال",
+    "inactive": "غیرفعال",
+    "edit": "ویرایش",
+    "notSet": "—",
+    "tokenHint": "اگر خالی بماند، مقدار قبلی عوض نمی‌شود. بک‌اند پاک کردن سقف را قبول نمی‌کند.",
+    "outputOverMax": "سقف خروجی نمی‌تواند از پنجره context بزرگ‌تر باشد.",
+    "inputOverMax": "سقف ورودی نمی‌تواند از پنجره context بزرگ‌تر باشد.",
+    "form": {
+      "createTitle": "مدل جدید",
+      "editTitle": "ویرایش مدل",
+      "createDescription": "مدل در سرویس چت ساخته یا به‌روز می‌شود.",
+      "editDescription": "فقط فیلدهایی که وارد کنید ذخیره می‌شوند.",
+      "code": "کد مدل",
+      "codeHint": "شناسه یکتا، مثل grok-4.6",
+      "name": "نام نمایشی",
+      "priceRatio": "ضریب قیمت",
+      "priceRatioHint": "حداقل اعتبار = ضریب × قیمت ثابت چت ÷ ۱۰۰",
+      "isActive": "قابل استفاده در چت",
+      "maxToken": "پنجره context",
+      "inputToken": "سقف توکن ورودی",
+      "outputToken": "سقف توکن خروجی",
+      "tokenOptional": "اختیاری، حداقل ۱",
+      "cancel": "انصراف",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره…"
+    },
+    "validation": {
+      "code": "کد مدل را با حروف، عدد، نقطه یا خط تیره وارد کنید.",
+      "priceRatio": "ضریب قیمت باید عدد صفر یا بزرگ‌تر باشد.",
+      "token": "سقف توکن باید عدد صحیح حداقل ۱ باشد."
+    },
+    "toasts": {
+      "created": "مدل ذخیره شد",
+      "updated": "مدل به‌روز شد",
+      "activated": "مدل فعال شد",
+      "deactivated": "مدل غیرفعال شد",
+      "failed": "ذخیره مدل ناموفق بود"
     }
   },
   "monitoring": {
