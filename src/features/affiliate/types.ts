@@ -87,6 +87,7 @@ export type AffiliateCommissionLog = {
 export type AffiliateProgramRules = {
   firstCommissionRate: number;
   capAmount: number;
+  buyerDiscountPercentage: number;
   renewalCommissionRate: number;
   renewalSunsetDays: number;
   holdDays: number;

@@ -73,6 +73,11 @@ export function normalizeAffiliateProgramRules(
       PROGRAM_RULE_ALIASES.capAmount,
       defaults.capAmount
     ),
+    buyerDiscountPercentage: readNumber(
+      nested,
+      PROGRAM_RULE_ALIASES.buyerDiscountPercentage,
+      defaults.buyerDiscountPercentage
+    ),
     renewalCommissionRate: readNumber(
       nested,
       PROGRAM_RULE_ALIASES.renewalCommissionRate,

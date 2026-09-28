@@ -2678,6 +2678,8 @@
       "firstCommissionRate": "First purchase commission (%):",
       "firstCommissionRateHint": "Default: 20% of net gateway amount",
       "capAmount": "Per-transaction commission cap (Toman):",
+      "buyerDiscountPercentage": "Buyer discount percentage (%):",
+      "buyerDiscountPercentageHint": "Discount percentage for buyers",
       "capAmountHint": "Maximum payout for a first invoice",
       "renewalCommissionRate": "Renewal commission (%):",
       "renewalCommissionRateHint": "Commission on subsequent referred purchases",

@@ -69,6 +69,15 @@ const RULE_FIELDS: RuleField[] = [
     toneClass: "text-amber-600 dark:text-amber-400",
     step: 50_000,
   },
+
+  {
+    key: "buyerDiscountPercentage",
+    labelKey: "affiliate.rules.buyerDiscountPercentage",
+    hintKey: "affiliate.rules.buyerDiscountPercentageHint",
+    toneClass: "text-emerald-600 dark:text-emerald-400",
+    min: 1,
+    max: 100,
+  },
 ];
 
 export function AffiliateRulesForm({

@@ -302,6 +302,7 @@ export async function saveAffiliateProgramRules(
   await apiPut(AFFILIATE_ADMIN_ENDPOINTS.config, {
     firstPurchasePercentage: rules.firstCommissionRate,
     transactionCap: rules.capAmount,
+    buyerDiscountPercentage: rules.buyerDiscountPercentage,
     renewalPercentage: rules.renewalCommissionRate,
     cookieDurationDays: rules.renewalSunsetDays,
     holdPeriodDays: rules.holdDays,

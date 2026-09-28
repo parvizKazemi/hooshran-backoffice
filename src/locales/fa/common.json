@@ -2723,6 +2723,8 @@
       "firstCommissionRateHint": "پیش‌فرض: ۲۰٪ از مبلغ خالص درگاه شاپرک",
       "capAmount": "سقف ریالی پورسانت هر تراکنش (ریال):",
       "capAmountHint": "حداکثر سقف پرداختی برای یک فاکتور اول",
+      "buyerDiscountPercentage": "درصد پورسانت کدتخفیف (%):",
+      "buyerDiscountPercentageHint": "درصد تخفیف پیش‌فرض برای کدتخفیف. قابل تغییر به صورت اختصاصی",
       "renewalCommissionRate": "درصد پورسانت تمدیدها (%):",
       "renewalCommissionRateHint": "پورسانت خریدهای بعدی کاربر ارجاع‌شده",
       "renewalSunsetDays": "مدت اعتبار پورسانت تمدید (روز):",
