@@ -2758,6 +2758,11 @@
       "groupServices": "Target services / models",
       "addService": "Add service",
       "tierAssignment": "Discount percentage per plan",
+      "planTargetHint": "Explorer, Adventurer, and Hero apply to that plan’s monthly and yearly packages. Public applies to special-offer packages (guest and public).",
+      "targetedPackages": "{{count}} target packages",
+      "billingPeriodTarget": "Monthly and yearly",
+      "specialOfferTarget": "Special-offer packages",
+      "packagesLoading": "Finding packages...",
       "minOneTier": "Select at least one plan",
       "percentPlaceholder": "e.g. 20",
       "selectServicePlaceholder": "Select...",
@@ -2807,7 +2812,8 @@
       "tierRequired": "Set a discount for at least one plan.",
       "individualRowsRequired": "Add at least one individual row.",
       "rowServiceRequired": "Select a service for each row.",
-      "rowTierRequired": "Set a discount for each row."
+      "rowTierRequired": "Set a discount for each row.",
+      "planPackagesMissing": "No matching package was found for the selected plan. Named plans need monthly and yearly subscriptions, and Public needs a special-offer package."
     },
     "delete": {
       "title": "Delete campaign",

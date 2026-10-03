@@ -1,22 +1,28 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import type { Package } from "@/features/packages/types";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { CAMPAIGN_TIER_KEYS } from "../constants";
 import type { CampaignTierKey, TierDiscountState } from "../types";
+import { resolvePackageUuidsForTier } from "../utils/campaign-form.helpers";
 
 type CampaignTierDiscountGridProps = {
   tiers: TierDiscountState;
+  packages: Package[];
   onChange: (next: TierDiscountState) => void;
   compact?: boolean;
   disabled?: boolean;
+  packagesLoading?: boolean;
 };
 
 export function CampaignTierDiscountGrid({
   tiers,
+  packages,
   onChange,
   compact = false,
   disabled = false,
+  packagesLoading = false,
 }: CampaignTierDiscountGridProps) {
   const { t } = useTranslation("common");
 
@@ -43,6 +49,9 @@ export function CampaignTierDiscountGrid({
       {CAMPAIGN_TIER_KEYS.map((tier) => {
         const state = tiers[tier];
         const isHero = tier === "hero";
+        const packageCount = resolvePackageUuidsForTier(tier, packages).length;
+        const missingPackages =
+          !packagesLoading && state.enabled && packageCount === 0;
 
         return (
           <div
@@ -68,16 +77,38 @@ export function CampaignTierDiscountGrid({
                   isHero && "border-amber-400 data-[state=checked]:bg-amber-500"
                 )}
               />
-              <span
-                className={cn(
-                  "text-sm font-bold",
-                  isHero
-                    ? "text-amber-700 dark:text-amber-300"
-                    : "text-foreground",
-                  compact && "text-xs"
-                )}
-              >
-                {t(`planCampaigns.tiers.${tier}`)}
+              <span className="flex flex-col gap-0.5">
+                <span
+                  className={cn(
+                    "text-sm font-bold",
+                    isHero
+                      ? "text-amber-700 dark:text-amber-300"
+                      : "text-foreground",
+                    compact && "text-xs"
+                  )}
+                >
+                  {t(`planCampaigns.tiers.${tier}`)}
+                </span>
+                <span
+                  className={cn(
+                    "text-[10px] leading-tight font-medium",
+                    missingPackages
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {packagesLoading
+                    ? t("planCampaigns.form.packagesLoading")
+                    : packageCount > 0
+                      ? t("planCampaigns.form.targetedPackages", {
+                          count: packageCount,
+                        })
+                      : t(
+                          tier === "basic"
+                            ? "planCampaigns.form.specialOfferTarget"
+                            : "planCampaigns.form.billingPeriodTarget"
+                        )}
+                </span>
               </span>
             </label>
 

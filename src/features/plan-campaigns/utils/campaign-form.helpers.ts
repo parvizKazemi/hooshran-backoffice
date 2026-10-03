@@ -1,3 +1,4 @@
+import type { Package } from "@/features/packages/types";
 import {
   CAMPAIGN_TIER_KEYS,
   DEFAULT_END_TIME,
@@ -7,12 +8,73 @@ import type {
   CampaignAllocationMode,
   CampaignFormState,
   CampaignServiceDiscount,
+  CampaignTierKey,
   CreateCampaignDiscountItem,
   CreateCampaignInput,
   IndividualDiscountRow,
   PlanCampaign,
   TierDiscountState,
 } from "../types";
+
+const MONTHLY_DURATION_DAYS = new Set([30, 31]);
+const YEARLY_DURATION_DAYS = new Set([360, 365, 366]);
+
+const NAMED_PLAN_LABELS: Record<
+  Exclude<CampaignTierKey, "basic">,
+  readonly string[]
+> = {
+  explorer: ["کاشف", "کاوشگر"],
+  adventurer: ["ماجراجو"],
+  hero: ["قهرمان"],
+};
+
+const isMonthlyOrYearly = (durationDays?: number | null) =>
+  durationDays != null &&
+  (MONTHLY_DURATION_DAYS.has(durationDays) ||
+    YEARLY_DURATION_DAYS.has(durationDays));
+
+const packageDisplayName = (name?: string | null) => {
+  const displayName = name?.split("|")[0]?.trim();
+  return displayName || name?.trim() || "";
+};
+
+const matchesNamedPlan = (
+  pkg: Package,
+  tier: Exclude<CampaignTierKey, "basic">
+) => {
+  if (pkg.type !== "SUBSCRIPTION") return false;
+  if (pkg.properties?.isSpecialOffer || pkg.properties?.isWelcomePackage) {
+    return false;
+  }
+  if (!isMonthlyOrYearly(pkg.durationDays)) return false;
+
+  const queue = pkg.properties?.planQueue;
+  if (queue === "explorer" || queue === "adventurer" || queue === "hero") {
+    return queue === tier;
+  }
+
+  return NAMED_PLAN_LABELS[tier].includes(packageDisplayName(pkg.name));
+};
+
+export function resolvePackageUuidsForTier(
+  tier: CampaignTierKey,
+  packages: Package[]
+): string[] {
+  const matched =
+    tier === "basic"
+      ? packages.filter((pkg) => pkg.properties?.isSpecialOffer === true)
+      : packages.filter((pkg) => matchesNamedPlan(pkg, tier));
+
+  return [...new Set(matched.map((pkg) => pkg.uuid).filter(Boolean))];
+}
+
+function tierForPackage(pkg: Package): CampaignTierKey | null {
+  if (pkg.properties?.isSpecialOffer) return "basic";
+  if (matchesNamedPlan(pkg, "hero")) return "hero";
+  if (matchesNamedPlan(pkg, "adventurer")) return "adventurer";
+  if (matchesNamedPlan(pkg, "explorer")) return "explorer";
+  return null;
+}
 
 export const createEmptyTierDiscountState = (): TierDiscountState =>
   CAMPAIGN_TIER_KEYS.reduce(
@@ -83,14 +145,37 @@ function isoToTimeInput(value: string): string {
   return `${hours}:${minutes}`;
 }
 
+function tierFromDiscount(
+  discount: CampaignServiceDiscount,
+  packageByUuid: Map<string, Package>
+): CampaignTierKey | null {
+  const packageUuid = discount.packageUuid?.trim();
+  if (packageUuid) {
+    const pkg = packageByUuid.get(packageUuid);
+    if (pkg) return tierForPackage(pkg);
+  }
+
+  if (
+    discount.tier &&
+    CAMPAIGN_TIER_KEYS.includes(discount.tier)
+  ) {
+    return discount.tier;
+  }
+
+  return null;
+}
+
 function tierMapFromDiscounts(
-  discounts: CampaignServiceDiscount[]
+  discounts: CampaignServiceDiscount[],
+  packages: Package[] = []
 ): TierDiscountState {
   const tiers = createEmptyTierDiscountState();
+  const packageByUuid = new Map(packages.map((pkg) => [pkg.uuid, pkg]));
 
   for (const discount of discounts) {
-    if (!discount.tier) continue;
-    tiers[discount.tier] = {
+    const tier = tierFromDiscount(discount, packageByUuid);
+    if (!tier) continue;
+    tiers[tier] = {
       enabled: true,
       percentage: discount.discountPercentage,
     };
@@ -113,7 +198,8 @@ function getDiscountServiceUuid(
 }
 
 export function detectAllocationMode(
-  discounts: CampaignServiceDiscount[] = []
+  discounts: CampaignServiceDiscount[] = [],
+  packages: Package[] = []
 ): CampaignAllocationMode {
   if (discounts.length === 0) return "group";
 
@@ -133,15 +219,18 @@ export function detectAllocationMode(
   }
 
   const tierMaps = Array.from(byService.values()).map((items) =>
-    serializeTierMap(tierMapFromDiscounts(items))
+    serializeTierMap(tierMapFromDiscounts(items, packages))
   );
   const [firstMap] = tierMaps;
   return tierMaps.every((map) => map === firstMap) ? "group" : "individual";
 }
 
-export function campaignToFormState(campaign: PlanCampaign): CampaignFormState {
+export function campaignToFormState(
+  campaign: PlanCampaign,
+  packages: Package[] = []
+): CampaignFormState {
   const discounts = campaign.serviceDiscounts ?? [];
-  const allocationMode = detectAllocationMode(discounts);
+  const allocationMode = detectAllocationMode(discounts, packages);
   const hasIndefiniteEnd =
     campaign.endsAt.startsWith("2099-") ||
     new Date(campaign.endsAt).getFullYear() >= 2099;
@@ -176,7 +265,7 @@ export function campaignToFormState(campaign: PlanCampaign): CampaignFormState {
           .filter((uuid): uuid is string => Boolean(uuid))
       ),
     ];
-    base.groupTiers = tierMapFromDiscounts(discounts);
+    base.groupTiers = tierMapFromDiscounts(discounts, packages);
     return base;
   }
 
@@ -195,7 +284,7 @@ export function campaignToFormState(campaign: PlanCampaign): CampaignFormState {
     ([serviceUuid, items]) => ({
       id: crypto.randomUUID(),
       serviceUuid,
-      tiers: tierMapFromDiscounts(items),
+      tiers: tierMapFromDiscounts(items, packages),
     })
   );
 
@@ -217,41 +306,49 @@ function buildEndsAtIso(form: CampaignFormState): string {
 
 function buildTierDiscountItems(
   serviceUuid: string,
-  tiers: TierDiscountState
+  tiers: TierDiscountState,
+  packages: Package[]
 ): CreateCampaignDiscountItem[] {
   return CAMPAIGN_TIER_KEYS.flatMap((tier) => {
     const state = tiers[tier];
     if (!state.enabled || state.percentage <= 0) {
       return [];
     }
-    return [
-      {
-        serviceUuid,
-        tier,
-        discountPercentage: Math.min(100, Math.max(1, Math.round(state.percentage))),
-      },
-    ];
+
+    const discountPercentage = Math.min(
+      100,
+      Math.max(1, Math.round(state.percentage))
+    );
+
+    return resolvePackageUuidsForTier(tier, packages).map((packageUuid) => ({
+      serviceUuid,
+      packageUuid,
+      tier,
+      discountPercentage,
+    }));
   });
 }
 
 export function buildDiscountPayload(
-  form: CampaignFormState
+  form: CampaignFormState,
+  packages: Package[]
 ): CreateCampaignDiscountItem[] {
   if (form.allocationMode === "group") {
     return form.groupServiceUuids.flatMap((uuid) => {
       if (!uuid) return [];
-      return buildTierDiscountItems(uuid, form.groupTiers);
+      return buildTierDiscountItems(uuid, form.groupTiers, packages);
     });
   }
 
   return form.individualRows.flatMap((row) => {
     if (!row.serviceUuid) return [];
-    return buildTierDiscountItems(row.serviceUuid, row.tiers);
+    return buildTierDiscountItems(row.serviceUuid, row.tiers, packages);
   });
 }
 
 export function buildCampaignPayload(
   form: CampaignFormState,
+  packages: Package[],
   existingStartsAt?: string
 ): CreateCampaignInput {
   const trimmedTitle = form.title.trim();
@@ -272,11 +369,25 @@ export function buildCampaignPayload(
     showOnPlanPage: form.showOnPlanPage,
     showOnPlanCard: form.showOnPlanCard,
     priority: form.priority,
-    discounts: buildDiscountPayload(form),
+    discounts: buildDiscountPayload(form, packages),
   };
 }
 
-export function validateCampaignForm(form: CampaignFormState): string | null {
+function tiersMissingPackages(
+  tiers: TierDiscountState,
+  packages: Package[]
+): boolean {
+  return CAMPAIGN_TIER_KEYS.some((tier) => {
+    const state = tiers[tier];
+    if (!state.enabled || state.percentage <= 0) return false;
+    return resolvePackageUuidsForTier(tier, packages).length === 0;
+  });
+}
+
+export function validateCampaignForm(
+  form: CampaignFormState,
+  packages?: Package[]
+): string | null {
   if (!form.title.trim()) {
     return "titleRequired";
   }
@@ -299,6 +410,9 @@ export function validateCampaignForm(form: CampaignFormState): string | null {
     if (!hasTierSelection(form.groupTiers)) {
       return "tierRequired";
     }
+    if (packages && tiersMissingPackages(form.groupTiers, packages)) {
+      return "planPackagesMissing";
+    }
     return null;
   }
 
@@ -312,6 +426,9 @@ export function validateCampaignForm(form: CampaignFormState): string | null {
     }
     if (!hasTierSelection(row.tiers)) {
       return "rowTierRequired";
+    }
+    if (packages && tiersMissingPackages(row.tiers, packages)) {
+      return "planPackagesMissing";
     }
   }
 

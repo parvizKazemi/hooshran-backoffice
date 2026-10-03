@@ -11,9 +11,10 @@ import { Label } from "@/components/ui/label";
 import { PersianDateInput } from "@/components/ui/persian-date-input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { usePackages } from "@/features/packages/hooks/use-packages";
 import { cn } from "@/lib/utils";
 import { IconCheck, IconLoader2 } from "@tabler/icons-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useCreatePlanCampaign,
@@ -52,19 +53,36 @@ export function CampaignFormDialog({
   const { t } = useTranslation("common");
   const createCampaign = useCreatePlanCampaign();
   const updateCampaign = useUpdatePlanCampaign();
+  const { data: packagesData, isLoading: isPackagesLoading } = usePackages({
+    page: 1,
+    limit: 1000,
+  });
+  const packages = useMemo(() => packagesData?.data ?? [], [packagesData]);
   const isEditMode = Boolean(campaign);
   const isSaving = createCampaign.isPending || updateCampaign.isPending;
+  const formInitKey = useRef("");
 
   const [form, setForm] = useState<CampaignFormState>(
     createInitialCampaignForm
   );
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      formInitKey.current = "";
+      return;
+    }
+    if (isPackagesLoading) return;
+
+    const key = campaign?.uuid ?? "new";
+    if (formInitKey.current === key) return;
+    formInitKey.current = key;
+
     setForm(
-      campaign ? campaignToFormState(campaign) : createInitialCampaignForm()
+      campaign
+        ? campaignToFormState(campaign, packages)
+        : createInitialCampaignForm()
     );
-  }, [campaign, open]);
+  }, [campaign, isPackagesLoading, open, packages]);
 
   const setField = <K extends keyof CampaignFormState>(
     key: K,
@@ -73,7 +91,10 @@ export function CampaignFormDialog({
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const validationErrorKey = useMemo(() => validateCampaignForm(form), [form]);
+  const validationErrorKey = useMemo(
+    () => validateCampaignForm(form, isPackagesLoading ? undefined : packages),
+    [form, isPackagesLoading, packages]
+  );
 
   const serviceLabelByUuid = useMemo(() => {
     const map: Record<string, string> = {};
@@ -88,12 +109,14 @@ export function CampaignFormDialog({
   }, [campaign?.serviceDiscounts]);
 
   const handleSubmit = async () => {
-    const errorKey = validateCampaignForm(form);
+    if (isPackagesLoading) return;
+
+    const errorKey = validateCampaignForm(form, packages);
     if (errorKey) {
       return;
     }
 
-    const payload = buildCampaignPayload(form, campaign?.startsAt);
+    const payload = buildCampaignPayload(form, packages, campaign?.startsAt);
 
     if (isEditMode && campaign) {
       await updateCampaign.mutateAsync({ uuid: campaign.uuid, payload });
@@ -229,25 +252,38 @@ export function CampaignFormDialog({
                     {t("planCampaigns.form.minOneTier")}
                   </span>
                 </div>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {t("planCampaigns.form.planTargetHint")}
+                </p>
                 <CampaignTierDiscountGrid
                   tiers={form.groupTiers}
+                  packages={packages}
+                  packagesLoading={isPackagesLoading}
+                  disabled={isPackagesLoading}
                   onChange={(tiers) => setField("groupTiers", tiers)}
                 />
               </div>
             </div>
           ) : (
-            <CampaignIndividualRows
-              rows={form.individualRows}
-              services={services}
-              labelByUuid={serviceLabelByUuid}
-              onAddRow={() =>
-                setField("individualRows", [
-                  ...form.individualRows,
-                  createIndividualDiscountRow(),
-                ])
-              }
-              onChange={(rows) => setField("individualRows", rows)}
-            />
+            <div className="space-y-3">
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                {t("planCampaigns.form.planTargetHint")}
+              </p>
+              <CampaignIndividualRows
+                rows={form.individualRows}
+                services={services}
+                packages={packages}
+                packagesLoading={isPackagesLoading}
+                labelByUuid={serviceLabelByUuid}
+                onAddRow={() =>
+                  setField("individualRows", [
+                    ...form.individualRows,
+                    createIndividualDiscountRow(),
+                  ])
+                }
+                onChange={(rows) => setField("individualRows", rows)}
+              />
+            </div>
           )}
 
           <div className="space-y-3">
@@ -395,7 +431,11 @@ export function CampaignFormDialog({
           >
             {t("planCampaigns.form.cancel")}
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={isSaving}>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSaving || isPackagesLoading}
+          >
             {isSaving ? (
               <IconLoader2 className="size-4 animate-spin" />
             ) : (

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import type { Package } from "@/features/packages/types";
 import type { CampaignPlatformService, IndividualDiscountRow } from "../types";
 import { CampaignSingleServiceSelector } from "./campaign-single-service-selector";
 import { CampaignTierDiscountGrid } from "./campaign-tier-discount-grid";
@@ -9,18 +10,22 @@ import { CampaignTierDiscountGrid } from "./campaign-tier-discount-grid";
 type CampaignIndividualRowsProps = {
   rows: IndividualDiscountRow[];
   services: CampaignPlatformService[];
+  packages: Package[];
   onChange: (rows: IndividualDiscountRow[]) => void;
   onAddRow: () => void;
   disabled?: boolean;
+  packagesLoading?: boolean;
   labelByUuid?: Record<string, string>;
 };
 
 export function CampaignIndividualRows({
   rows,
   services,
+  packages,
   onChange,
   onAddRow,
   disabled = false,
+  packagesLoading = false,
   labelByUuid = {},
 }: CampaignIndividualRowsProps) {
   const { t } = useTranslation("common");
@@ -73,7 +78,9 @@ export function CampaignIndividualRows({
             <CampaignTierDiscountGrid
               compact
               tiers={row.tiers}
-              disabled={disabled}
+              packages={packages}
+              packagesLoading={packagesLoading}
+              disabled={disabled || packagesLoading}
               onChange={(tiers) => updateRow(row.id, { tiers })}
             />
           </div>
