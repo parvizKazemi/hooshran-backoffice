@@ -2713,12 +2713,16 @@
     }
   },
   "planCampaigns": {
-    "pageTitle": "Financial & Package Discount Management",
-    "pageDescription": "Configure and manage dynamic service discounts by subscription tier.",
+    "pageTitle": "Campaigns & Direct Model Discounts",
+    "pageDescription": "Manage subscription-based campaigns and standalone model discounts in one place.",
     "rulesTitle": "Discount Rules",
     "rulesDescription": "Choose which services receive plan-specific discounts.",
     "actions": {
       "create": "Add Discount Rule"
+    },
+    "tabs": {
+      "planCampaigns": "Subscription Campaigns",
+      "modelDiscounts": "Direct Model Discounts"
     },
     "tiers": {
       "basic": "Public (Guest & Basic)",
@@ -2827,6 +2831,86 @@
       "createFailed": "Failed to create campaign.",
       "updateFailed": "Failed to update campaign.",
       "deleteFailed": "Failed to delete campaign."
+    }
+  },
+  "modelDiscounts": {
+    "rulesTitle": "Direct Model Discounts",
+    "rulesDescription": "Schedule and manage model-level discounts that apply independently of user plans.",
+    "actions": {
+      "create": "Add Model Discount"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by service or model...",
+      "statusPlaceholder": "Window status",
+      "status": {
+        "all": "All",
+        "active": "Active",
+        "upcoming": "Upcoming",
+        "expired": "Expired"
+      }
+    },
+    "table": {
+      "targetModel": "Target Model / Service",
+      "discountPercent": "Discount",
+      "validity": "Validity Window",
+      "state": "State",
+      "actions": "Actions",
+      "empty": "No direct model discounts yet.",
+      "allServiceModels": "All models of this service",
+      "unknownService": "Unknown service",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "windowStatus": {
+        "active": "Running",
+        "upcoming": "Upcoming",
+        "expired": "Expired"
+      }
+    },
+    "form": {
+      "createTitle": "Create Direct Model Discount",
+      "editTitle": "Edit Model Discount",
+      "targetService": "Target service",
+      "targetServicePlaceholder": "Select service...",
+      "selectedServiceHint": "Selected service: {{name}}",
+      "modelName": "Model name (optional)",
+      "modelNamePlaceholder": "e.g. gpt-4o",
+      "modelNameHint": "Leave empty to apply this discount to all models of the selected service.",
+      "discountPercentage": "Discount percentage",
+      "title": "Internal title (optional)",
+      "titlePlaceholder": "e.g. Weekend special discount",
+      "startsDate": "Start date",
+      "startsDatePlaceholder": "Select start date",
+      "startsTime": "Start time",
+      "endsDate": "End date",
+      "endsDatePlaceholder": "Select end date",
+      "endsTime": "End time",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Short internal note for admins",
+      "isActive": "Discount is enabled",
+      "isActiveHint": "Disabled discounts are not applied, even inside their time window.",
+      "submit": "Save discount",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "serviceRequired": "Service selection is required.",
+      "discountRangeInvalid": "Discount percentage must be between 1 and 100.",
+      "startDateRequired": "Start date is required.",
+      "endDateRequired": "End date is required.",
+      "dateTimeInvalid": "Date or time is invalid.",
+      "endBeforeStart": "End date must be later than start date."
+    },
+    "delete": {
+      "title": "Delete model discount",
+      "description": "Delete \"{{name}}\"?",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "created": "Model discount created.",
+      "updated": "Model discount updated.",
+      "deleted": "Model discount deleted.",
+      "createFailed": "Failed to create model discount.",
+      "updateFailed": "Failed to update model discount.",
+      "deleteFailed": "Failed to delete model discount."
     }
   }
 }

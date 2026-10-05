@@ -2757,12 +2757,16 @@
     }
   },
   "planCampaigns": {
-    "pageTitle": "مدیریت فعالیت‌های کمپینی و تخفیف‌های بسته‌ها",
-    "pageDescription": "پیکربندی و مدیریت داینامیک تخفیف سرویس‌ها بر اساس اشتراک کاربران.",
+    "pageTitle": "مدیریت کمپین‌ها و تخفیف مستقیم مدل‌ها",
+    "pageDescription": "کمپین‌های مبتنی بر اشتراک و تخفیف‌های مستقل مدل را از همین بخش مدیریت کنید.",
     "rulesTitle": "قوانین تخفیف",
     "rulesDescription": "مشخص کنید کدام سرویس‌ها شامل تخفیف اختصاصی پلن‌ها می‌شوند.",
     "actions": {
       "create": "افزودن قانون تخفیف جدید"
+    },
+    "tabs": {
+      "planCampaigns": "کمپین اشتراک‌محور",
+      "modelDiscounts": "تخفیف مستقیم مدل‌ها"
     },
     "tiers": {
       "basic": "عمومی (مهمان و پایه)",
@@ -2871,6 +2875,86 @@
       "createFailed": "ثبت کمپین ناموفق بود.",
       "updateFailed": "به‌روزرسانی کمپین ناموفق بود.",
       "deleteFailed": "حذف کمپین ناموفق بود."
+    }
+  },
+  "modelDiscounts": {
+    "rulesTitle": "تخفیف مستقیم مدل‌ها",
+    "rulesDescription": "تخفیف‌هایی که مستقل از اشتراک کاربر هستند را روی مدل‌ها زمان‌بندی و مدیریت کنید.",
+    "actions": {
+      "create": "افزودن تخفیف مدل"
+    },
+    "filters": {
+      "searchPlaceholder": "جستجو بر اساس نام سرویس یا مدل...",
+      "statusPlaceholder": "وضعیت بازه زمانی",
+      "status": {
+        "all": "همه",
+        "active": "فعال",
+        "upcoming": "آینده",
+        "expired": "منقضی‌شده"
+      }
+    },
+    "table": {
+      "targetModel": "مدل / سرویس هدف",
+      "discountPercent": "درصد تخفیف",
+      "validity": "بازه اعتبار",
+      "state": "وضعیت",
+      "actions": "عملیات",
+      "empty": "هنوز تخفیف مستقیمی برای مدل‌ها ثبت نشده است.",
+      "allServiceModels": "همه مدل‌های این سرویس",
+      "unknownService": "سرویس نامشخص",
+      "enabled": "فعال",
+      "disabled": "غیرفعال",
+      "windowStatus": {
+        "active": "در حال اجرا",
+        "upcoming": "شروع نشده",
+        "expired": "پایان یافته"
+      }
+    },
+    "form": {
+      "createTitle": "ایجاد تخفیف مستقیم مدل",
+      "editTitle": "ویرایش تخفیف مدل",
+      "targetService": "سرویس هدف",
+      "targetServicePlaceholder": "سرویس را انتخاب کنید...",
+      "selectedServiceHint": "سرویس انتخاب‌شده: {{name}}",
+      "modelName": "نام مدل (اختیاری)",
+      "modelNamePlaceholder": "مثلاً gpt-4o",
+      "modelNameHint": "اگر خالی باشد، تخفیف برای همه مدل‌های این سرویس اعمال می‌شود.",
+      "discountPercentage": "درصد تخفیف",
+      "title": "عنوان داخلی (اختیاری)",
+      "titlePlaceholder": "مثلاً تخفیف ویژه آخر هفته",
+      "startsDate": "تاریخ شروع",
+      "startsDatePlaceholder": "انتخاب تاریخ شروع",
+      "startsTime": "ساعت شروع",
+      "endsDate": "تاریخ پایان",
+      "endsDatePlaceholder": "انتخاب تاریخ پایان",
+      "endsTime": "ساعت پایان",
+      "description": "توضیحات (اختیاری)",
+      "descriptionPlaceholder": "یادداشت کوتاه برای تیم ادمین",
+      "isActive": "فعال بودن تخفیف",
+      "isActiveHint": "در صورت غیرفعال بودن، تخفیف حتی در بازه زمانی هم اعمال نمی‌شود.",
+      "submit": "ذخیره تخفیف",
+      "cancel": "انصراف"
+    },
+    "errors": {
+      "serviceRequired": "انتخاب سرویس الزامی است.",
+      "discountRangeInvalid": "درصد تخفیف باید بین ۱ تا ۱۰۰ باشد.",
+      "startDateRequired": "تاریخ شروع الزامی است.",
+      "endDateRequired": "تاریخ پایان الزامی است.",
+      "dateTimeInvalid": "تاریخ یا زمان واردشده معتبر نیست.",
+      "endBeforeStart": "تاریخ پایان باید بعد از تاریخ شروع باشد."
+    },
+    "delete": {
+      "title": "حذف تخفیف مدل",
+      "description": "آیا از حذف «{{name}}» مطمئن هستید؟",
+      "confirm": "حذف تخفیف"
+    },
+    "toast": {
+      "created": "تخفیف مدل با موفقیت ثبت شد.",
+      "updated": "تخفیف مدل به‌روزرسانی شد.",
+      "deleted": "تخفیف مدل حذف شد.",
+      "createFailed": "ثبت تخفیف مدل ناموفق بود.",
+      "updateFailed": "به‌روزرسانی تخفیف مدل ناموفق بود.",
+      "deleteFailed": "حذف تخفیف مدل ناموفق بود."
     }
   }
 }
