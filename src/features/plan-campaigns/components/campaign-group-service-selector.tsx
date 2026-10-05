@@ -31,6 +31,7 @@ export function CampaignGroupServiceSelector({
 }: CampaignGroupServiceSelectorProps) {
   const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
+  const [searchResetSignal, setSearchResetSignal] = useState(0);
 
   const selectedServices = useMemo(() => {
     return selectedUuids.map((uuid) => {
@@ -50,9 +51,11 @@ export function CampaignGroupServiceSelector({
       if (!selectedUuids.includes(uuid)) {
         onChange([...selectedUuids, uuid]);
       }
+      setSearchResetSignal((prev) => prev + 1);
       return;
     }
     onChange(selectedUuids.filter((item) => item !== uuid));
+    setSearchResetSignal((prev) => prev + 1);
   };
 
   const removeService = (uuid: string) => {
@@ -63,79 +66,87 @@ export function CampaignGroupServiceSelector({
     <div className="space-y-2">
       <div
         className={cn(
-          "border-input bg-background flex min-h-14 flex-wrap items-center gap-2 rounded-2xl border p-3",
+          "border-input bg-background rounded-2xl border p-3",
           disabled && "pointer-events-none opacity-60"
         )}
       >
-        {selectedServices.map((service) => (
-          <Badge
-            key={service.uuid}
-            variant="secondary"
-            className="gap-1.5 rounded-xl bg-violet-100 px-3 py-1.5 text-xs font-bold text-violet-800 dark:bg-violet-950 dark:text-violet-100"
-          >
-            <span className="max-w-48 truncate">{service.name}</span>
-            <button
-              type="button"
-              onClick={() => removeService(service.uuid)}
-              className="text-violet-500 hover:text-violet-800 dark:hover:text-violet-200"
-              aria-label={t("welcomePackages.services.removeService", {
-                name: service.name,
-              })}
+        <div className="mb-2 flex items-center justify-end">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={disabled || services.length === 0}
+                className="h-8 rounded-xl text-xs font-bold"
+              >
+                <IconPlus className="size-3.5" />
+                {t("planCampaigns.form.addService")}
+                <IconChevronDown className="size-3.5 opacity-60" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="bottom"
+              align="end"
+              sideOffset={8}
+              avoidCollisions={false}
+              className="w-[min(24rem,calc(100vw-2rem))] p-0"
             >
-              <IconX className="size-3" />
-            </button>
-          </Badge>
-        ))}
+              <ServiceSelectorPanel
+                open={open}
+                searchResetSignal={searchResetSignal}
+                title={t("welcomePackages.services.selectAllowed")}
+                services={services}
+                selectedUuids={selectedUuids}
+                emptyMessage={t("welcomePackages.services.noSearchResults")}
+              >
+                {(filteredServices) => (
+                  <div className="space-y-1">
+                    {filteredServices.map((service) => {
+                      const checked = selectedUuids.includes(service.uuid);
+                      return (
+                        <label
+                          key={service.uuid}
+                          className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-lg p-2 text-xs"
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(value) =>
+                              toggleService(service.uuid, value === true)
+                            }
+                          />
+                          <span className="truncate">{service.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </ServiceSelectorPanel>
+            </PopoverContent>
+          </Popover>
+        </div>
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
+        <div className="flex max-h-36 min-h-10 flex-wrap gap-2 overflow-y-auto pr-1">
+          {selectedServices.map((service) => (
+            <Badge
+              key={service.uuid}
               variant="secondary"
-              size="sm"
-              disabled={disabled || services.length === 0}
-              className="h-8 rounded-xl text-xs font-bold"
+              className="gap-1.5 rounded-xl bg-violet-100 px-3 py-1.5 text-xs font-bold text-violet-800 dark:bg-violet-950 dark:text-violet-100"
             >
-              <IconPlus className="size-3.5" />
-              {t("planCampaigns.form.addService")}
-              <IconChevronDown className="size-3.5 opacity-60" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="start"
-            className="w-[min(24rem,calc(100vw-2rem))] p-0"
-          >
-            <ServiceSelectorPanel
-              open={open}
-              title={t("welcomePackages.services.selectAllowed")}
-              services={services}
-              selectedUuids={selectedUuids}
-              emptyMessage={t("welcomePackages.services.noSearchResults")}
-            >
-              {(filteredServices) => (
-                <div className="space-y-1">
-                  {filteredServices.map((service) => {
-                    const checked = selectedUuids.includes(service.uuid);
-                    return (
-                      <label
-                        key={service.uuid}
-                        className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-lg p-2 text-xs"
-                      >
-                        <Checkbox
-                          checked={checked}
-                          onCheckedChange={(value) =>
-                            toggleService(service.uuid, value === true)
-                          }
-                        />
-                        <span className="truncate">{service.name}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-            </ServiceSelectorPanel>
-          </PopoverContent>
-        </Popover>
+              <span className="max-w-48 truncate">{service.name}</span>
+              <button
+                type="button"
+                onClick={() => removeService(service.uuid)}
+                className="text-violet-500 hover:text-violet-800 dark:hover:text-violet-200"
+                aria-label={t("welcomePackages.services.removeService", {
+                  name: service.name,
+                })}
+              >
+                <IconX className="size-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
       </div>
     </div>
   );

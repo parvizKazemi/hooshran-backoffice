@@ -41,6 +41,7 @@ export type ServiceSelectorPanelProps<T extends SelectableService> = {
   services: T[];
   selectedUuids?: string[];
   emptyMessage: string;
+  searchResetSignal?: number | string;
   children: (filteredServices: T[]) => ReactNode;
 };
 
@@ -51,6 +52,7 @@ export function ServiceSelectorPanel<T extends SelectableService>({
   services,
   selectedUuids = [],
   emptyMessage,
+  searchResetSignal,
   children,
 }: ServiceSelectorPanelProps<T>) {
   const { t } = useTranslation("common");
@@ -66,6 +68,11 @@ export function ServiceSelectorPanel<T extends SelectableService>({
       setSearchQuery("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (searchResetSignal === undefined) return;
+    setSearchQuery("");
+  }, [searchResetSignal]);
 
   return (
     <>
