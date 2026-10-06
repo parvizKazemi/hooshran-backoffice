@@ -35,3 +35,8 @@ export type UpdateTextChatModelPayload = Partial<
 >;
 
 export type TextChatModelStatusFilter = "all" | "active" | "inactive";
+
+export interface TextChatAvailabilityConfig {
+  isActive: boolean;
+  message: string;
+}

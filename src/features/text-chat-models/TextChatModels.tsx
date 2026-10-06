@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TextChatAvailabilityCard } from "./components/text-chat-availability-card";
 import { TextChatModelFormDialog } from "./components/text-chat-model-form-dialog";
 import { TextChatModelsTable } from "./components/text-chat-models-table";
 import { useTextChatModels } from "./hooks/use-text-chat-models";
@@ -55,6 +56,8 @@ export default function TextChatModels() {
           </Button>
         </div>
       </div>
+
+      <TextChatAvailabilityCard />
 
       <div className="flex flex-wrap items-center gap-2">
         <Input
