@@ -72,12 +72,14 @@
       "manageServices": "Manage Services",
       "serviceHint": "Service Guide",
       "promptAssistant": "Prompt Assistant",
-      "promptAssistantServices": "Prompt Assistant (Service)"
+      "promptAssistantServices": "Prompt Assistant (Service)",
+      "textChatModels": "Chat Models"
     },
     "purchasePayments": {
       "title": "Purchase & Payments",
       "gateStatus": "Payment Gate Status",
-      "methods": "Payment Methods"
+      "methods": "Payment Methods",
+      "planDiscounts": "Dynamic Plan Discounts"
     },
     "userSettings": {
       "title": "User Settings",
@@ -91,6 +93,7 @@
     "systemSettings": {
       "title": "System Settings",
       "smsConfig": "SMS Gateway Settings",
+      "vpnDetection": "VPN Detection",
       "clearUserData": "Clear & Reset User"
     },
 
@@ -2365,6 +2368,86 @@
       "testModeDisabled": "This operation is only allowed when TEST_MODE is enabled."
     }
   },
+  "vpnDetection": {
+    "header": {
+      "title": "VPN Detection",
+      "description": "Enable or disable the VPN warning banner in the front app for users with non-Iranian IPs."
+    },
+    "card": {
+      "title": "VPN Detection Status",
+      "description": "When disabled, IP checks and the VPN banner are stopped in the front app."
+    },
+    "statusEnabled": "Enabled — VPN banner is shown",
+    "statusDisabled": "Disabled — VPN banner is hidden",
+    "hint": "Changes apply to all users immediately.",
+    "ariaLabel": "Enable or disable VPN detection",
+    "toasts": {
+      "enabled": "VPN detection enabled",
+      "disabled": "VPN detection disabled",
+      "updateFailed": "Failed to update VPN detection settings"
+    }
+  },
+  "textChatModels": {
+    "title": "Chat models",
+    "description": "Manage display name, price ratio, availability, and token ceilings for chat models.",
+    "add": "New model",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search by name or code…",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "empty": "No models found",
+    "loadError": "Failed to load models",
+    "retry": "Try again",
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "priceRatio": "Price ratio",
+      "outputToken": "Output cap",
+      "inputToken": "Input cap",
+      "maxToken": "Context window",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "notSet": "—",
+    "tokenHint": "Leave blank to keep the current value. The API cannot clear a token ceiling.",
+    "outputOverMax": "Output cap cannot be larger than the context window.",
+    "inputOverMax": "Input cap cannot be larger than the context window.",
+    "form": {
+      "createTitle": "New model",
+      "editTitle": "Edit model",
+      "createDescription": "The model is created or updated in the chat service.",
+      "editDescription": "Only the fields you submit are saved.",
+      "code": "Model code",
+      "codeHint": "Unique id, for example grok-4.6",
+      "name": "Display name",
+      "priceRatio": "Price ratio",
+      "priceRatioHint": "Minimum credit = ratio × chat fixed price ÷ 100",
+      "isActive": "Available in chat",
+      "maxToken": "Context window",
+      "inputToken": "Input token cap",
+      "outputToken": "Output token cap",
+      "tokenOptional": "Optional, minimum 1",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "validation": {
+      "code": "Enter a code using letters, numbers, dots, or hyphens.",
+      "priceRatio": "Price ratio must be a number of zero or more.",
+      "token": "Token cap must be a whole number of at least 1."
+    },
+    "toasts": {
+      "created": "Model saved",
+      "updated": "Model updated",
+      "activated": "Model activated",
+      "deactivated": "Model deactivated",
+      "failed": "Failed to save the model"
+    }
+  },
   "monitoring": {
     "title": "Error Monitoring",
     "description": "Browse, filter, and analyze reported frontend and system errors",
@@ -2453,8 +2536,6 @@
   "affiliate": {
     "title": "Affiliate & Partner Sales Management",
     "description": "Manage payouts, partners, commission audit logs, and program rules",
-    "headerTitle": "Global affiliate admin panel",
-    "headerDescription": "Data is currently loaded from local mock storage and will switch to API later.",
     "antiFraudActive": "Anti-fraud system active",
     "tabs": {
       "payouts": "Payout requests",
@@ -2509,12 +2590,16 @@
     "partners": {
       "title": "Partner directory",
       "description": "Review performance, promo codes, and access control.",
-      "searchPlaceholder": "Search by name or code...",
+      "searchPlaceholder": "Search by name, phone, or code...",
       "empty": "No partners found.",
+      "defaultDiscount": "System default",
       "table": {
         "name": "Partner name",
         "phone": "Phone",
         "code": "Promo code",
+        "affiliateCode": "Affiliate code",
+        "discountCode": "Discount code",
+        "discountPercentage": "Discount %",
         "buyers": "Successful buyers",
         "totalEarned": "Lifetime earnings",
         "availableBalance": "Current balance",
@@ -2527,7 +2612,36 @@
       },
       "actions": {
         "suspend": "Suspend",
-        "activate": "Activate"
+        "activate": "Activate",
+        "setCode": "Set code for user",
+        "editCode": "Edit code"
+      }
+    },
+    "codeDialog": {
+      "createTitle": "Create / set affiliate code for a user",
+      "createDescription": "Enter the user's mobile number to create or update their affiliate account and linked discount code.",
+      "editTitle": "Edit affiliate code & discount %",
+      "editDescription": "Partner: {{name}}",
+      "phoneNumberLabel": "User mobile number *",
+      "phoneNumberPlaceholder": "e.g. 09123456789",
+      "phoneNumberHint": "Iranian 11-digit mobile (unique in the system).",
+      "affiliateCodeLabel": "Affiliate code *",
+      "affiliateCodePlaceholder": "e.g. VIPGOLD",
+      "affiliateCodeHint": "3–32 chars: letters, numbers, _ or -",
+      "discountPercentageLabel": "Buyer discount %",
+      "discountPercentagePlaceholder": "e.g. 25",
+      "discountPercentageHint": "Optional; if empty, keeps current rate or system default (10%).",
+      "customDiscountCodeToggle": "Custom discount code (advanced)",
+      "discountCodeLabel": "Custom discount code",
+      "discountCodePlaceholder": "e.g. VIPGOLD25",
+      "previewLabel": "Final discount code (auto):",
+      "submit": "Save code & discount",
+      "submitting": "Saving...",
+      "errors": {
+        "phoneNumberInvalid": "Invalid mobile number (e.g. 09123456789).",
+        "affiliateCodeInvalid": "Invalid affiliate code (3–32 allowed characters).",
+        "discountPercentageInvalid": "Percentage must be an integer from 0 to 100.",
+        "discountCodeInvalid": "Invalid discount code (3–32 allowed characters)."
       }
     },
     "commissions": {
@@ -2564,6 +2678,8 @@
       "firstCommissionRate": "First purchase commission (%):",
       "firstCommissionRateHint": "Default: 20% of net gateway amount",
       "capAmount": "Per-transaction commission cap (Toman):",
+      "buyerDiscountPercentage": "Buyer discount percentage (%):",
+      "buyerDiscountPercentageHint": "Discount percentage for buyers",
       "capAmountHint": "Maximum payout for a first invoice",
       "renewalCommissionRate": "Renewal commission (%):",
       "renewalCommissionRateHint": "Commission on subsequent referred purchases",
@@ -2592,7 +2708,214 @@
       "approveSuccess": "Payout approved successfully.",
       "rejectSuccess": "Payout rejected.",
       "partnerStatusUpdated": "Partner status updated.",
-      "rulesSaved": "Affiliate rules saved."
+      "rulesSaved": "Affiliate rules saved.",
+      "codeSaved": "Affiliate code and discount saved."
+    }
+  },
+  "planCampaigns": {
+    "pageTitle": "Campaigns & Direct Model Discounts",
+    "pageDescription": "Manage subscription-based campaigns and standalone model discounts in one place.",
+    "rulesTitle": "Discount Rules",
+    "rulesDescription": "Choose which services receive plan-specific discounts.",
+    "actions": {
+      "create": "Add Discount Rule"
+    },
+    "tabs": {
+      "planCampaigns": "Subscription Campaigns",
+      "modelDiscounts": "Direct Model Discounts"
+    },
+    "tiers": {
+      "basic": "Public (Guest & Basic)",
+      "explorer": "Explorer",
+      "adventurer": "Adventurer",
+      "hero": "Hero ⭐"
+    },
+    "table": {
+      "targetService": "Target",
+      "endStatus": "Validity",
+      "visibility": "Visibility",
+      "actions": "Actions",
+      "empty": "No discount campaigns yet.",
+      "noServices": "No services",
+      "oneService": "1 model",
+      "serviceCount": "{{count}} dedicated models",
+      "groupLabel": "Group campaign ({{subtitle}})",
+      "indefiniteEnd": "No end date",
+      "expired": "Expired",
+      "untilDate": "Until {{date}}"
+    },
+    "form": {
+      "createTitle": "Create Discount Campaign",
+      "editTitle": "Edit Discount Campaign",
+      "title": "Public campaign title",
+      "titlePlaceholder": "e.g. Premium models festival",
+      "internalName": "Internal name (optional)",
+      "internalNamePlaceholder": "For admin reporting",
+      "priority": "Display priority",
+      "bannerTeaser": "Banner teaser text",
+      "bannerTeaserPlaceholder": "Up to 50% off selected models",
+      "description": "Description (optional)",
+      "mode": {
+        "group": "Group assignment (same for models)",
+        "individual": "Individual rows"
+      },
+      "groupServices": "Target services / models",
+      "addService": "Add service",
+      "tierAssignment": "Discount percentage per plan",
+      "planTargetHint": "Explorer, Adventurer, and Hero apply to that plan’s monthly and yearly packages. Public applies to special-offer packages (guest and public).",
+      "targetedPackages": "{{count}} target packages",
+      "billingPeriodTarget": "Monthly and yearly",
+      "specialOfferTarget": "Special-offer packages",
+      "packagesLoading": "Finding packages...",
+      "minOneTier": "Select at least one plan",
+      "percentPlaceholder": "e.g. 20",
+      "selectServicePlaceholder": "Select...",
+      "selectDedicatedService": "Select dedicated service",
+      "rowTierLabel": "Plan discount percentages",
+      "addIndividualRow": "Add service & discount row",
+      "removeRow": "Remove this service",
+      "campaignEndSettings": "Campaign end settings",
+      "endDate": "Campaign end date",
+      "endDatePlaceholder": "Select end date",
+      "endTime": "End time",
+      "noEndHint": "Campaign will be saved without an end date.",
+      "expirationType": "Discount behavior after campaign ends",
+      "expiration": {
+        "subscription_bound": {
+          "title": "Continuous (valid until subscription ends)",
+          "description": "If a user buys during the campaign, the discount stays on their profile until subscription expiry."
+        },
+        "campaign_bound": {
+          "title": "Campaign-bound (temporary for everyone)",
+          "description": "Discount is removed for all users when the campaign ends."
+        }
+      },
+      "visibility": "Display & notification settings",
+      "visibilityOptions": {
+        "planPage": {
+          "title": "Show on plans page",
+          "description": "Dedicated box on the subscription purchase page"
+        },
+        "planCard": {
+          "title": "Show on plan cards",
+          "description": "Badge on subscription cards"
+        },
+        "banner": {
+          "title": "Show as banner",
+          "description": "Global header bar and popup"
+        }
+      },
+      "submit": "Save discount campaign",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "titleRequired": "Campaign title is required.",
+      "bannerTeaserRequired": "Banner teaser is required.",
+      "endDateRequired": "Select a campaign end date.",
+      "servicesRequired": "Select at least one service.",
+      "tierRequired": "Set a discount for at least one plan.",
+      "individualRowsRequired": "Add at least one individual row.",
+      "rowServiceRequired": "Select a service for each row.",
+      "rowTierRequired": "Set a discount for each row.",
+      "planPackagesMissing": "No matching package was found for the selected plan. Named plans need monthly and yearly subscriptions, and Public needs a special-offer package."
+    },
+    "delete": {
+      "title": "Delete campaign",
+      "description": "Delete \"{{name}}\"?",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "created": "Discount campaign created.",
+      "updated": "Discount campaign updated.",
+      "deleted": "Campaign deleted.",
+      "createFailed": "Failed to create campaign.",
+      "updateFailed": "Failed to update campaign.",
+      "deleteFailed": "Failed to delete campaign."
+    }
+  },
+  "modelDiscounts": {
+    "rulesTitle": "Direct Model Discounts",
+    "rulesDescription": "Schedule and manage model-level discounts that apply independently of user plans.",
+    "actions": {
+      "create": "Add Model Discount"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by service or model...",
+      "statusPlaceholder": "Window status",
+      "status": {
+        "all": "All",
+        "active": "Active",
+        "upcoming": "Upcoming",
+        "expired": "Expired"
+      }
+    },
+    "table": {
+      "targetModel": "Target Model / Service",
+      "discountPercent": "Discount",
+      "validity": "Validity Window",
+      "state": "State",
+      "actions": "Actions",
+      "empty": "No direct model discounts yet.",
+      "allServiceModels": "All models of this service",
+      "unknownService": "Unknown service",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "windowStatus": {
+        "active": "Running",
+        "upcoming": "Upcoming",
+        "expired": "Expired"
+      }
+    },
+    "form": {
+      "createTitle": "Create Direct Model Discount",
+      "editTitle": "Edit Model Discount",
+      "targetService": "Target service",
+      "targetServicePlaceholder": "Select service...",
+      "selectedServiceHint": "Selected service: {{name}}",
+      "modelName": "Model name (optional)",
+      "modelNamePlaceholder": "e.g. gpt-4o",
+      "modelNameHint": "Leave empty to apply this discount to all models of the selected service.",
+      "discountPercentage": "Discount percentage",
+      "title": "Title",
+      "titlePlaceholder": "Banner title",
+      "showAsBanner": "Show as banner",
+      "showAsBannerHint": "When enabled, the banner text is shown in the header announcement.",
+      "bannerTeaser": "Banner teaser",
+      "bannerTeaserPlaceholder": "Up to 50% off selected models",
+      "startsDate": "Start date",
+      "startsDatePlaceholder": "Select start date",
+      "startsTime": "Start time",
+      "endsDate": "End date",
+      "endsDatePlaceholder": "Select end date",
+      "endsTime": "End time",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Short internal note for admins",
+      "isActive": "Discount is enabled",
+      "isActiveHint": "Disabled discounts are not applied, even inside their time window.",
+      "submit": "Save discount",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "serviceRequired": "Service selection is required.",
+      "discountRangeInvalid": "Discount percentage must be between 1 and 100.",
+      "startDateRequired": "Start date is required.",
+      "endDateRequired": "End date is required.",
+      "dateTimeInvalid": "Date or time is invalid.",
+      "endBeforeStart": "End date must be later than start date.",
+      "bannerTeaserRequired": "Banner teaser is required."
+    },
+    "delete": {
+      "title": "Delete model discount",
+      "description": "Delete \"{{name}}\"?",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "created": "Model discount created.",
+      "updated": "Model discount updated.",
+      "deleted": "Model discount deleted.",
+      "createFailed": "Failed to create model discount.",
+      "updateFailed": "Failed to update model discount.",
+      "deleteFailed": "Failed to delete model discount."
     }
   }
 }

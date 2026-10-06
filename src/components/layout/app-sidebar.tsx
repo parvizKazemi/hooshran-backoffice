@@ -51,6 +51,10 @@ function useSidebarData() {
       title: t("nav.systemSettings.smsConfig"),
       url: "/system-settings/sms-config",
     },
+    {
+      title: t("nav.systemSettings.vpnDetection"),
+      url: "/system-settings/vpn-detection",
+    },
     ...(isTestMode
       ? [
           {
@@ -123,6 +127,10 @@ function useSidebarData() {
             title: t("nav.purchasePayments.methods"),
             url: "/purchase-payments/methods",
           },
+          {
+            title: t("nav.purchasePayments.planDiscounts"),
+            url: "/purchase-payments/plan-discounts",
+          },
         ],
       },
       {
@@ -136,6 +144,10 @@ function useSidebarData() {
           {
             title: t("nav.services.manageServices"),
             url: "/services/manage",
+          },
+          {
+            title: t("nav.services.textChatModels"),
+            url: "/services/text-chat-models",
           },
           {
             title: t("nav.services.serviceHint"),
@@ -278,6 +290,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/services/manage",
               "/services/prompt-assistant",
               "/system-settings/sms-config",
+              "/system-settings/vpn-detection",
               ...(isTestMode ? ["/system-settings/clear-user-data"] : []),
             ]}
             // badges={{

@@ -57,7 +57,11 @@ export type AffiliatePartner = {
   id: string;
   name: string;
   phone: string;
+  /** Display alias — prefers discount code, falls back to affiliate code. */
   code: string;
+  affiliateCode: string;
+  discountCode: string;
+  discountPercentage: number | null;
   buyersCount: number;
   totalEarned: number;
   availableBalance: number;
@@ -83,6 +87,7 @@ export type AffiliateCommissionLog = {
 export type AffiliateProgramRules = {
   firstCommissionRate: number;
   capAmount: number;
+  buyerDiscountPercentage: number;
   renewalCommissionRate: number;
   renewalSunsetDays: number;
   holdDays: number;
@@ -113,3 +118,21 @@ export type ToggleAffiliatePartnerPayload = {
   partnerId: string;
   nextStatus: "ACTIVE" | "SUSPENDED";
 };
+
+export type SetAffiliateCodeBody = {
+  affiliateCode: string;
+  discountPercentage?: number;
+  discountCode?: string;
+};
+
+export type SetAffiliateCodePayload =
+  | {
+      mode: "create";
+      phoneNumber: string;
+      body: SetAffiliateCodeBody;
+    }
+  | {
+      mode: "edit";
+      accountUuid: string;
+      body: SetAffiliateCodeBody;
+    };

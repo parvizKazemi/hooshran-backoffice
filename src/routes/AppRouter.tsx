@@ -38,7 +38,9 @@ const Packages = lazy(() => import("../features/packages/Packages.tsx"));
 const DiscountCodes = lazy(
   () => import("../features/discount-codes/DiscountCodes.tsx")
 );
-const Plans = lazy(() => import("../features/plans/Plans.tsx"));
+const FinancialPackagesManagement = lazy(
+  () => import("../features/plan-campaigns/FinancialPackagesManagement.tsx")
+);
 const Referrals = lazy(() => import("../features/referrals/Referrals.tsx"));
 const Media = lazy(() => import("../features/media/Media.tsx"));
 const Payments = lazy(() => import("../features/payments/Payments.tsx"));
@@ -78,11 +80,17 @@ const PromptAssistantServices = lazy(
 const ManageServices = lazy(
   () => import("../features/manage-services/ManageServices.tsx")
 );
+const TextChatModels = lazy(
+  () => import("../features/text-chat-models/TextChatModels.tsx")
+);
 const SmsConfigSettings = lazy(
   () => import("../features/sms-config/SmsConfigSettings.tsx")
 );
 const ClearUserData = lazy(
   () => import("../features/clear-user-data/ClearUserData.tsx")
+);
+const VpnDetectionSettings = lazy(
+  () => import("../features/vpn-detection/VpnDetectionSettings.tsx")
 );
 const Monitoring = lazy(() => import("../features/monitoring/Monitoring.tsx"));
 const Affiliate = lazy(() => import("../features/affiliate/Affiliate.tsx"));
@@ -171,6 +179,10 @@ const router = createBrowserRouter([
             element: <ManageServices />,
           },
           {
+            path: "/services/text-chat-models",
+            element: <TextChatModels />,
+          },
+          {
             path: "/categories",
             element: <Navigate to="/services/categories" replace />,
           },
@@ -202,7 +214,13 @@ const router = createBrowserRouter([
           },
           {
             path: "/plans",
-            element: <Plans />,
+            element: (
+              <Navigate to="/purchase-payments/plan-discounts" replace />
+            ),
+          },
+          {
+            path: "/purchase-payments/plan-discounts",
+            element: <FinancialPackagesManagement />,
           },
           {
             path: "/referrals",
@@ -267,6 +285,10 @@ const router = createBrowserRouter([
           {
             path: "/system-settings/sms-config",
             element: <SmsConfigSettings />,
+          },
+          {
+            path: "/system-settings/vpn-detection",
+            element: <VpnDetectionSettings />,
           },
           {
             path: "/system-settings/clear-user-data",

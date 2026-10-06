@@ -73,6 +73,11 @@ export function normalizeAffiliateProgramRules(
       PROGRAM_RULE_ALIASES.capAmount,
       defaults.capAmount
     ),
+    buyerDiscountPercentage: readNumber(
+      nested,
+      PROGRAM_RULE_ALIASES.buyerDiscountPercentage,
+      defaults.buyerDiscountPercentage
+    ),
     renewalCommissionRate: readNumber(
       nested,
       PROGRAM_RULE_ALIASES.renewalCommissionRate,
@@ -231,8 +236,56 @@ export function filterAffiliatePartners(
   return partners.filter(
     (item) =>
       item.name.toLowerCase().includes(normalized) ||
-      item.code.toLowerCase().includes(normalized)
+      item.phone.toLowerCase().includes(normalized) ||
+      item.code.toLowerCase().includes(normalized) ||
+      item.affiliateCode.toLowerCase().includes(normalized) ||
+      item.discountCode.toLowerCase().includes(normalized)
   );
+}
+
+export function buildAffiliateDiscountCodePreview(
+  affiliateCode: string,
+  discountPercentage: number | null | undefined
+): string {
+  const code = affiliateCode.trim().toUpperCase();
+  if (!code) return "";
+  if (
+    discountPercentage === null ||
+    discountPercentage === undefined ||
+    !Number.isFinite(discountPercentage)
+  ) {
+    return `${code}…`;
+  }
+  return `${code}${discountPercentage}`;
+}
+
+const IRAN_MOBILE_LOCAL = /^09\d{9}$/;
+const IRAN_MOBILE_E164 = /^\+989\d{9}$/;
+const IRAN_MOBILE_CC = /^989\d{9}$/;
+
+/** Strip spaces/dashes so admins can paste formatted numbers. */
+export function normalizeAffiliatePhoneInput(value: string): string {
+  return value.replace(/[\s-]/g, "").trim();
+}
+
+export function isValidAffiliatePhone(phone: string): boolean {
+  const normalized = normalizeAffiliatePhoneInput(phone);
+  return (
+    IRAN_MOBILE_LOCAL.test(normalized) ||
+    IRAN_MOBILE_E164.test(normalized) ||
+    IRAN_MOBILE_CC.test(normalized)
+  );
+}
+
+/** Canonical local IR form (09…) for backend phone lookup. */
+export function toAffiliatePhoneLookup(phone: string): string {
+  const normalized = normalizeAffiliatePhoneInput(phone);
+
+  if (IRAN_MOBILE_LOCAL.test(normalized)) return normalized;
+  if (IRAN_MOBILE_E164.test(normalized)) return `0${normalized.slice(3)}`;
+  if (IRAN_MOBILE_CC.test(normalized)) return `0${normalized.slice(2)}`;
+
+  return normalized;
 }
 
 export function getPurchaseTypePercentLabel(commissionRate: number): string {

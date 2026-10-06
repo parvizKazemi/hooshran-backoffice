@@ -72,12 +72,14 @@
       "manageServices": "مدیریت سرویس‌ها",
       "serviceHint": "راهنمای سرویس",
       "promptAssistant": "دستیار پرامپت",
-      "promptAssistantServices": "دستیار پرامپت (سرویس)"
+      "promptAssistantServices": "دستیار پرامپت (سرویس)",
+      "textChatModels": "مدل‌های چت"
     },
     "purchasePayments": {
       "title": "مدیریت خرید و پرداخت‌ها",
       "gateStatus": "وضعیت درگاه پرداخت",
-      "methods": "مدیریت روش‌های پرداخت"
+      "methods": "مدیریت روش‌های پرداخت",
+      "planDiscounts": "تخفیف‌های داینامیک پلن‌ها"
     },
     "userSettings": {
       "title": "تنظیمات کاربران",
@@ -91,6 +93,7 @@
     "systemSettings": {
       "title": "تنظیمات سیستم",
       "smsConfig": "تنظیمات سامانه پیامک کوتاه",
+      "vpnDetection": "شناسایی VPN",
       "clearUserData": "پاکسازی و بازنشانی کاربر"
     },
 
@@ -694,6 +697,7 @@
         "mediaOptional": "رسانه",
         "badge": "متن Badge",
         "bannerVariant": "نوع بنر فوری",
+        "bannerVariantOneLine": "تک خطی - مینیمال",
         "bannerVariantCritical": "قرمز — هشدار اضطراری",
         "bannerVariantUpdate": "زرد — اطلاعیه مهم",
         "bannerVariantNotice": "آبی — اطلاعیه عمومی"
@@ -2407,6 +2411,86 @@
       "testModeDisabled": "این عملیات فقط در حالت تست (TEST_MODE) مجاز است."
     }
   },
+  "vpnDetection": {
+    "header": {
+      "title": "شناسایی VPN",
+      "description": "فعال یا غیرفعال کردن نمایش بنر هشدار VPN در فرانت برای کاربران با IP غیرایرانی."
+    },
+    "card": {
+      "title": "وضعیت شناسایی VPN",
+      "description": "با غیرفعال کردن، بررسی IP و نمایش بنر VPN در فرانت متوقف می‌شود."
+    },
+    "statusEnabled": "فعال — بنر VPN نمایش داده می‌شود",
+    "statusDisabled": "غیرفعال — بنر VPN نمایش داده نمی‌شود",
+    "hint": "تغییرات بلافاصله برای همه کاربران اعمال می‌شود.",
+    "ariaLabel": "فعال یا غیرفعال کردن شناسایی VPN",
+    "toasts": {
+      "enabled": "شناسایی VPN فعال شد",
+      "disabled": "شناسایی VPN غیرفعال شد",
+      "updateFailed": "به‌روزرسانی تنظیمات VPN با خطا مواجه شد"
+    }
+  },
+  "textChatModels": {
+    "title": "مدل‌های چت",
+    "description": "نام، ضریب قیمت، وضعیت و سقف توکن مدل‌های گفتگو را مدیریت کنید.",
+    "add": "مدل جدید",
+    "refresh": "بروزرسانی",
+    "searchPlaceholder": "جستجو بر اساس نام یا کد…",
+    "filterAll": "همه",
+    "filterActive": "فعال",
+    "filterInactive": "غیرفعال",
+    "empty": "مدلی پیدا نشد",
+    "loadError": "بارگذاری مدل‌ها ناموفق بود",
+    "retry": "تلاش مجدد",
+    "columns": {
+      "name": "نام",
+      "code": "کد",
+      "priceRatio": "ضریب قیمت",
+      "outputToken": "سقف خروجی",
+      "inputToken": "سقف ورودی",
+      "maxToken": "پنجره context",
+      "status": "وضعیت",
+      "actions": "عملیات"
+    },
+    "active": "فعال",
+    "inactive": "غیرفعال",
+    "edit": "ویرایش",
+    "notSet": "—",
+    "tokenHint": "اگر خالی بماند، مقدار قبلی عوض نمی‌شود. بک‌اند پاک کردن سقف را قبول نمی‌کند.",
+    "outputOverMax": "سقف خروجی نمی‌تواند از پنجره context بزرگ‌تر باشد.",
+    "inputOverMax": "سقف ورودی نمی‌تواند از پنجره context بزرگ‌تر باشد.",
+    "form": {
+      "createTitle": "مدل جدید",
+      "editTitle": "ویرایش مدل",
+      "createDescription": "مدل در سرویس چت ساخته یا به‌روز می‌شود.",
+      "editDescription": "فقط فیلدهایی که وارد کنید ذخیره می‌شوند.",
+      "code": "کد مدل",
+      "codeHint": "شناسه یکتا، مثل grok-4.6",
+      "name": "نام نمایشی",
+      "priceRatio": "ضریب قیمت",
+      "priceRatioHint": "حداقل اعتبار = ضریب × قیمت ثابت چت ÷ ۱۰۰",
+      "isActive": "قابل استفاده در چت",
+      "maxToken": "پنجره context",
+      "inputToken": "سقف توکن ورودی",
+      "outputToken": "سقف توکن خروجی",
+      "tokenOptional": "اختیاری، حداقل ۱",
+      "cancel": "انصراف",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره…"
+    },
+    "validation": {
+      "code": "کد مدل را با حروف، عدد، نقطه یا خط تیره وارد کنید.",
+      "priceRatio": "ضریب قیمت باید عدد صفر یا بزرگ‌تر باشد.",
+      "token": "سقف توکن باید عدد صحیح حداقل ۱ باشد."
+    },
+    "toasts": {
+      "created": "مدل ذخیره شد",
+      "updated": "مدل به‌روز شد",
+      "activated": "مدل فعال شد",
+      "deactivated": "مدل غیرفعال شد",
+      "failed": "ذخیره مدل ناموفق بود"
+    }
+  },
   "monitoring": {
     "title": "مانیتورینگ خطاها",
     "description": "مشاهده، فیلتر و تحلیل خطاهای گزارش‌شده از فرانت و سیستم",
@@ -2495,8 +2579,6 @@
   "affiliate": {
     "title": "مدیریت افیلیت و همکاری در فروش",
     "description": "مدیریت تسویه‌حساب، همکاران فروش، لاگ پورسانت‌ها و قوانین سیستم",
-    "headerTitle": "پنل مدیریت افیلیت (مدیریت کل)",
-    "headerDescription": "فعلاً داده‌ها از mock محلی بارگذاری می‌شوند؛ پس از آماده شدن API جایگزین می‌شوند.",
     "antiFraudActive": "سیستم ضد تقلب فعال",
     "tabs": {
       "payouts": "درخواست‌های تسویه‌حساب",
@@ -2552,12 +2634,16 @@
     "partners": {
       "title": "لیست و وضعیت همکاران فروش",
       "description": "مشاهده عملکرد، کد اختصاصی و کنترل دسترسی بازاریابان.",
-      "searchPlaceholder": "جستجو بر اساس نام یا کد...",
+      "searchPlaceholder": "جستجو بر اساس نام، موبایل یا کد...",
       "empty": "همکار فروشی یافت نشد.",
+      "defaultDiscount": "پیش‌فرض سیستم",
       "table": {
         "name": "نام همکار",
         "phone": "شماره موبایل",
         "code": "کد تخفیف",
+        "affiliateCode": "کد افیلیت",
+        "discountCode": "کد تخفیف",
+        "discountPercentage": "درصد تخفیف",
         "buyers": "خریداران موفق",
         "totalEarned": "کل درآمد تاریخ",
         "availableBalance": "موجودی فعلی",
@@ -2570,7 +2656,36 @@
       },
       "actions": {
         "suspend": "مسدودسازی",
-        "activate": "فعال‌سازی"
+        "activate": "فعال‌سازی",
+        "setCode": "تنظیم کد برای کاربر",
+        "editCode": "ویرایش کد"
+      }
+    },
+    "codeDialog": {
+      "createTitle": "ایجاد / تنظیم کد افیلیت برای کاربر",
+      "createDescription": "با وارد کردن شماره موبایل، اکانت افیلیت و کدتخفیف اختصاصی ساخته یا به‌روزرسانی می‌شود.",
+      "editTitle": "ویرایش کد و درصد تخفیف",
+      "editDescription": "همکار: {{name}}",
+      "phoneNumberLabel": "شماره موبایل کاربر *",
+      "phoneNumberPlaceholder": "09123456789",
+      "phoneNumberHint": "شماره موبایل ۱۱ رقمی ایرانی (یکتا در سیستم).",
+      "affiliateCodeLabel": "کد افیلیت *",
+      "affiliateCodePlaceholder": "VIPGOLD",
+      "affiliateCodeHint": "۳ تا ۳۲ کاراکتر: حروف انگلیسی، عدد، _ یا -",
+      "discountPercentageLabel": "درصد تخفیف خریدار",
+      "discountPercentagePlaceholder": "۲۵",
+      "discountPercentageHint": "اختیاری؛ اگر خالی باشد از درصد فعلی یا پیش‌فرض سیستم (۱۰٪) استفاده می‌شود.",
+      "customDiscountCodeToggle": "کدتخفیف سفارشی (پیشرفته)",
+      "discountCodeLabel": "کدتخفیف سفارشی",
+      "discountCodePlaceholder": "VIPGOLD25",
+      "previewLabel": "کدتخفیف نهایی (خودکار):",
+      "submit": "ذخیره کد و درصد تخفیف",
+      "submitting": "در حال ذخیره...",
+      "errors": {
+        "phoneNumberInvalid": "شماره موبایل معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹).",
+        "affiliateCodeInvalid": "کد افیلیت معتبر نیست (۳–۳۲ کاراکتر مجاز).",
+        "discountPercentageInvalid": "درصد باید عدد صحیح بین ۰ تا ۱۰۰ باشد.",
+        "discountCodeInvalid": "کدتخفیف معتبر نیست (۳–۳۲ کاراکتر مجاز)."
       }
     },
     "commissions": {
@@ -2608,6 +2723,8 @@
       "firstCommissionRateHint": "پیش‌فرض: ۲۰٪ از مبلغ خالص درگاه شاپرک",
       "capAmount": "سقف ریالی پورسانت هر تراکنش (ریال):",
       "capAmountHint": "حداکثر سقف پرداختی برای یک فاکتور اول",
+      "buyerDiscountPercentage": "درصد پورسانت کدتخفیف (%):",
+      "buyerDiscountPercentageHint": "درصد تخفیف پیش‌فرض برای کدتخفیف. قابل تغییر به صورت اختصاصی",
       "renewalCommissionRate": "درصد پورسانت تمدیدها (%):",
       "renewalCommissionRateHint": "پورسانت خریدهای بعدی کاربر ارجاع‌شده",
       "renewalSunsetDays": "مدت اعتبار پورسانت تمدید (روز):",
@@ -2635,7 +2752,214 @@
       "approveSuccess": "درخواست تسویه با موفقیت تایید شد.",
       "rejectSuccess": "درخواست تسویه رد شد.",
       "partnerStatusUpdated": "وضعیت همکار فروش به‌روزرسانی شد.",
-      "rulesSaved": "تنظیمات افیلیت ذخیره شد."
+      "rulesSaved": "تنظیمات افیلیت ذخیره شد.",
+      "codeSaved": "کد افیلیت و درصد تخفیف ذخیره شد."
+    }
+  },
+  "planCampaigns": {
+    "pageTitle": "مدیریت کمپین‌ها و تخفیف مستقیم مدل‌ها",
+    "pageDescription": "کمپین‌های مبتنی بر اشتراک و تخفیف‌های مستقل مدل را از همین بخش مدیریت کنید.",
+    "rulesTitle": "قوانین تخفیف",
+    "rulesDescription": "مشخص کنید کدام سرویس‌ها شامل تخفیف اختصاصی پلن‌ها می‌شوند.",
+    "actions": {
+      "create": "افزودن قانون تخفیف جدید"
+    },
+    "tabs": {
+      "planCampaigns": "کمپین اشتراک‌محور",
+      "modelDiscounts": "تخفیف مستقیم مدل‌ها"
+    },
+    "tiers": {
+      "basic": "عمومی (مهمان و پایه)",
+      "explorer": "کاشف",
+      "adventurer": "ماجراجو",
+      "hero": "قهرمان ⭐"
+    },
+    "table": {
+      "targetService": "سرویس هدف",
+      "endStatus": "مهلت اعتبار",
+      "visibility": "نمایش",
+      "actions": "عملیات",
+      "empty": "هنوز کمپین تخفیفی ثبت نشده است.",
+      "noServices": "بدون سرویس",
+      "oneService": "۱ مدل",
+      "serviceCount": "{{count}} مدل اختصاصی",
+      "groupLabel": "کمپین گروهی ({{subtitle}})",
+      "indefiniteEnd": "بدون پایان",
+      "expired": "پایان یافته",
+      "untilDate": "تا {{date}}"
+    },
+    "form": {
+      "createTitle": "ایجاد قانون تخفیف و کمپین جدید",
+      "editTitle": "ویرایش کمپین تخفیف",
+      "title": "عنوان عمومی کمپین",
+      "titlePlaceholder": "مثال: جشنواره تخفیف مدل‌های پریمیوم",
+      "internalName": "نام داخلی (اختیاری)",
+      "internalNamePlaceholder": "برای گزارش‌گیری ادمین",
+      "priority": "اولویت نمایش",
+      "bannerTeaser": "متن بنر و تیزر",
+      "bannerTeaserPlaceholder": "تا ۵۰٪ تخفیف ویژه روی مدل‌های منتخب",
+      "description": "توضیحات (اختیاری)",
+      "mode": {
+        "group": "تخصیص گروهی (یکسان برای مدل‌ها)",
+        "individual": "تخصیص تکی (ردیف‌های مجزا)"
+      },
+      "groupServices": "انتخاب سرویس / مدل هدف",
+      "addService": "افزودن سرویس",
+      "tierAssignment": "تخصیص درصد تخفیف اختصاصی هر پلن",
+      "planTargetHint": "کاشف، ماجراجو و قهرمان روی بسته ماهانه و سالانه همان پلن اعمال می‌شود. عمومی روی بسته‌های پیشنهاد ویژه (مهمان و عمومی) اعمال می‌شود.",
+      "targetedPackages": "{{count}} بسته هدف",
+      "billingPeriodTarget": "ماهانه و سالانه",
+      "specialOfferTarget": "بسته‌های پیشنهاد ویژه",
+      "packagesLoading": "در حال یافتن بسته‌ها...",
+      "minOneTier": "حداقل ۱ پلن انتخاب شود",
+      "percentPlaceholder": "مثلاً ۲۰",
+      "selectServicePlaceholder": "انتخاب کنید...",
+      "selectDedicatedService": "انتخاب سرویس اختصاصی",
+      "rowTierLabel": "درصد تخفیف اختصاصی روی پلن‌ها",
+      "addIndividualRow": "افزودن سرویس و تخصیص تخفیف",
+      "removeRow": "حذف این سرویس",
+      "campaignEndSettings": "تنظیمات پایان کمپین",
+      "endDate": "تاریخ پایان کمپین (شمسی)",
+      "endDatePlaceholder": "انتخاب تاریخ پایان",
+      "endTime": "زمان پایان (ساعت)",
+      "noEndHint": "کمپین بدون تاریخ پایان ثبت می‌شود.",
+      "expirationType": "نحوه اعمال و انقضای تخفیف پس از پایان کمپین",
+      "expiration": {
+        "subscription_bound": {
+          "title": "پیوسته (معتبر تا پایان دوره اشتراک کاربر)",
+          "description": "اگر کاربر در بازه کمپین اشتراک بخرد، تخفیف تا آخر اعتبار اشتراک او در پروفایل ثبت می‌ماند."
+        },
+        "campaign_bound": {
+          "title": "محدود به بازه کمپین (موقت برای همه)",
+          "description": "تخفیف دقیقاً در تاریخ پایان کمپین برای همه کاربران حذف می‌شود."
+        }
+      },
+      "visibility": "تنظیمات نمایش و اطلاع‌رسانی",
+      "visibilityOptions": {
+        "planPage": {
+          "title": "نمایش در صفحه پلن‌ها",
+          "description": "باکس و نوتیفیکیشن اختصاصی در صفحه خرید اشتراک"
+        },
+        "planCard": {
+          "title": "نمایش در کارت پلن‌ها",
+          "description": "برچسب و نشان ویژه روی کارت اشتراک‌ها"
+        },
+        "banner": {
+          "title": "نمایش به صورت بنر",
+          "description": "نوار اعلان هدر و پاپ‌آپ سراسری در کل پلتفرم"
+        }
+      },
+      "submit": "ثبت کمپین تخفیف",
+      "cancel": "انصراف"
+    },
+    "errors": {
+      "titleRequired": "عنوان کمپین الزامی است.",
+      "bannerTeaserRequired": "متن بنر الزامی است.",
+      "endDateRequired": "تاریخ پایان کمپین را انتخاب کنید.",
+      "servicesRequired": "حداقل یک سرویس انتخاب کنید.",
+      "tierRequired": "حداقل برای یک پلن درصد تخفیف وارد کنید.",
+      "individualRowsRequired": "حداقل یک ردیف تخصیص تکی اضافه کنید.",
+      "rowServiceRequired": "برای هر ردیف یک سرویس انتخاب کنید.",
+      "rowTierRequired": "برای هر ردیف حداقل یک پلن با تخفیف مشخص کنید.",
+      "planPackagesMissing": "برای پلن انتخاب‌شده بسته متناظر پیدا نشد. پلن‌های نام‌دار به اشتراک ماهانه و سالانه، و گزینه عمومی به بسته پیشنهاد ویژه نیاز دارند."
+    },
+    "delete": {
+      "title": "حذف کمپین",
+      "description": "آیا از حذف «{{name}}» مطمئن هستید؟",
+      "confirm": "حذف کمپین"
+    },
+    "toast": {
+      "created": "کمپین تخفیف با موفقیت ثبت شد.",
+      "updated": "کمپین تخفیف به‌روزرسانی شد.",
+      "deleted": "کمپین حذف شد.",
+      "createFailed": "ثبت کمپین ناموفق بود.",
+      "updateFailed": "به‌روزرسانی کمپین ناموفق بود.",
+      "deleteFailed": "حذف کمپین ناموفق بود."
+    }
+  },
+  "modelDiscounts": {
+    "rulesTitle": "تخفیف مستقیم مدل‌ها",
+    "rulesDescription": "تخفیف‌هایی که مستقل از اشتراک کاربر هستند را روی مدل‌ها زمان‌بندی و مدیریت کنید.",
+    "actions": {
+      "create": "افزودن تخفیف مدل"
+    },
+    "filters": {
+      "searchPlaceholder": "جستجو بر اساس نام سرویس یا مدل...",
+      "statusPlaceholder": "وضعیت بازه زمانی",
+      "status": {
+        "all": "همه",
+        "active": "فعال",
+        "upcoming": "آینده",
+        "expired": "منقضی‌شده"
+      }
+    },
+    "table": {
+      "targetModel": "مدل / سرویس هدف",
+      "discountPercent": "درصد تخفیف",
+      "validity": "بازه اعتبار",
+      "state": "وضعیت",
+      "actions": "عملیات",
+      "empty": "هنوز تخفیف مستقیمی برای مدل‌ها ثبت نشده است.",
+      "allServiceModels": "همه مدل‌های این سرویس",
+      "unknownService": "سرویس نامشخص",
+      "enabled": "فعال",
+      "disabled": "غیرفعال",
+      "windowStatus": {
+        "active": "در حال اجرا",
+        "upcoming": "شروع نشده",
+        "expired": "پایان یافته"
+      }
+    },
+    "form": {
+      "createTitle": "ایجاد تخفیف مستقیم مدل",
+      "editTitle": "ویرایش تخفیف مدل",
+      "targetService": "سرویس هدف",
+      "targetServicePlaceholder": "سرویس را انتخاب کنید...",
+      "selectedServiceHint": "سرویس انتخاب‌شده: {{name}}",
+      "modelName": "نام مدل (اختیاری)",
+      "modelNamePlaceholder": "مثلاً gpt-4o",
+      "modelNameHint": "اگر خالی باشد، تخفیف برای همه مدل‌های این سرویس اعمال می‌شود.",
+      "discountPercentage": "درصد تخفیف",
+      "title": "عنوان",
+      "titlePlaceholder": "عنوان کلی تخفیف",
+      "showAsBanner": "نمایش به عنوان بنر",
+      "showAsBannerHint": "در صورت فعال بودن، متن بنر در نوار اعلان هدر نمایش داده می‌شود.",
+      "bannerTeaser": "متن بنر و تیزر",
+      "bannerTeaserPlaceholder": "تا ۵۰٪ تخفیف ویژه روی مدل‌های منتخب",
+      "startsDate": "تاریخ شروع",
+      "startsDatePlaceholder": "انتخاب تاریخ شروع",
+      "startsTime": "ساعت شروع",
+      "endsDate": "تاریخ پایان",
+      "endsDatePlaceholder": "انتخاب تاریخ پایان",
+      "endsTime": "ساعت پایان",
+      "description": "توضیحات (اختیاری)",
+      "descriptionPlaceholder": "توضیحات کوتاه دیالوگ و بنر",
+      "isActive": "فعال بودن تخفیف",
+      "isActiveHint": "در صورت غیرفعال بودن، تخفیف حتی در بازه زمانی هم اعمال نمی‌شود.",
+      "submit": "ذخیره تخفیف",
+      "cancel": "انصراف"
+    },
+    "errors": {
+      "serviceRequired": "انتخاب سرویس الزامی است.",
+      "discountRangeInvalid": "درصد تخفیف باید بین ۱ تا ۱۰۰ باشد.",
+      "startDateRequired": "تاریخ شروع الزامی است.",
+      "endDateRequired": "تاریخ پایان الزامی است.",
+      "dateTimeInvalid": "تاریخ یا زمان واردشده معتبر نیست.",
+      "endBeforeStart": "تاریخ پایان باید بعد از تاریخ شروع باشد.",
+      "bannerTeaserRequired": "متن بنر الزامی است."
+    },
+    "delete": {
+      "title": "حذف تخفیف مدل",
+      "description": "آیا از حذف «{{name}}» مطمئن هستید؟",
+      "confirm": "حذف تخفیف"
+    },
+    "toast": {
+      "created": "تخفیف مدل با موفقیت ثبت شد.",
+      "updated": "تخفیف مدل به‌روزرسانی شد.",
+      "deleted": "تخفیف مدل حذف شد.",
+      "createFailed": "ثبت تخفیف مدل ناموفق بود.",
+      "updateFailed": "به‌روزرسانی تخفیف مدل ناموفق بود.",
+      "deleteFailed": "حذف تخفیف مدل ناموفق بود."
     }
   }
 }
