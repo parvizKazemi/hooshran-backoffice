@@ -2920,8 +2920,12 @@
       "modelNamePlaceholder": "مثلاً gpt-4o",
       "modelNameHint": "اگر خالی باشد، تخفیف برای همه مدل‌های این سرویس اعمال می‌شود.",
       "discountPercentage": "درصد تخفیف",
-      "title": "عنوان داخلی (اختیاری)",
-      "titlePlaceholder": "عنوان کلی بنر",
+      "title": "عنوان",
+      "titlePlaceholder": "عنوان کلی تخفیف",
+      "showAsBanner": "نمایش به عنوان بنر",
+      "showAsBannerHint": "در صورت فعال بودن، متن بنر در نوار اعلان هدر نمایش داده می‌شود.",
+      "bannerTeaser": "متن بنر و تیزر",
+      "bannerTeaserPlaceholder": "تا ۵۰٪ تخفیف ویژه روی مدل‌های منتخب",
       "startsDate": "تاریخ شروع",
       "startsDatePlaceholder": "انتخاب تاریخ شروع",
       "startsTime": "ساعت شروع",
@@ -2941,7 +2945,8 @@
       "startDateRequired": "تاریخ شروع الزامی است.",
       "endDateRequired": "تاریخ پایان الزامی است.",
       "dateTimeInvalid": "تاریخ یا زمان واردشده معتبر نیست.",
-      "endBeforeStart": "تاریخ پایان باید بعد از تاریخ شروع باشد."
+      "endBeforeStart": "تاریخ پایان باید بعد از تاریخ شروع باشد.",
+      "bannerTeaserRequired": "متن بنر الزامی است."
     },
     "delete": {
       "title": "حذف تخفیف مدل",

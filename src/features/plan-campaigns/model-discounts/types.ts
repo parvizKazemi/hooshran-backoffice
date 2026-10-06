@@ -20,6 +20,8 @@ export type ModelDiscount = {
   isCurrentlyActive: boolean;
   title?: string | null;
   description?: string | null;
+  showAsBanner?: boolean;
+  bannerTeaser?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -52,6 +54,8 @@ export type CreateModelDiscountInput = {
   isActive?: boolean;
   title?: string;
   description?: string;
+  showAsBanner?: boolean;
+  bannerTeaser?: string | null;
 };
 
 export type UpdateModelDiscountInput = Partial<CreateModelDiscountInput>;
@@ -67,4 +71,6 @@ export type ModelDiscountFormState = {
   isActive: boolean;
   title: string;
   description: string;
+  showAsBanner: boolean;
+  bannerTeaser: string;
 };

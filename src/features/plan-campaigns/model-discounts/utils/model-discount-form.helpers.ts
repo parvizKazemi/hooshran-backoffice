@@ -19,6 +19,8 @@ export const createInitialModelDiscountForm = (): ModelDiscountFormState => ({
   isActive: true,
   title: "",
   description: "",
+  showAsBanner: true,
+  bannerTeaser: "",
 });
 
 function normalizeTime24(value: string): string {
@@ -65,6 +67,8 @@ export function modelDiscountToFormState(
     isActive: discount.isActive,
     title: discount.title ?? "",
     description: discount.description ?? "",
+    showAsBanner: discount.showAsBanner ?? false,
+    bannerTeaser: discount.bannerTeaser ?? "",
   };
 }
 
@@ -95,6 +99,8 @@ export function buildModelDiscountPayload(
     isActive: form.isActive,
     title: form.title.trim() || undefined,
     description: form.description.trim() || undefined,
+    showAsBanner: form.showAsBanner,
+    bannerTeaser: form.showAsBanner ? form.bannerTeaser.trim() : null,
   };
 }
 

@@ -2876,8 +2876,12 @@
       "modelNamePlaceholder": "e.g. gpt-4o",
       "modelNameHint": "Leave empty to apply this discount to all models of the selected service.",
       "discountPercentage": "Discount percentage",
-      "title": "Internal title (optional)",
-      "titlePlaceholder": "e.g. Weekend special discount",
+      "title": "Title",
+      "titlePlaceholder": "Banner title",
+      "showAsBanner": "Show as banner",
+      "showAsBannerHint": "When enabled, the banner text is shown in the header announcement.",
+      "bannerTeaser": "Banner teaser",
+      "bannerTeaserPlaceholder": "Up to 50% off selected models",
       "startsDate": "Start date",
       "startsDatePlaceholder": "Select start date",
       "startsTime": "Start time",
@@ -2897,7 +2901,8 @@
       "startDateRequired": "Start date is required.",
       "endDateRequired": "End date is required.",
       "dateTimeInvalid": "Date or time is invalid.",
-      "endBeforeStart": "End date must be later than start date."
+      "endBeforeStart": "End date must be later than start date.",
+      "bannerTeaserRequired": "Banner teaser is required."
     },
     "delete": {
       "title": "Delete model discount",

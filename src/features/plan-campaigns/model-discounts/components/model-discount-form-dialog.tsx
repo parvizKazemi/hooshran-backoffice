@@ -25,10 +25,7 @@ import {
   useCreateModelDiscount,
   useUpdateModelDiscount,
 } from "../hooks/use-model-discounts";
-import type {
-  ModelDiscount,
-  ModelDiscountFormState,
-} from "../types";
+import type { ModelDiscount, ModelDiscountFormState } from "../types";
 import {
   buildModelDiscountPayload,
   createInitialModelDiscountForm,
@@ -126,6 +123,34 @@ export function ModelDiscountFormDialog({
         <div className="flex-1 space-y-5 overflow-y-auto p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="discount-title">
+                {t("modelDiscounts.form.title")}
+              </Label>
+              <Input
+                id="discount-title"
+                value={form.title}
+                onChange={(event) => setField("title", event.target.value)}
+                placeholder={t("modelDiscounts.form.titlePlaceholder")}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="discount-description">
+                {t("modelDiscounts.form.description")}
+              </Label>
+              <Textarea
+                id="discount-description"
+                value={form.description}
+                onChange={(event) =>
+                  setField("description", event.target.value)
+                }
+                placeholder={t("modelDiscounts.form.descriptionPlaceholder")}
+                className="min-h-20 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
               <Label>{t("modelDiscounts.form.targetService")} *</Label>
               <Select
                 value={form.serviceUuid}
@@ -133,7 +158,9 @@ export function ModelDiscountFormDialog({
               >
                 <SelectTrigger className="w-full rounded-xl">
                   <SelectValue
-                    placeholder={t("modelDiscounts.form.targetServicePlaceholder")}
+                    placeholder={t(
+                      "modelDiscounts.form.targetServicePlaceholder"
+                    )}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,25 +207,17 @@ export function ModelDiscountFormDialog({
                 max={100}
                 value={form.discountPercentage}
                 onChange={(event) =>
-                  setField("discountPercentage", Number(event.target.value) || 0)
+                  setField(
+                    "discountPercentage",
+                    Number(event.target.value) || 0
+                  )
                 }
-                className="rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="discount-title">{t("modelDiscounts.form.title")}</Label>
-              <Input
-                id="discount-title"
-                value={form.title}
-                onChange={(event) => setField("title", event.target.value)}
-                placeholder={t("modelDiscounts.form.titlePlaceholder")}
                 className="rounded-xl"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 rounded-xl border bg-muted/20 p-4 sm:grid-cols-2">
+          <div className="bg-muted/20 grid grid-cols-1 gap-4 rounded-xl border p-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-xs font-bold">
                 {t("modelDiscounts.form.startsDate")} *
@@ -261,19 +280,6 @@ export function ModelDiscountFormDialog({
                 className="rounded-lg text-center font-mono tracking-widest"
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="discount-description">
-              {t("modelDiscounts.form.description")}
-            </Label>
-            <Textarea
-              id="discount-description"
-              value={form.description}
-              onChange={(event) => setField("description", event.target.value)}
-              placeholder={t("modelDiscounts.form.descriptionPlaceholder")}
-              className="min-h-20 rounded-xl"
-            />
           </div>
 
           <label className="hover:bg-muted/40 flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3">
