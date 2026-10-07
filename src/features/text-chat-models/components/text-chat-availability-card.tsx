@@ -81,6 +81,7 @@ export function TextChatAvailabilityCard() {
           </p>
         ) : null}
       </CardHeader>
+
       {!isActive && (
         <CardContent className="space-y-3 px-6 py-2">
           {isLoading ? (
@@ -105,25 +106,22 @@ export function TextChatAvailabilityCard() {
                   className="min-h-24 resize-y"
                 />
               </div>
-
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={isSaving || !isDirty}
-                >
-                  {isSaving ? (
-                    <IconLoader2 className="size-4 animate-spin" />
-                  ) : null}
-                  {isSaving
-                    ? t("textChatModels.availability.saving")
-                    : t("textChatModels.availability.save")}
-                </Button>
-              </div>
             </>
           )}
         </CardContent>
       )}
+      <div className="ml-6 flex justify-end">
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving || !isDirty}
+        >
+          {isSaving ? <IconLoader2 className="size-4 animate-spin" /> : null}
+          {isSaving
+            ? t("textChatModels.availability.saving")
+            : t("textChatModels.availability.save")}
+        </Button>
+      </div>
     </Card>
   );
 }
