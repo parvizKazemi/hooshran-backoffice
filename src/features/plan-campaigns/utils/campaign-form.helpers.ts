@@ -3,6 +3,7 @@ import {
   CAMPAIGN_TIER_KEYS,
   DEFAULT_END_TIME,
   INDEFINITE_CAMPAIGN_END_ISO,
+  type ServiceVisibility,
 } from "../constants";
 import type {
   CampaignAllocationMode,
@@ -13,6 +14,7 @@ import type {
   CreateCampaignInput,
   IndividualDiscountRow,
   PlanCampaign,
+  ServiceDisplayConfig,
   TierDiscountState,
 } from "../types";
 
@@ -118,6 +120,7 @@ export const createInitialCampaignForm = (): CampaignFormState => ({
   groupServiceUuids: [],
   groupTiers: createEmptyTierDiscountState(),
   individualRows: [],
+  displayServices: [],
 });
 
 export const createIndividualDiscountRow = (): IndividualDiscountRow => ({
@@ -125,6 +128,106 @@ export const createIndividualDiscountRow = (): IndividualDiscountRow => ({
   serviceUuid: "",
   tiers: createEmptyTierDiscountState(),
 });
+
+export function selectedCampaignServiceUuids(
+  form: Pick<
+    CampaignFormState,
+    "allocationMode" | "groupServiceUuids" | "individualRows"
+  >
+): string[] {
+  const source =
+    form.allocationMode === "group"
+      ? form.groupServiceUuids
+      : form.individualRows.map((row) => row.serviceUuid);
+
+  const seen = new Set<string>();
+  const uuids: string[] = [];
+  for (const uuid of source) {
+    const trimmed = uuid.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    uuids.push(trimmed);
+  }
+  return uuids;
+}
+
+export function createServiceDisplayConfig(
+  serviceUuid: string,
+  displayName: string,
+  priority: number,
+  visibility?: Partial<
+    Pick<
+      ServiceDisplayConfig,
+      "showOnPlanCard" | "showOnPlanComparison" | "showInBanner"
+    >
+  >
+): ServiceDisplayConfig {
+  return {
+    serviceUuid,
+    displayName: displayName.trim(),
+    priority,
+    showOnPlanCard: visibility?.showOnPlanCard ?? true,
+    showOnPlanComparison: visibility?.showOnPlanComparison ?? true,
+    showInBanner: visibility?.showInBanner ?? true,
+    removedFromDisplay: false,
+  };
+}
+
+function displayServicesEqual(
+  current: ServiceDisplayConfig[],
+  next: ServiceDisplayConfig[]
+) {
+  if (current.length !== next.length) return false;
+  return current.every((row, index) => {
+    const other = next[index];
+    return (
+      row.serviceUuid === other.serviceUuid &&
+      row.displayName === other.displayName &&
+      row.priority === other.priority &&
+      row.showOnPlanCard === other.showOnPlanCard &&
+      row.showOnPlanComparison === other.showOnPlanComparison &&
+      row.showInBanner === other.showInBanner &&
+      row.removedFromDisplay === other.removedFromDisplay
+    );
+  });
+}
+
+/** Adds a display row for each newly selected service. Deselected services stay stored so re-selecting restores appearance. */
+export function syncDisplayServices(
+  current: ServiceDisplayConfig[],
+  selectedUuids: string[],
+  nameByUuid: Record<string, string>
+): ServiceDisplayConfig[] {
+  const withNames = current.map((row) => {
+    if (row.displayName.trim()) return row;
+    const catalogName = nameByUuid[row.serviceUuid]?.trim() ?? "";
+    if (!catalogName) return row;
+    return { ...row, displayName: catalogName };
+  });
+
+  const known = new Set(withNames.map((row) => row.serviceUuid));
+  let nextPriority = withNames.reduce(
+    (max, row) => Math.max(max, row.priority || 0),
+    0
+  );
+  const added: ServiceDisplayConfig[] = [];
+
+  for (const serviceUuid of selectedUuids) {
+    if (known.has(serviceUuid)) continue;
+    known.add(serviceUuid);
+    nextPriority += 1;
+    added.push(
+      createServiceDisplayConfig(
+        serviceUuid,
+        nameByUuid[serviceUuid] ?? "",
+        nextPriority
+      )
+    );
+  }
+
+  const next = added.length > 0 ? [...withNames, ...added] : withNames;
+  return displayServicesEqual(current, next) ? current : next;
+}
 
 function isoToDateInput(value: string): string {
   if (!value) return "";
@@ -235,6 +338,15 @@ export function campaignToFormState(
     campaign.endsAt.startsWith("2099-") ||
     new Date(campaign.endsAt).getFullYear() >= 2099;
 
+  const displayNameByUuid: Record<string, string> = {};
+  for (const discount of discounts) {
+    const uuid = getDiscountServiceUuid(discount);
+    const name = discount.serviceName?.trim();
+    if (uuid && name && !displayNameByUuid[uuid]) {
+      displayNameByUuid[uuid] = name;
+    }
+  }
+
   const base: CampaignFormState = {
     name: campaign.name,
     title: campaign.title,
@@ -255,6 +367,7 @@ export function campaignToFormState(
     groupServiceUuids: [],
     groupTiers: createEmptyTierDiscountState(),
     individualRows: [],
+    displayServices: [],
   };
 
   if (allocationMode === "group") {
@@ -266,6 +379,17 @@ export function campaignToFormState(
       ),
     ];
     base.groupTiers = tierMapFromDiscounts(discounts, packages);
+    base.displayServices = base.groupServiceUuids.map((serviceUuid, index) =>
+      displayConfigFromDiscounts(
+        serviceUuid,
+        discounts.filter(
+          (item) => getDiscountServiceUuid(item) === serviceUuid
+        ),
+        displayNameByUuid[serviceUuid] ?? "",
+        index,
+        campaign
+      )
+    );
     return base;
   }
 
@@ -287,6 +411,15 @@ export function campaignToFormState(
       tiers: tierMapFromDiscounts(items, packages),
     })
   );
+  base.displayServices = base.individualRows.map((row, index) =>
+    displayConfigFromDiscounts(
+      row.serviceUuid,
+      rowsByService.get(row.serviceUuid) ?? [],
+      displayNameByUuid[row.serviceUuid] ?? "",
+      index,
+      campaign
+    )
+  );
 
   return base;
 }
@@ -302,6 +435,76 @@ function buildEndsAtIso(form: CampaignFormState): string {
   const date = new Date(`${form.endDate}T00:00:00`);
   date.setHours(hours || 23, minutes || 59, 59, 999);
   return date.toISOString();
+}
+
+function visibilityFromDisplay(
+  row: ServiceDisplayConfig
+): ServiceVisibility[] {
+  if (row.removedFromDisplay) return [];
+  const visibility: ServiceVisibility[] = [];
+  if (row.showInBanner) visibility.push("BANNER");
+  if (row.showOnPlanCard) visibility.push("PLAN_CARD");
+  if (row.showOnPlanComparison) visibility.push("PLAN_COMPARISON");
+  return visibility;
+}
+
+function appearanceForService(
+  form: CampaignFormState,
+  serviceUuid: string
+): Pick<CreateCampaignDiscountItem, "serviceName" | "visibility" | "priority"> {
+  const row = form.displayServices.find(
+    (item) => item.serviceUuid === serviceUuid
+  );
+  const serviceName = row?.displayName.trim() || undefined;
+
+  if (!row || row.removedFromDisplay) {
+    return {
+      serviceName,
+      visibility: [],
+      priority: null,
+    };
+  }
+
+  return {
+    serviceName,
+    visibility: visibilityFromDisplay(row),
+    priority: row.priority,
+  };
+}
+
+function displayConfigFromDiscounts(
+  serviceUuid: string,
+  serviceDiscounts: CampaignServiceDiscount[],
+  fallbackName: string,
+  index: number,
+  campaign: Pick<PlanCampaign, "showOnPlanCard" | "showOnPlanPage">
+): ServiceDisplayConfig {
+  const name =
+    serviceDiscounts
+      .map((item) => item.serviceName?.trim())
+      .find((value) => Boolean(value)) || fallbackName;
+  const sample = serviceDiscounts.find((item) => Array.isArray(item.visibility));
+
+  if (!sample) {
+    return createServiceDisplayConfig(serviceUuid, name, index + 1, {
+      showOnPlanCard: campaign.showOnPlanCard,
+      showOnPlanComparison: campaign.showOnPlanPage,
+      showInBanner: true,
+    });
+  }
+
+  const visibility = sample.visibility ?? [];
+  const removed = visibility.length === 0 && sample.priority == null;
+
+  return {
+    serviceUuid,
+    displayName: name,
+    priority: typeof sample.priority === "number" ? sample.priority : null,
+    showOnPlanCard: visibility.includes("PLAN_CARD"),
+    showOnPlanComparison: visibility.includes("PLAN_COMPARISON"),
+    showInBanner: visibility.includes("BANNER"),
+    removedFromDisplay: removed,
+  };
 }
 
 function buildTierDiscountItems(
@@ -333,17 +536,34 @@ export function buildDiscountPayload(
   form: CampaignFormState,
   packages: Package[]
 ): CreateCampaignDiscountItem[] {
-  if (form.allocationMode === "group") {
-    return form.groupServiceUuids.flatMap((uuid) => {
-      if (!uuid) return [];
-      return buildTierDiscountItems(uuid, form.groupTiers, packages);
-    });
-  }
+  const items =
+    form.allocationMode === "group"
+      ? form.groupServiceUuids.flatMap((uuid) => {
+          if (!uuid) return [];
+          return buildTierDiscountItems(uuid, form.groupTiers, packages);
+        })
+      : form.individualRows.flatMap((row) => {
+          if (!row.serviceUuid) return [];
+          return buildTierDiscountItems(row.serviceUuid, row.tiers, packages);
+        });
 
-  return form.individualRows.flatMap((row) => {
-    if (!row.serviceUuid) return [];
-    return buildTierDiscountItems(row.serviceUuid, row.tiers, packages);
-  });
+  return items.map((item) => ({
+    ...item,
+    ...appearanceForService(form, item.serviceUuid),
+  }));
+}
+
+function deriveCampaignVisibility(form: CampaignFormState) {
+  const selected = new Set(selectedCampaignServiceUuids(form));
+  const visible = form.displayServices.filter(
+    (row) => selected.has(row.serviceUuid) && !row.removedFromDisplay
+  );
+
+  return {
+    showAsBanner: form.showAsBanner,
+    showOnPlanPage: visible.some((row) => row.showOnPlanComparison),
+    showOnPlanCard: visible.some((row) => row.showOnPlanCard),
+  };
 }
 
 export function buildCampaignPayload(
@@ -353,6 +573,7 @@ export function buildCampaignPayload(
 ): CreateCampaignInput {
   const trimmedTitle = form.title.trim();
   const trimmedName = form.name.trim() || trimmedTitle;
+  const visibility = deriveCampaignVisibility(form);
 
   return {
     name: trimmedName,
@@ -365,9 +586,9 @@ export function buildCampaignPayload(
     startsAt: existingStartsAt ?? new Date().toISOString(),
     endsAt: buildEndsAtIso(form),
     isActive: form.isActive,
-    showAsBanner: form.showAsBanner,
-    showOnPlanPage: form.showOnPlanPage,
-    showOnPlanCard: form.showOnPlanCard,
+    showAsBanner: visibility.showAsBanner,
+    showOnPlanPage: visibility.showOnPlanPage,
+    showOnPlanCard: visibility.showOnPlanCard,
     priority: form.priority,
     discounts: buildDiscountPayload(form, packages),
   };

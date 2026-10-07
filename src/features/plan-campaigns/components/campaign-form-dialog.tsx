@@ -24,6 +24,7 @@ import type {
   CampaignFormState,
   CampaignPlatformService,
   PlanCampaign,
+  ServiceDisplayConfig,
 } from "../types";
 import {
   buildCampaignPayload,
@@ -31,8 +32,11 @@ import {
   createIndividualDiscountRow,
   createInitialCampaignForm,
   normalizeTime24,
+  selectedCampaignServiceUuids,
+  syncDisplayServices,
   validateCampaignForm,
 } from "../utils/campaign-form.helpers";
+import { CampaignDisplaySettings } from "./campaign-display-settings";
 import { CampaignGroupServiceSelector } from "./campaign-group-service-selector";
 import { CampaignIndividualRows } from "./campaign-individual-rows";
 import { CampaignTierDiscountGrid } from "./campaign-tier-discount-grid";
@@ -107,6 +111,90 @@ export function CampaignFormDialog({
     }
     return map;
   }, [campaign?.serviceDiscounts]);
+
+  const serviceNameByUuid = useMemo(() => {
+    const map: Record<string, string> = { ...serviceLabelByUuid };
+    for (const service of services) {
+      if (service.name.trim()) {
+        map[service.uuid] = service.name;
+      }
+    }
+    return map;
+  }, [serviceLabelByUuid, services]);
+
+  const selectedServiceUuids = useMemo(
+    () => selectedCampaignServiceUuids(form),
+    [form]
+  );
+
+  const selectedServiceKey = selectedServiceUuids.join("\u0000");
+
+  useEffect(() => {
+    setForm((prev) => {
+      const next = syncDisplayServices(
+        prev.displayServices,
+        selectedCampaignServiceUuids(prev),
+        serviceNameByUuid
+      );
+      if (next === prev.displayServices) return prev;
+      return { ...prev, displayServices: next };
+    });
+  }, [selectedServiceKey, serviceNameByUuid]);
+
+  const displayRows = useMemo(() => {
+    const selected = new Set(selectedServiceUuids);
+    return form.displayServices.filter((row) => selected.has(row.serviceUuid));
+  }, [form.displayServices, selectedServiceUuids]);
+
+  const updateDisplayRow = (
+    serviceUuid: string,
+    patch: Partial<ServiceDisplayConfig>
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      displayServices: prev.displayServices.map((row) =>
+        row.serviceUuid === serviceUuid ? { ...row, ...patch } : row
+      ),
+    }));
+  };
+
+  const removeDisplayRow = (serviceUuid: string) => {
+    updateDisplayRow(serviceUuid, {
+      removedFromDisplay: true,
+      showOnPlanCard: false,
+      showOnPlanComparison: false,
+      showInBanner: false,
+      priority: null,
+    });
+  };
+
+  const restoreDisplayRows = () => {
+    setForm((prev) => {
+      const selected = new Set(selectedCampaignServiceUuids(prev));
+      let nextPriority = prev.displayServices.reduce(
+        (max, row) => Math.max(max, row.priority ?? 0),
+        0
+      );
+
+      return {
+        ...prev,
+        displayServices: prev.displayServices.map((row) => {
+          if (!selected.has(row.serviceUuid) || !row.removedFromDisplay) {
+            return row;
+          }
+          nextPriority += 1;
+          return {
+            ...row,
+            removedFromDisplay: false,
+            showOnPlanCard: true,
+            showOnPlanComparison: true,
+            showInBanner: true,
+            priority: nextPriority,
+          };
+        }),
+      };
+    });
+  };
 
   const handleSubmit = async () => {
     if (isPackagesLoading) return;
@@ -379,41 +467,16 @@ export function CampaignFormDialog({
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Label>{t("planCampaigns.form.visibility")}</Label>
-            <div className="bg-muted/30 grid grid-cols-1 gap-3 rounded-xl border p-4 sm:grid-cols-3">
-              {(
-                [
-                  ["showOnPlanPage", "planPage"],
-                  ["showOnPlanCard", "planCard"],
-                  ["showAsBanner", "banner"],
-                ] as const
-              ).map(([field, labelKey]) => (
-                <label
-                  key={field}
-                  className="hover:bg-background/80 flex cursor-pointer items-start gap-3 rounded-lg p-2"
-                >
-                  <Switch
-                    dir="ltr"
-                    checked={form[field]}
-                    onCheckedChange={(checked) => setField(field, checked)}
-                  />
-                  <div>
-                    <span className="text-xs font-bold sm:text-sm">
-                      {t(
-                        `planCampaigns.form.visibilityOptions.${labelKey}.title`
-                      )}
-                    </span>
-                    <span className="text-muted-foreground mt-0.5 block text-[10px] leading-relaxed">
-                      {t(
-                        `planCampaigns.form.visibilityOptions.${labelKey}.description`
-                      )}
-                    </span>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
+          <CampaignDisplaySettings
+            rows={displayRows}
+            showAsBanner={form.showAsBanner}
+            onChangeRow={updateDisplayRow}
+            onRemoveFromDisplay={removeDisplayRow}
+            onRestoreAll={restoreDisplayRows}
+            onShowAsBannerChange={(checked) =>
+              setField("showAsBanner", checked)
+            }
+          />
 
           {validationErrorKey ? (
             <p className="text-destructive text-sm">
