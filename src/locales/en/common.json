@@ -2446,6 +2446,24 @@
       "activated": "Model activated",
       "deactivated": "Model deactivated",
       "failed": "Failed to save the model"
+    },
+    "availability": {
+      "title": "Chat status",
+      "description": "When chat is off, people can still open past conversations but cannot send a new message.",
+      "active": "Chat is active",
+      "inactive": "Chat is inactive",
+      "messageLabel": "Message for users",
+      "messageHint": "This text is shown in the center of the chat composer.",
+      "messagePlaceholder": "Chat is temporarily unavailable. Please check back soon.",
+      "save": "Save",
+      "saving": "Saving…",
+      "loadError": "Could not load chat status from the server.",
+      "ariaLabel": "Activate or deactivate chat",
+      "toasts": {
+        "activated": "Chat activated",
+        "deactivated": "Chat deactivated",
+        "failed": "Failed to save chat status"
+      }
     }
   },
   "monitoring": {
