@@ -1,4 +1,5 @@
 import { useAuth, type AuthData } from "@/contexts/auth-context";
+import { clearReturnPath, readReturnPath } from "@/lib/auth/return-path";
 import { ApiError, apiPost } from "@/services/api";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -66,9 +67,10 @@ export function useOtp() {
         otp: trimmedCode,
       });
 
-      setAuthData({ user: data.user });
+      setAuthData(data);
       sessionStorage.removeItem("otpPhone");
-      navigate("/");
+      navigate(readReturnPath());
+      clearReturnPath();
     } catch (error) {
       if (error instanceof ApiError) {
         toast.error(error.message);

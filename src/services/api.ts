@@ -5,15 +5,19 @@
  * - Base URL configuration
  * - Standard headers
  * - Automatic error handling
- * - Token management
+ * - Cookie credentials, with one silent refresh if the access cookie expired
  * - Request/Response interceptors
  *
  * Environment configuration:
  * - Reads base URL from VITE_API_BASE_URL defined in .env / .env.example
  */
 
-// Base API URL - can be overridden via environment variables
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { apiBaseUrl } from "@/lib/env";
+import { refreshAdminSession } from "@/lib/auth/refresh-admin-session";
+import { notifySessionEnded } from "@/lib/auth/session-events";
+import { SessionEndedError } from "@/lib/auth/session-ended-error";
+
+const BASE_URL = apiBaseUrl;
 
 // Standard headers for all requests
 const getDefaultHeaders = (): HeadersInit => {
@@ -179,6 +183,34 @@ const handleError = async (response: Response): Promise<never> => {
   );
 };
 
+function isAdminAuthEndpoint(endpoint: string): boolean {
+  return endpoint.startsWith("/admin/auth/");
+}
+
+/**
+ * On 401, rotate the access cookie once and retry.
+ * Auth routes are skipped so a wrong password does not refresh or sign the admin out.
+ */
+async function fetchWithAuthRetry(
+  endpoint: string,
+  config: RequestInit,
+  allowRetry: boolean
+): Promise<Response> {
+  const url = `${BASE_URL}${endpoint}`;
+  const response = await fetch(url, config);
+  if (response.status !== 401 || !allowRetry || isAdminAuthEndpoint(endpoint)) {
+    return response;
+  }
+
+  const refreshed = await refreshAdminSession({ force: true });
+  if (refreshed === "rejected") {
+    notifySessionEnded();
+    throw new SessionEndedError();
+  }
+  if (refreshed === "unavailable") return response;
+  return fetch(url, config);
+}
+
 /**
  * Make a fetch request with standardized configuration
  */
@@ -186,12 +218,8 @@ const makeRequest = async <T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  const url = `${BASE_URL}${endpoint}`;
-
   const config: RequestInit = {
     ...options,
-    // Always include credentials for cookie-based auth in production
-    // In development, this also works but we use token headers
     credentials: "include",
     headers: {
       ...getDefaultHeaders(),
@@ -200,7 +228,7 @@ const makeRequest = async <T>(
   };
 
   try {
-    const response = await fetch(url, config);
+    const response = await fetchWithAuthRetry(endpoint, config, true);
 
     // Handle non-OK responses (error handling is centralized here)
     if (!response.ok) {
@@ -230,7 +258,7 @@ const makeRequest = async <T>(
     return processApiResponse<T>(json);
   } catch (error) {
     // Handle network errors and other exceptions
-    if (error instanceof ApiError) {
+    if (error instanceof ApiError || error instanceof SessionEndedError) {
       throw error;
     }
 
@@ -324,8 +352,6 @@ export const apiUpload = async <T>(
   formData: FormData,
   options?: RequestInit
 ): Promise<T> => {
-  const url = `${BASE_URL}${endpoint}`;
-
   const config: RequestInit = {
     ...options,
     method: "POST",
@@ -338,7 +364,7 @@ export const apiUpload = async <T>(
   };
 
   try {
-    const response = await fetch(url, config);
+    const response = await fetchWithAuthRetry(endpoint, config, true);
 
     // Handle non-OK responses (error handling is centralized here)
     if (!response.ok) {
@@ -365,7 +391,7 @@ export const apiUpload = async <T>(
     return processApiResponse<T>(json);
   } catch (error) {
     // Handle network errors and other exceptions
-    if (error instanceof ApiError) {
+    if (error instanceof ApiError || error instanceof SessionEndedError) {
       throw error;
     }
 

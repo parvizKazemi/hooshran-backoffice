@@ -7,4 +7,6 @@ export const AUTH_ENDPOINTS = {
   login: "/admin/auth/login",
   /** POST { phone, password } → AuthData (same shape as OTP login) */
   loginWithPassword: "/admin/auth/login-with-password",
+  refresh: "/admin/auth/refresh",
+  logout: "/admin/auth/logout",
 } as const;

@@ -118,6 +118,10 @@
     "notReceived": "کدی دریافت نکردید؟",
     "resend": "ارسال مجدد"
   },
+  "session": {
+    "expired": "نشست شما به پایان رسید. لطفاً دوباره وارد شوید.",
+    "signedOut": "از این حساب در جای دیگری خارج شدید."
+  },
   "sectionCards": {
     "totalRevenue": "کل درآمد",
     "trendingUpThisMonth": "روند صعودی این ماه",

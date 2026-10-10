@@ -114,6 +114,10 @@
     "notReceived": "Didn't receive the code?",
     "resend": "Resend"
   },
+  "session": {
+    "expired": "Your session ended. Please sign in again.",
+    "signedOut": "You were signed out in another tab."
+  },
   "sectionCards": {
     "totalRevenue": "Total Revenue",
     "trendingUpThisMonth": "Trending up this month",

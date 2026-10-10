@@ -5,3 +5,5 @@
 export const isTestMode =
   import.meta.env.VITE_TEST_MODE === "true" ||
   import.meta.env.VITE_TEST_MODE === "1";
+
+export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;

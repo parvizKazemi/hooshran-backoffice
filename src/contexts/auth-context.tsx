@@ -1,9 +1,43 @@
 import { getCookie, removeCookie, setCookie } from "@/lib/cookies";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { clearReturnPath } from "@/lib/auth/return-path";
+import {
+  clearRefreshRejection,
+  requestAdminLogout,
+  resumeAdminRefresh,
+  suspendAdminRefresh,
+} from "@/lib/auth/refresh-admin-session";
+import {
+  clearSessionClock,
+  isRefreshExpired,
+  readSessionClock,
+  writeSessionClock,
+} from "@/lib/auth/session-clock";
+import { watchAdminSession } from "@/lib/auth/session-refresh-scheduler";
+import {
+  notifySessionEnded,
+  publishSessionSignal,
+  registerSessionEndedHandler,
+  resetSessionEnded,
+} from "@/lib/auth/session-events";
+import {
+  ADMIN_SESSION_COOKIE_DAYS,
+  USER_DATA_COOKIE,
+} from "@/lib/auth/token-policy";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 export interface TokenData {
   expiresIn: number;
   accessToken: string;
+  refreshToken?: string;
+  refreshTokenExpiresIn?: number;
 }
 
 export interface UserData {
@@ -16,7 +50,7 @@ export interface UserData {
 }
 
 export interface AuthData {
-  token?: TokenData; // Token is optional - stored in cookie by server
+  token?: TokenData;
   user: UserData;
 }
 
@@ -29,43 +63,87 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Cookie name for storing user data
-const USER_DATA_COOKIE = "userData";
+function readStoredUser(): UserData | null {
+  const userDataCookie = getCookie(USER_DATA_COOKIE);
+  if (!userDataCookie) return null;
+  try {
+    return JSON.parse(userDataCookie) as UserData;
+  } catch {
+    return null;
+  }
+}
+
+function clearStoredSession(): void {
+  removeCookie(USER_DATA_COOKIE);
+  clearSessionClock();
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation("common");
   const [authData, setAuthDataState] = useState<AuthData | null>(() => {
-    // Load user data from cookie on mount
-    // Token is stored in cookie by server, we don't need to store it
-    const userDataCookie = getCookie(USER_DATA_COOKIE);
-    if (userDataCookie) {
-      try {
-        const userData: UserData = JSON.parse(userDataCookie);
-        // Return auth data with only user (token is in server cookie)
-        return { user: userData };
-      } catch {
-        return null;
-      }
+    const user = readStoredUser();
+    if (!user) return null;
+    const clock = readSessionClock();
+    if (clock && isRefreshExpired(clock)) {
+      clearStoredSession();
+      publishSessionSignal("ended");
+      notifySessionEnded();
+      return null;
     }
-    return null;
+    return { user };
   });
 
-  const logout = () => {
+  const clearClientSession = () => {
     setAuthDataState(null);
-    // Remove user data cookie
-    // Token cookie is cleared by server on logout
-    removeCookie(USER_DATA_COOKIE);
-    sessionStorage.removeItem("otpPhone");
+    clearStoredSession();
+  };
+
+  const logout = () => {
+    suspendAdminRefresh();
+    void requestAdminLogout();
+    publishSessionSignal("logged-out");
+    clearReturnPath();
+    clearClientSession();
   };
 
   const setAuthData = (data: AuthData | null) => {
-    setAuthDataState(data);
-    // Store only user data in cookie (token is stored by server in its own cookie)
-    if (data?.user) {
-      setCookie(USER_DATA_COOKIE, JSON.stringify(data.user), 7); // 7 days
-    } else {
-      removeCookie(USER_DATA_COOKIE);
+    if (!data?.user) {
+      clearClientSession();
+      return;
     }
+
+    setAuthDataState({ user: data.user });
+    setCookie(
+      USER_DATA_COOKIE,
+      JSON.stringify(data.user),
+      ADMIN_SESSION_COOKIE_DAYS
+    );
+    if (data.token) {
+      writeSessionClock(data.token.expiresIn, data.token.refreshTokenExpiresIn);
+    }
+    clearRefreshRejection();
+    resumeAdminRefresh();
+    resetSessionEnded();
   };
+
+  useEffect(() => {
+    return registerSessionEndedHandler(() => {
+      publishSessionSignal("ended");
+      clearClientSession();
+      toast.error(t("session.expired"), { id: "admin-session-ended" });
+    });
+  }, [t]);
+
+  useEffect(() => {
+    if (!authData) return;
+    return watchAdminSession({
+      onRemoteLogout: () => {
+        suspendAdminRefresh();
+        clearClientSession();
+        toast.error(t("session.signedOut"), { id: "admin-session-signed-out" });
+      },
+    });
+  }, [authData, t]);
 
   const value: AuthContextType = {
     authData,
@@ -84,6 +162,3 @@ export function useAuth() {
   }
   return context;
 }
-
-// const { authData, isAuthenticated, logout } = useAuth();
-// const accessToken = authData?.token.accessToken;

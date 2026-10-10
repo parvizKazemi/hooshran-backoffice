@@ -1,4 +1,5 @@
 import { useAuth, type AuthData } from "@/contexts/auth-context";
+import { clearReturnPath, readReturnPath } from "@/lib/auth/return-path";
 import { ApiError, apiPost } from "@/services/api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,9 +45,10 @@ export function useLogin() {
           password,
         });
 
-        setAuthData({ user: data.user });
+        setAuthData(data);
         setPassword("");
-        navigate("/");
+        navigate(readReturnPath());
+        clearReturnPath();
         return;
       }
 
