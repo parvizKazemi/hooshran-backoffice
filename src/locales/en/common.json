@@ -2809,6 +2809,27 @@
         }
       },
       "visibility": "Display & notification settings",
+      "display": {
+        "subtitle": "Set a display name, priority, and where each model appears across the site",
+        "queueCount": "{{count}} models queued for display",
+        "removeNotice": "Removing a service here only hides it from visual outputs (card, comparison, or banner). Its price discount stays active.",
+        "emptyTitle": "No model is selected for display.",
+        "emptyHint": "Choose the discounted models in the service selector above.",
+        "displayNamePlaceholder": "Custom display name...",
+        "removeFromDisplay": "Remove from display (discount stays on the model)",
+        "removedLabel": "Hidden from display:",
+        "restoreAll": "Restore all to display",
+        "globalBannerTitle": "Show the discount as a global banner",
+        "globalBannerHint": "Show the header announcement bar and global popup at the top of the site",
+        "columns": {
+          "displayName": "Service display name (editable)",
+          "priority": "Priority",
+          "planCard": "Plan card",
+          "planComparison": "Plan comparison",
+          "banner": "Banner",
+          "actions": "Actions"
+        }
+      },
       "visibilityOptions": {
         "planPage": {
           "title": "Show on plans page",

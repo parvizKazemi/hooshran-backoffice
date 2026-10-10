@@ -1,7 +1,10 @@
 import type {
   CampaignExpirationType,
   CampaignTierKey,
+  ServiceVisibility,
 } from "./constants";
+
+export type { ServiceVisibility } from "./constants";
 
 export type { CampaignExpirationType, CampaignTierKey } from "./constants";
 
@@ -25,6 +28,10 @@ export type CampaignServiceDiscount = {
   modelName?: string | null;
   tier?: CampaignTierKey | null;
   discountPercentage: number;
+  /** Where this service is shown. Empty when removed from the display table. */
+  visibility?: ServiceVisibility[];
+  /** Display order. Null when the service is removed from the display table. */
+  priority?: number | null;
 };
 
 export type PlanCampaign = {
@@ -73,6 +80,9 @@ export type CreateCampaignDiscountItem = {
   modelName?: string;
   tier?: CampaignTierKey;
   discountPercentage: number;
+  serviceName?: string;
+  visibility?: ServiceVisibility[];
+  priority?: number | null;
 };
 
 export type CreateCampaignInput = {
@@ -108,6 +118,17 @@ export type IndividualDiscountRow = {
   tiers: TierDiscountState;
 };
 
+/** Appearance only. Removing a row does not change the discount service selection. */
+export type ServiceDisplayConfig = {
+  serviceUuid: string;
+  displayName: string;
+  priority: number | null;
+  showOnPlanCard: boolean;
+  showOnPlanComparison: boolean;
+  showInBanner: boolean;
+  removedFromDisplay: boolean;
+};
+
 export type CampaignFormState = {
   name: string;
   title: string;
@@ -128,4 +149,5 @@ export type CampaignFormState = {
   groupServiceUuids: string[];
   groupTiers: TierDiscountState;
   individualRows: IndividualDiscountRow[];
+  displayServices: ServiceDisplayConfig[];
 };

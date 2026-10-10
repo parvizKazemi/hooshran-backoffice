@@ -20,6 +20,14 @@ export const CAMPAIGN_EXPIRATION_TYPES = [
 
 export type CampaignExpirationType = (typeof CAMPAIGN_EXPIRATION_TYPES)[number];
 
+export const SERVICE_VISIBILITY_VALUES = [
+  "BANNER",
+  "PLAN_CARD",
+  "PLAN_COMPARISON",
+] as const;
+
+export type ServiceVisibility = (typeof SERVICE_VISIBILITY_VALUES)[number];
+
 export const DEFAULT_END_TIME = "23:59";
 
 export const INDEFINITE_CAMPAIGN_END_ISO = "2099-12-31T23:59:59.000Z";
