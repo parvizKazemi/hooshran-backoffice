@@ -180,6 +180,7 @@ function displayServicesEqual(
   if (current.length !== next.length) return false;
   return current.every((row, index) => {
     const other = next[index];
+    if (!other) return false;
     return (
       row.serviceUuid === other.serviceUuid &&
       row.displayName === other.displayName &&
@@ -258,10 +259,7 @@ function tierFromDiscount(
     if (pkg) return tierForPackage(pkg);
   }
 
-  if (
-    discount.tier &&
-    CAMPAIGN_TIER_KEYS.includes(discount.tier)
-  ) {
+  if (discount.tier && CAMPAIGN_TIER_KEYS.includes(discount.tier)) {
     return discount.tier;
   }
 
@@ -437,9 +435,7 @@ function buildEndsAtIso(form: CampaignFormState): string {
   return date.toISOString();
 }
 
-function visibilityFromDisplay(
-  row: ServiceDisplayConfig
-): ServiceVisibility[] {
+function visibilityFromDisplay(row: ServiceDisplayConfig): ServiceVisibility[] {
   if (row.removedFromDisplay) return [];
   const visibility: ServiceVisibility[] = [];
   if (row.showInBanner) visibility.push("BANNER");
@@ -483,7 +479,9 @@ function displayConfigFromDiscounts(
     serviceDiscounts
       .map((item) => item.serviceName?.trim())
       .find((value) => Boolean(value)) || fallbackName;
-  const sample = serviceDiscounts.find((item) => Array.isArray(item.visibility));
+  const sample = serviceDiscounts.find((item) =>
+    Array.isArray(item.visibility)
+  );
 
   if (!sample) {
     return createServiceDisplayConfig(serviceUuid, name, index + 1, {
