@@ -68,7 +68,12 @@ type NotificationVisibility = {
 };
 const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
 const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
-const BANNER_VARIANT_VALUES = ["notice" , "update" , "critical" , "oneline"] as const;
+const BANNER_VARIANT_VALUES = [
+  "notice",
+  "update",
+  "critical",
+  "oneline",
+] as const;
 const DEFAULT_BANNER_VARIANT = "notice";
 const ONELINE_BANNER_DEFAULTS = {
   message: "اعلان",
@@ -292,13 +297,13 @@ const extractTargetingEditorState = (data: Record<string, unknown>) => {
   };
 };
 
-const TITLE_MAX_LENGTH = 40;
-const BADGE_MAX_LENGTH = 15;
+const TITLE_MAX_LENGTH = 100;
+const BADGE_MAX_LENGTH = 20;
 const MESSAGE_MAX_LENGTH_BY_TEMPLATE: Record<string, number> = {
-  promotional: 40,
+  promotional: 100,
   simple: 1000,
   simple_popup: 1000,
-  float_banner: 90,
+  float_banner: 300,
 };
 
 const getFieldMaxLength = (
@@ -681,7 +686,8 @@ export function NotificationForm({
 
       if (variant === "oneline") {
         sanitizedData.message =
-          typeof sanitizedData.message === "string" && sanitizedData.message.trim()
+          typeof sanitizedData.message === "string" &&
+          sanitizedData.message.trim()
             ? sanitizedData.message.trim()
             : ONELINE_BANNER_DEFAULTS.message;
         sanitizedData.badge =
@@ -923,169 +929,168 @@ export function NotificationForm({
 
         {/* Dynamic fields based on template type */}
         {visibleTemplateFields.map((field) => (
-            <Field key={field.name}>
-              <FieldLabel htmlFor={`metaData.data.${field.name}`}>
-                {t(field.label)}
-                {isFieldRequired(field.name, formDataForFields) && (
-                  <span className="text-destructive"> *</span>
-                )}
-              </FieldLabel>
-              {field.type === "select" ? (
-                <Select
-                  value={
+          <Field key={field.name}>
+            <FieldLabel htmlFor={`metaData.data.${field.name}`}>
+              {t(field.label)}
+              {isFieldRequired(field.name, formDataForFields) && (
+                <span className="text-destructive"> *</span>
+              )}
+            </FieldLabel>
+            {field.type === "select" ? (
+              <Select
+                value={
+                  ((metaDataData as Record<string, unknown>)[
+                    field.name
+                  ] as string) ||
+                  field.options?.[0]?.value ||
+                  ""
+                }
+                onValueChange={(value) =>
+                  updateMetaDataField(field.name, value)
+                }
+                disabled={
+                  createNotification.isPending || updateNotification.isPending
+                }
+              >
+                <SelectTrigger id={`metaData.data.${field.name}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(field.options || []).map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {t(option.label)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : field.type === "textarea" ? (
+              <div>
+                {(() => {
+                  const currentValue =
                     ((metaDataData as Record<string, unknown>)[
                       field.name
-                    ] as string) ||
-                    field.options?.[0]?.value ||
-                    ""
-                  }
-                  onValueChange={(value) =>
-                    updateMetaDataField(field.name, value)
-                  }
-                  disabled={
-                    createNotification.isPending ||
-                    updateNotification.isPending
-                  }
-                >
-                  <SelectTrigger id={`metaData.data.${field.name}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(field.options || []).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {t(option.label)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : field.type === "textarea" ? (
-                <div>
-                  {(() => {
-                    const currentValue =
-                      ((metaDataData as Record<string, unknown>)[
-                        field.name
-                      ] as string) || "";
-                    const maxLength = getFieldMaxLength(
-                      templateType || undefined,
-                      field.name
-                    );
-                    const remainingChars =
-                      typeof maxLength === "number"
-                        ? Math.max(maxLength - currentValue.length, 0)
-                        : undefined;
+                    ] as string) || "";
+                  const maxLength = getFieldMaxLength(
+                    templateType || undefined,
+                    field.name
+                  );
+                  const remainingChars =
+                    typeof maxLength === "number"
+                      ? Math.max(maxLength - currentValue.length, 0)
+                      : undefined;
 
-                    return (
-                      <>
-                        <div className="relative">
-                          <Textarea
-                            id={`metaData.data.${field.name}`}
-                            placeholder={t(
-                              "notifications.form.fieldPlaceholder",
-                              {
-                                label: t(field.label),
-                              }
-                            )}
-                            value={currentValue}
-                            onChange={(e) => {
-                              const nextValue =
-                                typeof maxLength === "number"
-                                  ? e.target.value.slice(0, maxLength)
-                                  : e.target.value;
-                              updateMetaDataField(field.name, nextValue);
-                            }}
-                            disabled={
-                              createNotification.isPending ||
-                              updateNotification.isPending
+                  return (
+                    <>
+                      <div className="relative">
+                        <Textarea
+                          id={`metaData.data.${field.name}`}
+                          placeholder={t(
+                            "notifications.form.fieldPlaceholder",
+                            {
+                              label: t(field.label),
                             }
-                            rows={4}
-                            maxLength={maxLength}
-                            className={
-                              typeof maxLength === "number" ? "pb-7" : ""
-                            }
-                          />
-                          {typeof maxLength === "number" && (
-                            <FieldDescription
-                              className={cn(
-                                "bg-background/80 pointer-events-none absolute bottom-2 left-3 rounded px-1",
-                                remainingChars === 0
-                                  ? "text-destructive! text-xs"
-                                  : "text-muted-foreground text-xs"
-                              )}
-                            >
-                              {remainingChars}/{maxLength}{" "}
-                              {t("notifications.promotionalItems.characters")}
-                            </FieldDescription>
                           )}
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              ) : (
-                <>
-                  {(() => {
-                    const currentValue =
-                      ((metaDataData as Record<string, unknown>)[
-                        field.name
-                      ] as string) || "";
-                    const maxLength = getFieldMaxLength(
-                      templateType || undefined,
+                          value={currentValue}
+                          onChange={(e) => {
+                            const nextValue =
+                              typeof maxLength === "number"
+                                ? e.target.value.slice(0, maxLength)
+                                : e.target.value;
+                            updateMetaDataField(field.name, nextValue);
+                          }}
+                          disabled={
+                            createNotification.isPending ||
+                            updateNotification.isPending
+                          }
+                          rows={4}
+                          maxLength={maxLength}
+                          className={
+                            typeof maxLength === "number" ? "pb-7" : ""
+                          }
+                        />
+                        {typeof maxLength === "number" && (
+                          <FieldDescription
+                            className={cn(
+                              "bg-background/80 pointer-events-none absolute bottom-2 left-3 rounded px-1",
+                              remainingChars === 0
+                                ? "text-destructive! text-xs"
+                                : "text-muted-foreground text-xs"
+                            )}
+                          >
+                            {remainingChars}/{maxLength}{" "}
+                            {t("notifications.promotionalItems.characters")}
+                          </FieldDescription>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              <>
+                {(() => {
+                  const currentValue =
+                    ((metaDataData as Record<string, unknown>)[
                       field.name
-                    );
-                    const remainingChars =
-                      typeof maxLength === "number"
-                        ? Math.max(maxLength - currentValue.length, 0)
-                        : undefined;
+                    ] as string) || "";
+                  const maxLength = getFieldMaxLength(
+                    templateType || undefined,
+                    field.name
+                  );
+                  const remainingChars =
+                    typeof maxLength === "number"
+                      ? Math.max(maxLength - currentValue.length, 0)
+                      : undefined;
 
-                    return (
-                      <>
-                        <div className="relative">
-                          <Input
-                            id={`metaData.data.${field.name}`}
-                            type={field.type === "number" ? "number" : "text"}
-                            placeholder={t(
-                              "notifications.form.fieldPlaceholder",
-                              {
-                                label: t(field.label),
-                              }
-                            )}
-                            value={currentValue}
-                            onChange={(e) => {
-                              const nextValue =
-                                typeof maxLength === "number"
-                                  ? e.target.value.slice(0, maxLength)
-                                  : e.target.value;
-                              updateMetaDataField(field.name, nextValue);
-                            }}
-                            disabled={
-                              createNotification.isPending ||
-                              updateNotification.isPending
+                  return (
+                    <>
+                      <div className="relative">
+                        <Input
+                          id={`metaData.data.${field.name}`}
+                          type={field.type === "number" ? "number" : "text"}
+                          placeholder={t(
+                            "notifications.form.fieldPlaceholder",
+                            {
+                              label: t(field.label),
                             }
-                            maxLength={maxLength}
-                            className={
-                              typeof maxLength === "number" ? "pl-24" : ""
-                            }
-                          />
-                          {typeof maxLength === "number" && (
-                            <FieldDescription
-                              className={cn(
-                                "bg-background/80 pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded px-1",
-                                remainingChars === 0
-                                  ? "text-destructive! text-xs"
-                                  : "text-muted-foreground text-xs"
-                              )}
-                            >
-                              {remainingChars}/{maxLength}
-                            </FieldDescription>
                           )}
-                        </div>
-                      </>
-                    );
-                  })()}
-                </>
-              )}
-            </Field>
-          ))}
+                          value={currentValue}
+                          onChange={(e) => {
+                            const nextValue =
+                              typeof maxLength === "number"
+                                ? e.target.value.slice(0, maxLength)
+                                : e.target.value;
+                            updateMetaDataField(field.name, nextValue);
+                          }}
+                          disabled={
+                            createNotification.isPending ||
+                            updateNotification.isPending
+                          }
+                          maxLength={maxLength}
+                          className={
+                            typeof maxLength === "number" ? "pl-24" : ""
+                          }
+                        />
+                        {typeof maxLength === "number" && (
+                          <FieldDescription
+                            className={cn(
+                              "bg-background/80 pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 rounded px-1",
+                              remainingChars === 0
+                                ? "text-destructive! text-xs"
+                                : "text-muted-foreground text-xs"
+                            )}
+                          >
+                            {remainingChars}/{maxLength}
+                          </FieldDescription>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </>
+            )}
+          </Field>
+        ))}
 
         {templateType === "simple_popup" && (
           <>
