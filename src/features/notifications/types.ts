@@ -39,6 +39,7 @@ export interface AdminNotification {
   isActive?: boolean;
   isPopup: boolean;
   isPublic: boolean;
+  expirationDate?: string | null;
   user?: UserDto;
   recipientCount?: number;
   readCount?: number;
@@ -56,6 +57,7 @@ export interface BasicNotification {
   isActive?: boolean;
   isPopup: boolean;
   isPublic: boolean;
+  expirationDate?: string | null;
   user?: UserDto;
   createdAt: string;
   updatedAt: string;
@@ -109,6 +111,7 @@ export const createNotificationSchema = z.object({
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional().default(false),
   isPublic: z.boolean().optional().default(false),
+  expirationDate: z.string().nullable().optional(),
 });
 
 export type CreateNotificationInput = Omit<
@@ -138,6 +141,7 @@ export const updateNotificationSchema = z.object({
   userId: z.string().uuid("UUID معتبر نیست").optional(),
   isPopup: z.boolean().optional(),
   isPublic: z.boolean().optional(),
+  expirationDate: z.string().nullable().optional(),
 });
 
 export type UpdateNotificationInput = z.infer<typeof updateNotificationSchema>;

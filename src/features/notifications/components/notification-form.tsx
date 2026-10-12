@@ -47,6 +47,7 @@ import {
 } from "../config/field-config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileUploader } from "./file-uploader";
+import { PersianDateInput } from "@/components/ui/persian-date-input";
 import { cn } from "@/lib/utils";
 
 type NotificationFormProps = {
@@ -97,6 +98,64 @@ const TARGETING_TEMPLATE_FIELDS = new Set([
   "urlRule",
   "targetMode",
 ]);
+
+const toExpirationInputValue = (value?: string | null): string => {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const toExpirationIso = (
+  value?: string | null,
+  previousIso?: string | null
+): string | null => {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const [rawYear, rawMonth, rawDay] = trimmed.split("-");
+  const year = Number(rawYear);
+  const month = Number(rawMonth);
+  const day = Number(rawDay);
+
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day)
+  ) {
+    return null;
+  }
+
+  if (previousIso) {
+    const previous = new Date(previousIso);
+    if (
+      !Number.isNaN(previous.getTime()) &&
+      previous.getFullYear() === year &&
+      previous.getMonth() === month - 1 &&
+      previous.getDate() === day
+    ) {
+      return previous.toISOString();
+    }
+  }
+
+  const date = new Date(year, month - 1, day, 23, 59, 59, 999);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date.toISOString();
+};
 
 const getRawUrlTargets = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
@@ -437,6 +496,7 @@ export function NotificationForm({
           isPopup: notification.isPopup,
           isPublic: notification.isPublic,
           isActive: notification.isActive ?? true,
+          expirationDate: toExpirationInputValue(notification.expirationDate),
           targetGroup: normalizeTargetGroup(
             notification.targetGroup,
             (notification.metaData.data as Record<string, unknown>)?.audience
@@ -451,6 +511,7 @@ export function NotificationForm({
           isPopup: false,
           isPublic: false,
           isActive: true,
+          expirationDate: "",
           targetGroup: "ALL",
         },
   });
@@ -474,6 +535,9 @@ export function NotificationForm({
   const customRouteRules =
     urlRules.length > 0 ? urlRules : [{ path: "", rule: "exact" as const }];
   const targetGroupValue = watch("targetGroup");
+  const expirationDateValue = watch("expirationDate") || "";
+  const isSubmitting =
+    createNotification.isPending || updateNotification.isPending;
   const selectedAudience = normalizeTargetGroup(
     targetGroupValue,
     (metaDataData as Record<string, unknown>).audience
@@ -714,6 +778,10 @@ export function NotificationForm({
     data.type = INFORMATION_NOTIFICATION_TYPE;
     data.targetGroup = finalTargetGroup;
     data.isActive = isActive;
+    const expirationDate = toExpirationIso(
+      data.expirationDate,
+      notification?.expirationDate
+    );
 
     try {
       if (isEditing && notification) {
@@ -732,6 +800,7 @@ export function NotificationForm({
           ...(data.isActive !== undefined && { isActive: data.isActive }),
           ...(data.isPopup !== undefined && { isPopup: data.isPopup }),
           ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
+          expirationDate,
           // Send admin UUID
           userId: authData?.user.uuid,
         };
@@ -762,6 +831,7 @@ export function NotificationForm({
           isActive,
           isPopup: isPromotional ? true : (data.isPopup ?? false),
           isPublic: isPromotional ? false : (data.isPublic ?? false),
+          ...(expirationDate ? { expirationDate } : {}),
           userId: authData?.user.uuid, // Send admin UUID
         };
 
@@ -1385,6 +1455,42 @@ export function NotificationForm({
             </Field>
           </div>
         )}
+
+        <Field className="space-y-3 rounded-md border p-4">
+          <div className="space-y-1">
+            <FieldLabel htmlFor="expirationDate">
+              {t("notifications.form.expirationDate")}
+            </FieldLabel>
+            <FieldDescription>
+              {t("notifications.form.expirationDateDescription")}
+            </FieldDescription>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <PersianDateInput
+              id="expirationDate"
+              value={expirationDateValue || undefined}
+              onChange={(value) =>
+                setValue("expirationDate", value ?? "", { shouldDirty: true })
+              }
+              placeholder={t("notifications.form.expirationDatePlaceholder")}
+              disabled={isSubmitting}
+              className="w-full sm:min-w-0 sm:flex-1"
+            />
+            {expirationDateValue ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setValue("expirationDate", "", { shouldDirty: true })
+                }
+                disabled={isSubmitting}
+                className="w-full shrink-0 sm:w-auto"
+              >
+                {t("notifications.form.clearExpirationDate")}
+              </Button>
+            ) : null}
+          </div>
+        </Field>
 
         <Field>
           <div className="flex gap-2">
