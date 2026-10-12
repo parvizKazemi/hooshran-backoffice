@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconTicket } from "@tabler/icons-react";
+import {
+  IconLoader2,
+  IconSearch,
+  IconTicket,
+} from "@tabler/icons-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,21 +16,27 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSearchAffiliatePartner } from "../hooks/use-affiliate-admin";
 import { AFFILIATE_CODE_PATTERN } from "../constants";
 import type { AffiliatePartner, SetAffiliateCodePayload } from "../types";
 import {
   buildAffiliateDiscountCodePreview,
+  isPartnerActive,
   isValidAffiliatePhone,
   toAffiliatePhoneLookup,
 } from "../utils/affiliate.helpers";
 
+export type AffiliateCodeDialogMode = "edit" | "manage";
+
 type SetAffiliateCodeDialogProps = {
   open: boolean;
-  mode: "create" | "edit";
+  mode: AffiliateCodeDialogMode;
   partner: AffiliatePartner | null;
   isSubmitting?: boolean;
+  isToggling?: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (payload: SetAffiliateCodePayload) => void;
+  onToggleStatus: (partner: AffiliatePartner) => void;
 };
 
 type FormErrors = {
@@ -39,52 +50,81 @@ function normalizeCodeInput(value: string): string {
   return value.trim().toUpperCase();
 }
 
+function hasCustomDiscountCode(target: AffiliatePartner): boolean {
+  return (
+    Boolean(target.discountCode) &&
+    Boolean(target.affiliateCode) &&
+    target.discountPercentage !== null &&
+    target.discountPercentage !== undefined &&
+    target.discountCode !==
+      `${target.affiliateCode}${target.discountPercentage}`
+  );
+}
+
 export function SetAffiliateCodeDialog({
   open,
   mode,
   partner,
   isSubmitting,
+  isToggling,
   onOpenChange,
   onConfirm,
+  onToggleStatus,
 }: SetAffiliateCodeDialogProps) {
   const { t } = useTranslation("common");
+  const searchMutation = useSearchAffiliatePartner();
+
   const [phoneNumber, setPhoneNumber] = useState("");
   const [affiliateCode, setAffiliateCode] = useState("");
   const [discountPercentage, setDiscountPercentage] = useState("");
   const [useCustomDiscountCode, setUseCustomDiscountCode] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [notFound, setNotFound] = useState(false);
+  const [manageSearched, setManageSearched] = useState(false);
+  const [managedPartner, setManagedPartner] =
+    useState<AffiliatePartner | null>(null);
+
+  // Partner being edited: prop for edit mode, search result for manage mode.
+  const activePartner = mode === "manage" ? managedPartner : partner;
+  const showCodeForm =
+    mode === "edit" || activePartner !== null || (manageSearched && notFound);
+
+  const applyPartnerToForm = (target: AffiliatePartner) => {
+    setAffiliateCode(target.affiliateCode || "");
+    setDiscountPercentage(
+      target.discountPercentage === null ||
+        target.discountPercentage === undefined
+        ? ""
+        : String(target.discountPercentage)
+    );
+    const hasCustom = hasCustomDiscountCode(target);
+    setUseCustomDiscountCode(hasCustom);
+    setDiscountCode(hasCustom ? target.discountCode : "");
+  };
 
   useEffect(() => {
     if (!open) return;
 
     setErrors({});
-    setPhoneNumber("");
+    setNotFound(false);
+    setManageSearched(false);
+    setManagedPartner(null);
+    searchMutation.reset();
 
     if (mode === "edit" && partner) {
-      setAffiliateCode(partner.affiliateCode || "");
-      setDiscountPercentage(
-        partner.discountPercentage === null ||
-          partner.discountPercentage === undefined
-          ? ""
-          : String(partner.discountPercentage)
-      );
-      const hasCustom =
-        Boolean(partner.discountCode) &&
-        Boolean(partner.affiliateCode) &&
-        partner.discountPercentage !== null &&
-        partner.discountPercentage !== undefined &&
-        partner.discountCode !==
-          `${partner.affiliateCode}${partner.discountPercentage}`;
-      setUseCustomDiscountCode(hasCustom);
-      setDiscountCode(hasCustom ? partner.discountCode : "");
+      setPhoneNumber("");
+      applyPartnerToForm(partner);
       return;
     }
 
+    // manage mode: start with empty search + empty form
+    setPhoneNumber("");
     setAffiliateCode("");
     setDiscountPercentage("");
     setUseCustomDiscountCode(false);
     setDiscountCode("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mode, partner]);
 
   const previewCode = useMemo(() => {
@@ -100,12 +140,40 @@ export function SetAffiliateCodeDialog({
     );
   }, [affiliateCode, discountPercentage, discountCode, useCustomDiscountCode]);
 
+  const handleSearch = async (event?: React.FormEvent) => {
+    event?.preventDefault();
+    if (!isValidAffiliatePhone(phoneNumber)) {
+      setErrors({
+        phoneNumber: t("affiliate.codeDialog.errors.phoneNumberInvalid"),
+      });
+      return;
+    }
+    setErrors({});
+    setNotFound(false);
+    try {
+      const lookup = toAffiliatePhoneLookup(phoneNumber);
+      const results = await searchMutation.mutateAsync(lookup);
+      const exact =
+        results.find((item) => item.phone.replace(/[\s-]/g, "") === lookup) ??
+        results[0] ??
+        null;
+      setManageSearched(true);
+      if (!exact) {
+        setManagedPartner(null);
+        setNotFound(true);
+        return;
+      }
+      setManagedPartner(exact);
+      applyPartnerToForm(exact);
+    } catch {
+      setManageSearched(true);
+      setManagedPartner(null);
+      setNotFound(true);
+    }
+  };
+
   const validate = (): FormErrors => {
     const next: FormErrors = {};
-
-    if (mode === "create" && !isValidAffiliatePhone(phoneNumber)) {
-      next.phoneNumber = t("affiliate.codeDialog.errors.phoneNumberInvalid");
-    }
 
     const normalizedAffiliateCode = normalizeCodeInput(affiliateCode);
     if (!AFFILIATE_CODE_PATTERN.test(normalizedAffiliateCode)) {
@@ -153,7 +221,8 @@ export function SetAffiliateCodeDialog({
       body.discountCode = normalizeCodeInput(discountCode);
     }
 
-    if (mode === "create") {
+    // Manage mode without a found partner → create affiliate for the searched number.
+    if (!activePartner) {
       onConfirm({
         mode: "create",
         phoneNumber: toAffiliatePhoneLookup(phoneNumber),
@@ -162,13 +231,53 @@ export function SetAffiliateCodeDialog({
       return;
     }
 
-    if (!partner) return;
+    // Keep manage-mode view in sync (parent dashboard refetch updates the table).
+    if (mode === "manage") {
+      setManagedPartner({
+        ...activePartner,
+        affiliateCode: body.affiliateCode,
+        discountCode:
+          body.discountCode ??
+          (body.discountPercentage !== undefined
+            ? `${body.affiliateCode}${body.discountPercentage}`
+            : activePartner.discountCode),
+        discountPercentage:
+          body.discountPercentage ?? activePartner.discountPercentage,
+        code: body.affiliateCode,
+      });
+    }
+
     onConfirm({
       mode: "edit",
-      accountUuid: partner.id,
+      accountUuid: activePartner.id,
       body,
     });
   };
+
+  const handleToggleStatus = () => {
+    if (!activePartner) return;
+    if (mode === "manage") {
+      setManagedPartner({
+        ...activePartner,
+        status: isPartnerActive(activePartner.status)
+          ? "suspended"
+          : "active",
+      });
+    }
+    onToggleStatus(activePartner);
+  };
+
+  const title =
+    mode === "manage"
+      ? t("affiliate.manageDialog.title")
+      : t("affiliate.codeDialog.editTitle");
+
+  const description =
+    mode === "manage"
+      ? t("affiliate.manageDialog.description")
+      : t("affiliate.codeDialog.editDescription", {
+          name: partner?.name ?? "—",
+        });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -178,170 +287,220 @@ export function SetAffiliateCodeDialog({
             <span className="flex size-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500">
               <IconTicket className="size-5" />
             </span>
-            {mode === "create"
-              ? t("affiliate.codeDialog.createTitle")
-              : t("affiliate.codeDialog.editTitle")}
+            {title}
           </DialogTitle>
           <DialogDescription className="text-[10px]">
-            {mode === "create"
-              ? t("affiliate.codeDialog.createDescription")
-              : t("affiliate.codeDialog.editDescription", {
-                  name: partner?.name ?? "—",
-                })}
+            {description}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          {mode === "create" ? (
+        {mode === "manage" ? (
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <Input
+              type="tel"
+              inputMode="numeric"
+              value={phoneNumber}
+              onChange={(event) => setPhoneNumber(event.target.value)}
+              placeholder={t("affiliate.codeDialog.phoneNumberPlaceholder")}
+              className="h-11 flex-1 rounded-xl text-xs"
+              dir="ltr"
+              autoComplete="tel"
+            />
+            <Button
+              type="submit"
+              disabled={searchMutation.isPending}
+              className="h-11 shrink-0 rounded-xl bg-blue-600 px-4 text-xs font-bold hover:bg-blue-500"
+            >
+              {searchMutation.isPending ? (
+                <IconLoader2 className="size-4 animate-spin" />
+              ) : (
+                <IconSearch className="size-4" />
+              )}
+              {t("affiliate.manageDialog.search")}
+            </Button>
+          </form>
+        ) : null}
+
+        {mode === "manage" && errors.phoneNumber ? (
+          <p className="-mt-2 text-[11px] text-rose-500">
+            {errors.phoneNumber}
+          </p>
+        ) : null}
+
+        {mode === "manage" && notFound && !managedPartner ? (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[11px] leading-relaxed text-amber-600 dark:text-amber-400">
+            {t("affiliate.manageDialog.notFound")}
+          </div>
+        ) : null}
+
+        {activePartner ? (
+          <div className="flex items-center justify-between gap-2 rounded-xl border bg-muted/40 p-3">
+            <div className="min-w-0">
+              <div className="truncate text-xs font-bold">
+                {activePartner.name}
+              </div>
+              <div
+                className="font-mono text-[11px] text-muted-foreground"
+                dir="ltr"
+              >
+                {activePartner.phone}
+              </div>
+            </div>
+            <Badge
+              variant="outline"
+              className={
+                isPartnerActive(activePartner.status)
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-[10px] text-emerald-600 dark:text-emerald-400"
+                  : "border-rose-500/30 bg-rose-500/10 text-[10px] text-rose-500"
+              }
+            >
+              {isPartnerActive(activePartner.status)
+                ? t("affiliate.partners.status.active")
+                : t("affiliate.partners.status.suspended")}
+            </Badge>
+          </div>
+        ) : null}
+
+        {showCodeForm ? (
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="space-y-1.5">
-              <Label htmlFor="affiliate-phone-number" className="font-bold">
-                {t("affiliate.codeDialog.phoneNumberLabel")}
+              <Label htmlFor="affiliate-code" className="font-bold">
+                {t("affiliate.codeDialog.affiliateCodeLabel")}
               </Label>
               <Input
-                id="affiliate-phone-number"
-                type="tel"
-                inputMode="numeric"
-                value={phoneNumber}
-                onChange={(event) => setPhoneNumber(event.target.value)}
-                placeholder={t("affiliate.codeDialog.phoneNumberPlaceholder")}
-                className="h-11 rounded-xl text-xs"
+                id="affiliate-code"
+                value={affiliateCode}
+                onChange={(event) =>
+                  setAffiliateCode(event.target.value.toUpperCase())
+                }
+                placeholder={t("affiliate.codeDialog.affiliateCodePlaceholder")}
+                className="text-primary h-11 rounded-xl !font-mono text-xs"
                 dir="ltr"
-                autoComplete="tel"
+                autoComplete="off"
               />
-              {errors.phoneNumber ? (
+              {errors.affiliateCode ? (
                 <p className="text-[11px] text-rose-500">
-                  {errors.phoneNumber}
+                  {errors.affiliateCode}
                 </p>
               ) : (
                 <p className="text-muted-foreground text-[10px]">
-                  {t("affiliate.codeDialog.phoneNumberHint")}
+                  {t("affiliate.codeDialog.affiliateCodeHint")}
                 </p>
               )}
             </div>
-          ) : null}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="affiliate-code" className="font-bold">
-              {t("affiliate.codeDialog.affiliateCodeLabel")}
-            </Label>
-            <Input
-              id="affiliate-code"
-              value={affiliateCode}
-              onChange={(event) =>
-                setAffiliateCode(event.target.value.toUpperCase())
-              }
-              placeholder={t("affiliate.codeDialog.affiliateCodePlaceholder")}
-              className="text-primary h-11 rounded-xl !font-mono text-xs"
-              dir="ltr"
-              autoComplete="off"
-            />
-            {errors.affiliateCode ? (
-              <p className="text-[11px] text-rose-500">
-                {errors.affiliateCode}
-              </p>
-            ) : (
-              <p className="text-muted-foreground text-[10px]">
-                {t("affiliate.codeDialog.affiliateCodeHint")}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="affiliate-discount-percentage"
-              className="font-bold"
-            >
-              {t("affiliate.codeDialog.discountPercentageLabel")}
-            </Label>
-            <Input
-              id="affiliate-discount-percentage"
-              type="number"
-              min={0}
-              max={100}
-              step={1}
-              value={discountPercentage}
-              onChange={(event) => setDiscountPercentage(event.target.value)}
-              placeholder={t(
-                "affiliate.codeDialog.discountPercentagePlaceholder"
-              )}
-              className="h-11 rounded-xl text-xs"
-              dir="ltr"
-            />
-            {errors.discountPercentage ? (
-              <p className="text-[11px] text-rose-500">
-                {errors.discountPercentage}
-              </p>
-            ) : (
-              <p className="text-muted-foreground text-[10px]">
-                {t("affiliate.codeDialog.discountPercentageHint")}
-              </p>
-            )}
-          </div>
-
-          <div className="bg-muted/40 space-y-3 rounded-xl border p-3">
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={useCustomDiscountCode}
-                onChange={(event) =>
-                  setUseCustomDiscountCode(event.target.checked)
-                }
-                className="size-3.5 accent-emerald-600"
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="affiliate-discount-percentage"
+                className="font-bold"
+              >
+                {t("affiliate.codeDialog.discountPercentageLabel")}
+              </Label>
+              <Input
+                id="affiliate-discount-percentage"
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={discountPercentage}
+                onChange={(event) => setDiscountPercentage(event.target.value)}
+                placeholder={t(
+                  "affiliate.codeDialog.discountPercentagePlaceholder"
+                )}
+                className="h-11 rounded-xl text-xs"
+                dir="ltr"
               />
-              <span className="text-[11px] font-bold">
-                {t("affiliate.codeDialog.customDiscountCodeToggle")}
-              </span>
-            </label>
+              {errors.discountPercentage ? (
+                <p className="text-[11px] text-rose-500">
+                  {errors.discountPercentage}
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-[10px]">
+                  {t("affiliate.codeDialog.discountPercentageHint")}
+                </p>
+              )}
+            </div>
 
-            {useCustomDiscountCode ? (
-              <div className="space-y-1.5">
-                <Label htmlFor="affiliate-discount-code" className="font-bold">
-                  {t("affiliate.codeDialog.discountCodeLabel")}
-                </Label>
-                <Input
-                  id="affiliate-discount-code"
-                  value={discountCode}
+            <div className="bg-muted/40 space-y-3 rounded-xl border p-3">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={useCustomDiscountCode}
                   onChange={(event) =>
-                    setDiscountCode(event.target.value.toUpperCase())
+                    setUseCustomDiscountCode(event.target.checked)
                   }
-                  placeholder={t(
-                    "affiliate.codeDialog.discountCodePlaceholder"
-                  )}
-                  className="h-11 rounded-xl !font-mono text-xs"
-                  dir="ltr"
-                  autoComplete="off"
+                  className="size-3.5 accent-emerald-600"
                 />
-                {errors.discountCode ? (
-                  <p className="text-[11px] text-rose-500">
-                    {errors.discountCode}
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <span className="text-muted-foreground text-[10px]">
-                  {t("affiliate.codeDialog.previewLabel")}
+                <span className="text-[11px] font-bold">
+                  {t("affiliate.codeDialog.customDiscountCodeToggle")}
                 </span>
-                <div
-                  className="!font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400"
-                  dir="ltr"
-                >
-                  {previewCode || "—"}
-                </div>
-              </div>
-            )}
-          </div>
+              </label>
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="h-auto w-full rounded-xl bg-emerald-600 py-3.5 text-xs font-bold hover:bg-emerald-500"
-          >
-            {isSubmitting
-              ? t("affiliate.codeDialog.submitting")
-              : t("affiliate.codeDialog.submit")}
-          </Button>
-        </form>
+              {useCustomDiscountCode ? (
+                <div className="space-y-1.5">
+                  <Label htmlFor="affiliate-discount-code" className="font-bold">
+                    {t("affiliate.codeDialog.discountCodeLabel")}
+                  </Label>
+                  <Input
+                    id="affiliate-discount-code"
+                    value={discountCode}
+                    onChange={(event) =>
+                      setDiscountCode(event.target.value.toUpperCase())
+                    }
+                    placeholder={t(
+                      "affiliate.codeDialog.discountCodePlaceholder"
+                    )}
+                    className="h-11 rounded-xl !font-mono text-xs"
+                    dir="ltr"
+                    autoComplete="off"
+                  />
+                  {errors.discountCode ? (
+                    <p className="text-[11px] text-rose-500">
+                      {errors.discountCode}
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <span className="text-muted-foreground text-[10px]">
+                    {t("affiliate.codeDialog.previewLabel")}
+                  </span>
+                  <div
+                    className="!font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400"
+                    dir="ltr"
+                  >
+                    {previewCode || "—"}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-auto flex-1 rounded-xl bg-emerald-600 py-3.5 text-xs font-bold hover:bg-emerald-500"
+              >
+                {isSubmitting
+                  ? t("affiliate.codeDialog.submitting")
+                  : t("affiliate.codeDialog.submit")}
+              </Button>
+              {activePartner ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isToggling}
+                  onClick={handleToggleStatus}
+                  className="h-auto shrink-0 rounded-xl px-4 text-xs font-bold"
+                >
+                  {isPartnerActive(activePartner.status)
+                    ? t("affiliate.partners.actions.suspend")
+                    : t("affiliate.partners.actions.activate")}
+                </Button>
+              ) : null}
+            </div>
+          </form>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

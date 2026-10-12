@@ -33,8 +33,8 @@ import type {
 
 type CodeDialogState =
   | { open: false }
-  | { open: true; mode: "create"; partner: null }
-  | { open: true; mode: "edit"; partner: AffiliatePartner };
+  | { open: true; mode: "edit"; partner: AffiliatePartner }
+  | { open: true; mode: "manage"; partner: null };
 
 export default function Affiliate() {
   const { t } = useTranslation("common");
@@ -157,11 +157,11 @@ export default function Affiliate() {
                   partner.status === "active" ? "SUSPENDED" : "ACTIVE",
               })
             }
-            onCreateCode={() =>
-              setCodeDialog({ open: true, mode: "create", partner: null })
-            }
             onEditCode={(partner) =>
               setCodeDialog({ open: true, mode: "edit", partner })
+            }
+            onManageByPhone={() =>
+              setCodeDialog({ open: true, mode: "manage", partner: null })
             }
           />
         </TabsContent>
@@ -203,15 +203,28 @@ export default function Affiliate() {
 
       <SetAffiliateCodeDialog
         open={codeDialog.open}
-        mode={codeDialog.open ? codeDialog.mode : "create"}
+        mode={codeDialog.open ? codeDialog.mode : "manage"}
         partner={codeDialog.open ? codeDialog.partner : null}
         isSubmitting={setCodeMutation.isPending}
+        isToggling={togglePartnerMutation.isPending}
         onOpenChange={(open) => {
           if (!open) setCodeDialog({ open: false });
         }}
         onConfirm={(payload) =>
           setCodeMutation.mutate(payload, {
-            onSuccess: () => setCodeDialog({ open: false }),
+            onSuccess: () => {
+              // Created from manage search or any non-manage flow → close.
+              // Edited inside manage → stay open for further edits/status toggle.
+              if (payload.mode === "create" || codeDialog.mode !== "manage") {
+                setCodeDialog({ open: false });
+              }
+            },
+          })
+        }
+        onToggleStatus={(partner) =>
+          togglePartnerMutation.mutate({
+            partnerId: partner.id,
+            nextStatus: partner.status === "active" ? "SUSPENDED" : "ACTIVE",
           })
         }
       />

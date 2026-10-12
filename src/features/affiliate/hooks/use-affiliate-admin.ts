@@ -7,6 +7,7 @@ import {
   fetchAffiliateAdminDashboard,
   rejectAffiliatePayout,
   saveAffiliateProgramRules,
+  searchAffiliatePartners,
   setAffiliateCode,
   toggleAffiliatePartnerStatus,
 } from "../api/service";
@@ -86,4 +87,10 @@ export function useSetAffiliateCode() {
     setAffiliateCode,
     "affiliate.toasts.codeSaved"
   );
+}
+
+export function useSearchAffiliatePartner() {
+  return useMutation({
+    mutationFn: (query: string) => searchAffiliatePartners(query),
+  });
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconPlus, IconSearch, IconTicket, IconUsers } from "@tabler/icons-react";
+import { IconPhone, IconSearch, IconTicket, IconUsers } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,8 @@ type AffiliatePartnersTableProps = {
   isToggling?: boolean;
   togglingPartnerId?: string | null;
   onToggleStatus: (partner: AffiliatePartner) => void;
-  onCreateCode: () => void;
   onEditCode: (partner: AffiliatePartner) => void;
+  onManageByPhone: () => void;
 };
 
 const COLUMN_COUNT = 9;
@@ -38,8 +38,8 @@ export function AffiliatePartnersTable({
   isToggling,
   togglingPartnerId,
   onToggleStatus,
-  onCreateCode,
   onEditCode,
+  onManageByPhone,
 }: AffiliatePartnersTableProps) {
   const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
@@ -74,11 +74,11 @@ export function AffiliatePartnersTable({
           </div>
           <Button
             type="button"
-            onClick={onCreateCode}
+            onClick={onManageByPhone}
             className="h-10 shrink-0 rounded-xl bg-emerald-600 px-4 text-xs font-bold hover:bg-emerald-500"
           >
-            <IconPlus className="size-4" />
-            {t("affiliate.partners.actions.setCode")}
+            <IconPhone className="size-4" />
+            {t("affiliate.partners.actions.manageByPhone")}
           </Button>
         </div>
       </div>

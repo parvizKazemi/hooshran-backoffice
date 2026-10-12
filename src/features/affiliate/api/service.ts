@@ -266,6 +266,17 @@ export async function fetchAffiliateAdminDashboard(): Promise<AffiliateAdminDash
   );
 }
 
+/** Lookup affiliate partners by phone/name/code from backend (used by manage-by-phone dialog). */
+export async function searchAffiliatePartners(
+  query: string
+): Promise<AffiliatePartner[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const url = `${AFFILIATE_ADMIN_ENDPOINTS.accounts}?search=${encodeURIComponent(trimmed)}&page=1&limit=5`;
+  const raw = await apiGet<unknown>(url);
+  return mapAccounts(raw);
+}
+
 export async function approveAffiliatePayout(
   payload: ApproveAffiliatePayoutPayload
 ): Promise<AffiliateAdminDashboard> {
