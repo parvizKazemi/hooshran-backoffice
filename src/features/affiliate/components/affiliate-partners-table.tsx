@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconPhone, IconSearch, IconTicket, IconUsers } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconSearch,
+  IconTicket,
+  IconUsers,
+} from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,7 +82,7 @@ export function AffiliatePartnersTable({
             onClick={onManageByPhone}
             className="h-10 shrink-0 rounded-xl bg-emerald-600 px-4 text-xs font-bold hover:bg-emerald-500"
           >
-            <IconPhone className="size-4" />
+            <IconEdit className="size-4" />
             {t("affiliate.partners.actions.manageByPhone")}
           </Button>
         </div>

@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  IconLoader2,
-  IconSearch,
-  IconTicket,
-} from "@tabler/icons-react";
+import { IconLoader2, IconSearch, IconTicket } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,11 +78,13 @@ export function SetAffiliateCodeDialog({
   const [errors, setErrors] = useState<FormErrors>({});
   const [notFound, setNotFound] = useState(false);
   const [manageSearched, setManageSearched] = useState(false);
-  const [managedPartner, setManagedPartner] =
-    useState<AffiliatePartner | null>(null);
+  // Local live copy of the partner being edited (prop snapshot goes stale
+  // after status/code mutations, so the dialog owns its display state).
+  const [localPartner, setLocalPartner] = useState<AffiliatePartner | null>(
+    null
+  );
 
-  // Partner being edited: prop for edit mode, search result for manage mode.
-  const activePartner = mode === "manage" ? managedPartner : partner;
+  const activePartner = localPartner;
   const showCodeForm =
     mode === "edit" || activePartner !== null || (manageSearched && notFound);
 
@@ -109,11 +107,12 @@ export function SetAffiliateCodeDialog({
     setErrors({});
     setNotFound(false);
     setManageSearched(false);
-    setManagedPartner(null);
+    setLocalPartner(null);
     searchMutation.reset();
 
     if (mode === "edit" && partner) {
       setPhoneNumber("");
+      setLocalPartner(partner);
       applyPartnerToForm(partner);
       return;
     }
@@ -124,7 +123,6 @@ export function SetAffiliateCodeDialog({
     setDiscountPercentage("");
     setUseCustomDiscountCode(false);
     setDiscountCode("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mode, partner]);
 
   const previewCode = useMemo(() => {
@@ -159,15 +157,15 @@ export function SetAffiliateCodeDialog({
         null;
       setManageSearched(true);
       if (!exact) {
-        setManagedPartner(null);
+        setLocalPartner(null);
         setNotFound(true);
         return;
       }
-      setManagedPartner(exact);
+      setLocalPartner(exact);
       applyPartnerToForm(exact);
     } catch {
       setManageSearched(true);
-      setManagedPartner(null);
+      setLocalPartner(null);
       setNotFound(true);
     }
   };
@@ -231,21 +229,19 @@ export function SetAffiliateCodeDialog({
       return;
     }
 
-    // Keep manage-mode view in sync (parent dashboard refetch updates the table).
-    if (mode === "manage") {
-      setManagedPartner({
-        ...activePartner,
-        affiliateCode: body.affiliateCode,
-        discountCode:
-          body.discountCode ??
-          (body.discountPercentage !== undefined
-            ? `${body.affiliateCode}${body.discountPercentage}`
-            : activePartner.discountCode),
-        discountPercentage:
-          body.discountPercentage ?? activePartner.discountPercentage,
-        code: body.affiliateCode,
-      });
-    }
+    // Keep dialog view in sync (parent dashboard refetch updates the table).
+    setLocalPartner({
+      ...activePartner,
+      affiliateCode: body.affiliateCode,
+      discountCode:
+        body.discountCode ??
+        (body.discountPercentage !== undefined
+          ? `${body.affiliateCode}${body.discountPercentage}`
+          : activePartner.discountCode),
+      discountPercentage:
+        body.discountPercentage ?? activePartner.discountPercentage,
+      code: body.affiliateCode,
+    });
 
     onConfirm({
       mode: "edit",
@@ -256,14 +252,10 @@ export function SetAffiliateCodeDialog({
 
   const handleToggleStatus = () => {
     if (!activePartner) return;
-    if (mode === "manage") {
-      setManagedPartner({
-        ...activePartner,
-        status: isPartnerActive(activePartner.status)
-          ? "suspended"
-          : "active",
-      });
-    }
+    setLocalPartner({
+      ...activePartner,
+      status: isPartnerActive(activePartner.status) ? "suspended" : "active",
+    });
     onToggleStatus(activePartner);
   };
 
@@ -327,20 +319,20 @@ export function SetAffiliateCodeDialog({
           </p>
         ) : null}
 
-        {mode === "manage" && notFound && !managedPartner ? (
+        {mode === "manage" && notFound && !activePartner ? (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[11px] leading-relaxed text-amber-600 dark:text-amber-400">
             {t("affiliate.manageDialog.notFound")}
           </div>
         ) : null}
 
         {activePartner ? (
-          <div className="flex items-center justify-between gap-2 rounded-xl border bg-muted/40 p-3">
+          <div className="bg-muted/40 flex items-center justify-between gap-2 rounded-xl border p-3">
             <div className="min-w-0">
               <div className="truncate text-xs font-bold">
                 {activePartner.name}
               </div>
               <div
-                className="font-mono text-[11px] text-muted-foreground"
+                className="text-muted-foreground font-mono text-[11px]"
                 dir="ltr"
               >
                 {activePartner.phone}
@@ -438,7 +430,10 @@ export function SetAffiliateCodeDialog({
 
               {useCustomDiscountCode ? (
                 <div className="space-y-1.5">
-                  <Label htmlFor="affiliate-discount-code" className="font-bold">
+                  <Label
+                    htmlFor="affiliate-discount-code"
+                    className="font-bold"
+                  >
                     {t("affiliate.codeDialog.discountCodeLabel")}
                   </Label>
                   <Input

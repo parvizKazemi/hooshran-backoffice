@@ -210,17 +210,18 @@ export default function Affiliate() {
         onOpenChange={(open) => {
           if (!open) setCodeDialog({ open: false });
         }}
-        onConfirm={(payload) =>
+        onConfirm={(payload) => {
+          const dialogMode = codeDialog.open ? codeDialog.mode : null;
           setCodeMutation.mutate(payload, {
             onSuccess: () => {
               // Created from manage search or any non-manage flow → close.
               // Edited inside manage → stay open for further edits/status toggle.
-              if (payload.mode === "create" || codeDialog.mode !== "manage") {
+              if (payload.mode === "create" || dialogMode !== "manage") {
                 setCodeDialog({ open: false });
               }
             },
-          })
-        }
+          });
+        }}
         onToggleStatus={(partner) =>
           togglePartnerMutation.mutate({
             partnerId: partner.id,
