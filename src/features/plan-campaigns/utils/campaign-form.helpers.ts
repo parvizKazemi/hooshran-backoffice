@@ -339,7 +339,7 @@ export function campaignToFormState(
   const displayNameByUuid: Record<string, string> = {};
   for (const discount of discounts) {
     const uuid = getDiscountServiceUuid(discount);
-    const name = discount.serviceName?.trim();
+    const name = (discount.modelName ?? discount.serviceName)?.trim();
     if (uuid && name && !displayNameByUuid[uuid]) {
       displayNameByUuid[uuid] = name;
     }
@@ -447,22 +447,27 @@ function visibilityFromDisplay(row: ServiceDisplayConfig): ServiceVisibility[] {
 function appearanceForService(
   form: CampaignFormState,
   serviceUuid: string
-): Pick<CreateCampaignDiscountItem, "serviceName" | "visibility" | "priority"> {
+): Pick<
+  CreateCampaignDiscountItem,
+  "modelName" | "serviceName" | "visibility" | "priority"
+> {
   const row = form.displayServices.find(
     (item) => item.serviceUuid === serviceUuid
   );
-  const serviceName = row?.displayName.trim() || undefined;
+  const displayName = row?.displayName.trim() || undefined;
 
   if (!row || row.removedFromDisplay) {
     return {
-      serviceName,
+      modelName: displayName,
+      serviceName: displayName,
       visibility: [],
       priority: null,
     };
   }
 
   return {
-    serviceName,
+    modelName: displayName,
+    serviceName: displayName,
     visibility: visibilityFromDisplay(row),
     priority: row.priority,
   };
@@ -477,7 +482,7 @@ function displayConfigFromDiscounts(
 ): ServiceDisplayConfig {
   const name =
     serviceDiscounts
-      .map((item) => item.serviceName?.trim())
+      .map((item) => (item.modelName ?? item.serviceName)?.trim())
       .find((value) => Boolean(value)) || fallbackName;
   const sample = serviceDiscounts.find((item) =>
     Array.isArray(item.visibility)

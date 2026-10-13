@@ -104,7 +104,7 @@ export function CampaignFormDialog({
     const map: Record<string, string> = {};
     for (const discount of campaign?.serviceDiscounts ?? []) {
       const uuid = discount.serviceUuid ?? discount.apiServiceUuid;
-      const name = discount.serviceName?.trim();
+      const name = (discount.modelName ?? discount.serviceName)?.trim();
       if (uuid && name) {
         map[uuid] = name;
       }
@@ -113,10 +113,15 @@ export function CampaignFormDialog({
   }, [campaign?.serviceDiscounts]);
 
   const serviceNameByUuid = useMemo(() => {
-    const map: Record<string, string> = { ...serviceLabelByUuid };
+    const map: Record<string, string> = {};
     for (const service of services) {
       if (service.name.trim()) {
         map[service.uuid] = service.name;
+      }
+    }
+    for (const [uuid, name] of Object.entries(serviceLabelByUuid)) {
+      if (name.trim()) {
+        map[uuid] = name.trim();
       }
     }
     return map;

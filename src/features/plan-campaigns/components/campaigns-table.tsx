@@ -49,7 +49,8 @@ function getCampaignSubtitle(
   }
   if (count === 1) {
     const name =
-      campaign.serviceDiscounts?.[0]?.serviceName ??
+      (campaign.serviceDiscounts?.[0]?.modelName ??
+        campaign.serviceDiscounts?.[0]?.serviceName) ||
       t("planCampaigns.table.oneService");
     return name;
   }
