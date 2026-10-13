@@ -1257,6 +1257,9 @@
       "submodelPickerNoResults": "No search results",
       "submodelName": "Submodel name",
       "submodelDesc": "Short description",
+      "submodelsRefTitle": "Children (Sub-models)",
+      "submodelsRefHint": "To add or reorder children for this parent service, use the Hierarchy page.",
+      "goToHierarchy": "Open Hierarchy Page",
       "loadingDetail": "Loading service details...",
       "submit": "Apply to list",
       "cancel": "Cancel"
@@ -1317,7 +1320,18 @@
       "toasts": {
         "saved": "Service structure saved",
         "saveFailed": "Failed to save service structure"
-      }
+      },
+      "viewAllParents": "View All Parents",
+      "makeParent": "Promote to parent",
+      "makeParentHint": "Service selected. Drag children from the list to add them.",
+      "parentsOverviewTitle": "Parent services",
+      "parentsOverviewCount_one": "{{count}} parent service",
+      "parentsOverviewCount_other": "{{count}} parent services",
+      "noParentsYet": "No parent services yet",
+      "noParentsHint": "Select any service from the list, then drag others onto it to create a parent.",
+      "addParentDirectly": "Add New Parent",
+      "selectParentServiceHint": "Select a service to open as parent and attach child services to it.",
+      "selectAsParent": "Select as Parent"
     }
   },
   "userCredits": {

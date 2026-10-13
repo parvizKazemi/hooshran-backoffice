@@ -1304,6 +1304,9 @@
       "submodelPickerNoResults": "نتیجه‌ای برای جستجو نیست",
       "submodelName": "نام زیرمدل",
       "submodelDesc": "توضیح کوتاه",
+      "submodelsRefTitle": "فرزندها (زیرمدل‌ها)",
+      "submodelsRefHint": "برای افزودن یا مرتب‌سازی فرزندها، از صفحه ساختار سرویس‌ها استفاده کنید.",
+      "goToHierarchy": "صفحه ساختار سرویس‌ها",
       "loadingDetail": "در حال بارگذاری جزئیات سرویس...",
       "submit": "اعمال در لیست",
       "cancel": "انصراف"
@@ -1364,7 +1367,17 @@
       "toasts": {
         "saved": "ساختار سرویس‌ها ذخیره شد",
         "saveFailed": "خطا در ذخیره ساختار سرویس‌ها"
-      }
+      },
+      "viewAllParents": "نمایش همه والدین",
+      "makeParent": "ارتقا به والد",
+      "makeParentHint": "سرویس انتخاب شد. فرزندها را از فهرست بکشید.",
+      "parentsOverviewTitle": "سرویس‌های والد",
+      "parentsOverviewCount": "{{count}} سرویس والد",
+      "noParentsYet": "هنوز سرویس والدی ندارید",
+      "noParentsHint": "از فهرست سرویسی انتخاب کنید، سپس سرویس‌های دیگر را روی آن بکشید.",
+      "addParentDirectly": "افزودن والد جدید",
+      "selectParentServiceHint": "یک سرویس را انتخاب کنید تا به عنوان والد باز شود و بتوانید زیرمجموعه‌ها را به آن متصل کنید.",
+      "selectAsParent": "انتخاب به عنوان والد"
     }
   },
   "userCredits": {

@@ -23,6 +23,7 @@ import {
   IconChevronDown,
   IconDeviceFloppy,
   IconFolder,
+  IconFolderPlus,
   IconGripVertical,
   IconSearch,
   IconTarget,
@@ -37,6 +38,7 @@ import {
   type DragEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import type { ManageService } from "../types";
 import {
@@ -72,6 +74,8 @@ export function ServiceHierarchyBoard({
   onSave,
 }: ServiceHierarchyBoardProps) {
   const { t } = useTranslation("common");
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const byUuid = useMemo(
     () => new Map(services.map((item) => [item.uuid, item])),
     [services]
@@ -83,7 +87,39 @@ export function ServiceHierarchyBoard({
   const [snapshot, setSnapshot] = useState(() =>
     createHierarchySnapshot(services)
   );
-  const [rootId, setRootId] = useState<string | null>(null);
+  const rawRootId = searchParams.get("parent");
+  const rootId = useMemo(() => {
+    if (!rawRootId) return null;
+    return byUuid.has(rawRootId) ? rawRootId : null;
+  }, [rawRootId, byUuid]);
+
+  const setRootId = useCallback(
+    (uuid: string | null) => {
+      setSearchParams(
+        (prev) => {
+          const current = prev.get("parent");
+          if ((uuid ?? null) === current) return prev;
+          const next = new URLSearchParams(prev);
+          if (uuid) {
+            next.set("parent", uuid);
+          } else {
+            next.delete("parent");
+          }
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  // Clean up URL if root ID does not exist in catalog
+  useEffect(() => {
+    if (rawRootId && services.length > 0 && !byUuid.has(rawRootId)) {
+      setRootId(null);
+    }
+  }, [rawRootId, services.length, byUuid, setRootId]);
+
   const [mobileTab, setMobileTab] = useState<"structure" | "pool">("structure");
   const [openNodes, setOpenNodes] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -91,6 +127,8 @@ export function ServiceHierarchyBoard({
   const [poolFilter, setPoolFilter] = useState<PoolFilter>("all");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState("");
+  const [createParentOpen, setCreateParentOpen] = useState(false);
+  const [createParentQuery, setCreateParentQuery] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [undoStack, setUndoStack] = useState<HierarchySnapshot[]>([]);
   const [dropTarget, setDropTarget] = useState<{
@@ -119,6 +157,7 @@ export function ServiceHierarchyBoard({
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
+
   const changes = useMemo(
     () => listHierarchyChanges(baseline, snapshot, services),
     [baseline, snapshot, services]
@@ -156,7 +195,7 @@ export function ServiceHierarchyBoard({
     [snapshot, t]
   );
 
-  const handleSetRoot = (uuid: string) => {
+  const handleSetRoot = useCallback((uuid: string) => {
     setRootId(uuid);
     setMobileTab("structure");
     setSelected((prev) => {
@@ -164,8 +203,14 @@ export function ServiceHierarchyBoard({
       copy.delete(uuid);
       return copy;
     });
-    const nextOpen = new Set<string>([uuid]);
-    const { count } = countDescendants(uuid, snapshot);
+    setPickerOpen(false);
+  }, []);
+
+  // Expand nodes when rootId changes
+  useEffect(() => {
+    if (!rootId) return;
+    const nextOpen = new Set<string>([rootId]);
+    const { count } = countDescendants(rootId, snapshot);
     const walk = (id: string, depth: number) => {
       for (const child of childrenOf(id, snapshot)) {
         if (
@@ -177,10 +222,9 @@ export function ServiceHierarchyBoard({
         walk(child, depth + 1);
       }
     };
-    walk(uuid, 1);
+    walk(rootId, 1);
     setOpenNodes(nextOpen);
-    setPickerOpen(false);
-  };
+  }, [rootId]);
 
   const pooled = useMemo(() => {
     const tokens = normalizeSearch(poolQuery).split(/\s+/).filter(Boolean);
@@ -230,6 +274,20 @@ export function ServiceHierarchyBoard({
       ),
     [services, snapshot]
   );
+
+  const promotableServices = useMemo(() => {
+    const tokens = normalizeSearch(createParentQuery)
+      .split(/\s+/)
+      .filter(Boolean);
+    let list = services.filter((item) => !snapshot.parentByUuid[item.uuid]);
+    if (tokens.length > 0) {
+      list = list.filter((item) => {
+        const hay = normalizeSearch(`${item.name} ${item.slug}`);
+        return tokens.every((token) => hay.includes(token));
+      });
+    }
+    return sortServicesByName(list);
+  }, [services, snapshot.parentByUuid, createParentQuery]);
 
   const toggleSelect = (uuid: string) => {
     if (uuid === rootId) return;
@@ -299,7 +357,10 @@ export function ServiceHierarchyBoard({
   const readDragIds = (event?: DragEvent) => {
     if (dragIdsRef.current.length > 0) return [...dragIdsRef.current];
     const fromData = event?.dataTransfer.getData("text/plain") ?? "";
-    return fromData.split(",").map((id) => id.trim()).filter(Boolean);
+    return fromData
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
   };
 
   const handleDrop = (targetId: string | "pool", event?: DragEvent) => {
@@ -337,11 +398,35 @@ export function ServiceHierarchyBoard({
 
   return (
     <div dir="rtl" className="flex min-h-[70vh] flex-col gap-4">
-      <div className="sticky top-0 z-20 flex flex-col gap-3 rounded-2xl bg-background/95 pb-2 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="bg-background/95 sticky top-0 z-20 flex flex-col gap-3 rounded-2xl pb-2 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground text-sm">
           {t("manageServices.hierarchy.hint")}
         </p>
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={!rootId ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => {
+              setRootId(null);
+              setMobileTab("structure");
+            }}
+          >
+            {t("manageServices.hierarchy.viewAllParents")}
+          </Button>
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => {
+              setCreateParentQuery("");
+              setCreateParentOpen(true);
+            }}
+          >
+            <IconFolderPlus className="size-4" />
+            {t("manageServices.hierarchy.addParentDirectly")}
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -385,11 +470,11 @@ export function ServiceHierarchyBoard({
         </div>
       </div>
 
-      <div className="flex rounded-xl border bg-muted/40 p-1 lg:hidden">
+      <div className="bg-muted/40 flex rounded-xl border p-1 lg:hidden">
         <button
           type="button"
           className={cn(
-            "flex-1 rounded-lg py-2 text-center text-xs font-medium transition sm:text-sm",
+            "flex-1 cursor-pointer rounded-lg py-2 text-center text-xs font-medium transition sm:text-sm",
             mobileTab === "structure"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -402,7 +487,7 @@ export function ServiceHierarchyBoard({
         <button
           type="button"
           className={cn(
-            "flex-1 rounded-lg py-2 text-center text-xs font-medium transition sm:text-sm",
+            "flex-1 cursor-pointer rounded-lg py-2 text-center text-xs font-medium transition sm:text-sm",
             mobileTab === "pool"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -410,243 +495,17 @@ export function ServiceHierarchyBoard({
           onClick={() => setMobileTab("pool")}
         >
           {t("manageServices.hierarchy.mobileTabs.pool")}
-          <span className="ms-1.5 rounded-full bg-muted px-1.5 py-0.5 text-xs">
+          <span className="bg-muted ms-1.5 rounded-full px-1.5 py-0.5 text-xs">
             {pooled.length}
           </span>
         </button>
       </div>
 
-      <div className="grid min-h-[32rem] flex-1 grid-cols-1 overflow-hidden rounded-2xl border lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
-        <section
-          className={cn(
-            "flex min-h-0 flex-col border-b lg:border-e lg:border-b-0",
-            mobileTab !== "structure" && "hidden lg:flex"
-          )}
-        >
-          <div className="space-y-3 p-4 sm:p-5">
-            {rootId ? (
-              <div className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
-                {ancestorsOf(rootId, snapshot.parentByUuid).map((uuid) => (
-                  <button
-                    key={uuid}
-                    type="button"
-                    className="hover:text-foreground inline-flex items-center gap-1"
-                    onClick={() => handleSetRoot(uuid)}
-                  >
-                    {byUuid.get(uuid)?.name}
-                    <IconArrowLeft className="size-3" />
-                  </button>
-                ))}
-                <span className="text-foreground">{root?.name}</span>
-              </div>
-            ) : null}
-
-            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 w-full justify-between rounded-xl"
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <IconSearch className="text-muted-foreground size-4 shrink-0" />
-                    <span className="truncate">
-                      {root?.name ?? t("manageServices.hierarchy.pickParent")}
-                    </span>
-                  </span>
-                  <IconChevronDown className="size-4 opacity-60" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-[min(36rem,92vw)] p-0">
-                <div className="border-b p-2">
-                  <Input
-                    value={pickerQuery}
-                    onChange={(event) => setPickerQuery(event.target.value)}
-                    placeholder={t("manageServices.hierarchy.searchParent")}
-                    autoFocus
-                  />
-                </div>
-                <div className="max-h-80 overflow-auto p-1.5">
-                  {pickerItems.length === 0 ? (
-                    <p className="text-muted-foreground px-3 py-8 text-center text-sm">
-                      {t("manageServices.noResults")}
-                    </p>
-                  ) : (
-                    pickerItems.map((item) => {
-                      const stats = countDescendants(item.uuid, snapshot);
-                      return (
-                        <button
-                          key={item.uuid}
-                          type="button"
-                          className="hover:bg-muted/60 flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-start"
-                          onClick={() => handleSetRoot(item.uuid)}
-                        >
-                          <span className="min-w-0">
-                            <span className="block truncate font-medium">
-                              {item.name}
-                            </span>
-                            <span
-                              className="text-muted-foreground block truncate text-xs"
-                              dir="ltr"
-                            >
-                              {item.slug}
-                            </span>
-                          </span>
-                          {stats.count > 0 ? (
-                            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-                              {t("manageServices.hierarchy.childCount", {
-                                count: stats.count,
-                              })}
-                            </span>
-                          ) : null}
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div
-            className="min-h-0 flex-1 overflow-auto px-4 pb-28 sm:px-5"
-            onDragOver={(event) => {
-              if (rootId) handleDragOverTarget(rootId, event);
-            }}
-            onDrop={(event) => {
-              if (rootId) handleDrop(rootId, event);
-            }}
-          >
-            {!root ? (
-              <div className="mx-auto max-w-3xl py-10 text-center">
-                <div className="bg-primary/10 text-primary mx-auto mb-4 grid size-12 place-items-center rounded-2xl">
-                  <IconFolder className="size-5" />
-                </div>
-                <h2 className="text-lg font-semibold">
-                  {t("manageServices.hierarchy.emptyTitle")}
-                </h2>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {t("manageServices.hierarchy.emptyHint")}
-                </p>
-                {rootFamilies.length > 0 ? (
-                  <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {rootFamilies.map((item) => {
-                      const stats = countDescendants(item.uuid, snapshot);
-                      return (
-                        <button
-                          key={item.uuid}
-                          type="button"
-                          className="hover:border-primary rounded-2xl border p-4 text-start"
-                          onClick={() => handleSetRoot(item.uuid)}
-                        >
-                          <div className="truncate font-medium">
-                            {item.name}
-                          </div>
-                          <div className="text-muted-foreground mt-1 text-sm">
-                            {t("manageServices.hierarchy.familyMeta", {
-                              count: stats.count,
-                              depth: stats.depth,
-                            })}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="max-w-4xl space-y-3">
-                <div
-                  data-drop-id={root.uuid}
-                  onDragOver={(event) => handleDragOverTarget(root.uuid, event)}
-                  onDrop={(event) => handleDrop(root.uuid, event)}
-                  className={cn(
-                    "flex items-center gap-4 rounded-2xl border px-4 py-4",
-                    dropTarget?.id === root.uuid &&
-                      dropTarget.ok &&
-                      "ring-primary bg-primary/5 ring-2"
-                  )}
-                >
-                  <div className="bg-primary/10 text-primary grid size-11 place-items-center rounded-xl">
-                    <IconFolder className="size-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-lg font-semibold">
-                      {root.name}
-                    </div>
-                    <div className="text-muted-foreground text-sm">
-                      {rootStats?.count
-                        ? t("manageServices.hierarchy.familyMeta", {
-                            count: rootStats.count,
-                            depth: rootStats.depth,
-                          })
-                        : t("manageServices.hierarchy.noChildren")}
-                    </div>
-                  </div>
-                  <span className="text-muted-foreground text-xs" dir="ltr">
-                    {root.slug}
-                  </span>
-                </div>
-
-                {childrenOf(root.uuid, snapshot).length === 0 ? (
-                  <div
-                    className={cn(
-                      "text-muted-foreground rounded-2xl border-2 border-dashed px-6 py-16 text-center text-sm",
-                      dropTarget?.id === root.uuid &&
-                        dropTarget.ok &&
-                        "border-primary bg-primary/5 text-foreground"
-                    )}
-                    onDragOver={(event) => handleDragOverTarget(root.uuid, event)}
-                    onDrop={(event) => handleDrop(root.uuid, event)}
-                  >
-                    {t("manageServices.hierarchy.dropHint", {
-                      name: root.name,
-                    })}
-                  </div>
-                ) : (
-                  <div className="space-y-0.5">
-                    {childrenOf(root.uuid, snapshot).map((childUuid) => (
-                      <HierarchyNode
-                        key={childUuid}
-                        uuid={childUuid}
-                        snapshot={snapshot}
-                        byUuid={byUuid}
-                        openNodes={openNodes}
-                        selected={selected}
-                        dropTarget={dropTarget}
-                        onToggleOpen={(uuid) => {
-                          setOpenNodes((prev) => {
-                            const copy = new Set(prev);
-                            if (copy.has(uuid)) copy.delete(uuid);
-                            else copy.add(uuid);
-                            return copy;
-                          });
-                        }}
-                        onSelect={toggleSelect}
-                        onFocus={handleSetRoot}
-                        onDetach={(uuid) => applyMove([uuid], null)}
-                        onReorder={handleReorder}
-                        onDragStart={startDrag}
-                        onDragEnd={handleDragEnd}
-                        canDropOn={canDropOn}
-                        onDragOver={(uuid, ok) =>
-                          setDropTarget({ id: uuid, ok })
-                        }
-                        onDragLeave={handleDragLeave}
-                        onDrop={(uuid, event) => handleDrop(uuid, event)}
-                        isDraggingRef={isDraggingRef}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-
+      <div className="grid min-h-[32rem] flex-1 grid-cols-1 overflow-hidden rounded-2xl border lg:grid-cols-[22rem_minmax(0,1fr)] xl:grid-cols-[26rem_minmax(0,1fr)]">
+        {/* Pool / All Services panel - placed first in DOM so in RTL it renders on the RIGHT */}
         <aside
           className={cn(
-            "bg-card relative flex min-h-0 flex-col",
+            "bg-card relative flex min-h-0 flex-col border-b lg:border-e lg:border-b-0",
             mobileTab !== "pool" && "hidden lg:flex"
           )}
           onDragOver={(event) => handleDragOverTarget("pool", event)}
@@ -678,7 +537,7 @@ export function ServiceHierarchyBoard({
                   key={filter}
                   type="button"
                   className={cn(
-                    "flex-1 rounded-lg px-2 py-1.5",
+                    "flex-1 cursor-pointer rounded-lg px-2 py-1.5",
                     poolFilter === filter
                       ? "bg-background font-medium shadow-sm"
                       : "text-muted-foreground"
@@ -704,6 +563,11 @@ export function ServiceHierarchyBoard({
                   : null;
                 const childCount = childrenOf(item.uuid, snapshot).length;
                 const checked = selected.has(item.uuid);
+                const canPromote =
+                  !isRoot &&
+                  !snapshot.parentByUuid[item.uuid] &&
+                  childCount === 0;
+
                 return (
                   <div
                     key={item.uuid}
@@ -754,6 +618,24 @@ export function ServiceHierarchyBoard({
                         {childCount}
                       </span>
                     ) : null}
+                    {canPromote ? (
+                      <button
+                        type="button"
+                        title={t("manageServices.hierarchy.makeParent")}
+                        aria-label={t("manageServices.hierarchy.makeParent")}
+                        className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleSetRoot(item.uuid);
+                          setMobileTab("structure");
+                          toast.info(
+                            t("manageServices.hierarchy.makeParentHint")
+                          );
+                        }}
+                      >
+                        <IconFolderPlus className="size-4" />
+                      </button>
+                    ) : null}
                     {!isRoot ? (
                       <IconGripVertical className="text-muted-foreground size-4 opacity-40" />
                     ) : null}
@@ -774,6 +656,274 @@ export function ServiceHierarchyBoard({
             </div>
           ) : null}
         </aside>
+
+        {/* Structure / Hierarchy panel - placed second in DOM so in RTL it renders on the LEFT */}
+        <section
+          className={cn(
+            "flex min-h-0 flex-col",
+            mobileTab !== "structure" && "hidden lg:flex"
+          )}
+        >
+          <div className="space-y-3 p-4 sm:p-5">
+            {rootId ? (
+              <div className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
+                {ancestorsOf(rootId, snapshot.parentByUuid).map((uuid) => (
+                  <button
+                    key={uuid}
+                    type="button"
+                    className="hover:text-foreground inline-flex cursor-pointer items-center gap-1"
+                    onClick={() => handleSetRoot(uuid)}
+                  >
+                    {byUuid.get(uuid)?.name}
+                    <IconArrowLeft className="size-3" />
+                  </button>
+                ))}
+                <span className="text-foreground">{root?.name}</span>
+              </div>
+            ) : null}
+
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 w-full justify-between rounded-xl"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <IconSearch className="text-muted-foreground size-4 shrink-0" />
+                    <span className="truncate">
+                      {root?.name ?? t("manageServices.hierarchy.pickParent")}
+                    </span>
+                  </span>
+                  <IconChevronDown className="size-4 opacity-60" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-[min(36rem,92vw)] p-0">
+                <div className="border-b p-2">
+                  <Input
+                    value={pickerQuery}
+                    onChange={(event) => setPickerQuery(event.target.value)}
+                    placeholder={t("manageServices.hierarchy.searchParent")}
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-80 overflow-auto p-1.5">
+                  {pickerItems.length === 0 ? (
+                    <p className="text-muted-foreground px-3 py-8 text-center text-sm">
+                      {t("manageServices.noResults")}
+                    </p>
+                  ) : (
+                    pickerItems.map((item) => {
+                      const stats = countDescendants(item.uuid, snapshot);
+                      return (
+                        <button
+                          key={item.uuid}
+                          type="button"
+                          className="hover:bg-muted/60 flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-start"
+                          onClick={() => handleSetRoot(item.uuid)}
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium">
+                              {item.name}
+                            </span>
+                            <span
+                              className="text-muted-foreground block truncate text-xs"
+                              dir="ltr"
+                            >
+                              {item.slug}
+                            </span>
+                          </span>
+                          {stats.count > 0 ? (
+                            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+                              {t("manageServices.hierarchy.childCount", {
+                                count: stats.count,
+                              })}
+                            </span>
+                          ) : null}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div
+            className="min-h-0 flex-1 overflow-auto px-4 pb-28 sm:px-5"
+            onDragOver={(event) => {
+              if (rootId) handleDragOverTarget(rootId, event);
+            }}
+            onDrop={(event) => {
+              if (rootId) handleDrop(rootId, event);
+            }}
+          >
+            {!root ? (
+              rootFamilies.length === 0 ? (
+                <div className="mx-auto max-w-3xl py-12 text-center">
+                  <div className="bg-primary/10 text-primary mx-auto mb-4 grid size-12 place-items-center rounded-2xl">
+                    <IconFolder className="size-5" />
+                  </div>
+                  <h2 className="text-lg font-semibold">
+                    {t("manageServices.hierarchy.noParentsYet", {
+                      defaultValue: t("manageServices.hierarchy.emptyTitle"),
+                    })}
+                  </h2>
+                  <p className="text-muted-foreground mt-2 text-sm">
+                    {t("manageServices.hierarchy.noParentsHint", {
+                      defaultValue: t("manageServices.hierarchy.emptyHint"),
+                    })}
+                  </p>
+                  <Button
+                    type="button"
+                    className="mt-4 gap-1.5"
+                    onClick={() => {
+                      setCreateParentQuery("");
+                      setCreateParentOpen(true);
+                    }}
+                  >
+                    <IconFolderPlus className="size-4" />
+                    {t("manageServices.hierarchy.addParentDirectly")}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 py-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="text-foreground text-base font-semibold">
+                        {t("manageServices.hierarchy.parentsOverviewTitle")}
+                      </h2>
+                      <p className="text-muted-foreground mt-0.5 text-xs">
+                        {t("manageServices.hierarchy.parentsOverviewCount", {
+                          count: rootFamilies.length,
+                        })}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => {
+                        setCreateParentQuery("");
+                        setCreateParentOpen(true);
+                      }}
+                    >
+                      <IconFolderPlus className="size-4" />
+                      {t("manageServices.hierarchy.addParentDirectly")}
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {rootFamilies.map((item) => (
+                      <ParentOverviewCard
+                        key={item.uuid}
+                        item={item}
+                        snapshot={snapshot}
+                        byUuid={byUuid}
+                        onSelectRoot={handleSetRoot}
+                        isDropTarget={
+                          dropTarget?.id === item.uuid && dropTarget.ok
+                        }
+                        onDragOverCard={(event) =>
+                          handleDragOverTarget(item.uuid, event)
+                        }
+                        onDropCard={(event) => handleDrop(item.uuid, event)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="max-w-4xl space-y-3">
+                <div
+                  data-drop-id={root.uuid}
+                  onDragOver={(event) => handleDragOverTarget(root.uuid, event)}
+                  onDrop={(event) => handleDrop(root.uuid, event)}
+                  className={cn(
+                    "flex items-center gap-4 rounded-2xl border px-4 py-4",
+                    dropTarget?.id === root.uuid &&
+                      dropTarget.ok &&
+                      "ring-primary bg-primary/5 ring-2"
+                  )}
+                >
+                  <div className="bg-primary/10 text-primary grid size-11 place-items-center rounded-xl">
+                    <IconFolder className="size-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-lg font-semibold">
+                      {root.name}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      {rootStats?.count
+                        ? t("manageServices.hierarchy.familyMeta", {
+                            count: rootStats.count,
+                            depth: rootStats.depth,
+                          })
+                        : t("manageServices.hierarchy.noChildren")}
+                    </div>
+                  </div>
+                  <span className="text-muted-foreground text-xs" dir="ltr">
+                    {root.slug}
+                  </span>
+                </div>
+
+                {childrenOf(root.uuid, snapshot).length === 0 ? (
+                  <div
+                    className={cn(
+                      "text-muted-foreground rounded-2xl border-2 border-dashed px-6 py-16 text-center text-sm",
+                      dropTarget?.id === root.uuid &&
+                        dropTarget.ok &&
+                        "border-primary bg-primary/5 text-foreground"
+                    )}
+                    onDragOver={(event) =>
+                      handleDragOverTarget(root.uuid, event)
+                    }
+                    onDrop={(event) => handleDrop(root.uuid, event)}
+                  >
+                    {t("manageServices.hierarchy.dropHint", {
+                      name: root.name,
+                    })}
+                  </div>
+                ) : (
+                  <div className="space-y-0.5">
+                    {childrenOf(root.uuid, snapshot).map((childUuid) => (
+                      <HierarchyNode
+                        key={childUuid}
+                        uuid={childUuid}
+                        snapshot={snapshot}
+                        byUuid={byUuid}
+                        openNodes={openNodes}
+                        selected={selected}
+                        dropTarget={dropTarget}
+                        onToggleOpen={(uuid) => {
+                          setOpenNodes((prev) => {
+                            const copy = new Set(prev);
+                            if (copy.has(uuid)) copy.delete(uuid);
+                            else copy.add(uuid);
+                            return copy;
+                          });
+                        }}
+                        onSelect={toggleSelect}
+                        onFocus={handleSetRoot}
+                        onDetach={(uuid) => applyMove([uuid], null)}
+                        onReorder={handleReorder}
+                        onDragStart={startDrag}
+                        onDragEnd={handleDragEnd}
+                        canDropOn={canDropOn}
+                        onDragOver={(uuid, ok) =>
+                          setDropTarget({ id: uuid, ok })
+                        }
+                        onDragLeave={handleDragLeave}
+                        onDrop={(uuid, event) => handleDrop(uuid, event)}
+                        isDraggingRef={isDraggingRef}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
 
       {selected.size > 0 ? (
@@ -873,6 +1023,190 @@ export function ServiceHierarchyBoard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={createParentOpen} onOpenChange={setCreateParentOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>
+              {t("manageServices.hierarchy.addParentDirectly")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("manageServices.hierarchy.selectParentServiceHint")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="relative">
+              <IconSearch className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2" />
+              <Input
+                value={createParentQuery}
+                onChange={(event) => setCreateParentQuery(event.target.value)}
+                placeholder={t("manageServices.hierarchy.searchParent")}
+                className="ps-9"
+                autoFocus
+              />
+            </div>
+            <div className="max-h-72 space-y-1 overflow-auto rounded-xl border p-1.5">
+              {promotableServices.length === 0 ? (
+                <p className="text-muted-foreground py-8 text-center text-sm">
+                  {t("manageServices.noResults")}
+                </p>
+              ) : (
+                promotableServices.map((serviceItem) => (
+                  <button
+                    key={serviceItem.uuid}
+                    type="button"
+                    className="hover:bg-muted/70 flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-start transition-colors"
+                    onClick={() => {
+                      setCreateParentOpen(false);
+                      handleSetRoot(serviceItem.uuid);
+                      setMobileTab("structure");
+                      toast.info(t("manageServices.hierarchy.makeParentHint"));
+                    }}
+                  >
+                    <div className="flex w-xs min-w-0 items-center gap-2">
+                      <div className="truncate text-sm font-medium">
+                        {serviceItem.name}
+                      </div>
+                      <div
+                        className="text-muted-foreground truncate text-xs"
+                        dir="ltr"
+                      >
+                        {serviceItem.slug}
+                      </div>
+                    </div>
+                    <span className="text-primary text-xs font-medium">
+                      {t("manageServices.hierarchy.selectAsParent")}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function ParentOverviewCard({
+  item,
+  snapshot,
+  byUuid,
+  onSelectRoot,
+  onDragOverCard,
+  onDropCard,
+  isDropTarget,
+}: {
+  item: ManageService;
+  snapshot: HierarchySnapshot;
+  byUuid: Map<string, ManageService>;
+  onSelectRoot: (uuid: string) => void;
+  onDragOverCard?: (event: DragEvent) => void;
+  onDropCard?: (event: DragEvent) => void;
+  isDropTarget?: boolean;
+}) {
+  const { t } = useTranslation("common");
+  const directChildren = useMemo(() => {
+    const ids = childrenOf(item.uuid, snapshot);
+    const childServices = ids
+      .map((id) => byUuid.get(id))
+      .filter((s): s is ManageService => Boolean(s));
+    return sortServicesByName(childServices);
+  }, [item.uuid, snapshot, byUuid]);
+
+  const [isOpen, setIsOpen] = useState(() => directChildren.length <= 8);
+
+  const stats = useMemo(
+    () => countDescendants(item.uuid, snapshot),
+    [item.uuid, snapshot]
+  );
+
+  return (
+    <div
+      onDragOver={onDragOverCard}
+      onDrop={onDropCard}
+      className={cn(
+        "bg-card hover:border-primary/40 flex flex-col justify-between rounded-2xl border p-4 transition-colors",
+        isDropTarget && "ring-primary bg-primary/5 ring-2"
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => onSelectRoot(item.uuid)}
+          className="group flex min-w-0 flex-1 cursor-pointer items-start gap-3 text-start"
+        >
+          <div className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground grid size-10 shrink-0 place-items-center rounded-xl transition-colors">
+            <IconFolder className="size-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-foreground group-hover:text-primary truncate font-semibold transition-colors">
+              {item.name}
+            </div>
+            <div className="text-muted-foreground truncate text-xs" dir="ltr">
+              {item.slug}
+            </div>
+          </div>
+        </button>
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-medium">
+            {t("manageServices.hierarchy.childCount", { count: stats.count })}
+          </span>
+          {directChildren.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setIsOpen((prev) => !prev)}
+              className="text-muted-foreground hover:text-foreground hover:bg-muted grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
+              aria-label="Toggle children"
+            >
+              <IconChevronDown
+                className={cn(
+                  "size-4 transition-transform",
+                  isOpen && "rotate-180"
+                )}
+              />
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      {isOpen && directChildren.length > 0 ? (
+        <div className="mt-3 space-y-1 border-t pt-2.5">
+          <div className="border-border ms-3 space-y-1 border-s-2 ps-2">
+            {directChildren.map((child) => {
+              const childSubCount = childrenOf(child.uuid, snapshot).length;
+              return (
+                <div
+                  key={child.uuid}
+                  className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-md px-2 py-1 text-xs"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onSelectRoot(child.uuid)}
+                    className="text-foreground hover:text-primary cursor-pointer truncate text-start font-medium"
+                  >
+                    {child.name}
+                  </button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <span
+                      className="text-muted-foreground text-[10px]"
+                      dir="ltr"
+                    >
+                      {child.slug}
+                    </span>
+                    {childSubCount > 0 ? (
+                      <span className="bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 text-[10px]">
+                        {childSubCount}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -927,7 +1261,9 @@ function HierarchyNode({
   if (!service) return null;
 
   const parentUuid = snapshot.parentByUuid[uuid];
-  const siblings = parentUuid ? snapshot.childrenByUuid[parentUuid] ?? [] : [];
+  const siblings = parentUuid
+    ? (snapshot.childrenByUuid[parentUuid] ?? [])
+    : [];
   const siblingIndex = siblings.indexOf(uuid);
   const canMoveUp = siblingIndex > 0;
   const canMoveDown = siblingIndex >= 0 && siblingIndex < siblings.length - 1;
@@ -971,7 +1307,7 @@ function HierarchyNode({
         {kids.length > 0 ? (
           <button
             type="button"
-            className="hover:bg-muted grid size-6 place-items-center rounded"
+            className="hover:bg-muted grid size-6 cursor-pointer place-items-center rounded"
             onClick={(event) => {
               event.stopPropagation();
               onToggleOpen(uuid);
@@ -998,7 +1334,7 @@ function HierarchyNode({
           {canMoveUp && parentUuid ? (
             <button
               type="button"
-              className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 place-items-center rounded-lg transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
               title={t("manageServices.hierarchy.moveUp")}
               onClick={(event) => {
                 event.stopPropagation();
@@ -1011,7 +1347,7 @@ function HierarchyNode({
           {canMoveDown && parentUuid ? (
             <button
               type="button"
-              className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 place-items-center rounded-lg transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
               title={t("manageServices.hierarchy.moveDown")}
               onClick={(event) => {
                 event.stopPropagation();
@@ -1023,7 +1359,7 @@ function HierarchyNode({
           ) : null}
           <button
             type="button"
-            className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 place-items-center rounded-lg transition-colors"
+            className="hover:bg-muted text-muted-foreground hover:text-foreground grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
             title={t("manageServices.hierarchy.focus")}
             onClick={(event) => {
               event.stopPropagation();
@@ -1034,7 +1370,7 @@ function HierarchyNode({
           </button>
           <button
             type="button"
-            className="hover:bg-muted text-muted-foreground hover:text-destructive grid size-7 place-items-center rounded-lg transition-colors"
+            className="hover:bg-muted text-muted-foreground hover:text-destructive grid size-7 cursor-pointer place-items-center rounded-lg transition-colors"
             title={t("manageServices.hierarchy.detach")}
             onClick={(event) => {
               event.stopPropagation();
@@ -1078,7 +1414,7 @@ function HierarchyNode({
 
 export function ServiceHierarchyBoardSkeleton() {
   return (
-    <div className="grid min-h-[32rem] grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+    <div className="grid min-h-[32rem] grid-cols-1 gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] xl:grid-cols-[26rem_minmax(0,1fr)]">
       <Skeleton className="h-[28rem] rounded-2xl" />
       <Skeleton className="h-[28rem] rounded-2xl" />
     </div>

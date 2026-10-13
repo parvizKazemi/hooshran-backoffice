@@ -29,17 +29,13 @@ import type { CategoryOption } from "@/features/categories/hooks/use-category-op
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  IconArrowDown,
-  IconArrowUp,
   IconLayersSubtract,
   IconLoader2,
-  IconPencil,
-  IconPlus,
-  IconTrash,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   MULTI_MODEL_SLUG_PREFIX,
   normalizeServiceBadge,
@@ -90,36 +86,6 @@ function normalizeSubmodelsOrder(items: ServiceSubmodel[]): ServiceSubmodel[] {
   }));
 }
 
-function normalizeCostValue(value: unknown): string | undefined {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value > 0 ? String(value) : undefined;
-  }
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  if (/^0+(?:\.0+)?$/.test(trimmed)) return undefined;
-  return trimmed;
-}
-
-function normalizeSubmodelCostFields(item: ServiceSubmodel): ServiceSubmodel {
-  const normalizedCredit =
-    normalizeCostValue(item.creditHint) ?? normalizeCostValue(item.cost);
-  const normalizedCost = normalizeCostValue(item.cost) ?? normalizedCredit;
-  return {
-    ...item,
-    creditHint: normalizedCredit ?? "",
-    cost: normalizedCost,
-  };
-}
-
-function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
-  const next = [...items];
-  const [moved] = next.splice(fromIndex, 1);
-  if (!moved) return next;
-  next.splice(toIndex, 0, moved);
-  return next;
-}
-
 export function ServiceFormDialog({
   open,
   onOpenChange,
@@ -131,7 +97,6 @@ export function ServiceFormDialog({
   submodelOptions,
   existingSlugs,
   onSubmit,
-  onEditSubmodelService,
 }: ServiceFormDialogProps) {
   const { t } = useTranslation("common");
   const isEditing = !!service;
@@ -233,9 +198,7 @@ export function ServiceFormDialog({
       if (service?.submodels?.length) {
         setSubmodels(
           normalizeSubmodelsOrder(
-            service.submodels.map((item) =>
-              normalizeSubmodelCostFields({ ...item })
-            )
+            service.submodels.map((item) => ({ ...item }))
           )
         );
         return;
@@ -275,12 +238,6 @@ export function ServiceFormDialog({
     }
   }, [modelType, form]);
 
-  const availableSubmodelOptions = useMemo(() => {
-    const selected = new Set(submodels.map((item) => item.uuid));
-    return submodelOptions.filter(
-      (item) => item.uuid !== service?.uuid && !selected.has(item.uuid)
-    );
-  }, [submodelOptions, submodels, service?.uuid]);
 
   const toggleCategory = (uuid: string, checked: boolean) => {
     const current = form.getValues("categoryUuids");
@@ -291,52 +248,6 @@ export function ServiceFormDialog({
     );
   };
 
-  const handleAddSubmodel = (uuid: string) => {
-    const option = submodelOptions.find((item) => item.uuid === uuid);
-    if (!option) return;
-    if (submodels.some((item) => item.uuid === uuid)) return;
-
-    setSubmodels((prev) =>
-      normalizeSubmodelsOrder([
-        ...prev,
-        {
-          uuid: option.uuid,
-          name: option.name,
-          description: option.description ?? "",
-          slug: option.slug,
-          endpoint: option.endpoint,
-          imageUrl: option.imageUrl ?? "",
-          creditHint:
-            normalizeCostValue(option.creditHint) ??
-            normalizeCostValue(option.cost) ??
-            "",
-          cost:
-            normalizeCostValue(option.cost) ??
-            normalizeCostValue(option.creditHint),
-          badge: option.badge ?? null,
-          isActive: option.isActive ?? true,
-          inactiveReason: option.inactiveReason ?? "",
-          order: prev.length + 1,
-          isLocal: false,
-        },
-      ])
-    );
-  };
-
-  const handleMoveSubmodel = (uuid: string, direction: "up" | "down") => {
-    setSubmodels((prev) => {
-      const currentIndex = prev.findIndex((item) => item.uuid === uuid);
-      if (currentIndex < 0) return prev;
-      const targetIndex =
-        direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
-      return normalizeSubmodelsOrder(moveItem(prev, currentIndex, targetIndex));
-    });
-  };
-
-  const handleEditSubmodelService = (submodelUuid: string) => {
-    onEditSubmodelService?.(submodelUuid);
-  };
 
   const handleSubmit = form.handleSubmit((values) => {
     const slug =
@@ -846,123 +757,34 @@ export function ServiceFormDialog({
             </div>
 
             {modelType === "multi" ? (
-              <div className="space-y-2 rounded-2xl border p-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="rounded-2xl border p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-bold">
-                      {t("manageServices.form.submodels")}
+                      {t("manageServices.form.submodelsRefTitle")}
                     </p>
                     <p className="text-muted-foreground mt-0.5 text-[11px]">
-                      {t("manageServices.form.submodelsHint")}
+                      {t("manageServices.form.submodelsRefHint")}
                     </p>
+                    {submodels.length > 0 ? (
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {submodels.length} {t("manageServices.form.submodels")}
+                      </p>
+                    ) : null}
                   </div>
-                  <div className="w-full sm:w-72">
-                    <ServicePicker
-                      services={availableSubmodelOptions}
-                      onSelect={handleAddSubmodel}
-                      placeholder={t(
-                        "manageServices.form.submodelPickerPlaceholder"
-                      )}
-                      title={t("manageServices.form.submodelPickerTitle")}
-                      searchPlaceholder={t(
-                        "manageServices.form.submodelPickerSearch"
-                      )}
-                      emptyMessage={t(
-                        "manageServices.form.submodelPickerEmpty"
-                      )}
-                      noSearchResultsMessage={t(
-                        "manageServices.form.submodelPickerNoResults"
-                      )}
-                      renderTrigger={({ selectedLabel, isOpen, disabled }) => (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={
-                            disabled || availableSubmodelOptions.length === 0
-                          }
-                          className="w-full justify-between"
-                          data-state={isOpen ? "open" : "closed"}
-                        >
-                          <span className="flex items-center gap-1.5 truncate">
-                            <IconPlus className="size-4 shrink-0" />
-                            {t("manageServices.form.addSubmodel")}
-                          </span>
-                          <span className="text-muted-foreground sr-only">
-                            {selectedLabel}
-                          </span>
-                        </Button>
-                      )}
-                    />
-                  </div>
+                  <Button asChild variant="outline" size="sm" className="shrink-0">
+                    <Link
+                      to={
+                        service?.uuid
+                          ? `/services/hierarchy?parent=${service.uuid}`
+                          : "/services/hierarchy"
+                      }
+                    >
+                      <IconLayersSubtract className="size-4" />
+                      {t("manageServices.form.goToHierarchy")}
+                    </Link>
+                  </Button>
                 </div>
-
-                {submodels.length === 0 ? (
-                  <p className="text-muted-foreground text-xs">
-                    {t("manageServices.form.noSubmodels")}
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {submodels.map((sub, index) => (
-                      <div
-                        key={sub.uuid}
-                        className="bg-muted/20 flex items-center justify-between gap-2 rounded-xl border p-3"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">
-                            {sub.name}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="shrink-0"
-                            disabled={index === 0}
-                            onClick={() => handleMoveSubmodel(sub.uuid, "up")}
-                          >
-                            <IconArrowUp className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="shrink-0"
-                            disabled={index === submodels.length - 1}
-                            onClick={() => handleMoveSubmodel(sub.uuid, "down")}
-                          >
-                            <IconArrowDown className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="shrink-0"
-                            onClick={() => handleEditSubmodelService(sub.uuid)}
-                          >
-                            <IconPencil className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="text-destructive shrink-0"
-                            onClick={() =>
-                              setSubmodels((prev) =>
-                                normalizeSubmodelsOrder(
-                                  prev.filter((item) => item.uuid !== sub.uuid)
-                                )
-                              )
-                            }
-                          >
-                            <IconTrash className="size-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             ) : null}
 
