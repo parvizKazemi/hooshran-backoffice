@@ -80,6 +80,9 @@ const PromptAssistantServices = lazy(
 const ManageServices = lazy(
   () => import("../features/manage-services/ManageServices.tsx")
 );
+const ServiceHierarchy = lazy(
+  () => import("../features/manage-services/ServiceHierarchy.tsx")
+);
 const TextChatModels = lazy(
   () => import("../features/text-chat-models/TextChatModels.tsx")
 );
@@ -177,6 +180,10 @@ const router = createBrowserRouter([
           {
             path: "/services/manage",
             element: <ManageServices />,
+          },
+          {
+            path: "/services/hierarchy",
+            element: <ServiceHierarchy />,
           },
           {
             path: "/services/text-chat-models",

@@ -1,4 +1,7 @@
-import { MULTI_MODEL_SLUG_PREFIX } from "../constants";
+import {
+  MULTI_MODEL_SLUG_PREFIX,
+  resolveServiceTemplateName,
+} from "../constants";
 import type {
   CatalogServiceOption,
   ManageService,
@@ -168,10 +171,12 @@ export function createLocalService(
     submodels?: ServiceSubmodel[];
   }
 ): ManageService {
+  const submodels = values.submodels ?? [];
   return {
     ...values,
     uuid: createLocalUuid("svc"),
-    submodels: values.submodels ?? [],
+    submodels,
+    templateName: resolveServiceTemplateName(submodels.length),
     isLocal: true,
   };
 }
@@ -196,12 +201,13 @@ export function toServiceSubmodelFromCatalog(
     | "endpoint"
     | "imageUrl"
     | "creditHint"
-    | "cost"
     | "badge"
     | "isActive"
     | "inactiveReason"
     | "order"
-  >,
+  > & {
+    cost?: unknown;
+  },
   order?: number
 ): ServiceSubmodel {
   return {
@@ -359,11 +365,11 @@ export function normalizeServicesResponse(
   response: ManageService[] | { data: ManageService[] }
 ): ManageService[] {
   const list = Array.isArray(response) ? response : response.data;
-  return sortServicesByOrder(
+  const normalized = sortServicesByOrder(
     list.map((item) => {
       const raw = item as ManageService & { introduction?: string };
       const description =
-        raw.description?.trim() || raw.introduction?.trim() || "";
+        raw.introduction?.trim() || raw.description?.trim() || "";
 
       return {
         ...item,
@@ -391,6 +397,8 @@ export function normalizeServicesResponse(
       };
     })
   );
+
+  return applyInferredParentUuids(normalized);
 }
 
 export function filterServicesByCategory(
@@ -436,8 +444,11 @@ export type ServiceCustomDataPayload = {
   slug?: string;
   isActive?: boolean;
   metadata?: Record<string, unknown>;
+  /** Top-level hierarchy list — upsertCustomData prefers this over metadata.ui.childrens. */
+  childrens?: Array<Record<string, unknown>>;
   /** Top-level custom-data column — not `metadata.ui`. */
   minRequiredCredit?: number | null;
+  templateName?: string | null;
 };
 
 /**
@@ -500,7 +511,48 @@ function buildChildrensPayload(submodels: ServiceSubmodel[]) {
     image: sub.imageUrl || undefined,
     slug: sub.slug,
     introduction: sub.description || undefined,
-    active: sub.isActive,
+    isActive: sub.isActive,
+  }));
+}
+
+/** Infer each child's parent from the parent's `submodels` / `children` list. */
+export function applyInferredParentUuids(
+  items: ManageService[]
+): ManageService[] {
+  const parentByChild = new Map<string, string>();
+
+  for (const item of items) {
+    for (const child of item.submodels) {
+      if (!child.uuid || child.uuid === item.uuid) continue;
+      parentByChild.set(child.uuid, item.uuid);
+    }
+  }
+
+  if (parentByChild.size === 0) return items;
+
+  return items.map((item) => {
+    if (item.parentUuid) return item;
+    const inferred = parentByChild.get(item.uuid);
+    return inferred ? { ...item, parentUuid: inferred } : item;
+  });
+}
+
+export function toHierarchyChildrensPayload(
+  children: ManageService[]
+): Array<Record<string, unknown>> {
+  return children.map((child, index) => ({
+    uuid: child.uuid,
+    order: index + 1,
+    endpoint: child.endpoint || undefined,
+    cost:
+      normalizeCostValue(child.creditHint) ?? normalizeCostValue(child.cost),
+    name: child.name,
+    image: child.imageUrl || undefined,
+    slug: child.slug,
+    introduction: child.introduction || child.description || undefined,
+    description: child.description || child.introduction || undefined,
+    isActive: child.isActive,
+    badge: child.badge ?? null,
   }));
 }
 
@@ -516,16 +568,18 @@ function toMinRequiredCreditPayload(
   return parsed;
 }
 
-function buildCustomDataUiMetadata(service: ManageService) {
+export function buildCustomDataUiMetadata(service: ManageService) {
   const categoryOrders = buildCategoryOrdersPayload(
     service.categoryUuids ?? [],
     service.categoryOrders,
     service.order
   );
-  const childrens =
-    service.modelType === "multi"
-      ? buildChildrensPayload(service.submodels)
-      : undefined;
+  const submodelsCount = service.submodels?.length ?? 0;
+  const hasChildren = submodelsCount > 0 || service.modelType === "multi";
+  const childrens = hasChildren
+    ? buildChildrensPayload(service.submodels)
+    : undefined;
+  const templateName = resolveServiceTemplateName(submodelsCount);
 
   return {
     service_order: service.order,
@@ -537,6 +591,8 @@ function buildCustomDataUiMetadata(service: ManageService) {
     category_orders: categoryOrders,
     searchable: service.searchable,
     display: service.display,
+    template_name: templateName,
+    templateName,
     childrens,
   };
 }
@@ -555,13 +611,19 @@ export function mapManageServiceToCustomData(
 
   const merged = { ...service, ...patch };
   const ui = buildCustomDataUiMetadata(merged);
+  const submodelsCount = merged.submodels?.length ?? 0;
+  const templateName = resolveServiceTemplateName(submodelsCount);
 
   if (
     patch &&
     Object.keys(patch).length === 1 &&
     ("searchable" in patch || "display" in patch || "submodels" in patch)
   ) {
-    return { metadata: { ui } };
+    return {
+      metadata: { ui },
+      templateName,
+      ...(ui.childrens !== undefined ? { childrens: ui.childrens } : {}),
+    };
   }
 
   return {
@@ -571,6 +633,8 @@ export function mapManageServiceToCustomData(
     slug: merged.slug || undefined,
     isActive: merged.isActive,
     metadata: { ui },
+    templateName,
+    ...(ui.childrens !== undefined ? { childrens: ui.childrens } : {}),
     minRequiredCredit: toMinRequiredCreditPayload(
       merged.minRequiredCredit,
       merged.isAutoCredit
@@ -635,11 +699,9 @@ export function buildModelsUpdatePayload(
         title: item.name,
         description: item.description,
         active: item.isActive,
-        template_name:
-          item.modelType === "multi"
-            ? "ParentService"
-            : detail?.templateName ||
-              (prevInfo.template_name as string | undefined),
+        template_name: resolveServiceTemplateName(
+          item.submodels?.length ?? (item.modelType === "multi" ? 1 : 0)
+        ),
         image: item.imageUrl || (prevInfo.image as string | undefined),
         cost_hint: item.isAutoCredit
           ? (prevInfo.cost_hint as string | undefined)

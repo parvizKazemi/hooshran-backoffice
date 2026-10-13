@@ -61,6 +61,7 @@ export const ManageServiceSchema = z.object({
   submodels: z.array(ServiceSubmodelSchema).default([]),
   /** Raw platform cost from detail (for auto credit display). */
   cost: z.unknown().optional(),
+  templateName: z.string().optional().nullable(),
   isLocal: z.boolean().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -112,11 +113,7 @@ export const serviceFormSchema = z
         message: "دلیل غیرفعال بودن الزامی است",
       });
     }
-    if (
-      values.modelType === "single" &&
-      values.isChildOfMulti &&
-      !values.parentUuid
-    ) {
+    if (values.isChildOfMulti && !values.parentUuid) {
       ctx.addIssue({
         code: "custom",
         path: ["parentUuid"],
@@ -177,6 +174,7 @@ export type ServiceFormSubmitValues = {
   display: boolean;
   order: number;
   parentUuid: string | null;
+  templateName?: string | null;
   submodels: ServiceSubmodel[];
 };
 
@@ -201,4 +199,5 @@ export type CatalogServiceOption = ParentServiceOption & {
   inactiveReason?: string;
   order?: number;
   parentUuid?: string | null;
+  templateName?: string | null;
 };

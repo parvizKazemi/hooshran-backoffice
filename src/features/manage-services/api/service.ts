@@ -1,62 +1,21 @@
-import { apiGet, apiPost, apiPut } from "@/services/api";
-import type {
-  CatalogServiceOption,
-  ManageService,
-  ServiceSubmodel,
-} from "../types";
+import { apiGet, apiPatch, apiPost, apiPut } from "@/services/api";
+import type { ManageService } from "../types";
 import { mapAdminApiServiceToManageService } from "@/features/manage-services/utils/map-admin-api-service";
 import {
+  buildCustomDataUiMetadata,
   mapManageServiceToCustomData,
   normalizeServicesResponse,
-  resolveParentSubmodelsFromCatalog,
+  toHierarchyChildrensPayload,
+  toServiceSubmodelFromCatalog,
   type ServiceCustomDataPayload,
 } from "@/features/manage-services/utils/service.helpers";
-import { PLATFORM_SERVICES_LIMIT } from "../constants";
+import {
+  PLATFORM_SERVICES_LIMIT,
+  resolveServiceTemplateName,
+} from "../constants";
 import { MANAGE_SERVICES_ENDPOINTS } from "./endpoints";
 
 type RawService = Record<string, unknown>;
-
-type PlatformServiceDetail = {
-  uuid?: string;
-  slug?: string;
-  endpoint?: string;
-  inputs?: {
-    service?: {
-      frontend?: {
-        accept_hint?: unknown;
-      };
-    };
-  };
-  information?: {
-    childrens?: unknown;
-    inputs?: {
-      service?: {
-        frontend?: {
-          accept_hint?: unknown;
-        };
-      };
-    };
-  };
-  metadata?: {
-    ui?: {
-      childrens?: unknown;
-    };
-  };
-  childrens?: unknown;
-  [key: string]: unknown;
-};
-
-type AcceptHintOption = {
-  uuid?: string;
-  slug?: string;
-  order?: number;
-  name?: string;
-  endpoint?: string;
-  image?: string | null;
-  introduction?: string | null;
-  cost?: string;
-  active?: boolean;
-};
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object"
@@ -68,27 +27,12 @@ function asString(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
-function normalizeCostValue(value: unknown): string | undefined {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value > 0 ? String(value) : undefined;
-  }
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  if (/^0+(?:\.0+)?$/.test(trimmed)) return undefined;
-  return trimmed;
-}
-
 function endpointToSlug(endpoint: string): string {
   return endpoint.replace(/\//g, "-");
 }
 
 function normalizeEndpoint(endpoint: string): string {
   return endpoint.trim().replace(/^\/+|\/+$/g, "");
-}
-
-function normalizeName(value: string): string {
-  return value.trim().toLowerCase();
 }
 
 function stripModelsPrefix(value: string): string {
@@ -115,85 +59,6 @@ function isEndpointEquivalent(left: string, right: string): boolean {
   );
 }
 
-function normalizeAcceptHint(hint: unknown): AcceptHintOption[] {
-  if (!hint) return [];
-
-  const options: AcceptHintOption[] = [];
-
-  if (Array.isArray(hint)) {
-    for (const entry of hint) {
-      if (!entry || typeof entry !== "object") continue;
-      const record = entry as Record<string, unknown>;
-      const endpoint = record.endpoint;
-      const name = record.name;
-      const slug = record.slug;
-      const uuid = record.uuid;
-      const order = record.order;
-      if (
-        typeof endpoint !== "string" &&
-        typeof slug !== "string" &&
-        typeof uuid !== "string"
-      ) {
-        continue;
-      }
-
-      options.push({
-        uuid: typeof uuid === "string" ? uuid : undefined,
-        slug: typeof slug === "string" ? slug : undefined,
-        order: typeof order === "number" ? order : undefined,
-        endpoint: typeof endpoint === "string" ? endpoint : undefined,
-        name: typeof name === "string" ? name : undefined,
-        image: typeof record.image === "string" ? record.image : undefined,
-        introduction:
-          typeof record.introduction === "string"
-            ? record.introduction
-            : undefined,
-        cost: record.cost != null ? String(record.cost) : undefined,
-        active: typeof record.active === "boolean" ? record.active : undefined,
-      });
-    }
-    return options;
-  }
-
-  if (typeof hint === "object") {
-    for (const [endpoint, value] of Object.entries(
-      hint as Record<string, unknown>
-    )) {
-      const name =
-        typeof value === "string"
-          ? value
-          : typeof value === "object" && value !== null
-            ? ((value as Record<string, unknown>).name as string | undefined)
-            : undefined;
-      if (!endpoint) continue;
-      const record =
-        typeof value === "object" && value !== null
-          ? (value as Record<string, unknown>)
-          : null;
-      const slug = record?.slug;
-      const uuid = record?.uuid;
-      const order = record?.order;
-
-      options.push({
-        uuid: typeof uuid === "string" ? uuid : undefined,
-        slug: typeof slug === "string" ? slug : undefined,
-        order: typeof order === "number" ? order : undefined,
-        endpoint,
-        name,
-        image: typeof record?.image === "string" ? record.image : undefined,
-        introduction:
-          typeof record?.introduction === "string"
-            ? record.introduction
-            : undefined,
-        cost: record?.cost != null ? String(record.cost) : undefined,
-        active: typeof record?.active === "boolean" ? record.active : undefined,
-      });
-    }
-  }
-
-  return options;
-}
-
 function extractRawServices(response: unknown): RawService[] {
   const list = Array.isArray(response)
     ? response
@@ -215,169 +80,18 @@ function unwrapServiceDetail(detail: unknown): RawService {
 function readChildrens(raw: Record<string, unknown>): unknown[] {
   const information = asRecord(raw.information);
   const ui = asRecord(asRecord(raw.metadata)?.ui);
-  const direct = raw.childrens;
-  const candidate = information?.childrens ?? ui?.childrens ?? direct;
-  return Array.isArray(candidate) ? candidate : [];
-}
-
-function resolveSubmodelsFromAcceptHint(
-  options: AcceptHintOption[],
-  catalog: CatalogServiceOption[],
-  parentUuid?: string
-): ServiceSubmodel[] {
-  if (options.length === 0) return [];
-
-  const byUuid = new Map<string, CatalogServiceOption>();
-  const bySlug = new Map<string, CatalogServiceOption>();
-  const byEndpoint = new Map<string, CatalogServiceOption>();
-  const byName = new Map<string, CatalogServiceOption>();
-
-  const candidateCatalog = catalog.filter((item) => {
-    return Boolean(item.uuid) && item.uuid !== parentUuid;
-  });
-
-  for (const item of catalog) {
-    byUuid.set(item.uuid, item);
-
-    const slug = item.slug.trim();
-    if (slug) {
-      bySlug.set(slug, item);
-      const slugStripped = stripModelsPrefix(slug);
-      if (slugStripped) bySlug.set(slugStripped, item);
-    }
-
-    const endpoint =
-      typeof item.endpoint === "string" ? normalizeEndpoint(item.endpoint) : "";
-    if (endpoint) {
-      byEndpoint.set(endpoint, item);
-      const endpointStripped = stripModelsPrefix(endpoint);
-      if (endpointStripped) byEndpoint.set(endpointStripped, item);
-    }
-
-    const normalizedName = normalizeName(item.name);
-    if (normalizedName) byName.set(normalizedName, item);
+  const candidates = [
+    raw.children,
+    information?.children,
+    information?.childrens,
+    raw.childrens,
+    ui?.children,
+    ui?.childrens,
+  ];
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return candidate;
   }
-
-  const seen = new Set<string>();
-  const resolved: ServiceSubmodel[] = [];
-  const isAllowedForParent = (item: CatalogServiceOption) =>
-    !parentUuid || !item.parentUuid || item.parentUuid === parentUuid;
-  const isChildCandidate = (item: CatalogServiceOption) =>
-    item.uuid !== parentUuid;
-
-  for (const [index, option] of options.entries()) {
-    const normalizedEndpoint = normalizeEndpoint(option.endpoint ?? "");
-    const optionSlug = normalizeEndpoint((option.slug ?? "").trim());
-    const optionSlugStripped = stripModelsPrefix(optionSlug);
-    const optionEndpointStripped = stripModelsPrefix(normalizedEndpoint);
-    const slug = endpointToSlug(normalizedEndpoint);
-    const strippedSlug = endpointToSlug(optionEndpointStripped);
-
-    const matchedBySlug =
-      (optionSlug ? bySlug.get(optionSlug) : undefined) ||
-      (optionSlugStripped ? bySlug.get(optionSlugStripped) : undefined) ||
-      bySlug.get(slug) ||
-      bySlug.get(strippedSlug) ||
-      (normalizedEndpoint ? bySlug.get(normalizedEndpoint) : undefined) ||
-      (optionEndpointStripped
-        ? bySlug.get(optionEndpointStripped)
-        : undefined) ||
-      candidateCatalog.find((item) => {
-        const itemSlug = normalizeEndpoint(item.slug);
-        const itemSlugStripped = stripModelsPrefix(itemSlug);
-        return (
-          (optionSlug &&
-            (itemSlug === optionSlug || itemSlugStripped === optionSlug)) ||
-          (optionSlugStripped &&
-            (itemSlug === optionSlugStripped ||
-              itemSlugStripped === optionSlugStripped)) ||
-          itemSlug === slug ||
-          itemSlugStripped === slug ||
-          itemSlug === strippedSlug ||
-          itemSlugStripped === strippedSlug
-        );
-      });
-
-    const matchedByEndpoint =
-      (normalizedEndpoint ? byEndpoint.get(normalizedEndpoint) : undefined) ||
-      (optionEndpointStripped
-        ? byEndpoint.get(optionEndpointStripped)
-        : undefined) ||
-      candidateCatalog.find((item) =>
-        isEndpointEquivalent(normalizedEndpoint, item.endpoint ?? "")
-      );
-
-    const matchedByUuid =
-      typeof option.uuid === "string" && option.uuid !== parentUuid
-        ? byUuid.get(option.uuid)
-        : undefined;
-
-    const matchedByName =
-      option.name && normalizeName(option.name)
-        ? byName.get(normalizeName(option.name))
-        : undefined;
-
-    const matched = [
-      matchedBySlug,
-      matchedByEndpoint,
-      matchedByUuid,
-      matchedByName,
-    ].find(
-      (item) => item && isAllowedForParent(item) && isChildCandidate(item)
-    );
-
-    const matchedSlug = (matched?.slug ?? "").trim();
-    const fallbackSlug =
-      optionSlug ||
-      optionSlugStripped ||
-      endpointToSlug(optionEndpointStripped || normalizedEndpoint);
-    const resolvedSlug = matchedSlug || fallbackSlug;
-    if (
-      !matched ||
-      !resolvedSlug ||
-      !isAllowedForParent(matched) ||
-      !isChildCandidate(matched) ||
-      seen.has(matched.uuid)
-    ) {
-      continue;
-    }
-    seen.add(matched.uuid);
-
-    resolved.push({
-      uuid: matched.uuid,
-      name: matched.name || option.name || "",
-      description: matched.description || option.introduction || "",
-      slug: resolvedSlug,
-      endpoint: matched.endpoint || option.endpoint,
-      imageUrl: matched.imageUrl || option.image || "",
-      creditHint:
-        normalizeCostValue(matched.creditHint) ||
-        normalizeCostValue(matched.cost) ||
-        normalizeCostValue(option.cost) ||
-        "",
-      cost:
-        normalizeCostValue(matched.cost) ||
-        normalizeCostValue(matched.creditHint) ||
-        normalizeCostValue(option.cost),
-      badge: matched.badge ?? null,
-      isActive: matched.isActive ?? option.active ?? true,
-      inactiveReason: matched.inactiveReason ?? "",
-      order: option.order ?? index + 1,
-      isLocal: false,
-    });
-  }
-
-  return resolved;
-}
-
-function readAcceptHint(detail: Record<string, unknown>): unknown {
-  const direct = asRecord(
-    asRecord(asRecord(detail.inputs)?.service)?.frontend
-  )?.accept_hint;
-  if (direct != null) return direct;
-  return asRecord(
-    asRecord(asRecord(asRecord(detail.information)?.inputs)?.service)?.frontend
-  )?.accept_hint;
+  return [];
 }
 
 function readParentUuid(
@@ -538,6 +252,13 @@ export async function fetchManageServicesBatch(): Promise<RawService[]> {
   return extractRawServices(response);
 }
 
+export async function fetchHierarchyServices(): Promise<ManageService[]> {
+  const rows = await fetchManageServicesBatch();
+  return normalizeServicesResponse(
+    rows.map((item) => mapAdminApiServiceToManageService(item))
+  );
+}
+
 /** Full service detail for edit dialog. */
 export async function fetchManageServiceDetail(
   uuid: string,
@@ -567,7 +288,7 @@ export async function fetchManageServiceDetail(
     manageParentUuid ?? detailParentUuid ?? inferredParentUuid;
 
   const safeFallback = fallback ? { ...fallback, parentUuid: null } : fallback;
-  const mapped = mapAdminApiServiceToManageService(response, safeFallback);
+  const mapped = mapAdminApiServiceToManageService(detailRecord, safeFallback);
 
   if (resolvedParentUuid !== undefined) {
     return { ...mapped, parentUuid: resolvedParentUuid };
@@ -600,6 +321,21 @@ export async function upsertServiceCustomData(
   );
 }
 
+/**
+ * Directly patch base API service fields (like `templateName`) on `api_services` table.
+ * Backend `PUT /admin/services/:uuid/custom-data` only updates `services_custom_data`
+ * and does not update `api_services.template_name`.
+ * `PATCH /api-services/:uuid` is the backend endpoint that updates `api_services.template_name`.
+ */
+export async function patchApiServiceTemplateName(
+  uuid: string,
+  templateName: string
+): Promise<void> {
+  await apiPatch(MANAGE_SERVICES_ENDPOINTS.patchBaseService(uuid), {
+    templateName,
+  });
+}
+
 /** Convenience: map ManageService → custom-data and upsert. */
 export async function updateManageServiceCustomData(
   service: ManageService,
@@ -627,7 +363,21 @@ export async function updateManageServiceCustomData(
 ): Promise<ManageService> {
   const merged: ManageService = { ...service, ...patch };
   const payload = mapManageServiceToCustomData(merged, patch);
-  return upsertServiceCustomData(service.uuid, payload, merged);
+  const result = await upsertServiceCustomData(service.uuid, payload, merged);
+
+  if (patch?.submodels !== undefined) {
+    const templateName = resolveServiceTemplateName(merged.submodels.length);
+    await patchApiServiceTemplateName(service.uuid, templateName).catch(
+      (err) => {
+        console.warn(
+          `[updateManageServiceCustomData] Failed to patch templateName for ${service.uuid}:`,
+          err
+        );
+      }
+    );
+  }
+
+  return result;
 }
 
 /**
@@ -646,38 +396,80 @@ export async function syncManageServicesUpdateData(
   const persisted = items.filter((item) => !item.isLocal);
 
   const results = await Promise.all(
-    persisted.map((item) =>
-      upsertServiceCustomData(
+    persisted.map(async (item) => {
+      const templateName = resolveServiceTemplateName(item.submodels.length);
+      const res = await upsertServiceCustomData(
         item.uuid,
         mapManageServiceToCustomData(item),
         item
-      )
-    )
+      );
+      await patchApiServiceTemplateName(item.uuid, templateName).catch(
+        (err) => {
+          console.warn(
+            `[syncManageServicesUpdateData] Failed to patch templateName for ${item.uuid}:`,
+            err
+          );
+        }
+      );
+      return res;
+    })
   );
 
   return results.map((item) => ({ ...item, isLocal: false }));
 }
 
 /**
- * Legacy fallback:
- * reads `inputs.service.frontend.accept_hint` and resolves children by catalog.
+ * Persist parent/child links.
+ * Sends both top-level `childrens` and `metadata.ui.childrens` so backend
+ * hierarchy synchronization, api_services metadata, and service_custom_data
+ * custom overrides remain fully synchronized.
+ * Also synchronizes base table `api_services.template_name` via PATCH /api-services/:uuid.
  */
-export async function fetchParentSubmodelsFromAcceptHint(
-  parentUuid: string,
-  catalog: CatalogServiceOption[]
-): Promise<ServiceSubmodel[]> {
-  const detailResponse = await apiGet<PlatformServiceDetail>(
-    MANAGE_SERVICES_ENDPOINTS.platformDetail(parentUuid)
+export async function saveServiceHierarchyParents(
+  parents: Array<{ parent: ManageService; children: ManageService[] }>
+): Promise<void> {
+  await Promise.all(
+    parents.map(async ({ parent, children }) => {
+      const hierarchyChildren = toHierarchyChildrensPayload(children);
+      const existingUi = buildCustomDataUiMetadata(parent);
+      const templateName = resolveServiceTemplateName(children.length);
+      const updatedUi = {
+        ...existingUi,
+        childrens: hierarchyChildren,
+        template_name: templateName,
+      };
+
+      await upsertServiceCustomData(
+        parent.uuid,
+        {
+          childrens: hierarchyChildren,
+          metadata: {
+            ui: updatedUi,
+          },
+          templateName,
+        },
+        {
+          ...parent,
+          templateName,
+          modelType: children.length > 0 ? "multi" : parent.modelType,
+          submodels: children.map((c, i) =>
+            toServiceSubmodelFromCatalog(c, i + 1)
+          ),
+        }
+      );
+
+      // Backend PUT /admin/services/:uuid/custom-data only affects services_custom_data.
+      // Base table api_services.template_name is updated via PATCH /api-services/:uuid.
+      await patchApiServiceTemplateName(parent.uuid, templateName).catch(
+        (err) => {
+          console.warn(
+            `[saveServiceHierarchyParents] Failed to patch templateName on base service ${parent.uuid}:`,
+            err
+          );
+        }
+      );
+    })
   );
-  const detail = unwrapServiceDetail(detailResponse);
-  const options = normalizeAcceptHint(readAcceptHint(detail));
-  const fromAcceptHint = resolveSubmodelsFromAcceptHint(
-    options,
-    catalog,
-    parentUuid
-  );
-  if (fromAcceptHint.length > 0) return fromAcceptHint;
-  return resolveParentSubmodelsFromCatalog(parentUuid, catalog);
 }
 
 export type ReindexSearchResult = {

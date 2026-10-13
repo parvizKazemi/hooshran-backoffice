@@ -146,6 +146,10 @@ function useSidebarData() {
             url: "/services/manage",
           },
           {
+            title: t("nav.services.hierarchy"),
+            url: "/services/hierarchy",
+          },
+          {
             title: t("nav.services.textChatModels"),
             url: "/services/text-chat-models",
           },
@@ -288,6 +292,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/discount-codes",
               "/services/categories",
               "/services/manage",
+              "/services/hierarchy",
               "/services/prompt-assistant",
               "/system-settings/sms-config",
               "/system-settings/vpn-detection",

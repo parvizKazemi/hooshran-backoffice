@@ -70,6 +70,7 @@
       "title": "Services",
       "categories": "Manage Categories",
       "manageServices": "Manage Services",
+      "hierarchy": "Service structure",
       "serviceHint": "Service Guide",
       "promptAssistant": "Prompt Assistant",
       "promptAssistantServices": "Prompt Assistant (Service)",
@@ -1271,6 +1272,52 @@
       "customSaved": "Service edits saved",
       "reindexSuccess": "Search index rebuilt ({{count}} services)",
       "reindexFailed": "Failed to rebuild search index"
+    },
+    "hierarchy": {
+      "title": "Service structure",
+      "description": "Pick a parent and drop children onto it. Nested levels work as a chain: each service has one parent.",
+      "hint": "Drag from the list onto a parent or node. On mobile, select items and use the bar at the bottom.",
+      "pickParent": "Search and select a parent…",
+      "searchParent": "Search by name or slug…",
+      "searchPool": "Search by name or slug…",
+      "poolTitle": "All services",
+      "poolCount": "{{count}} services",
+      "emptyTitle": "Select a parent",
+      "emptyHint": "Search above, or open an existing family.",
+      "familyMeta": "{{count}} children · {{depth}} levels",
+      "childCount": "{{count}} children",
+      "noChildren": "No children yet",
+      "dropHint": "Drag services from the side list onto “{{name}}”.",
+      "selectedRoot": "Selected parent",
+      "dropDetach": "Drop here to detach from parent",
+      "selectedCount": "{{count}} services selected",
+      "addToRoot": "Add to parent",
+      "addToNamedRoot": "Add to “{{name}}”",
+      "detach": "Detach from parent",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "focus": "Focus on this parent",
+      "mobileTabs": {
+        "structure": "Parent structure",
+        "pool": "All services"
+      },
+      "undo": "Undo",
+      "confirmTitle": "Confirm changes",
+      "confirmHint": "{{count}} services will get a new parent or be detached.",
+      "fromTo": "from {{from}} to {{to}}",
+      "noParent": "No parent",
+      "cycleBlocked": "A service cannot be nested under its own descendant.",
+      "movedToParent": "{{count}} services moved to parent",
+      "detached": "{{count}} services detached",
+      "filters": {
+        "all": "All",
+        "free": "No parent",
+        "child": "Has parent"
+      },
+      "toasts": {
+        "saved": "Service structure saved",
+        "saveFailed": "Failed to save service structure"
+      }
     }
   },
   "userCredits": {

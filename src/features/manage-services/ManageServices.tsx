@@ -14,18 +14,22 @@ import {
   IconAlertCircle,
   IconBuildingCarousel,
   IconDeviceFloppy,
+  IconFolders,
   IconLayersSubtract,
   IconLoader2,
   IconPlus,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ServiceDeleteDialog } from "./components/service-delete-dialog";
 import { ServiceFormDialog } from "./components/service-form-dialog";
 import { ServicesTable } from "./components/services-table";
 import { updateManageServiceCustomData } from "./api/service";
-import { MANAGE_SERVICES_QUERY_KEY } from "./constants";
+import {
+  MANAGE_SERVICES_QUERY_KEY,
+  resolveServiceTemplateName,
+} from "./constants";
 import {
   useManageServiceDetail,
   useManageServices,
@@ -136,7 +140,11 @@ function applyChildToParentMembership(
   nextParentUuid: string | null
 ): ManageService[] {
   return collection.map((item) => {
-    if (item.modelType !== "multi") return item;
+    const isTargetParent =
+      (previousParentUuid && item.uuid === previousParentUuid) ||
+      (nextParentUuid && item.uuid === nextParentUuid);
+
+    if (!isTargetParent) return item;
 
     let nextSubmodels = item.submodels;
     let changed = false;
@@ -185,6 +193,8 @@ function applyChildToParentMembership(
     return {
       ...item,
       submodels: nextSubmodels,
+      templateName: resolveServiceTemplateName(nextSubmodels.length),
+      modelType: nextSubmodels.length > 0 ? "multi" : item.modelType,
     };
   });
 }
@@ -335,6 +345,7 @@ export default function ManageServices() {
     const collect = (list: ManageService[]) => {
       for (const service of list) {
         if (service.modelType !== "multi") continue;
+        if (service.uuid === editingService?.uuid) continue;
         if (optionMap.has(service.uuid)) continue;
         optionMap.set(service.uuid, {
           uuid: service.uuid,
@@ -373,11 +384,17 @@ export default function ManageServices() {
     }
 
     return Array.from(optionMap.values());
-  }, [catalogForPickers, fullCatalog, items, editingService?.parentUuid]);
+  }, [
+    catalogForPickers,
+    fullCatalog,
+    items,
+    editingService?.parentUuid,
+    editingService?.uuid,
+  ]);
 
   const submodelPickerOptions = useMemo(() => {
     return catalogForPickers
-      .filter((service) => service.modelType !== "multi")
+      .filter((service) => service.uuid !== editingService?.uuid)
       .map((service) => ({
         uuid: service.uuid,
         name: service.name,
@@ -393,7 +410,7 @@ export default function ManageServices() {
         parentUuid: service.parentUuid,
         order: service.order,
       }));
-  }, [catalogForPickers]);
+  }, [catalogForPickers, editingService?.uuid]);
 
   const handleCategoryFilterChange = (value: string) => {
     setCategoryFilter(value);
@@ -539,6 +556,8 @@ export default function ManageServices() {
         ...editingService,
         ...values,
         parentUuid: values.parentUuid,
+        templateName: resolveServiceTemplateName(values.submodels.length),
+        modelType: values.submodels.length > 0 ? "multi" : values.modelType,
         categoryOrders: buildCategoryOrdersPayload(
           values.categoryUuids,
           editingService.categoryOrders,
@@ -546,8 +565,7 @@ export default function ManageServices() {
         ),
       };
 
-      const nextParentUuid =
-        next.modelType === "single" ? (next.parentUuid ?? null) : null;
+      const nextParentUuid = next.parentUuid ?? null;
       const parentMembershipChanged = previousParentUuid !== nextParentUuid;
       const parentChildDataChanged = hasParentChildDataChanges(
         editingService,
@@ -673,6 +691,8 @@ export default function ManageServices() {
           createLocalService({
             ...values,
             submodels: values.submodels,
+            templateName: resolveServiceTemplateName(values.submodels.length),
+            modelType: values.submodels.length > 0 ? "multi" : values.modelType,
           }),
         ].sort((a, b) => a.order - b.order)
       )
@@ -710,19 +730,27 @@ export default function ManageServices() {
             {t("manageServices.description")}
           </p>
         </div>
-        <Button
-          className="shrink-0"
-          variant="outline"
-          disabled={reindexSearch.isPending}
-          onClick={() => reindexSearch.mutate()}
-        >
-          {reindexSearch.isPending ? (
-            <IconLoader2 className="size-4 animate-spin" />
-          ) : (
-            <IconBuildingCarousel className="size-4" />
-          )}
-          {t("manageServices.actions.reindexSearch")}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" className="shrink-0">
+            <Link to="/services/hierarchy">
+              <IconFolders className="size-4" />
+              {t("nav.services.hierarchy")}
+            </Link>
+          </Button>
+          <Button
+            className="shrink-0"
+            variant="outline"
+            disabled={reindexSearch.isPending}
+            onClick={() => reindexSearch.mutate()}
+          >
+            {reindexSearch.isPending ? (
+              <IconLoader2 className="size-4 animate-spin" />
+            ) : (
+              <IconBuildingCarousel className="size-4" />
+            )}
+            {t("manageServices.actions.reindexSearch")}
+          </Button>
+        </div>
       </div>
 
       {isDirty ? (

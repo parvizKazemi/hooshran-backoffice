@@ -29,14 +29,6 @@ export const manageServicesBatchQueryKey = [
   "batch",
 ] as const;
 
-export function manageParentSubmodelsQueryKey(parentUuid: string) {
-  return [
-    ...MANAGE_SERVICES_QUERY_KEY,
-    "parent-submodels",
-    parentUuid,
-  ] as const;
-}
-
 /**
  * @param category - category slug/name/uuid for `GET /admin/api-services?category=`
  */

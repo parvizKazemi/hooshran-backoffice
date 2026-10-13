@@ -8,6 +8,21 @@ export const MANAGE_SERVICES_STALE_TIME = 5 * 60 * 1000;
 /** Backend / front convention for multi-model shell services. */
 export const PARENT_SERVICE_TEMPLATE_NAME = "ParentService";
 
+/** Default template name for single/child model services without children. */
+export const DEFAULT_SERVICE_TEMPLATE_NAME = "EnhanceImage";
+
+/**
+ * Automatically determine template name based on children count:
+ * children.length > 0 -> "ParentService", else -> "EnhanceImage"
+ */
+export function resolveServiceTemplateName(
+  childrenCount: number
+): typeof PARENT_SERVICE_TEMPLATE_NAME | typeof DEFAULT_SERVICE_TEMPLATE_NAME {
+  return childrenCount > 0
+    ? PARENT_SERVICE_TEMPLATE_NAME
+    : DEFAULT_SERVICE_TEMPLATE_NAME;
+}
+
 export const SERVICE_MODEL_TYPES = ["single", "multi"] as const;
 
 export const SERVICE_BADGE_VALUES = ["popular", "most_used", "newest"] as const;

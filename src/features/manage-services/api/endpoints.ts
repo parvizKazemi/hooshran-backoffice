@@ -36,4 +36,7 @@ export const MANAGE_SERVICES_ENDPOINTS = {
   updateData: "/admin/api-service/update-data",
   /** POST → rebuild Meilisearch index from all API services */
   reindexSearch: "/admin/api-services/reindex-search",
+  /** PATCH → update base API service fields (like templateName) on `api_services` table */
+  patchBaseService: (uuid: string) =>
+    `/api-services/${encodeURIComponent(uuid)}`,
 } as const;

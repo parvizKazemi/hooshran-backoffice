@@ -28,7 +28,6 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CategoryOption } from "@/features/categories/hooks/use-category-options";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   IconArrowDown,
   IconArrowUp,
@@ -59,9 +58,6 @@ import type {
   ServiceSubmodel,
 } from "../types";
 import { CREDIT_MODES, serviceFormSchema } from "../types";
-import { MANAGE_SERVICES_STALE_TIME } from "../constants";
-import { manageParentSubmodelsQueryKey } from "../hooks/use-manage-services";
-import { fetchParentSubmodelsFromAcceptHint } from "../api/service";
 import {
   buildMultiModelSlugFromSuffix,
   getCreditDisplay,
@@ -138,7 +134,6 @@ export function ServiceFormDialog({
   onEditSubmodelService,
 }: ServiceFormDialogProps) {
   const { t } = useTranslation("common");
-  const queryClient = useQueryClient();
   const isEditing = !!service;
   const [submodels, setSubmodels] = useState<ServiceSubmodel[]>([]);
 
@@ -191,7 +186,7 @@ export function ServiceFormDialog({
       modelType: service.modelType,
       name: service.name,
       description:
-        service.description?.trim() || service.introduction?.trim() || "",
+        service.introduction?.trim() || service.description?.trim() || "",
       slug: service.slug,
       categoryUuids: service.categoryUuids,
       imageUrl: service.imageUrl,
@@ -251,23 +246,6 @@ export function ServiceFormDialog({
         return;
       }
 
-      try {
-        const fromAcceptHint = await queryClient.fetchQuery({
-          queryKey: manageParentSubmodelsQueryKey(service.uuid),
-          staleTime: MANAGE_SERVICES_STALE_TIME,
-          queryFn: () =>
-            fetchParentSubmodelsFromAcceptHint(service.uuid, submodelOptions),
-        });
-        if (cancelled) return;
-
-        if (fromAcceptHint.length > 0) {
-          setSubmodels(normalizeSubmodelsOrder(fromAcceptHint));
-          return;
-        }
-      } catch {
-        // continue to catalog fallback
-      }
-
       if (cancelled) return;
       setSubmodels(
         normalizeSubmodelsOrder(
@@ -280,13 +258,10 @@ export function ServiceFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, defaultValues, form, service, submodelOptions, queryClient]);
+  }, [open, defaultValues, form, service, submodelOptions]);
 
   useEffect(() => {
     if (modelType !== "multi") return;
-
-    form.setValue("isChildOfMulti", false);
-    form.setValue("parentUuid", null);
 
     const current = form.getValues("slug");
     if (!current.startsWith(MULTI_MODEL_SLUG_PREFIX)) {
@@ -399,10 +374,7 @@ export function ServiceFormDialog({
       searchable: values.searchable,
       display: values.display,
       order: values.order,
-      parentUuid:
-        values.modelType === "single" && values.isChildOfMulti
-          ? values.parentUuid
-          : null,
+      parentUuid: values.isChildOfMulti ? values.parentUuid : null,
       submodels: values.modelType === "multi" ? submodels : [],
     });
     onOpenChange(false);
@@ -825,8 +797,7 @@ export function ServiceFormDialog({
                   />
                 </Field>
 
-                {modelType === "single" ? (
-                  <Field className="gap-2">
+                <Field className="gap-2">
                     <label className="flex items-center gap-2 text-xs font-bold">
                       <Checkbox
                         checked={isChildOfMulti}
@@ -871,7 +842,6 @@ export function ServiceFormDialog({
                       </div>
                     ) : null}
                   </Field>
-                ) : null}
               </FieldGroup>
             </div>
 

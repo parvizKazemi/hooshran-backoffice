@@ -1,4 +1,7 @@
-import { PARENT_SERVICE_TEMPLATE_NAME } from "../constants";
+import {
+  PARENT_SERVICE_TEMPLATE_NAME,
+  resolveServiceTemplateName,
+} from "../constants";
 import type {
   ManageService,
   ServiceBadge,
@@ -92,19 +95,19 @@ function resolveEndpoint(raw: Record<string, unknown>): string {
 }
 
 function resolveDescription(raw: Record<string, unknown>): string {
-  const direct = asString(raw.description).trim();
-  if (direct) return direct;
-  const introduction = asString(raw.introduction).trim();
-  if (introduction) return introduction;
   const information = asRecord(raw.information);
-  const infoDesc = asString(information?.description).trim();
-  if (infoDesc) return infoDesc;
   const infoIntro = asString(information?.introduction).trim();
   if (infoIntro) return infoIntro;
+  const directIntro = asString(raw.introduction).trim();
+  if (directIntro) return directIntro;
+  const direct = asString(raw.description).trim();
+  if (direct) return direct;
+  const infoDesc = asString(information?.description).trim();
+  if (infoDesc) return infoDesc;
   const metadata = asRecord(raw.metadata);
   const ui = asRecord(metadata?.ui);
   return (
-    asString(ui?.description).trim() || asString(ui?.introduction).trim() || ""
+    asString(ui?.introduction).trim() || asString(ui?.description).trim() || ""
   );
 }
 
@@ -281,7 +284,14 @@ function resolveChildrensSubmodels(
 ): ServiceSubmodel[] {
   const information = asRecord(raw.information);
   const ui = asRecord(asRecord(raw.metadata)?.ui);
-  const candidates = [information?.childrens, ui?.childrens, raw.childrens];
+  const candidates = [
+    raw.children,
+    information?.children,
+    information?.childrens,
+    raw.childrens,
+    ui?.children,
+    ui?.childrens,
+  ];
 
   for (const value of candidates) {
     if (!Array.isArray(value) || value.length === 0) continue;
@@ -362,6 +372,8 @@ export function mapAdminApiServiceToManageService(
   const categoryUuids =
     resolvedUuids.length > 0 ? resolvedUuids : (fallback?.categoryUuids ?? []);
 
+  const templateName = resolveServiceTemplateName(submodels.length);
+
   return {
     uuid,
     name,
@@ -369,7 +381,7 @@ export function mapAdminApiServiceToManageService(
     introduction: introduction || undefined,
     slug,
     endpoint: resolveEndpoint(raw) || fallback?.endpoint,
-    modelType,
+    modelType: submodels.length > 0 ? "multi" : modelType,
     badge: normalizeBadge(raw.badge) ?? fallback?.badge ?? null,
     imageUrl: resolveImageUrl(raw) || fallback?.imageUrl || "",
     order: resolveOrder(raw) || fallback?.order || 1,
@@ -393,6 +405,7 @@ export function mapAdminApiServiceToManageService(
       resolveMinRequiredCredit(raw) || fallback?.minRequiredCredit || "",
     submodels,
     cost: resolveCost(raw) ?? fallback?.cost,
+    templateName,
     isLocal: false,
   };
 }
