@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/services/api";
+import { enrichServicesWithSlugs } from "@/utils/service-selector.helpers";
 import {
   PLATFORM_SERVICES_QUERY_LIMIT,
   PROMPT_ASSISTANT_PAGE_TAKE,
@@ -185,7 +186,7 @@ export async function fetchPlatformServices(): Promise<
 
   const list = Array.isArray(response) ? response : (response.services ?? []);
 
-  return list
+  const baseServices = list
     .filter((service) => Boolean(service?.uuid && service?.name))
     .map((service) => ({
       uuid: String(service.uuid),
@@ -193,6 +194,8 @@ export async function fetchPlatformServices(): Promise<
       slug: String(service.slug ?? ""),
       isActive: service.isActive !== false,
     }));
+
+  return enrichServicesWithSlugs(baseServices);
 }
 
 export type { PageResult };

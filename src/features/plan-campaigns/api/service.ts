@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/services/api";
+import { enrichServicesWithSlugs } from "@/utils/service-selector.helpers";
 import { PLATFORM_SERVICES_LIMIT } from "../constants";
 import { PLAN_CAMPAIGN_ENDPOINTS } from "./endpoints";
 import type {
@@ -80,15 +81,17 @@ export async function fetchCampaignPlatformServices(): Promise<{
     ? servicesResponse
     : (servicesResponse?.services ?? []);
 
-  const services = rawList
+  const baseServices = rawList
     .filter((service) => Boolean(service?.uuid && service?.name))
     .map((service) => ({
       uuid: service.uuid,
       name: service.name,
       slug: service.slug ?? "",
       isActive: service.isActive ?? true,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name, "fa"));
+    }));
+
+  const services = await enrichServicesWithSlugs(baseServices);
+  services.sort((a, b) => a.name.localeCompare(b.name, "fa"));
 
   return { services };
 }

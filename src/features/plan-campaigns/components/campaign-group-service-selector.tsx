@@ -46,6 +46,15 @@ export function CampaignGroupServiceSelector({
     });
   }, [selectedUuids, services, labelByUuid]);
 
+  const availableServices = useMemo(() => {
+    const existingUuids = new Set(services.map((s) => s.uuid));
+    const missingSelected = selectedServices.filter(
+      (service) => !existingUuids.has(service.uuid)
+    );
+    if (missingSelected.length === 0) return services;
+    return [...missingSelected, ...services];
+  }, [services, selectedServices]);
+
   const toggleService = (uuid: string, checked: boolean) => {
     if (checked) {
       if (!selectedUuids.includes(uuid)) {
@@ -77,7 +86,7 @@ export function CampaignGroupServiceSelector({
                 type="button"
                 variant="secondary"
                 size="sm"
-                disabled={disabled || services.length === 0}
+                disabled={disabled || availableServices.length === 0}
                 className="h-8 rounded-xl text-xs font-bold"
               >
                 <IconPlus className="size-3.5" />
@@ -96,7 +105,7 @@ export function CampaignGroupServiceSelector({
                 open={open}
                 searchResetSignal={searchResetSignal}
                 title={t("welcomePackages.services.selectAllowed")}
-                services={services}
+                services={availableServices}
                 selectedUuids={selectedUuids}
                 emptyMessage={t("welcomePackages.services.noSearchResults")}
               >

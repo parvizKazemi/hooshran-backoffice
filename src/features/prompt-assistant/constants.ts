@@ -35,4 +35,4 @@ export const PROMPT_CATEGORY_ICONS = [
   "wand",
 ] as const;
 
-export const PLATFORM_SERVICES_QUERY_LIMIT = 300;
+export const PLATFORM_SERVICES_QUERY_LIMIT = 1000;

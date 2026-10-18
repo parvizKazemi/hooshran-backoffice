@@ -8,11 +8,12 @@ import {
 import { cn } from "@/lib/utils";
 import { IconCheck, IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { filterServicesByQuery } from "@/utils/service-selector.helpers";
 
 export type ServicePickerItem = {
   uuid: string;
   name: string;
-  slug: string;
+  slug?: string;
 };
 
 type ServicePickerProps = {
@@ -31,19 +32,6 @@ type ServicePickerProps = {
     isOpen: boolean;
     disabled: boolean;
   }) => ReactNode;
-};
-
-const filterServices = (services: ServicePickerItem[], query: string) => {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) {
-    return services;
-  }
-
-  return services.filter(
-    (service) =>
-      (service.name ?? "").toLowerCase().includes(normalized) ||
-      (service.slug ?? "").toLowerCase().includes(normalized)
-  );
 };
 
 export function ServicePicker({
@@ -70,7 +58,7 @@ export function ServicePicker({
   );
 
   const filteredServices = useMemo(
-    () => filterServices(services, searchQuery),
+    () => filterServicesByQuery(services, searchQuery),
     [services, searchQuery]
   );
 

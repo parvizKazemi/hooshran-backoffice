@@ -1,7 +1,8 @@
 export const PLAN_CAMPAIGNS_QUERY_KEY = "plan-campaigns";
-export const CAMPAIGN_PLATFORM_SERVICES_QUERY_KEY = "campaign-platform-services";
+export const CAMPAIGN_PLATFORM_SERVICES_QUERY_KEY =
+  "campaign-platform-services";
 
-export const PLATFORM_SERVICES_LIMIT = 300;
+export const PLATFORM_SERVICES_LIMIT = 1000;
 export const CAMPAIGNS_STALE_TIME_MS = 60_000;
 
 export const CAMPAIGN_TIER_KEYS = [

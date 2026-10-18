@@ -1,4 +1,5 @@
 import { ApiError, apiGet, apiPut } from "@/services/api";
+import { enrichServicesWithSlugs } from "@/utils/service-selector.helpers";
 import { PLATFORM_SERVICES_LIMIT } from "../constants";
 import type { PlatformService, ServiceHintConfig } from "../types";
 import { SERVICE_HINT_ENDPOINTS } from "./endpoints";
@@ -55,7 +56,7 @@ export async function getPlatformServices(): Promise<PlatformService[]> {
 
   const list = Array.isArray(response) ? response : (response.services ?? []);
 
-  return list
+  const baseServices = list
     .filter((service) => Boolean(service?.uuid && service?.name))
     .map((service) => ({
       uuid: service.uuid,
@@ -76,6 +77,8 @@ export async function getPlatformServices(): Promise<PlatformService[]> {
         service.media?.url ||
         "",
     }));
+
+  return enrichServicesWithSlugs(baseServices);
 }
 
 export async function getServiceHintConfig(

@@ -49,6 +49,18 @@ export function CampaignSingleServiceSelector({
     setOpen(false);
   };
 
+  const availableServices = useMemo(() => {
+    if (!selectedUuid) return services;
+    if (services.some((s) => s.uuid === selectedUuid)) return services;
+    const fallbackService: CampaignPlatformService = {
+      uuid: selectedUuid,
+      name: labelByUuid[selectedUuid] || selectedUuid,
+      slug: "",
+      isActive: true,
+    };
+    return [fallbackService, ...services];
+  }, [services, selectedUuid, labelByUuid]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -72,7 +84,7 @@ export function CampaignSingleServiceSelector({
         <ServiceSelectorPanel
           open={open}
           title={t("planCampaigns.form.selectDedicatedService")}
-          services={services}
+          services={availableServices}
           selectedUuids={selectedUuid ? [selectedUuid] : []}
           emptyMessage={t("welcomePackages.services.noSearchResults")}
         >
