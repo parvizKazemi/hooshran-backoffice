@@ -15,7 +15,10 @@ export type HierarchyChange = {
   to: string | null;
 };
 
-const collator = new Intl.Collator("fa", { numeric: true, sensitivity: "base" });
+const collator = new Intl.Collator("fa", {
+  numeric: true,
+  sensitivity: "base",
+});
 
 export function normalizeSearch(value: string): string {
   return value
@@ -152,9 +155,9 @@ export function moveHierarchyItems(
     if (previous === targetParentUuid) continue;
 
     if (previous) {
-      next.childrenByUuid[previous] = (next.childrenByUuid[previous] ?? []).filter(
-        (childUuid) => childUuid !== id
-      );
+      next.childrenByUuid[previous] = (
+        next.childrenByUuid[previous] ?? []
+      ).filter((childUuid) => childUuid !== id);
     }
 
     next.parentByUuid[id] = targetParentUuid;
@@ -242,8 +245,75 @@ export function reorderHierarchyChildren(
   return next;
 }
 
+export function reorderHierarchyChildrenToPosition(
+  snapshot: HierarchySnapshot,
+  parentUuid: string,
+  sourceUuid: string,
+  targetUuid: string,
+  position: "before" | "after"
+): HierarchySnapshot {
+  if (sourceUuid === targetUuid) return snapshot;
+
+  const next = cloneSnapshot(snapshot);
+  const current = [...(next.childrenByUuid[parentUuid] ?? [])];
+  const sourceIndex = current.indexOf(sourceUuid);
+  const targetIndex = current.indexOf(targetUuid);
+
+  if (sourceIndex < 0 || targetIndex < 0) return snapshot;
+
+  current.splice(sourceIndex, 1);
+
+  const newTargetIndex = current.indexOf(targetUuid);
+  if (newTargetIndex < 0) return snapshot;
+
+  const insertIndex =
+    position === "before" ? newTargetIndex : newTargetIndex + 1;
+  current.splice(insertIndex, 0, sourceUuid);
+
+  next.childrenByUuid[parentUuid] = current;
+  return next;
+}
+
+export function moveAndPositionHierarchyItem(
+  snapshot: HierarchySnapshot,
+  parentUuid: string,
+  sourceUuid: string,
+  targetUuid: string,
+  position: "before" | "after"
+): HierarchySnapshot {
+  if (sourceUuid === targetUuid) return snapshot;
+
+  const currentChildren = snapshot.childrenByUuid[parentUuid] ?? [];
+  if (currentChildren.includes(sourceUuid)) {
+    return reorderHierarchyChildrenToPosition(
+      snapshot,
+      parentUuid,
+      sourceUuid,
+      targetUuid,
+      position
+    );
+  }
+
+  const { next, moved } = moveHierarchyItems(
+    snapshot,
+    [sourceUuid],
+    parentUuid
+  );
+  if (!moved.includes(sourceUuid)) return snapshot;
+
+  return reorderHierarchyChildrenToPosition(
+    next,
+    parentUuid,
+    sourceUuid,
+    targetUuid,
+    position
+  );
+}
+
 export function sortServicesByName(items: ManageService[]): ManageService[] {
-  return [...items].sort((left, right) => collator.compare(left.name, right.name));
+  return [...items].sort((left, right) =>
+    collator.compare(left.name, right.name)
+  );
 }
 
 export function snapshotsEqual(
@@ -252,7 +322,8 @@ export function snapshotsEqual(
 ): boolean {
   const leftParents = Object.entries(left.parentByUuid).sort();
   const rightParents = Object.entries(right.parentByUuid).sort();
-  if (JSON.stringify(leftParents) !== JSON.stringify(rightParents)) return false;
+  if (JSON.stringify(leftParents) !== JSON.stringify(rightParents))
+    return false;
 
   const keys = new Set([
     ...Object.keys(left.childrenByUuid),

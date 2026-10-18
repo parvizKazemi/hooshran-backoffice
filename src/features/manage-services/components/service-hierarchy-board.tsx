@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -49,9 +50,11 @@ import {
   createHierarchySnapshot,
   isInSubtree,
   listHierarchyChanges,
+  moveAndPositionHierarchyItem,
   moveHierarchyItems,
   normalizeSearch,
   reorderHierarchyChildren,
+  reorderHierarchyChildrenToPosition,
   snapshotsEqual,
   sortServicesByName,
   type HierarchySnapshot,
@@ -134,6 +137,7 @@ export function ServiceHierarchyBoard({
   const [dropTarget, setDropTarget] = useState<{
     id: string | "pool";
     ok: boolean;
+    position?: "before" | "after" | "inside";
   } | null>(null);
   const dragIdsRef = useRef<string[]>([]);
   const isDraggingRef = useRef(false);
@@ -363,27 +367,116 @@ export function ServiceHierarchyBoard({
       .filter(Boolean);
   };
 
-  const handleDrop = (targetId: string | "pool", event?: DragEvent) => {
+  const handleDrop = (
+    targetId: string | "pool",
+    event?: DragEvent,
+    position?: "before" | "after" | "inside"
+  ) => {
     event?.preventDefault();
     event?.stopPropagation();
     const ids = readDragIds(event);
     setDropTarget(null);
     dragIdsRef.current = [];
     isDraggingRef.current = false;
+
+    if (ids.length === 0) return;
+    if (ids.includes(targetId)) return;
+
+    if (targetId === "pool") {
+      if (!canDropOn("pool", ids)) return;
+      applyMove(ids, null);
+      return;
+    }
+
+    const targetParent = snapshot.parentByUuid[targetId] ?? null;
+
+    if (
+      position &&
+      (position === "before" || position === "after") &&
+      targetParent
+    ) {
+      const areAllSiblings = ids.every(
+        (id) => snapshot.parentByUuid[id] === targetParent
+      );
+
+      if (areAllSiblings) {
+        let nextSnapshot = snapshot;
+        for (const id of ids) {
+          nextSnapshot = reorderHierarchyChildrenToPosition(
+            nextSnapshot,
+            targetParent,
+            id,
+            targetId,
+            position
+          );
+        }
+        if (nextSnapshot !== snapshot) {
+          setUndoStack((prev) => [...prev.slice(-40), cloneSnapshot(snapshot)]);
+          setSnapshot(nextSnapshot);
+          toast.success(
+            t("manageServices.hierarchy.reordered", {
+              defaultValue: "ترتیب زیرمجموعه‌ها تغییر کرد",
+            })
+          );
+        }
+        return;
+      }
+
+      // If moving from outside into targetParent at this relative position
+      let nextSnapshot = snapshot;
+      let anyMoved = false;
+      for (const id of ids) {
+        if (
+          id === targetParent ||
+          isInSubtree(targetParent, id, nextSnapshot.parentByUuid)
+        ) {
+          continue;
+        }
+        const updated = moveAndPositionHierarchyItem(
+          nextSnapshot,
+          targetParent,
+          id,
+          targetId,
+          position
+        );
+        if (updated !== nextSnapshot) {
+          nextSnapshot = updated;
+          anyMoved = true;
+        }
+      }
+      if (anyMoved) {
+        setUndoStack((prev) => [...prev.slice(-40), cloneSnapshot(snapshot)]);
+        setSnapshot(nextSnapshot);
+        setSelected((prev) => {
+          const copy = new Set(prev);
+          ids.forEach((id) => copy.delete(id));
+          return copy;
+        });
+        toast.success(
+          t("manageServices.hierarchy.movedToParent", { count: ids.length })
+        );
+      }
+      return;
+    }
+
     if (!canDropOn(targetId, ids)) return;
-    applyMove(ids, targetId === "pool" ? null : targetId);
+    applyMove(ids, targetId);
   };
 
   const handleDragOverTarget = (
     targetId: string | "pool",
-    event: DragEvent
+    event: DragEvent,
+    position?: "before" | "after" | "inside"
   ) => {
     const ids = readDragIds(event);
-    const ok = canDropOn(targetId, ids);
+    if (targetId !== "pool" && ids.includes(targetId)) return;
+    const ok =
+      canDropOn(targetId, ids) ||
+      (position !== undefined && targetId !== "pool");
     if (!ok) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
-    setDropTarget({ id: targetId, ok: true });
+    setDropTarget({ id: targetId, ok: true, position });
   };
 
   const handleSaveConfirm = async () => {
@@ -562,6 +655,7 @@ export function ServiceHierarchyBoard({
                   ? byUuid.get(snapshot.parentByUuid[item.uuid] ?? "")?.name
                   : null;
                 const childCount = childrenOf(item.uuid, snapshot).length;
+                const isParent = childCount > 0;
                 const checked = selected.has(item.uuid);
                 const canPromote =
                   !isRoot &&
@@ -579,22 +673,32 @@ export function ServiceHierarchyBoard({
                       toggleSelect(item.uuid);
                     }}
                     className={cn(
-                      "flex h-14 items-center gap-3 rounded-lg px-3",
+                      "flex h-14 items-center gap-3 rounded-lg px-3 transition-colors",
                       isRoot ? "opacity-60" : "cursor-grab",
-                      checked ? "bg-primary/10" : "hover:bg-muted/60"
+                      checked ? "bg-primary/10" : "hover:bg-muted/60",
+                      isParent &&
+                        "border-s-2 border-s-amber-500/70 dark:border-s-amber-400/70"
                     )}
                   >
                     {isRoot ? (
-                      <span className="w-4" />
+                      <span className="w-4 shrink-0" />
                     ) : (
                       <Checkbox
                         checked={checked}
-                        className="pointer-events-none"
+                        className="pointer-events-none shrink-0"
                       />
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {item.name}
+                      <div className="flex items-center gap-1.5 truncate text-sm font-medium">
+                        <span className="truncate">{item.name}</span>
+                        {isParent ? (
+                          <span
+                            className="size-1.5 shrink-0 rounded-full bg-amber-500 shadow-xs dark:bg-amber-400"
+                            title={t("manageServices.hierarchy.parentBadge", {
+                              defaultValue: "والد",
+                            })}
+                          />
+                        ) : null}
                       </div>
                       <div
                         className="text-muted-foreground truncate text-xs"
@@ -604,18 +708,29 @@ export function ServiceHierarchyBoard({
                       </div>
                     </div>
                     {isRoot ? (
-                      <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px]">
+                      <span className="bg-primary/10 text-primary shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium">
                         {t("manageServices.hierarchy.selectedRoot")}
                       </span>
                     ) : null}
-                    {parentName ? (
-                      <span className="bg-muted text-muted-foreground max-w-28 truncate rounded-full px-2 py-0.5 text-[11px]">
-                        {parentName}
-                      </span>
+                    {isParent ? (
+                      <Badge
+                        variant="outline"
+                        className="shrink-0 gap-1 border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-800 shadow-xs dark:border-amber-400/30 dark:bg-amber-400/15 dark:text-amber-300"
+                      >
+                        <IconFolder className="size-3 shrink-0" />
+                        <span>
+                          {t("manageServices.hierarchy.parentBadge", {
+                            defaultValue: "والد",
+                          })}
+                        </span>
+                        <span className="font-normal opacity-75">
+                          ({childCount})
+                        </span>
+                      </Badge>
                     ) : null}
-                    {childCount > 0 ? (
-                      <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]">
-                        {childCount}
+                    {parentName ? (
+                      <span className="bg-muted text-muted-foreground max-w-28 shrink-0 truncate rounded-full px-2 py-0.5 text-[11px]">
+                        {parentName}
                       </span>
                     ) : null}
                     {canPromote ? (
@@ -715,16 +830,20 @@ export function ServiceHierarchyBoard({
                   ) : (
                     pickerItems.map((item) => {
                       const stats = countDescendants(item.uuid, snapshot);
+                      const isParent = stats.count > 0;
                       return (
                         <button
                           key={item.uuid}
                           type="button"
-                          className="hover:bg-muted/60 flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-start"
+                          className="hover:bg-muted/60 flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-start"
                           onClick={() => handleSetRoot(item.uuid)}
                         >
-                          <span className="min-w-0">
-                            <span className="block truncate font-medium">
-                              {item.name}
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center gap-1.5 truncate font-medium">
+                              <span className="truncate">{item.name}</span>
+                              {isParent ? (
+                                <span className="size-1.5 shrink-0 rounded-full bg-amber-500 shadow-xs dark:bg-amber-400" />
+                              ) : null}
                             </span>
                             <span
                               className="text-muted-foreground block truncate text-xs"
@@ -733,12 +852,18 @@ export function ServiceHierarchyBoard({
                               {item.slug}
                             </span>
                           </span>
-                          {stats.count > 0 ? (
-                            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-                              {t("manageServices.hierarchy.childCount", {
-                                count: stats.count,
-                              })}
-                            </span>
+                          {isParent ? (
+                            <Badge
+                              variant="outline"
+                              className="shrink-0 gap-1 border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/15 dark:text-amber-300"
+                            >
+                              <IconFolder className="size-3 shrink-0" />
+                              <span>
+                                {t("manageServices.hierarchy.childCount", {
+                                  count: stats.count,
+                                })}
+                              </span>
+                            </Badge>
                           ) : null}
                         </button>
                       );
@@ -910,11 +1035,14 @@ export function ServiceHierarchyBoard({
                         onDragStart={startDrag}
                         onDragEnd={handleDragEnd}
                         canDropOn={canDropOn}
-                        onDragOver={(uuid, ok) =>
-                          setDropTarget({ id: uuid, ok })
+                        dragIdsRef={dragIdsRef}
+                        onDragOver={(uuid, ok, position) =>
+                          setDropTarget({ id: uuid, ok, position })
                         }
                         onDragLeave={handleDragLeave}
-                        onDrop={(uuid, event) => handleDrop(uuid, event)}
+                        onDrop={(uuid, event, position) =>
+                          handleDrop(uuid, event, position)
+                        }
                         isDraggingRef={isDraggingRef}
                       />
                     ))}
@@ -1150,9 +1278,15 @@ function ParentOverviewCard({
         </button>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-medium">
-            {t("manageServices.hierarchy.childCount", { count: stats.count })}
-          </span>
+          <Badge
+            variant="outline"
+            className="shrink-0 gap-1 border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/15 dark:text-amber-300"
+          >
+            <IconFolder className="size-3 shrink-0" />
+            <span>
+              {t("manageServices.hierarchy.childCount", { count: stats.count })}
+            </span>
+          </Badge>
           {directChildren.length > 0 ? (
             <button
               type="button"
@@ -1218,6 +1352,7 @@ function HierarchyNode({
   openNodes,
   selected,
   dropTarget,
+  dragIdsRef,
   isDraggingRef,
   onToggleOpen,
   onSelect,
@@ -1236,7 +1371,12 @@ function HierarchyNode({
   byUuid: Map<string, ManageService>;
   openNodes: Set<string>;
   selected: Set<string>;
-  dropTarget: { id: string | "pool"; ok: boolean } | null;
+  dropTarget: {
+    id: string | "pool";
+    ok: boolean;
+    position?: "before" | "after" | "inside";
+  } | null;
+  dragIdsRef: React.MutableRefObject<string[]>;
   isDraggingRef: React.MutableRefObject<boolean>;
   onToggleOpen: (uuid: string) => void;
   onSelect: (uuid: string) => void;
@@ -1250,9 +1390,17 @@ function HierarchyNode({
   onDragStart: (event: DragEvent, uuid: string) => void;
   onDragEnd: () => void;
   canDropOn: (targetId: string | "pool") => boolean;
-  onDragOver: (uuid: string, ok: boolean) => void;
+  onDragOver: (
+    uuid: string,
+    ok: boolean,
+    position?: "before" | "after" | "inside"
+  ) => void;
   onDragLeave: (uuid: string) => void;
-  onDrop: (uuid: string, event: DragEvent) => void;
+  onDrop: (
+    uuid: string,
+    event: DragEvent,
+    position?: "before" | "after" | "inside"
+  ) => void;
 }) {
   const { t } = useTranslation("common");
   const service = byUuid.get(uuid);
@@ -1268,21 +1416,50 @@ function HierarchyNode({
   const canMoveUp = siblingIndex > 0;
   const canMoveDown = siblingIndex >= 0 && siblingIndex < siblings.length - 1;
 
+  const isDropTarget = dropTarget?.id === uuid && dropTarget.ok;
+  const isDropBefore = isDropTarget && dropTarget.position === "before";
+  const isDropAfter = isDropTarget && dropTarget.position === "after";
+  const isDropInside =
+    isDropTarget && (!dropTarget.position || dropTarget.position === "inside");
+
   return (
-    <div>
+    <div className="relative">
+      {/* Drop Before Indicator Line */}
+      {isDropBefore ? (
+        <div className="pointer-events-none absolute inset-x-0 -top-1 z-30 flex items-center">
+          <div className="bg-primary ring-background -ms-1 size-2 rounded-full shadow-xs ring-2" />
+          <div className="bg-primary h-0.5 flex-1 rounded-full shadow-xs" />
+        </div>
+      ) : null}
+
       <div
         draggable
         data-drop-id={uuid}
         onDragStart={(event) => onDragStart(event, uuid)}
         onDragEnd={onDragEnd}
         onDragOver={(event) => {
-          const ok = canDropOn(uuid);
-          if (ok) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.dataTransfer.dropEffect = "move";
+          if (dragIdsRef.current.includes(uuid)) return;
+          const rect = event.currentTarget.getBoundingClientRect();
+          const offset = event.clientY - rect.top;
+          const height = rect.height;
+
+          const canNestInside = canDropOn(uuid);
+          let position: "before" | "after" | "inside";
+
+          if (offset < height * 0.28) {
+            position = "before";
+          } else if (offset > height * 0.72) {
+            position = "after";
+          } else if (canNestInside) {
+            position = "inside";
+          } else {
+            position = offset < height / 2 ? "before" : "after";
           }
-          onDragOver(uuid, ok);
+
+          event.preventDefault();
+          event.stopPropagation();
+          event.dataTransfer.dropEffect = "move";
+          onDragOver(uuid, true, position);
         }}
         onDragLeave={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node)) {
@@ -1292,22 +1469,59 @@ function HierarchyNode({
         onDrop={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          onDrop(uuid, event);
+          const rect = event.currentTarget.getBoundingClientRect();
+          const offset = event.clientY - rect.top;
+          const height = rect.height;
+
+          const canNestInside = canDropOn(uuid);
+          let position: "before" | "after" | "inside";
+
+          if (offset < height * 0.28) {
+            position = "before";
+          } else if (offset > height * 0.72) {
+            position = "after";
+          } else if (canNestInside) {
+            position = "inside";
+          } else {
+            position = offset < height / 2 ? "before" : "after";
+          }
+
+          onDrop(uuid, event, position);
         }}
         onClick={() => {
           if (isDraggingRef.current) return;
           onSelect(uuid);
         }}
         className={cn(
-          "group flex h-11 cursor-grab items-center gap-2 rounded-lg px-1.5 transition-colors",
+          "group relative flex h-11 cursor-grab items-center gap-1.5 rounded-lg px-2 transition-colors select-none",
           selected.has(uuid) ? "bg-primary/10" : "hover:bg-muted/60",
-          dropTarget?.id === uuid && dropTarget.ok && "ring-primary ring-2"
+          isDropInside && "ring-primary bg-primary/10 ring-2"
         )}
       >
+        {isDropInside ? (
+          <span className="bg-primary text-primary-foreground pointer-events-none absolute end-2 z-20 flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium shadow-sm">
+            <IconFolderPlus className="size-3.5" />
+            <span>
+              {t("manageServices.hierarchy.dropToNest", {
+                defaultValue: "افزودن به عنوان زیرمجموعه",
+              })}
+            </span>
+          </span>
+        ) : null}
+        {/* Drag grip handle */}
+        <span
+          className="text-muted-foreground/40 group-hover:text-muted-foreground shrink-0 cursor-grab active:cursor-grabbing"
+          title={t("manageServices.hierarchy.dragToSort", {
+            defaultValue: "بکشید برای مرتب‌سازی",
+          })}
+        >
+          <IconGripVertical className="size-4" />
+        </span>
+
         {kids.length > 0 ? (
           <button
             type="button"
-            className="hover:bg-muted grid size-6 cursor-pointer place-items-center rounded"
+            className="hover:bg-muted grid size-6 shrink-0 cursor-pointer place-items-center rounded"
             onClick={(event) => {
               event.stopPropagation();
               onToggleOpen(uuid);
@@ -1318,19 +1532,21 @@ function HierarchyNode({
             />
           </button>
         ) : (
-          <span className="w-6" />
+          <span className="w-6 shrink-0" />
         )}
         <Checkbox
           checked={selected.has(uuid)}
-          className="pointer-events-none"
+          className="pointer-events-none shrink-0"
         />
-        <span className="min-w-0 flex-1 truncate text-sm">{service.name}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">
+          {service.name}
+        </span>
         {kids.length > 0 ? (
-          <span className="bg-muted text-muted-foreground rounded-full px-2 text-[11px]">
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
             {countDescendants(uuid, snapshot).count}
           </span>
         ) : null}
-        <span className="ms-auto flex items-center gap-0.5 opacity-90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+        <span className="ms-auto flex shrink-0 items-center gap-0.5 opacity-90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
           {canMoveUp && parentUuid ? (
             <button
               type="button"
@@ -1381,6 +1597,15 @@ function HierarchyNode({
           </button>
         </span>
       </div>
+
+      {/* Drop After Indicator Line */}
+      {isDropAfter ? (
+        <div className="pointer-events-none absolute inset-x-0 -bottom-1 z-30 flex items-center">
+          <div className="bg-primary ring-background -ms-1 size-2 rounded-full shadow-xs ring-2" />
+          <div className="bg-primary h-0.5 flex-1 rounded-full shadow-xs" />
+        </div>
+      ) : null}
+
       {open && kids.length > 0 ? (
         <div className="border-border ms-[18px] space-y-0.5 border-s ps-3">
           {kids.map((childUuid) => (
@@ -1392,6 +1617,7 @@ function HierarchyNode({
               openNodes={openNodes}
               selected={selected}
               dropTarget={dropTarget}
+              dragIdsRef={dragIdsRef}
               isDraggingRef={isDraggingRef}
               onToggleOpen={onToggleOpen}
               onSelect={onSelect}

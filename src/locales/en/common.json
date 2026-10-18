@@ -1331,7 +1331,11 @@
       "noParentsHint": "Select any service from the list, then drag others onto it to create a parent.",
       "addParentDirectly": "Add New Parent",
       "selectParentServiceHint": "Select a service to open as parent and attach child services to it.",
-      "selectAsParent": "Select as Parent"
+      "selectAsParent": "Select as Parent",
+      "parentBadge": "Parent",
+      "reordered": "Sub-services reordered successfully",
+      "dragToSort": "Drag to reorder",
+      "dropToNest": "Add as sub-service"
     }
   },
   "userCredits": {
