@@ -92,6 +92,8 @@ export type AffiliateProgramRules = {
   renewalSunsetDays: number;
   holdDays: number;
   minPayoutAmount: number;
+  expirationHours: number;
+  rewardCredit: number;
 };
 
 export type AffiliateAdminDashboard = {

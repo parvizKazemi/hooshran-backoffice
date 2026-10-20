@@ -318,6 +318,9 @@ export async function saveAffiliateProgramRules(
     cookieDurationDays: rules.renewalSunsetDays,
     holdPeriodDays: rules.holdDays,
     minPayoutAmount: rules.minPayoutAmount,
+    expirationHours: rules.expirationHours,
+    expirationTime: rules.expirationHours,
+    rewardCredit: rules.rewardCredit,
   });
 
   return fetchAffiliateAdminDashboard();

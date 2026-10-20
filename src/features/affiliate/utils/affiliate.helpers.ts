@@ -98,6 +98,16 @@ export function normalizeAffiliateProgramRules(
       PROGRAM_RULE_ALIASES.minPayoutAmount,
       defaults.minPayoutAmount
     ),
+    expirationHours: readNumber(
+      nested,
+      PROGRAM_RULE_ALIASES.expirationHours,
+      defaults.expirationHours
+    ),
+    rewardCredit: readNumber(
+      nested,
+      PROGRAM_RULE_ALIASES.rewardCredit,
+      defaults.rewardCredit
+    ),
   };
 }
 

@@ -78,6 +78,24 @@ const RULE_FIELDS: RuleField[] = [
     min: 1,
     max: 100,
   },
+  {
+    key: "expirationHours",
+    labelKey: "affiliate.rules.expirationHours",
+    hintKey: "affiliate.rules.expirationHoursHint",
+    toneClass: "text-amber-600 dark:text-amber-400",
+    min: 1,
+    max: 720,
+    step: 1,
+  },
+  {
+    key: "rewardCredit",
+    labelKey: "affiliate.rules.rewardCredit",
+    hintKey: "affiliate.rules.rewardCreditHint",
+    toneClass: "text-emerald-600 dark:text-emerald-400",
+    min: 0,
+    max: 10000,
+    step: 5,
+  },
 ];
 
 export function AffiliateRulesForm({

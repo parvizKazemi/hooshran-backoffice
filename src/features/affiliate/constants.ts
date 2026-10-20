@@ -30,6 +30,8 @@ export const AFFILIATE_DEFAULT_RULES = {
   renewalSunsetDays: 180,
   holdDays: 14,
   minPayoutAmount: 500_000,
+  expirationHours: 48,
+  rewardCredit: 50,
 } as const;
 
 export const AFFILIATE_REJECT_REASONS = [
@@ -81,5 +83,19 @@ export const PROGRAM_RULE_ALIASES = {
     "minPayout",
     "minimumPayout",
     "min_payout_amount",
+  ],
+  expirationHours: [
+    "expirationHours",
+    "expiration_hours",
+    "expirationTime",
+    "expiration_time",
+    "referralExpirationHours",
+  ],
+  rewardCredit: [
+    "rewardCredit",
+    "reward_credit",
+    "referralRewardCredit",
+    "coinsReward",
+    "giftCredit",
   ],
 } as const;

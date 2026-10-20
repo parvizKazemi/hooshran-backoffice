@@ -2779,7 +2779,11 @@
       "holdDays": "Release hold period (days):",
       "holdDaysHint": "Chargeback protection hold period",
       "minPayoutAmount": "Minimum payout request amount (Toman):",
-      "minPayoutAmountHint": "Minimum balance required for PAYA payout"
+      "minPayoutAmountHint": "Minimum balance required for PAYA payout",
+      "expirationHours": "Referral entry window (hours):",
+      "expirationHoursHint": "Default: 48h from user registration",
+      "rewardCredit": "Referral reward coins/credit:",
+      "rewardCreditHint": "Default: 50 gift coins for inviter and invitee"
     },
     "approveDialog": {
       "title": "Approve PAYA payout",
