@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from "@/services/api";
+import { apiGet, apiPatch, apiPost, apiPut } from "@/services/api";
 import {
   AFFILIATE_ACCOUNTS_PAGE_LIMIT,
   AFFILIATE_ADMIN_ENDPOINTS,
@@ -203,7 +203,8 @@ function buildDashboard(
   payoutsRaw: unknown,
   commissionsRaw: unknown,
   configRaw: unknown,
-  reportsRaw: unknown
+  reportsRaw: unknown,
+  referralConfigRaw?: unknown
 ): AffiliateAdminDashboard {
   const partners = mapAccounts(accountsRaw);
   const payouts = mapPayoutRequests(payoutsRaw);
@@ -242,27 +243,35 @@ function buildDashboard(
     payouts,
     partners,
     commissions,
-    rules: normalizeAffiliateProgramRules(configRaw),
+    rules: normalizeAffiliateProgramRules(configRaw, referralConfigRaw),
   };
 }
 
 export async function fetchAffiliateAdminDashboard(): Promise<AffiliateAdminDashboard> {
   const accountsUrl = `${AFFILIATE_ADMIN_ENDPOINTS.accounts}?page=1&limit=${AFFILIATE_ACCOUNTS_PAGE_LIMIT}`;
-  const [accountsRaw, payoutsRaw, commissionsRaw, configRaw, reportsRaw] =
-    await Promise.all([
-      apiGet<unknown>(accountsUrl),
-      apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.payoutRequests),
-      apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.commissions),
-      apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.config),
-      apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.reports).catch(() => ({})),
-    ]);
+  const [
+    accountsRaw,
+    payoutsRaw,
+    commissionsRaw,
+    configRaw,
+    reportsRaw,
+    referralConfigRaw,
+  ] = await Promise.all([
+    apiGet<unknown>(accountsUrl),
+    apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.payoutRequests),
+    apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.commissions),
+    apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.config),
+    apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.reports).catch(() => ({})),
+    apiGet<unknown>(AFFILIATE_ADMIN_ENDPOINTS.referralConfig).catch(() => ({})),
+  ]);
 
   return buildDashboard(
     accountsRaw,
     payoutsRaw,
     commissionsRaw,
     configRaw,
-    reportsRaw
+    reportsRaw,
+    referralConfigRaw
   );
 }
 
@@ -310,18 +319,26 @@ export async function toggleAffiliatePartnerStatus(
 export async function saveAffiliateProgramRules(
   rules: AffiliateProgramRules
 ): Promise<AffiliateAdminDashboard> {
-  await apiPut(AFFILIATE_ADMIN_ENDPOINTS.config, {
-    firstPurchasePercentage: rules.firstCommissionRate,
-    transactionCap: rules.capAmount,
-    buyerDiscountPercentage: rules.buyerDiscountPercentage,
-    renewalPercentage: rules.renewalCommissionRate,
-    cookieDurationDays: rules.renewalSunsetDays,
-    holdPeriodDays: rules.holdDays,
-    minPayoutAmount: rules.minPayoutAmount,
-    expirationHours: rules.expirationHours,
-    expirationTime: rules.expirationHours,
-    rewardCredit: rules.rewardCredit,
-  });
+  await Promise.allSettled([
+    apiPut(AFFILIATE_ADMIN_ENDPOINTS.config, {
+      firstPurchasePercentage: rules.firstCommissionRate,
+      transactionCap: rules.capAmount,
+      buyerDiscountPercentage: rules.buyerDiscountPercentage,
+      renewalPercentage: rules.renewalCommissionRate,
+      cookieDurationDays: rules.renewalSunsetDays,
+      holdPeriodDays: rules.holdDays,
+      minPayoutAmount: rules.minPayoutAmount,
+      expirationHours: rules.expirationHours,
+      expirationTime: rules.expirationHours,
+      rewardCredit: rules.rewardCredit,
+    }),
+    apiPatch(AFFILIATE_ADMIN_ENDPOINTS.referralConfig, {
+      rewardAmount: rules.rewardCredit,
+      submissionWindowHours: rules.expirationHours,
+      rewardExpirationDays: rules.rewardExpirationDays ?? 30,
+      isEnabled: rules.isReferralEnabled ?? true,
+    }),
+  ]);
 
   return fetchAffiliateAdminDashboard();
 }

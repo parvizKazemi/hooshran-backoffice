@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconDeviceFloppy, IconSettings } from "@tabler/icons-react";
+import {
+  IconDeviceFloppy,
+  IconGift,
+  IconPercentage,
+  IconSettings,
+} from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { AffiliateProgramRules } from "../types";
 
 type AffiliateRulesFormProps = {
@@ -12,8 +18,20 @@ type AffiliateRulesFormProps = {
   onSave: (rules: AffiliateProgramRules) => void;
 };
 
-type RuleField = {
-  key: keyof AffiliateProgramRules;
+type NumericRuleKey =
+  | "firstCommissionRate"
+  | "capAmount"
+  | "renewalCommissionRate"
+  | "renewalSunsetDays"
+  | "holdDays"
+  | "minPayoutAmount"
+  | "buyerDiscountPercentage"
+  | "expirationHours"
+  | "rewardCredit"
+  | "rewardExpirationDays";
+
+type NumericRuleField = {
+  key: NumericRuleKey;
   labelKey: string;
   hintKey: string;
   toneClass: string;
@@ -22,7 +40,7 @@ type RuleField = {
   step?: number;
 };
 
-const RULE_FIELDS: RuleField[] = [
+const AFFILIATE_RULE_FIELDS: NumericRuleField[] = [
   {
     key: "firstCommissionRate",
     labelKey: "affiliate.rules.firstCommissionRate",
@@ -69,7 +87,6 @@ const RULE_FIELDS: RuleField[] = [
     toneClass: "text-amber-600 dark:text-amber-400",
     step: 50_000,
   },
-
   {
     key: "buyerDiscountPercentage",
     labelKey: "affiliate.rules.buyerDiscountPercentage",
@@ -77,6 +94,18 @@ const RULE_FIELDS: RuleField[] = [
     toneClass: "text-emerald-600 dark:text-emerald-400",
     min: 1,
     max: 100,
+  },
+];
+
+const REFERRAL_RULE_FIELDS: NumericRuleField[] = [
+  {
+    key: "rewardCredit",
+    labelKey: "affiliate.rules.rewardCredit",
+    hintKey: "affiliate.rules.rewardCreditHint",
+    toneClass: "text-emerald-600 dark:text-emerald-400",
+    min: 0,
+    max: 10000,
+    step: 5,
   },
   {
     key: "expirationHours",
@@ -88,13 +117,13 @@ const RULE_FIELDS: RuleField[] = [
     step: 1,
   },
   {
-    key: "rewardCredit",
-    labelKey: "affiliate.rules.rewardCredit",
-    hintKey: "affiliate.rules.rewardCreditHint",
-    toneClass: "text-emerald-600 dark:text-emerald-400",
-    min: 0,
-    max: 10000,
-    step: 5,
+    key: "rewardExpirationDays",
+    labelKey: "affiliate.rules.rewardExpirationDays",
+    hintKey: "affiliate.rules.rewardExpirationDaysHint",
+    toneClass: "text-amber-600 dark:text-amber-400",
+    min: 1,
+    max: 365,
+    step: 1,
   },
 ];
 
@@ -115,55 +144,167 @@ export function AffiliateRulesForm({
     onSave(formValues);
   };
 
+  const isReferralActive = formValues.isReferralEnabled !== false;
+
   return (
-    <div className="bg-card space-y-6 rounded-3xl border p-6 shadow-sm">
-      <div className="border-b pb-3">
-        <h3 className="flex items-center gap-2 text-sm font-bold">
-          <IconSettings className="size-4 text-amber-500" />
+    <div className="bg-card space-y-8 rounded-3xl border p-6 shadow-sm">
+      <div className="border-b pb-4">
+        <h3 className="flex items-center gap-2 text-base font-bold">
+          <IconSettings className="size-5 text-amber-500" />
           {t("affiliate.rules.title")}
         </h3>
-        <p className="text-muted-foreground mt-0.5 text-[11px]">
+        <p className="text-muted-foreground mt-1 text-xs">
           {t("affiliate.rules.description")}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 text-xs">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {RULE_FIELDS.map((field) => (
-            <div
-              key={field.key}
-              className="bg-muted/30 space-y-1.5 rounded-2xl border p-4"
-            >
-              <Label htmlFor={field.key} className="font-bold">
-                {t(field.labelKey)}
+      <form onSubmit={handleSubmit} className="space-y-8 text-xs">
+        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* Section 1: Affiliate Marketing Rules                         */}
+        {/* ══════════════════════════════════════════════════════════════ */}
+        <div className="space-y-4">
+          <div className="border-border/60 flex items-center gap-2 border-b pb-2.5">
+            <IconPercentage className="size-4 text-emerald-600 dark:text-emerald-400" />
+            <div>
+              <h4 className="text-foreground text-xs font-bold">
+                {t("affiliate.rules.affiliateSectionTitle")}
+              </h4>
+              <p className="text-muted-foreground text-[11px]">
+                {t("affiliate.rules.affiliateSectionDescription")}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {AFFILIATE_RULE_FIELDS.map((field) => (
+              <div
+                key={field.key}
+                className="bg-muted/30 space-y-1.5 rounded-2xl border p-4 transition-colors"
+              >
+                <Label htmlFor={field.key} className="font-bold">
+                  {t(field.labelKey)}
+                </Label>
+                <Input
+                  id={field.key}
+                  type="number"
+                  min={field.min}
+                  max={field.max}
+                  step={field.step}
+                  value={
+                    typeof formValues[field.key] === "number"
+                      ? (formValues[field.key] as number)
+                      : ""
+                  }
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      [field.key]:
+                        event.target.value === ""
+                          ? 0
+                          : Number(event.target.value),
+                    }))
+                  }
+                  className={`h-11 rounded-xl font-mono font-bold ${field.toneClass}`}
+                />
+                <span className="text-muted-foreground text-[10px]">
+                  {t(field.hintKey)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* Section 2: Dedicated Referral Program Settings              */}
+        {/* ══════════════════════════════════════════════════════════════ */}
+        <div className="space-y-4 rounded-2xl border border-amber-200/70 bg-amber-50/30 p-5 dark:border-amber-900/40 dark:bg-amber-950/15">
+          <div className="flex flex-col gap-3 border-b border-amber-200/50 pb-3 sm:flex-row sm:items-center sm:justify-between dark:border-amber-900/30">
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <IconGift className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-foreground text-xs font-bold">
+                  {t("affiliate.rules.referralSectionTitle")}
+                </h4>
+                <p className="text-muted-foreground text-[11px]">
+                  {t("affiliate.rules.referralSectionDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Label
+                htmlFor="isReferralEnabled"
+                className="text-foreground cursor-pointer text-xs font-bold"
+              >
+                {t("affiliate.rules.isReferralEnabled")}
               </Label>
-              <Input
-                id={field.key}
-                type="number"
-                min={field.min}
-                max={field.max}
-                step={field.step}
-                value={formValues[field.key]}
-                onChange={(event) =>
+              <Switch
+                dir="ltr"
+                id="isReferralEnabled"
+                checked={isReferralActive}
+                onCheckedChange={(checked) =>
                   setFormValues((current) => ({
                     ...current,
-                    [field.key]: Number(event.target.value),
+                    isReferralEnabled: checked,
                   }))
                 }
-                className={`h-11 rounded-xl font-mono font-bold ${field.toneClass}`}
               />
-              <span className="text-muted-foreground text-[10px]">
-                {t(field.hintKey)}
-              </span>
             </div>
-          ))}
+          </div>
+
+          <div
+            className={`grid grid-cols-1 gap-4 transition-opacity md:grid-cols-3 ${
+              isReferralActive
+                ? "opacity-100"
+                : "pointer-events-none opacity-50"
+            }`}
+          >
+            {REFERRAL_RULE_FIELDS.map((field) => (
+              <div
+                key={field.key}
+                className="bg-background/80 space-y-1.5 rounded-2xl border p-4 shadow-2xs"
+              >
+                <Label htmlFor={field.key} className="font-bold">
+                  {t(field.labelKey)}
+                </Label>
+                <Input
+                  id={field.key}
+                  type="number"
+                  min={field.min}
+                  max={field.max}
+                  step={field.step}
+                  disabled={!isReferralActive}
+                  value={
+                    typeof formValues[field.key] === "number"
+                      ? (formValues[field.key] as number)
+                      : ""
+                  }
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      [field.key]:
+                        event.target.value === ""
+                          ? 0
+                          : Number(event.target.value),
+                    }))
+                  }
+                  className={`h-11 rounded-xl font-mono font-bold ${field.toneClass}`}
+                />
+                <span className="text-muted-foreground text-[10px]">
+                  {t(field.hintKey)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex justify-end pt-2">
           <Button
             type="submit"
             disabled={isSaving}
-            className="h-auto rounded-xl px-6 py-3.5 text-xs font-bold"
+            className="h-auto rounded-xl px-6 py-3.5 text-xs font-bold shadow-sm"
           >
             <IconDeviceFloppy className="size-4" />
             {t("affiliate.rules.save")}

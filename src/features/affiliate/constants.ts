@@ -15,6 +15,7 @@ export const AFFILIATE_ADMIN_ENDPOINTS = {
   commissions: "/admin/affiliate/commissions",
   config: "/admin/affiliate/config",
   reports: "/admin/affiliate/reports",
+  referralConfig: "/admin/referral-config",
 } as const;
 
 /** Backend defaults to limit=10; request a larger page for the partners table. */
@@ -32,6 +33,8 @@ export const AFFILIATE_DEFAULT_RULES = {
   minPayoutAmount: 500_000,
   expirationHours: 48,
   rewardCredit: 50,
+  rewardExpirationDays: 30,
+  isReferralEnabled: true,
 } as const;
 
 export const AFFILIATE_REJECT_REASONS = [
@@ -85,6 +88,8 @@ export const PROGRAM_RULE_ALIASES = {
     "min_payout_amount",
   ],
   expirationHours: [
+    "submissionWindowHours",
+    "submission_window_hours",
     "expirationHours",
     "expiration_hours",
     "expirationTime",
@@ -92,10 +97,25 @@ export const PROGRAM_RULE_ALIASES = {
     "referralExpirationHours",
   ],
   rewardCredit: [
+    "rewardAmount",
+    "reward_amount",
     "rewardCredit",
     "reward_credit",
     "referralRewardCredit",
     "coinsReward",
     "giftCredit",
+  ],
+  rewardExpirationDays: [
+    "rewardExpirationDays",
+    "reward_expiration_days",
+    "giftExpirationDays",
+    "gift_expiration_days",
+    "expirationDays",
+  ],
+  isReferralEnabled: [
+    "isEnabled",
+    "is_enabled",
+    "referralEnabled",
+    "isReferralEnabled",
   ],
 } as const;

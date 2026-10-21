@@ -56,58 +56,76 @@ export function unwrapAffiliateAdminPayload(
 }
 
 export function normalizeAffiliateProgramRules(
-  raw: unknown
+  raw: unknown,
+  referralRaw?: unknown
 ): AffiliateProgramRules {
   const source = isRecord(raw) ? raw : {};
   const nested = isRecord(source.rules) ? source.rules : source;
+  const referralSource = isRecord(referralRaw)
+    ? isRecord(referralRaw.data)
+      ? (referralRaw.data as Record<string, unknown>)
+      : referralRaw
+    : {};
+  const combined = { ...nested, ...referralSource };
   const defaults = AFFILIATE_DEFAULT_RULES;
 
   return {
     firstCommissionRate: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.firstCommissionRate,
       defaults.firstCommissionRate
     ),
     capAmount: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.capAmount,
       defaults.capAmount
     ),
     buyerDiscountPercentage: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.buyerDiscountPercentage,
       defaults.buyerDiscountPercentage
     ),
     renewalCommissionRate: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.renewalCommissionRate,
       defaults.renewalCommissionRate
     ),
     renewalSunsetDays: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.renewalSunsetDays,
       defaults.renewalSunsetDays
     ),
     holdDays: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.holdDays,
       defaults.holdDays
     ),
     minPayoutAmount: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.minPayoutAmount,
       defaults.minPayoutAmount
     ),
     expirationHours: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.expirationHours,
       defaults.expirationHours
     ),
     rewardCredit: readNumber(
-      nested,
+      combined,
       PROGRAM_RULE_ALIASES.rewardCredit,
       defaults.rewardCredit
     ),
+    rewardExpirationDays: readNumber(
+      combined,
+      PROGRAM_RULE_ALIASES.rewardExpirationDays,
+      defaults.rewardExpirationDays
+    ),
+    isReferralEnabled:
+      typeof combined.isEnabled === "boolean"
+        ? combined.isEnabled
+        : typeof combined.isReferralEnabled === "boolean"
+          ? combined.isReferralEnabled
+          : defaults.isReferralEnabled,
   };
 }
 

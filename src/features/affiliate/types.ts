@@ -94,6 +94,8 @@ export type AffiliateProgramRules = {
   minPayoutAmount: number;
   expirationHours: number;
   rewardCredit: number;
+  rewardExpirationDays?: number;
+  isReferralEnabled?: boolean;
 };
 
 export type AffiliateAdminDashboard = {
