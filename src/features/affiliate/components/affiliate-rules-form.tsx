@@ -99,15 +99,6 @@ const AFFILIATE_RULE_FIELDS: NumericRuleField[] = [
 
 const REFERRAL_RULE_FIELDS: NumericRuleField[] = [
   {
-    key: "rewardCredit",
-    labelKey: "affiliate.rules.rewardCredit",
-    hintKey: "affiliate.rules.rewardCreditHint",
-    toneClass: "text-emerald-600 dark:text-emerald-400",
-    min: 0,
-    max: 10000,
-    step: 5,
-  },
-  {
     key: "expirationHours",
     labelKey: "affiliate.rules.expirationHours",
     hintKey: "affiliate.rules.expirationHoursHint",
@@ -116,15 +107,15 @@ const REFERRAL_RULE_FIELDS: NumericRuleField[] = [
     max: 720,
     step: 1,
   },
-  {
-    key: "rewardExpirationDays",
-    labelKey: "affiliate.rules.rewardExpirationDays",
-    hintKey: "affiliate.rules.rewardExpirationDaysHint",
-    toneClass: "text-amber-600 dark:text-amber-400",
-    min: 1,
-    max: 365,
-    step: 1,
-  },
+  // {
+  //   key: "rewardExpirationDays",
+  //   labelKey: "affiliate.rules.rewardExpirationDays",
+  //   hintKey: "affiliate.rules.rewardExpirationDaysHint",
+  //   toneClass: "text-amber-600 dark:text-amber-400",
+  //   min: 1,
+  //   max: 365,
+  //   step: 1,
+  // },
 ];
 
 export function AffiliateRulesForm({
@@ -255,7 +246,7 @@ export function AffiliateRulesForm({
           </div>
 
           <div
-            className={`grid grid-cols-1 gap-4 transition-opacity md:grid-cols-3 ${
+            className={`grid grid-cols-1 gap-4 transition-opacity md:grid-cols-1 ${
               isReferralActive
                 ? "opacity-100"
                 : "pointer-events-none opacity-50"

@@ -2821,8 +2821,8 @@
       "description": "تغییر این مقادیر بلافاصله روی نرخ‌های محاسبه جدید اعمال خواهد شد.",
       "affiliateSectionTitle": "قوانین همکاری در فروش (Affiliate Marketing)",
       "affiliateSectionDescription": "تنظیم درصد پورسانت‌ها، سقف پرداختی و دوره آزادسازی مالی برای بازاریابان و همکاران فروش",
-      "referralSectionTitle": "سیستم معرفی دوستان و هدیه خوش‌آمدگویی (Referral System)",
-      "referralSectionDescription": "تنظیمات مهلت وارد کردن کد معرف، مقدار سکه هدیه و مدت انقضای اعتبار هدیه کاربران",
+      "referralSectionTitle": "سیستم معرفی دوستان (Referral System)",
+      "referralSectionDescription": "تنظیمات مهلت وارد کردن کد معرف",
       "save": "ذخیره تنظیمات افیلیت",
       "firstCommissionRate": "درصد پورسانت خرید اول (%):",
       "firstCommissionRateHint": "پیش‌فرض: ۲۰٪ از مبلغ خالص درگاه شاپرک",
@@ -2844,8 +2844,8 @@
       "rewardCreditHint": "پیش‌فرض: ۵۰ سکه هدیه به معرف و کاربر جدید",
       "rewardExpirationDays": "مدت اعتبار سکه‌های هدیه ثبت کد معرف (روز):",
       "rewardExpirationDaysHint": "پیش‌فرض: ۳۰ روز (مدت زمان پیش از انقضای اعتبار هدیه)",
-      "isReferralEnabled": "فعال بودن سیستم معرفی دوستان و هدیه خوش‌آمدگویی",
-      "isReferralEnabledHint": "در صورت فعال بودن، کاربران می‌توانند کد معرف ثبت کنند و سکه هدیه دریافت نمایند."
+      "isReferralEnabled": "فعال بودن سیستم معرفی دوستان",
+      "isReferralEnabledHint": "در صورت فعال بودن، کاربران می‌توانند کد معرف ثبت نمایند."
     },
     "approveDialog": {
       "title": "تایید و واریز درخواست پایا",

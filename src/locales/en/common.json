@@ -2771,8 +2771,8 @@
       "description": "Changes apply immediately to new commission calculations.",
       "affiliateSectionTitle": "Affiliate Marketing & Commission Rules",
       "affiliateSectionDescription": "Configure commission percentages, payout caps, and hold periods for marketers",
-      "referralSectionTitle": "Friend Referral & Welcome Gift Settings",
-      "referralSectionDescription": "Manage referral countdown window, gift coins amount, and gift expiration days",
+      "referralSectionTitle": "Friend Referral Settings",
+      "referralSectionDescription": "Manage referral countdown window and credit expiration days",
       "save": "Save affiliate settings",
       "firstCommissionRate": "First purchase commission (%):",
       "firstCommissionRateHint": "Default: 20% of net gateway amount",
@@ -2794,8 +2794,8 @@
       "rewardCreditHint": "Default: 50 gift coins for inviter and invitee",
       "rewardExpirationDays": "Gift credit expiration (days):",
       "rewardExpirationDaysHint": "Default: 30 days validity for referral gift credits",
-      "isReferralEnabled": "Enable friend referral system & welcome gift",
-      "isReferralEnabledHint": "Allow users to enter referral codes and receive gift credits"
+      "isReferralEnabled": "Enable friend referral system",
+      "isReferralEnabledHint": "Allow users to enter referral codes"
     },
     "approveDialog": {
       "title": "Approve PAYA payout",
