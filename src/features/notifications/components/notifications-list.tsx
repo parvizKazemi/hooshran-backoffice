@@ -167,6 +167,36 @@ const getUrlTargets = (notification: AdminNotification): string[] => {
     .filter(Boolean);
 };
 
+const getExcludeTargets = (notification: AdminNotification): string[] => {
+  const data = (notification.metaData?.data || {}) as Record<string, unknown>;
+  const visibility = data.visibility as
+    | {
+        excludeRoute?: string[];
+        excludeRoutes?: string[];
+      }
+    | undefined;
+
+  const rawExclude = Array.isArray(visibility?.excludeRoute)
+    ? visibility.excludeRoute
+    : Array.isArray(visibility?.excludeRoutes)
+      ? visibility.excludeRoutes
+      : Array.isArray(data.excludeUrlRules)
+        ? data.excludeUrlRules.map((r: unknown) =>
+            typeof (r as { path?: unknown })?.path === "string"
+              ? (r as { path: string }).path
+              : ""
+          )
+        : [];
+
+  return Array.from(
+    new Set(
+      rawExclude
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean)
+    )
+  );
+};
+
 const getAudience = (notification: AdminNotification): string[] => {
   const rawValue =
     notification.targetGroup ||
@@ -435,38 +465,50 @@ export function NotificationsList({
         cell: ({ row }) => {
           const notification = row.original;
           const urlTargets = getUrlTargets(notification);
+          const excludeTargets = getExcludeTargets(notification);
           const hasAllPages = urlTargets.includes("all");
           const hasSpecificTargets = urlTargets.length > 0 && !hasAllPages;
 
-          if (hasAllPages) {
-            return (
-              <div className="text-muted-foreground flex max-w-xs flex-wrap items-center justify-center gap-1 text-xs">
-                <Badge
-                  variant="outline"
-                  className="bg-accent text-muted-foreground rounded-sm border-none px-1.5 py-1 text-xs"
-                >
-                  {t("notifications.form.targeting.allPages")}
-                </Badge>
-              </div>
-            );
-          }
-
           return (
-            <div className="text-muted-foreground flex max-w-xs flex-wrap items-center justify-center gap-1.5 text-xs">
-              {hasSpecificTargets ? (
-                urlTargets.map((item) => (
-                  <span
-                    key={item}
-                    dir="ltr"
-                    className="bg-accent rounded-sm px-1.5 py-1"
+            <div className="text-muted-foreground flex max-w-xs flex-col items-center justify-center gap-1 text-xs">
+              <div className="flex flex-wrap items-center justify-center gap-1">
+                {hasAllPages ? (
+                  <Badge
+                    variant="outline"
+                    className="bg-accent text-muted-foreground rounded-sm border-none px-1.5 py-1 text-xs"
                   >
-                    {item}
+                    {t("notifications.form.targeting.allPages")}
+                  </Badge>
+                ) : hasSpecificTargets ? (
+                  urlTargets.map((item) => (
+                    <span
+                      key={item}
+                      dir="ltr"
+                      className="bg-accent rounded-sm px-1.5 py-1"
+                    >
+                      {item}
+                    </span>
+                  ))
+                ) : (
+                  <span className="border-accent text-muted-foreground rounded-sm border px-1.5 py-1 text-xs">
+                    {t("notifications.table.notDefined")}
                   </span>
-                ))
-              ) : (
-                <span className="border-accent text-muted-foreground rounded-sm border px-1.5 py-1 text-xs">
-                  {t("notifications.table.notDefined")}
-                </span>
+                )}
+              </div>
+
+              {excludeTargets.length > 0 && (
+                <div className="text-destructive flex flex-wrap items-center justify-center gap-1 text-[10px]">
+                  {excludeTargets.map((item) => (
+                    <span
+                      key={`ex-${item}`}
+                      dir="ltr"
+                      className="bg-destructive/10 text-destructive rounded-sm px-1.5 py-0.5"
+                      title={t("notifications.form.targeting.excludeTitle")}
+                    >
+                      -{item}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           );

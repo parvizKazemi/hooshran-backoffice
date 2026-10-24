@@ -1,3 +1,5 @@
+export { SomeNotifTypeExcludeChatDefault } from "../types";
+
 export interface FormData {
   metaData?: {
     type?: string;

@@ -170,5 +170,25 @@ export const TEMPLATE_TYPES = [
 
 export type TemplateType = (typeof TEMPLATE_TYPES)[number];
 
+// Route matching rules for notification visibility
+export type RuleType = "exact" | "include";
+
+export interface UrlRule {
+  path: string;
+  rule: RuleType;
+}
+
+export interface NotificationVisibility {
+  route: string[];
+  rules: Record<string, RuleType>;
+  excludeRoute?: string[];
+  excludeRules?: Record<string, RuleType>;
+}
+
+// Notification types that automatically have their exclude path defaulted to "/chat" (include)
+export const SomeNotifTypeExcludeChatDefault: readonly string[] = [
+  "float_banner",
+] as const;
+
 // Legacy type alias for backward compatibility
 export type Notification = AdminNotification;

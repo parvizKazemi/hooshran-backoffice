@@ -662,7 +662,11 @@
         "matchInclude": "Include",
         "matchRequired": "Please select route match mode (exact/include) for specific paths",
         "addPath": "Add Path",
-        "routeRequired": "Please add at least one valid path for specific paths mode"
+        "routeRequired": "Please add at least one valid path for specific paths mode",
+        "excludeTitle": "Exclude Paths (Exclude Path)",
+        "excludeDescription": "Specify paths where this notification should NOT be displayed",
+        "excludePlaceholder": "/chat",
+        "addExcludePath": "Add Exclude Path"
       },
       "audience": {
         "title": "Display For (Target Audience)",

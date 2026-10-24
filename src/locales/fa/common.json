@@ -674,7 +674,11 @@
         "matchInclude": "شامل",
         "matchRequired": "برای مسیرهای خاص، نوع تطبیق مسیر (exact/include) را انتخاب کنید",
         "addPath": "افزودن مسیر",
-        "routeRequired": "حداقل یک مسیر معتبر برای حالت مسیرهای خاص وارد کنید"
+        "routeRequired": "حداقل یک مسیر معتبر برای حالت مسیرهای خاص وارد کنید",
+        "excludeTitle": "مسیرهای عدم نمایش (Exclude Path)",
+        "excludeDescription": "مسیرهایی که نمی‌خواهید این اعلان در آن‌ها نمایش داده شود را وارد کنید",
+        "excludePlaceholder": "/chat",
+        "addExcludePath": "افزودن مسیر عدم نمایش"
       },
       "audience": {
         "title": "نمایش برای (مخاطب هدف)",

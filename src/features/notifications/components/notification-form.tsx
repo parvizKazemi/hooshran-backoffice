@@ -56,17 +56,13 @@ type NotificationFormProps = {
   onCancel?: () => void;
 };
 
-type RuleType = "exact" | "include";
+import {
+  NotificationVisibility,
+  RuleType,
+  SomeNotifTypeExcludeChatDefault,
+  UrlRule,
+} from "../types";
 
-type UrlRule = {
-  path: string;
-  rule: RuleType;
-};
-
-type NotificationVisibility = {
-  route: string[];
-  rules: Record<string, RuleType>;
-};
 const INFORMATION_NOTIFICATION_TYPE: NotificationType = "information";
 const PROMOTIONAL_TARGET_GROUP = "LOGGINED";
 const BANNER_VARIANT_VALUES = [
@@ -97,6 +93,7 @@ const TARGETING_TEMPLATE_FIELDS = new Set([
   "urlRules",
   "urlRule",
   "targetMode",
+  "excludeUrlRules",
 ]);
 
 const toExpirationInputValue = (value?: string | null): string => {
@@ -239,29 +236,52 @@ const normalizeTargetGroup = (...values: unknown[]): string => {
 
 const buildVisibilityFromRules = (
   rules: UrlRule[],
-  isAllPages: boolean
+  isAllPages: boolean,
+  excludeRules: UrlRule[] = []
 ): NotificationVisibility => {
-  if (isAllPages || rules.length === 0) {
-    return {
-      route: ["all"],
-      rules: { all: "include" },
-    };
-  }
-
-  const normalizedRules = rules
+  const normalizedExcludeRules = excludeRules
     .map((item) => ({
       route: item.path.trim(),
       rule: normalizeRuleType(item.rule),
     }))
     .filter((item) => item.route.length > 0);
 
-  return {
-    route: normalizedRules.map((item) => item.route),
-    rules: normalizedRules.reduce<Record<string, RuleType>>((acc, item) => {
-      acc[item.route] = item.rule;
-      return acc;
-    }, {}),
-  };
+  const excludeRoute = normalizedExcludeRules.map((item) => item.route);
+  const excludeRulesMap = normalizedExcludeRules.reduce<
+    Record<string, RuleType>
+  >((acc, item) => {
+    acc[item.route] = item.rule;
+    return acc;
+  }, {});
+
+  const base: NotificationVisibility =
+    isAllPages || rules.length === 0
+      ? {
+          route: ["all"],
+          rules: { all: "include" },
+        }
+      : {
+          route: rules
+            .map((item) => item.path.trim())
+            .filter((path) => path.length > 0),
+          rules: rules
+            .map((item) => ({
+              route: item.path.trim(),
+              rule: normalizeRuleType(item.rule),
+            }))
+            .filter((item) => item.route.length > 0)
+            .reduce<Record<string, RuleType>>((acc, item) => {
+              acc[item.route] = item.rule;
+              return acc;
+            }, {}),
+        };
+
+  if (excludeRoute.length > 0) {
+    base.excludeRoute = excludeRoute;
+    base.excludeRules = excludeRulesMap;
+  }
+
+  return base;
 };
 
 const stripLegacyTargetingFields = (
@@ -272,13 +292,27 @@ const stripLegacyTargetingFields = (
   delete sanitized.urlRules;
   delete sanitized.urlRule;
   delete sanitized.targetMode;
+  delete sanitized.excludeUrlRules;
   return sanitized;
 };
 
-const extractTargetingEditorState = (data: Record<string, unknown>) => {
+const extractTargetingEditorState = (
+  data: Record<string, unknown>,
+  defaultTemplateType?: string
+) => {
   const visibility = (data.visibility ?? null) as {
     route?: string[];
     rules?:
+      | Record<string, RuleType>
+      | Array<{
+          route?: string;
+          path?: string;
+          rule?: RuleType;
+          match?: RuleType;
+        }>;
+    excludeRoute?: string[];
+    excludeRoutes?: string[];
+    excludeRules?:
       | Record<string, RuleType>
       | Array<{
           route?: string;
@@ -346,6 +380,85 @@ const extractTargetingEditorState = (data: Record<string, unknown>) => {
     new Set(mergedRules.map((rule) => rule.rule))
   );
 
+  // Extract exclude rules
+  const excludeRulesFromVisibilityObject =
+    visibility?.excludeRules &&
+    !Array.isArray(visibility.excludeRules) &&
+    typeof visibility.excludeRules === "object"
+      ? Object.entries(visibility.excludeRules)
+          .map(([route, rule]) => ({
+            path: route.trim(),
+            rule: normalizeRuleType(rule),
+          }))
+          .filter((item) => item.path.length > 0)
+      : [];
+
+  const excludeRulesFromVisibilityArray = Array.isArray(
+    visibility?.excludeRules
+  )
+    ? visibility!.excludeRules
+        .map((item) => {
+          const route =
+            typeof item.route === "string"
+              ? item.route.trim()
+              : typeof item.path === "string"
+                ? item.path.trim()
+                : "";
+          if (!route) return null;
+          return {
+            path: route,
+            rule: normalizeRuleType(item.rule ?? item.match),
+          };
+        })
+        .filter((item): item is UrlRule => item !== null)
+    : [];
+
+  const rawExcludeRoutes: string[] = Array.isArray(visibility?.excludeRoute)
+    ? visibility!.excludeRoute
+    : Array.isArray((visibility as { excludeRoutes?: string[] })?.excludeRoutes)
+      ? ((visibility as { excludeRoutes?: string[] })!.excludeRoutes ?? [])
+      : [];
+
+  const excludeRulesFromRoutes = rawExcludeRoutes
+    .map((r: unknown) => (typeof r === "string" ? r.trim() : ""))
+    .filter(Boolean)
+    .map((route: string) => ({
+      path: route,
+      rule: normalizeRuleType(
+        (visibility?.excludeRules as Record<string, RuleType>)?.[route] ??
+          "include"
+      ),
+    }));
+
+  const fallbackExcludeRules = normalizeUrlRules(
+    data.excludeUrlRules,
+    [],
+    "include",
+    true
+  );
+
+  const mergedExcludeRules =
+    excludeRulesFromVisibilityObject.length > 0
+      ? excludeRulesFromVisibilityObject
+      : excludeRulesFromVisibilityArray.length > 0
+        ? excludeRulesFromVisibilityArray
+        : excludeRulesFromRoutes.length > 0
+          ? excludeRulesFromRoutes
+          : fallbackExcludeRules;
+
+  // Determine initial exclude rules: if empty and template type is in SomeNotifTypeExcludeChatDefault, default to /chat (include)
+  const shouldDefaultExcludeChat =
+    Boolean(defaultTemplateType) &&
+    SomeNotifTypeExcludeChatDefault.includes(defaultTemplateType!) &&
+    visibility === null &&
+    (!data.excludeUrlRules ||
+      (Array.isArray(data.excludeUrlRules) &&
+        data.excludeUrlRules.length === 0));
+
+  const effectiveExcludeRules: UrlRule[] = shouldDefaultExcludeChat
+    ? [{ path: "/chat", rule: "include" }]
+    : mergedExcludeRules;
+
   return {
     urlTargets: isAllPages
       ? ["all"]
@@ -353,6 +466,7 @@ const extractTargetingEditorState = (data: Record<string, unknown>) => {
     urlRules: isAllPages ? [] : mergedRules,
     urlRule: uniqueRuleTypes.length === 1 ? uniqueRuleTypes[0] : "exact",
     targetMode: isAllPages ? "all" : "custom",
+    excludeUrlRules: effectiveExcludeRules,
   };
 };
 
@@ -472,7 +586,8 @@ export function NotificationForm({
                       (notification.metaData.data || {}) as Record<
                         string,
                         unknown
-                      >
+                      >,
+                      notification.metaData.type
                     ),
                   }
                 : notification.metaData.type === "float_banner"
@@ -485,13 +600,23 @@ export function NotificationForm({
                         (notification.metaData.data || {}) as Record<
                           string,
                           unknown
-                        >
+                        >,
+                        notification.metaData.type
                       ),
                     }
-                  : ((notification.metaData.data || {}) as Record<
-                      string,
-                      unknown
-                    >),
+                  : {
+                      ...((notification.metaData.data || {}) as Record<
+                        string,
+                        unknown
+                      >),
+                      ...extractTargetingEditorState(
+                        (notification.metaData.data || {}) as Record<
+                          string,
+                          unknown
+                        >,
+                        notification.metaData.type
+                      ),
+                    },
           },
           isPopup: notification.isPopup,
           isPublic: notification.isPublic,
@@ -506,7 +631,9 @@ export function NotificationForm({
           type: "information" as NotificationType,
           metaData: {
             type: "simple_popup",
-            data: {} as Record<string, unknown>,
+            data: {
+              ...extractTargetingEditorState({}, "simple_popup"),
+            } as Record<string, unknown>,
           },
           isPopup: false,
           isPublic: false,
@@ -558,6 +685,14 @@ export function NotificationForm({
       templateDraftsRef.current[nextTemplateType]
     );
 
+    const currentExclude = nextData.excludeUrlRules as UrlRule[] | undefined;
+    if (
+      SomeNotifTypeExcludeChatDefault.includes(nextTemplateType) &&
+      (!Array.isArray(currentExclude) || currentExclude.length === 0)
+    ) {
+      nextData.excludeUrlRules = [{ path: "/chat", rule: "include" }];
+    }
+
     setValue("metaData.type", nextTemplateType);
     setValue("metaData.data", nextData);
   };
@@ -573,10 +708,35 @@ export function NotificationForm({
 
   // Auto-configure notification behavior based on template
   React.useEffect(() => {
+    const currentExclude = (metaDataData as Record<string, unknown>)
+      .excludeUrlRules;
+    const shouldDefaultExclude =
+      templateType &&
+      SomeNotifTypeExcludeChatDefault.includes(templateType) &&
+      !Array.isArray(currentExclude);
+
+    if (shouldDefaultExclude) {
+      setValue("metaData.data.excludeUrlRules", [
+        { path: "/chat", rule: "include" },
+      ]);
+    }
+
     if (templateType === "promotional") {
-      // Set popup to true for promotional
       setValue("isPopup", true);
-      setValue("metaData.data.urlTargets", ["all"]);
+      if (
+        !Array.isArray((metaDataData as Record<string, unknown>).urlTargets)
+      ) {
+        setValue("metaData.data.urlTargets", ["all"]);
+      }
+      if (!Array.isArray((metaDataData as Record<string, unknown>).urlRules)) {
+        setValue("metaData.data.urlRules", []);
+      }
+      if (!(metaDataData as Record<string, unknown>).urlRule) {
+        setValue("metaData.data.urlRule", "exact");
+      }
+      if (!(metaDataData as Record<string, unknown>).targetMode) {
+        setValue("metaData.data.targetMode", "all");
+      }
       if (targetGroupValue !== PROMOTIONAL_TARGET_GROUP) {
         setValue("targetGroup", PROMOTIONAL_TARGET_GROUP);
       }
@@ -671,11 +831,33 @@ export function NotificationForm({
         return;
       }
 
-      const promotionalData = {
+      const normalizedRules = normalizeUrlRules(
+        data.metaData.data?.urlRules,
+        data.metaData.data?.urlTargets,
+        data.metaData.data?.urlRule
+      );
+      const normalizedExcludeRules = normalizeUrlRules(
+        data.metaData.data?.excludeUrlRules,
+        [],
+        "include"
+      );
+      const targetMode =
+        data.metaData.data?.targetMode === "custom" ? "custom" : "all";
+      if (targetMode === "custom" && normalizedRules.length === 0) {
+        toast.error(t("notifications.form.targeting.routeRequired"));
+        return;
+      }
+
+      const promotionalData: Record<string, unknown> = {
         ...((data.metaData.data || {}) as Record<string, unknown>),
+        visibility: buildVisibilityFromRules(
+          normalizedRules,
+          targetMode !== "custom",
+          normalizedExcludeRules
+        ),
       };
       delete promotionalData.badge;
-      data.metaData.data = promotionalData;
+      data.metaData.data = stripLegacyTargetingFields(promotionalData);
     }
 
     const normalizedTargetGroup = normalizeTargetGroup(
@@ -693,6 +875,11 @@ export function NotificationForm({
         data.metaData.data?.urlRules,
         data.metaData.data?.urlTargets,
         data.metaData.data?.urlRule
+      );
+      const normalizedExcludeRules = normalizeUrlRules(
+        data.metaData.data?.excludeUrlRules,
+        [],
+        "include"
       );
       const targetMode =
         data.metaData.data?.targetMode === "custom" ? "custom" : "all";
@@ -719,7 +906,8 @@ export function NotificationForm({
 
       mappedSimpleData.visibility = buildVisibilityFromRules(
         normalizedRules,
-        targetMode !== "custom"
+        targetMode !== "custom",
+        normalizedExcludeRules
       );
 
       data.metaData.data = mappedSimpleData;
@@ -731,6 +919,11 @@ export function NotificationForm({
         data.metaData.data?.urlRules,
         data.metaData.data?.urlTargets,
         data.metaData.data?.urlRule
+      );
+      const normalizedExcludeRules = normalizeUrlRules(
+        data.metaData.data?.excludeUrlRules,
+        [],
+        "include"
       );
       const targetMode =
         data.metaData.data?.targetMode === "custom" ? "custom" : "all";
@@ -770,7 +963,8 @@ export function NotificationForm({
         variant,
         visibility: buildVisibilityFromRules(
           normalizedRules,
-          targetMode !== "custom"
+          targetMode !== "custom",
+          normalizedExcludeRules
         ),
       };
     }
@@ -958,6 +1152,65 @@ export function NotificationForm({
     updateUrlRules(
       nextRules.length > 0 ? nextRules : [{ path: "", rule: "exact" }]
     );
+  };
+
+  const excludeUrlRules = normalizeUrlRules(
+    (metaDataData as Record<string, unknown>).excludeUrlRules,
+    [],
+    "include",
+    true
+  );
+
+  const updateExcludeUrlRules = (rules: UrlRule[]) => {
+    const currentData = metaDataData as Record<string, unknown>;
+    const rulesForState = rules.map((rule) => ({
+      path: rule.path,
+      rule: normalizeRuleType(rule.rule),
+    }));
+
+    setValue("metaData.data", {
+      ...currentData,
+      excludeUrlRules: rulesForState,
+    } as Record<string, unknown>);
+  };
+
+  const handleAddExcludeRouteRule = () => {
+    const currentRules = normalizeUrlRules(
+      (metaDataData as Record<string, unknown>).excludeUrlRules,
+      [],
+      "include",
+      true
+    );
+    updateExcludeUrlRules([...currentRules, { path: "", rule: "include" }]);
+  };
+
+  const handleUpdateExcludeRouteRule = (
+    index: number,
+    updates: Partial<UrlRule>
+  ) => {
+    const currentRules = normalizeUrlRules(
+      (metaDataData as Record<string, unknown>).excludeUrlRules,
+      [],
+      "include",
+      true
+    );
+    const nextRules = currentRules.map((rule, ruleIndex) =>
+      ruleIndex === index ? { ...rule, ...updates } : rule
+    );
+    updateExcludeUrlRules(nextRules);
+  };
+
+  const handleRemoveExcludeRouteRule = (index: number) => {
+    const currentRules = normalizeUrlRules(
+      (metaDataData as Record<string, unknown>).excludeUrlRules,
+      [],
+      "include",
+      true
+    );
+    const nextRules = currentRules.filter(
+      (_, ruleIndex) => ruleIndex !== index
+    );
+    updateExcludeUrlRules(nextRules);
   };
 
   return (
@@ -1163,189 +1416,174 @@ export function NotificationForm({
         ))}
 
         {templateType === "simple_popup" && (
-          <>
-            <Field>
-              <FieldLabel>
-                {t("notifications.form.fields.mediaOptional")}
-              </FieldLabel>
-              <FileUploader
-                value={(metaDataData as Record<string, string>).media_url || ""}
-                onChange={(url) => updateMetaDataField("media_url", url)}
-                showUrlInput
-                showFileName
-              />
-            </Field>
-
-            <Field className="space-y-3 rounded-md border p-4">
-              <FieldLabel>{t("notifications.form.targeting.title")}</FieldLabel>
-              <FieldDescription>
-                {t("notifications.form.targeting.description")}
-              </FieldDescription>
-              <ToggleGroup
-                type="single"
-                value={isAllPagesTargeting ? "all" : "custom"}
-                onValueChange={(value) =>
-                  value && handleTargetModeChange(value)
-                }
-                className="mb-2 w-full justify-center"
-              >
-                <ToggleGroupItem value="all">
-                  {t("notifications.form.targeting.allPages")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="custom">
-                  {t("notifications.form.targeting.specificPaths")}
-                </ToggleGroupItem>
-              </ToggleGroup>
-
-              {!isAllPagesTargeting && (
-                <div className="space-y-3">
-                  {customRouteRules.map((rule, index) => (
-                    <div
-                      key={`simple-route-${index}`}
-                      className="flex items-start gap-2"
-                    >
-                      <ToggleGroup
-                        type="single"
-                        value={rule.rule}
-                        onValueChange={(value) =>
-                          value &&
-                          handleUpdateRouteRule(index, {
-                            rule: value as RuleType,
-                          })
-                        }
-                        className="shrink-0 justify-start"
-                      >
-                        <ToggleGroupItem value="exact">
-                          {t("notifications.form.targeting.matchExact")}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="include">
-                          {t("notifications.form.targeting.matchInclude")}
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                      <Input
-                        dir="ltr"
-                        className="text-left"
-                        value={rule.path}
-                        onChange={(event) =>
-                          handleUpdateRouteRule(index, {
-                            path: event.target.value,
-                          })
-                        }
-                        placeholder={t(
-                          "notifications.form.targeting.specificPathsPlaceholder"
-                        )}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveRouteRule(index)}
-                        disabled={customRouteRules.length === 1}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddRouteRule}
-                    className="w-fit"
-                  >
-                    <Plus className="mr-2 size-4" />
-                    {t("notifications.form.targeting.addPath")}
-                  </Button>
-                </div>
-              )}
-            </Field>
-          </>
+          <Field>
+            <FieldLabel>
+              {t("notifications.form.fields.mediaOptional")}
+            </FieldLabel>
+            <FileUploader
+              value={(metaDataData as Record<string, string>).media_url || ""}
+              onChange={(url) => updateMetaDataField("media_url", url)}
+              showUrlInput
+              showFileName
+            />
+          </Field>
         )}
 
-        {templateType === "float_banner" && (
-          <>
-            <Field className="space-y-3 rounded-md border p-4">
+        {["simple_popup", "float_banner", "promotional"].includes(
+          templateType || ""
+        ) && (
+          <Field className="space-y-4 rounded-md border p-4">
+            <div className="space-y-1">
               <FieldLabel>{t("notifications.form.targeting.title")}</FieldLabel>
               <FieldDescription>
                 {t("notifications.form.targeting.description")}
               </FieldDescription>
-              <ToggleGroup
-                type="single"
-                value={isAllPagesTargeting ? "all" : "custom"}
-                onValueChange={(value) =>
-                  value && handleTargetModeChange(value)
-                }
-                className="mb-2 w-full justify-start"
-              >
-                <ToggleGroupItem value="all">
-                  {t("notifications.form.targeting.allPages")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="custom">
-                  {t("notifications.form.targeting.specificPaths")}
-                </ToggleGroupItem>
-              </ToggleGroup>
+            </div>
+            <ToggleGroup
+              type="single"
+              value={isAllPagesTargeting ? "all" : "custom"}
+              onValueChange={(value) => value && handleTargetModeChange(value)}
+              className="mb-2 w-full justify-start"
+            >
+              <ToggleGroupItem value="all">
+                {t("notifications.form.targeting.allPages")}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="custom">
+                {t("notifications.form.targeting.specificPaths")}
+              </ToggleGroupItem>
+            </ToggleGroup>
 
-              {!isAllPagesTargeting && (
-                <div className="space-y-3">
-                  {customRouteRules.map((rule, index) => (
-                    <div
-                      key={`banner-route-${index}`}
-                      className="flex items-start gap-2"
-                    >
-                      <ToggleGroup
-                        type="single"
-                        value={rule.rule}
-                        onValueChange={(value) =>
-                          value &&
-                          handleUpdateRouteRule(index, {
-                            rule: value as RuleType,
-                          })
-                        }
-                        className="shrink-0 justify-start"
-                      >
-                        <ToggleGroupItem value="exact">
-                          {t("notifications.form.targeting.matchExact")}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="include">
-                          {t("notifications.form.targeting.matchInclude")}
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                      <Input
-                        dir="ltr"
-                        className="text-left"
-                        value={rule.path}
-                        onChange={(event) =>
-                          handleUpdateRouteRule(index, {
-                            path: event.target.value,
-                          })
-                        }
-                        placeholder={t(
-                          "notifications.form.targeting.specificPathsPlaceholder"
-                        )}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveRouteRule(index)}
-                        disabled={customRouteRules.length === 1}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddRouteRule}
-                    className="w-fit"
+            {!isAllPagesTargeting && (
+              <div className="space-y-3">
+                {customRouteRules.map((rule, index) => (
+                  <div
+                    key={`route-${index}`}
+                    className="flex items-start gap-2"
                   >
-                    <Plus className="mr-2 size-4" />
-                    {t("notifications.form.targeting.addPath")}
-                  </Button>
-                </div>
-              )}
-            </Field>
-          </>
+                    <ToggleGroup
+                      type="single"
+                      value={rule.rule}
+                      onValueChange={(value) =>
+                        value &&
+                        handleUpdateRouteRule(index, {
+                          rule: value as RuleType,
+                        })
+                      }
+                      className="shrink-0 justify-start"
+                    >
+                      <ToggleGroupItem value="exact">
+                        {t("notifications.form.targeting.matchExact")}
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="include">
+                        {t("notifications.form.targeting.matchInclude")}
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <Input
+                      dir="ltr"
+                      className="text-left"
+                      value={rule.path}
+                      onChange={(event) =>
+                        handleUpdateRouteRule(index, {
+                          path: event.target.value,
+                        })
+                      }
+                      placeholder={t(
+                        "notifications.form.targeting.specificPathsPlaceholder"
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveRouteRule(index)}
+                      disabled={customRouteRules.length === 1}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddRouteRule}
+                  className="w-fit"
+                >
+                  <Plus className="mr-2 size-4" />
+                  {t("notifications.form.targeting.addPath")}
+                </Button>
+              </div>
+            )}
+
+            {/* Exclude Path section */}
+            <div className="mt-4 space-y-3 border-t pt-4">
+              <div className="space-y-1">
+                <FieldLabel>
+                  {t("notifications.form.targeting.excludeTitle")}
+                </FieldLabel>
+                <FieldDescription>
+                  {t("notifications.form.targeting.excludeDescription")}
+                </FieldDescription>
+              </div>
+
+              <div className="space-y-3">
+                {excludeUrlRules.map((rule, index) => (
+                  <div
+                    key={`exclude-route-${index}`}
+                    className="flex items-start gap-2"
+                  >
+                    <ToggleGroup
+                      type="single"
+                      value={rule.rule}
+                      onValueChange={(value) =>
+                        value &&
+                        handleUpdateExcludeRouteRule(index, {
+                          rule: value as RuleType,
+                        })
+                      }
+                      className="shrink-0 justify-start"
+                    >
+                      <ToggleGroupItem value="exact">
+                        {t("notifications.form.targeting.matchExact")}
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="include">
+                        {t("notifications.form.targeting.matchInclude")}
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <Input
+                      dir="ltr"
+                      className="text-left"
+                      value={rule.path}
+                      onChange={(event) =>
+                        handleUpdateExcludeRouteRule(index, {
+                          path: event.target.value,
+                        })
+                      }
+                      placeholder={t(
+                        "notifications.form.targeting.excludePlaceholder"
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveExcludeRouteRule(index)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddExcludeRouteRule}
+                  className="w-fit"
+                >
+                  <Plus className="mr-2 size-4" />
+                  {t("notifications.form.targeting.addExcludePath")}
+                </Button>
+              </div>
+            </div>
+          </Field>
         )}
 
         {["simple_popup", "float_banner"].includes(templateType || "") && (
