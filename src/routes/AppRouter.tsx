@@ -216,6 +216,10 @@ const router = createBrowserRouter([
             element: <Packages />,
           },
           {
+            path: "/packages/showcase",
+            element: <Packages defaultTab="showcase" />,
+          },
+          {
             path: "/discount-codes",
             element: <DiscountCodes />,
           },

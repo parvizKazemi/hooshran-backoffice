@@ -107,8 +107,17 @@ function useSidebarData() {
       },
       {
         title: t("nav.packages"),
-        url: "/packages",
         icon: IconPackage,
+        items: [
+          {
+            title: t("packages.tabs.creditPackages", "پکیج‌های اعتباری"),
+            url: "/packages",
+          },
+          {
+            title: t("packages.tabs.serviceShowcase", "مدیریت نمایش سرویس‌ها"),
+            url: "/packages/showcase",
+          },
+        ],
       },
       {
         title: t("nav.discountCodes"),
@@ -286,6 +295,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/monitoring",
               "/affiliate",
               "/packages",
+              "/packages/showcase",
               "/purchase-payments",
               "/user-settings",
               "/user-settings/welcome-packages",

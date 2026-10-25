@@ -43,8 +43,20 @@ export function NavMain({
     if (url === "/") {
       return location.pathname === "/";
     }
+    if (location.pathname === url) {
+      return true;
+    }
+    // If current path matches any navigation item exactly, avoid false prefix match
+    const hasExactMatchElsewhere = items.some(
+      (item) =>
+        (item.url && item.url === location.pathname) ||
+        item.items?.some((sub) => sub.url === location.pathname)
+    );
+    if (hasExactMatchElsewhere) {
+      return false;
+    }
     // For other paths, match if pathname starts with the url
-    return location.pathname === url || location.pathname.startsWith(url + "/");
+    return location.pathname.startsWith(url + "/");
   };
 
   const isCompleted = (url: string) => {

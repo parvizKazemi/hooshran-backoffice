@@ -1571,6 +1571,14 @@
   "packages": {
     "title": "Credit Packages",
     "description": "Manage credit purchase packages",
+    "tabs": {
+      "creditPackages": "Credit Packages",
+      "serviceShowcase": "Services Showcase"
+    },
+    "showcase": {
+      "title": "Services Showcase Configuration",
+      "description": "Manage display order, priority, and pinned services in the storefront showcase"
+    },
     "search": "Search packages...",
     "allTypes": "All types",
     "specialOfferOnly": "Trial/Special packages only",
