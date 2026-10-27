@@ -7,12 +7,14 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  ChevronDown,
   GripVertical,
   Image as ImageIcon,
   Mic,
   Video,
   Wand2,
 } from "lucide-react";
+import { useState } from "react";
 import type {
   ServiceIconType,
   ShowcaseCategory,
@@ -28,7 +30,7 @@ interface ShowcaseCategoryCardProps {
   onToggleCategoryBulk: (categoryId: string, checked: boolean) => void;
 }
 
-function CategoryIcon({
+export function CategoryIcon({
   icon,
   theme,
 }: {
@@ -79,6 +81,8 @@ export function ShowcaseCategoryCard({
   onToggleServicePin,
   onToggleCategoryBulk,
 }: ShowcaseCategoryCardProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   const {
     attributes,
     listeners,
@@ -128,9 +132,22 @@ export function ShowcaseCategoryCard({
 
           <CategoryIcon icon={category.icon} theme={category.colorTheme} />
 
-          <h2 className="text-foreground text-sm font-black sm:text-base">
-            {category.name}
-          </h2>
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="flex items-center gap-2 text-right transition-colors hover:opacity-80"
+            title={isExpanded ? "بستن لیست سرویس‌ها" : "باز کردن لیست سرویس‌ها"}
+          >
+            <h2 className="text-foreground text-sm font-black sm:text-base">
+              {category.name}
+            </h2>
+            <ChevronDown
+              className={cn(
+                "text-muted-foreground size-4 transition-transform duration-200",
+                isExpanded && "rotate-180"
+              )}
+            />
+          </button>
 
           <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-[11px] font-bold">
             {activeInCat.toLocaleString("fa-IR")} از{" "}
@@ -138,7 +155,7 @@ export function ShowcaseCategoryCard({
           </span>
         </div>
 
-        {/* Category Bulk Toggle */}
+        {/* Category Controls */}
         <div className="flex items-center gap-3">
           <span className="text-muted-foreground hidden text-xs font-bold sm:block">
             وضعیت کلی دسته:
@@ -162,27 +179,41 @@ export function ShowcaseCategoryCard({
       </div>
 
       {/* Services List inside Category */}
-      <div className="divide-border/60 divide-y">
-        <SortableContext
-          items={filteredServices.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {filteredServices.map((service) => (
-            <ShowcaseServiceRow
-              key={service.id}
-              service={service}
-              onToggleActive={onToggleServiceActive}
-              onTogglePin={onToggleServicePin}
-            />
-          ))}
-        </SortableContext>
+      {isExpanded ? (
+        <div className="divide-border/60 divide-y">
+          <SortableContext
+            items={filteredServices.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {filteredServices.map((service) => (
+              <ShowcaseServiceRow
+                key={service.id}
+                service={service}
+                onToggleActive={onToggleServiceActive}
+                onTogglePin={onToggleServicePin}
+              />
+            ))}
+          </SortableContext>
 
-        {filteredServices.length === 0 && (
-          <div className="text-muted-foreground py-8 text-center text-xs">
-            سرویسی متناسب با فیلتر یا جستجوی شما در این دسته‌بندی یافت نشد.
-          </div>
-        )}
-      </div>
+          {filteredServices.length === 0 && (
+            <div className="text-muted-foreground py-8 text-center text-xs">
+              سرویسی متناسب با فیلتر یا جستجوی شما در این دسته‌بندی یافت نشد.
+            </div>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          className="hover:bg-muted/40 text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-2 py-3 text-xs font-medium transition-colors"
+        >
+          <span>
+            مشاهده و مدیریت {totalInCat.toLocaleString("fa-IR")} سرویس این
+            دسته‌بندی
+          </span>
+          <ChevronDown className="size-3.5" />
+        </button>
+      )}
     </div>
   );
 }

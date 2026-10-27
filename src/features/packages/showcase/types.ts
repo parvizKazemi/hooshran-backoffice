@@ -11,6 +11,7 @@ export const ShowcaseServiceSchema = z.object({
   isActive: z.boolean(),
   isPinned: z.boolean(),
   badge: z.string().nullable().optional(),
+  slug: z.string().nullable().optional(),
   order: z.number().int().min(0),
   categoryId: z.string(),
 });

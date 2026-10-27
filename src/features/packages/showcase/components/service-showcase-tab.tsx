@@ -1,10 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  closestCenter,
+  type CollisionDetection,
+  closestCorners,
   DndContext,
   type DragEndEvent,
+  type DragStartEvent,
+  DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
+  pointerWithin,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -15,6 +20,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { GripVertical } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -29,7 +35,7 @@ import type {
   ShowcaseStatusFilter,
 } from "../types";
 import { ShowcaseAlertBanner } from "./showcase-alert-banner";
-import { ShowcaseCategoryCard } from "./showcase-category-card";
+import { CategoryIcon, ShowcaseCategoryCard } from "./showcase-category-card";
 import { ShowcaseFooter } from "./showcase-footer";
 import { ShowcaseToolbar } from "./showcase-toolbar";
 
@@ -39,12 +45,20 @@ export function ServiceShowcaseTab() {
 
   const [categories, setCategories] = useState<ShowcaseCategory[]>([]);
   const [config, setConfig] = useState<ShowcaseConfig>({
-    defaultRowsBeforeExpand: 3,
+    defaultRowsBeforeExpand: 4,
   });
   const [baseline, setBaseline] = useState<string>("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ShowcaseStatusFilter>("all");
+
+  // Track active dragging item for DragOverlay
+  const [activeDragItem, setActiveDragItem] = useState<{
+    id: string;
+    type: "category" | "service";
+    category?: ShowcaseCategory;
+    service?: ShowcaseService;
+  } | null>(null);
 
   // Sync data from query
   useEffect(() => {
@@ -62,17 +76,32 @@ export function ServiceShowcaseTab() {
     return JSON.stringify(current) !== baseline;
   }, [categories, config, baseline]);
 
-  // Sensor configuration for mobile & desktop drag-and-drop
+  // Sensor configuration: Responsive mouse and touch sensors
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement required before drag starts (allows clean clicks on switches/buttons)
+        distance: 5, // 5px movement required for desktop drag
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // 150ms press before drag on touch devices to avoid scroll conflict
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Custom collision detection prioritizing pointerWithin, falling back to closestCorners
+  const collisionDetectionStrategy: CollisionDetection = useCallback((args) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) {
+      return pointerCollisions;
+    }
+    return closestCorners(args);
+  }, []);
 
   // Toggle active status for single service
   const handleToggleServiceActive = useCallback((serviceId: string) => {
@@ -144,10 +173,39 @@ export function ServiceShowcaseTab() {
     []
   );
 
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const { active } = event;
+    const type = active.data.current?.type as
+      | "category"
+      | "service"
+      | undefined;
+    if (type === "category") {
+      const cat = active.data.current?.category as ShowcaseCategory | undefined;
+      setActiveDragItem({
+        id: String(active.id),
+        type: "category",
+        category: cat,
+      });
+    } else if (type === "service") {
+      const srv = active.data.current?.service as ShowcaseService | undefined;
+      setActiveDragItem({
+        id: String(active.id),
+        type: "service",
+        service: srv,
+      });
+    }
+  }, []);
+
+  const handleDragCancel = useCallback(() => {
+    setActiveDragItem(null);
+  }, []);
+
   // Drag and Drop End Handler (both Category reordering & Service reordering)
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
+      setActiveDragItem(null);
+
       if (!over || active.id === over.id) return;
 
       const activeType = active.data.current?.type;
@@ -179,9 +237,16 @@ export function ServiceShowcaseTab() {
             if (cat.id !== activeService.categoryId) return cat;
 
             const oldIndex = cat.services.findIndex((s) => s.id === active.id);
-            const newIndex = cat.services.findIndex((s) => s.id === over.id);
+            if (oldIndex === -1) return cat;
 
-            if (oldIndex === -1 || newIndex === -1) return cat;
+            let newIndex = cat.services.findIndex((s) => s.id === over.id);
+
+            // If dropped directly onto category container or header
+            if (newIndex === -1 && over.id === cat.id) {
+              newIndex = cat.services.length - 1;
+            }
+
+            if (newIndex === -1 || oldIndex === newIndex) return cat;
 
             const reordered = arrayMove(cat.services, oldIndex, newIndex).map(
               (srv, idx) => ({ ...srv, order: idx + 1 })
@@ -225,25 +290,28 @@ export function ServiceShowcaseTab() {
           filteredServices,
         };
       })
-      .filter((cat) => cat.filteredServices.length > 0 || !searchQuery);
+      .filter((cat) => {
+        if (!searchQuery.trim() && statusFilter === "all") return true;
+        return cat.filteredServices.length > 0;
+      });
   }, [categories, searchQuery, statusFilter]);
 
-  // Total count computations
-  const totalServicesCount = useMemo(
-    () => categories.reduce((sum, c) => sum + c.services.length, 0),
-    [categories]
-  );
+  // Overall counters for alert banner
+  const totalServicesCount = useMemo(() => {
+    return categories.reduce((sum, c) => sum + c.services.length, 0);
+  }, [categories]);
 
-  // Cancel changes
+  // Revert unsaved changes
   const handleCancel = useCallback(() => {
-    if (!baseline) return;
-    try {
-      const parsed: ShowcaseData = JSON.parse(baseline);
-      setCategories(parsed.categories);
-      setConfig(parsed.config);
-      toast.info("تغییرات لغو شد و به حالت ذخیره شده بازگشت.");
-    } catch {
-      // ignore
+    if (baseline) {
+      try {
+        const parsed = JSON.parse(baseline) as ShowcaseData;
+        setCategories(parsed.categories);
+        setConfig(parsed.config);
+        toast.info("تغییرات به آخرین حالت ذخیره‌شده بازگردانده شد.");
+      } catch {
+        // Fallback
+      }
     }
   }, [baseline]);
 
@@ -293,8 +361,10 @@ export function ServiceShowcaseTab() {
       {/* 3. Drag and Drop Sortable Container */}
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={collisionDetectionStrategy}
         modifiers={[restrictToVerticalAxis]}
+        onDragStart={handleDragStart}
+        onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
@@ -322,6 +392,42 @@ export function ServiceShowcaseTab() {
             )}
           </div>
         </SortableContext>
+
+        {/* Drag Overlay for smooth, jitter-free dragging UX */}
+        <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+          {activeDragItem?.type === "category" && activeDragItem.category ? (
+            <div className="bg-card border-primary/50 ring-primary/40 flex items-center justify-between rounded-2xl border p-4 opacity-95 shadow-2xl ring-2 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <GripVertical className="text-primary size-5" />
+                <CategoryIcon
+                  icon={activeDragItem.category.icon}
+                  theme={activeDragItem.category.colorTheme}
+                />
+                <h2 className="text-foreground text-sm font-black sm:text-base">
+                  {activeDragItem.category.name}
+                </h2>
+                <span className="bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-[11px] font-bold">
+                  {activeDragItem.category.services.length.toLocaleString(
+                    "fa-IR"
+                  )}{" "}
+                  سرویس
+                </span>
+              </div>
+            </div>
+          ) : activeDragItem?.type === "service" && activeDragItem.service ? (
+            <div className="bg-card border-primary/50 ring-primary/40 flex items-center justify-between rounded-xl border p-3.5 opacity-95 shadow-2xl ring-2 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <GripVertical className="text-primary size-4" />
+                <span className="text-foreground text-xs font-bold">
+                  {activeDragItem.service.title}
+                </span>
+              </div>
+              <span className="text-muted-foreground text-[11px] font-medium">
+                {activeDragItem.service.costDescription}
+              </span>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
 
       {/* 4. Sticky Save Action Footer */}
