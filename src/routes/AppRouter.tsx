@@ -97,6 +97,9 @@ const VpnDetectionSettings = lazy(
 );
 const Monitoring = lazy(() => import("../features/monitoring/Monitoring.tsx"));
 const Affiliate = lazy(() => import("../features/affiliate/Affiliate.tsx"));
+const FeedbackManagement = lazy(
+  () => import("../features/feedback/FeedbackManagement.tsx")
+);
 
 function AboutUsPage() {
   const { t } = useTranslation("common");
@@ -312,6 +315,14 @@ const router = createBrowserRouter([
           {
             path: "/affiliate",
             element: <Affiliate />,
+          },
+          {
+            path: "/feedback-management",
+            element: <FeedbackManagement />,
+          },
+          {
+            path: "/feedbacks",
+            element: <Navigate to="/feedback-management" replace />,
           },
         ],
       },

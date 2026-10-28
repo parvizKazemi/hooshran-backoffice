@@ -7,6 +7,7 @@ import {
   // IconCreditCard,
   IconInnerShadowTop,
   IconLogout,
+  IconMessageHeart,
   IconPackage,
   IconServerCog,
   IconSettings,
@@ -94,6 +95,11 @@ function useSidebarData() {
         title: t("nav.notifications"),
         url: "/notifications",
         icon: IconBell,
+      },
+      {
+        title: t("nav.feedbackManagement", "مدیریت بازخورد کاربران"),
+        url: "/feedback-management",
+        icon: IconMessageHeart,
       },
       {
         title: t("nav.monitoring"),
