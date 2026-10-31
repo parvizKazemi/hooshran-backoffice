@@ -101,13 +101,20 @@ export function FeedbackRulesTab() {
     }
   }, [serverRules]);
 
-  // Normalize URL (strip leading/trailing whitespace, keep format clean)
+  // Normalize URL (strip leading/trailing whitespace, normalize root/wildcard to "*")
   const normalizeUrl = (raw: string) => {
-    let clean = raw.trim();
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      return "";
+    }
+    if (trimmed === "/" || trimmed === "*" || trimmed === "/*") {
+      return "*";
+    }
+    let clean = trimmed;
     if (clean.startsWith("/")) {
       clean = clean.replace(/^\/+/, "");
     }
-    return clean;
+    return clean || "*";
   };
 
   // --- Ready Modal Handlers ---
@@ -116,7 +123,7 @@ export function FeedbackRulesTab() {
     if (rule) {
       setEditingReadyId(rule.id);
       setReadyMatchType(rule.matchType);
-      setReadyUrl(rule.url);
+      setReadyUrl(rule.url === "*" ? "/" : rule.url);
       setReadyMessages(rule.messages.length > 0 ? [...rule.messages] : [""]);
       setReadyIsActive(rule.isActive);
     } else {
@@ -211,7 +218,7 @@ export function FeedbackRulesTab() {
     if (rule) {
       setEditingAutoId(rule.id);
       setAutoMatchType(rule.matchType);
-      setAutoUrl(rule.url);
+      setAutoUrl(rule.url === "*" ? "/" : rule.url);
       setAutoDelay(rule.delay);
       setAutoMessage(rule.message);
       setAutoIsActive(rule.isActive);
@@ -413,12 +420,21 @@ export function FeedbackRulesTab() {
                         </Badge>
                       </td>
                       <td className="px-3 py-4 align-middle">
-                        <code
-                          className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                          dir="ltr"
-                        >
-                          /{r.url}
-                        </code>
+                        {r.url === "*" || r.url === "" || r.url === "/" ? (
+                          <Badge
+                            variant="outline"
+                            className="border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                          >
+                            همه صفحات (/*)
+                          </Badge>
+                        ) : (
+                          <code
+                            className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                            dir="ltr"
+                          >
+                            /{r.url}
+                          </code>
+                        )}
                       </td>
                       <td className="max-w-xs px-3 py-4 align-middle">
                         <div className="flex flex-wrap gap-1.5">
@@ -557,12 +573,21 @@ export function FeedbackRulesTab() {
                         </Badge>
                       </td>
                       <td className="px-3 py-4 align-middle">
-                        <code
-                          className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                          dir="ltr"
-                        >
-                          /{r.url}
-                        </code>
+                        {r.url === "*" || r.url === "" || r.url === "/" ? (
+                          <Badge
+                            variant="outline"
+                            className="border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                          >
+                            همه صفحات (/*)
+                          </Badge>
+                        ) : (
+                          <code
+                            className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                            dir="ltr"
+                          >
+                            /{r.url}
+                          </code>
+                        )}
                       </td>
                       <td className="px-3 py-4 align-middle">
                         <span className="inline-flex items-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-700 dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-300">
@@ -741,7 +766,7 @@ export function FeedbackRulesTab() {
                       setReadyErrors((prev) => ({ ...prev, url: undefined }));
                     }
                   }}
-                  placeholder="مثال: subscription یا dashboard/reports"
+                  placeholder="مثال: / برای همه صفحات، یا subscription"
                   className="w-full bg-transparent py-2.5 pl-3 text-sm text-slate-800 outline-none dark:text-slate-100"
                   dir="ltr"
                 />
@@ -752,8 +777,8 @@ export function FeedbackRulesTab() {
                 </p>
               )}
               <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
-                «شامل» یعنی آدرس صفحه شامل این متن باشد. «دقیقاً» یعنی URL کامل
-                یکسان باشد.
+                وارد کردن «/» یا «*» باعث نمایش در تمام صفحات می‌شود. «شامل»
+                یعنی آدرس صفحه شامل این متن باشد.
               </p>
             </div>
 
@@ -929,7 +954,7 @@ export function FeedbackRulesTab() {
                       setAutoErrors((prev) => ({ ...prev, url: undefined }));
                     }
                   }}
-                  placeholder="مثال: tools یا dashboard/reports"
+                  placeholder="مثال: / برای همه صفحات، یا tools"
                   className="w-full bg-transparent py-2.5 pl-3 text-sm text-slate-800 outline-none dark:text-slate-100"
                   dir="ltr"
                 />
@@ -939,6 +964,9 @@ export function FeedbackRulesTab() {
                   {autoErrors.url}
                 </p>
               )}
+              <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+                وارد کردن «/» یا «*» باعث نمایش در تمام صفحات می‌شود.
+              </p>
             </div>
 
             {/* Delay with Stepper */}

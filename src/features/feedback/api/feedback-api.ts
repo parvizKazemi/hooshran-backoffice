@@ -125,7 +125,7 @@ export function mapPageConfigsToFeedbackRules(
           ? "contains"
           : "exact";
 
-    const cleanUrl = c.pagePath === "*" ? "" : c.pagePath.replace(/^\/+/, "");
+    const cleanUrl = c.pagePath === "*" ? "*" : c.pagePath.replace(/^\/+/, "");
 
     if (Array.isArray(c.defaultMessages) && c.defaultMessages.length > 0) {
       readyRules.push({
@@ -196,7 +196,10 @@ export async function saveFeedbackRules(
 
     // Update or create ready rules
     for (const ready of rules.readyRules) {
-      const pagePath = ready.url ? `/${ready.url}` : "*";
+      const pagePath =
+        !ready.url || ready.url === "*" || ready.url === "/"
+          ? "*"
+          : `/${ready.url.replace(/^\/+/, "")}`;
       const existing =
         typeof ready.id === "string" ? configMap.get(ready.id) : undefined;
 
@@ -222,7 +225,10 @@ export async function saveFeedbackRules(
 
     // Update or create auto rules
     for (const auto of rules.autoRules) {
-      const pagePath = auto.url ? `/${auto.url}` : "*";
+      const pagePath =
+        !auto.url || auto.url === "*" || auto.url === "/"
+          ? "*"
+          : `/${auto.url.replace(/^\/+/, "")}`;
       const existing =
         typeof auto.id === "string" ? configMap.get(auto.id) : undefined;
 
