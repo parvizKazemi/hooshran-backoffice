@@ -2,24 +2,31 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   addFeedbackAdminNote,
+  createFeedbackPageConfig,
   deleteFeedbackAdminNote,
+  deleteFeedbackPageConfig,
   getFeedbackAnalytics,
   getFeedbackByUuid,
   getFeedbackConfig,
+  getFeedbackPageConfigs,
   getFeedbackRules,
   getFeedbacks,
   saveFeedbackRules,
   updateFeedbackConfig,
+  updateFeedbackPageConfig,
   updateFeedbackStatus,
 } from "../api/feedback-api";
 import type {
   AdminFeedbackQuery,
+  CreateFeedbackPageConfigPayload,
   FeedbackRulesConfig,
   FeedbackStatus,
   UpdateFeedbackConfigPayload,
+  UpdateFeedbackPageConfigPayload,
 } from "../types";
 
 export const FEEDBACK_QUERY_KEYS = {
+  pageConfigs: ["feedback", "page-configs"] as const,
   rules: ["feedback", "rules"] as const,
   feedbacks: (query?: AdminFeedbackQuery) =>
     ["feedback", "list", query] as const,
@@ -27,6 +34,80 @@ export const FEEDBACK_QUERY_KEYS = {
   config: ["feedback", "config"] as const,
   analytics: ["feedback", "analytics"] as const,
 };
+
+export function useFeedbackPageConfigs() {
+  return useQuery({
+    queryKey: FEEDBACK_QUERY_KEYS.pageConfigs,
+    queryFn: getFeedbackPageConfigs,
+  });
+}
+
+export function useCreateFeedbackPageConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateFeedbackPageConfigPayload) =>
+      createFeedbackPageConfig(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.pageConfigs,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.rules,
+      });
+      toast.success("قانون صفحه با موفقیت ایجاد شد");
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "خطا در ایجاد قانون صفحه");
+    },
+  });
+}
+
+export function useUpdateFeedbackPageConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      uuid,
+      payload,
+    }: {
+      uuid: string;
+      payload: UpdateFeedbackPageConfigPayload;
+    }) => updateFeedbackPageConfig(uuid, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.pageConfigs,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.rules,
+      });
+      toast.success("تنظیمات صفحه به‌روزرسانی شد");
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "خطا در ویرایش تنظیمات صفحه");
+    },
+  });
+}
+
+export function useDeleteFeedbackPageConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (uuid: string) => deleteFeedbackPageConfig(uuid),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.pageConfigs,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.rules,
+      });
+      toast.success("قانون صفحه حذف شد");
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "خطا در حذف قانون صفحه");
+    },
+  });
+}
 
 export function useFeedbackRules() {
   return useQuery({
@@ -42,6 +123,9 @@ export function useSaveFeedbackRules() {
     mutationFn: (rules: FeedbackRulesConfig) => saveFeedbackRules(rules),
     onSuccess: (saved) => {
       queryClient.setQueryData(FEEDBACK_QUERY_KEYS.rules, saved);
+      void queryClient.invalidateQueries({
+        queryKey: FEEDBACK_QUERY_KEYS.pageConfigs,
+      });
       toast.success("تنظیمات قوانین بازخورد با موفقیت ذخیره شد");
     },
     onError: (error: Error) => {

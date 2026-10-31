@@ -1,4 +1,7 @@
 export const FEEDBACK_ENDPOINTS = {
+  pageConfigs: "/admin/feedbacks/page-configs",
+  pageConfigByUuid: (uuid: string) =>
+    `/admin/feedbacks/page-configs/${encodeURIComponent(uuid)}`,
   rules: "/admin/feedback-rules",
   feedbacks: "/admin/feedbacks",
   feedbackByUuid: (uuid: string) =>

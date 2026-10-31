@@ -37,6 +37,34 @@ export interface FeedbackRulesConfig {
   autoRules: AutoMessageRule[];
 }
 
+export interface FeedbackPageConfig {
+  uuid: string;
+  pagePath: string;
+  title: string;
+  promptMessage?: string | null;
+  showAfterSeconds: number;
+  defaultMessages: string[];
+  isActive: boolean;
+  order: number;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateFeedbackPageConfigPayload {
+  pagePath: string;
+  title: string;
+  promptMessage?: string;
+  showAfterSeconds?: number;
+  defaultMessages?: string[];
+  isActive?: boolean;
+  order?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export type UpdateFeedbackPageConfigPayload =
+  Partial<CreateFeedbackPageConfigPayload>;
+
 export interface FeedbackUserSubscription {
   packageId?: number | null;
   packageName?: string | null;

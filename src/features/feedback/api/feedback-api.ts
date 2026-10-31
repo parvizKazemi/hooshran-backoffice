@@ -2,15 +2,19 @@ import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from "@/services/api";
 import type {
   AdminFeedbackQuery,
   AutoMessageRule,
+  CreateFeedbackPageConfigPayload,
   FeedbackAdminNote,
   FeedbackAnalytics,
   FeedbackConfig,
   FeedbackItem,
+  FeedbackMatchType,
+  FeedbackPageConfig,
   FeedbackRulesConfig,
   FeedbackStatus,
   PaginatedFeedbacksResponse,
   ReadyMessageRule,
   UpdateFeedbackConfigPayload,
+  UpdateFeedbackPageConfigPayload,
 } from "../types";
 import { FEEDBACK_ENDPOINTS } from "./endpoints";
 
@@ -55,32 +59,129 @@ function setLocalRules(rules: FeedbackRulesConfig): void {
 }
 
 /**
- * Fetch feedback rules. Attempts API call first, falls back gracefully to localStorage.
+ * Admin: List all page-specific feedback configurations from backend
+ */
+export async function getFeedbackPageConfigs(): Promise<FeedbackPageConfig[]> {
+  try {
+    const data = await apiGet<FeedbackPageConfig[]>(
+      FEEDBACK_ENDPOINTS.pageConfigs
+    );
+    if (Array.isArray(data)) {
+      return data;
+    }
+    return [];
+  } catch (error) {
+    if (error instanceof ApiError && error.statusCode === 404) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+/**
+ * Admin: Create a new page feedback configuration
+ */
+export async function createFeedbackPageConfig(
+  payload: CreateFeedbackPageConfigPayload
+): Promise<FeedbackPageConfig> {
+  return apiPost<FeedbackPageConfig>(FEEDBACK_ENDPOINTS.pageConfigs, payload);
+}
+
+/**
+ * Admin: Update an existing page feedback configuration
+ */
+export async function updateFeedbackPageConfig(
+  uuid: string,
+  payload: UpdateFeedbackPageConfigPayload
+): Promise<FeedbackPageConfig> {
+  return apiPatch<FeedbackPageConfig>(
+    FEEDBACK_ENDPOINTS.pageConfigByUuid(uuid),
+    payload
+  );
+}
+
+/**
+ * Admin: Delete a page feedback configuration
+ */
+export async function deleteFeedbackPageConfig(uuid: string): Promise<void> {
+  return apiDelete<void>(FEEDBACK_ENDPOINTS.pageConfigByUuid(uuid));
+}
+
+/**
+ * Helper: Converts FeedbackPageConfig array into readyRules and autoRules
+ */
+export function mapPageConfigsToFeedbackRules(
+  configs: FeedbackPageConfig[]
+): FeedbackRulesConfig {
+  const readyRules: ReadyMessageRule[] = [];
+  const autoRules: AutoMessageRule[] = [];
+
+  for (const c of configs) {
+    const rawMatch = c.metadata?.matchType;
+    const matchType: FeedbackMatchType =
+      rawMatch === "exact" || rawMatch === "contains"
+        ? rawMatch
+        : c.pagePath === "*" || !c.pagePath.startsWith("/")
+          ? "contains"
+          : "exact";
+
+    const cleanUrl = c.pagePath === "*" ? "" : c.pagePath.replace(/^\/+/, "");
+
+    if (Array.isArray(c.defaultMessages) && c.defaultMessages.length > 0) {
+      readyRules.push({
+        id: c.uuid,
+        matchType,
+        url: cleanUrl,
+        messages: c.defaultMessages,
+        isActive: c.isActive,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      });
+    }
+
+    if (c.promptMessage || c.showAfterSeconds > 0) {
+      autoRules.push({
+        id: c.uuid,
+        matchType,
+        url: cleanUrl,
+        delay: c.showAfterSeconds || 5,
+        message: c.promptMessage || "",
+        isActive: c.isActive,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      });
+    }
+  }
+
+  return { readyRules, autoRules };
+}
+
+/**
+ * Fetch feedback rules. Fetches real page-configs from backend, falls back gracefully to local storage if offline.
  */
 export async function getFeedbackRules(): Promise<FeedbackRulesConfig> {
   try {
-    const remote = await apiGet<FeedbackRulesConfig>(FEEDBACK_ENDPOINTS.rules);
-    if (
-      remote &&
-      Array.isArray(remote.readyRules) &&
-      Array.isArray(remote.autoRules)
-    ) {
-      setLocalRules(remote);
-      return remote;
+    const configs = await getFeedbackPageConfigs();
+    if (configs && configs.length > 0) {
+      const mapped = mapPageConfigsToFeedbackRules(configs);
+      setLocalRules(mapped);
+      return mapped;
     }
   } catch (error) {
     if (
-      error instanceof ApiError &&
-      (error.statusCode === 404 || error.statusCode === 502)
+      !(
+        error instanceof ApiError &&
+        (error.statusCode === 404 || error.statusCode === 502)
+      )
     ) {
-      return getLocalRules();
+      // ignore network errors and fallback
     }
   }
   return getLocalRules();
 }
 
 /**
- * Save feedback rules. Persists to localStorage and sends to API.
+ * Save feedback rules in batch (syncs to backend page-configs)
  */
 export async function saveFeedbackRules(
   rules: FeedbackRulesConfig
@@ -88,19 +189,86 @@ export async function saveFeedbackRules(
   setLocalRules(rules);
 
   try {
-    const response = await apiPost<FeedbackRulesConfig>(
-      FEEDBACK_ENDPOINTS.rules,
-      rules
-    );
-    if (response && Array.isArray(response.readyRules)) {
-      setLocalRules(response);
-      return response;
+    // Sync each rule to real backend page-configs
+    const existingConfigs = await getFeedbackPageConfigs();
+    const configMap = new Map<string, FeedbackPageConfig>();
+    existingConfigs.forEach((c) => configMap.set(c.uuid, c));
+
+    // Update or create ready rules
+    for (const ready of rules.readyRules) {
+      const pagePath = ready.url ? `/${ready.url}` : "*";
+      const existing =
+        typeof ready.id === "string" ? configMap.get(ready.id) : undefined;
+
+      if (existing) {
+        await updateFeedbackPageConfig(existing.uuid, {
+          pagePath,
+          defaultMessages: ready.messages,
+          isActive: ready.isActive,
+          metadata: { ...existing.metadata, matchType: ready.matchType },
+        });
+      } else {
+        const created = await createFeedbackPageConfig({
+          pagePath,
+          title: "پیام‌های آماده بازخورد",
+          defaultMessages: ready.messages,
+          showAfterSeconds: 5,
+          isActive: ready.isActive,
+          metadata: { matchType: ready.matchType },
+        });
+        configMap.set(created.uuid, created);
+      }
     }
-  } catch (error) {
-    // If endpoint is not yet mounted in backend, local persistence succeeds seamlessly
-    if (error instanceof ApiError && error.statusCode === 404) {
-      return rules;
+
+    // Update or create auto rules
+    for (const auto of rules.autoRules) {
+      const pagePath = auto.url ? `/${auto.url}` : "*";
+      const existing =
+        typeof auto.id === "string" ? configMap.get(auto.id) : undefined;
+
+      if (existing) {
+        await updateFeedbackPageConfig(existing.uuid, {
+          pagePath,
+          promptMessage: auto.message,
+          showAfterSeconds: auto.delay,
+          isActive: auto.isActive,
+          metadata: { ...existing.metadata, matchType: auto.matchType },
+        });
+      } else {
+        const created = await createFeedbackPageConfig({
+          pagePath,
+          title: "پیام خودکار به کاربر",
+          promptMessage: auto.message,
+          showAfterSeconds: auto.delay,
+          defaultMessages: [],
+          isActive: auto.isActive,
+          metadata: { matchType: auto.matchType },
+        });
+        configMap.set(created.uuid, created);
+      }
     }
+
+    // Find active UUIDs in current rule set
+    const activeUuids = new Set<string>();
+    rules.readyRules.forEach((r) => {
+      if (typeof r.id === "string" && !r.id.startsWith("ready_")) {
+        activeUuids.add(r.id);
+      }
+    });
+    rules.autoRules.forEach((a) => {
+      if (typeof a.id === "string" && !a.id.startsWith("auto_")) {
+        activeUuids.add(a.id);
+      }
+    });
+
+    // Delete configs that were removed completely
+    for (const c of existingConfigs) {
+      if (!activeUuids.has(c.uuid)) {
+        await deleteFeedbackPageConfig(c.uuid);
+      }
+    }
+  } catch {
+    // If backend endpoint is temporarily unreachable, local rules are already preserved
   }
 
   return rules;
