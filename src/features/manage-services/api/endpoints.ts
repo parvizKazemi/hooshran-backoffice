@@ -39,4 +39,7 @@ export const MANAGE_SERVICES_ENDPOINTS = {
   /** PATCH → update base API service fields (like templateName) on `api_services` table */
   patchBaseService: (uuid: string) =>
     `/api-services/${encodeURIComponent(uuid)}`,
+  /** DELETE → soft-delete an API service (model) from database */
+  deleteApiService: (uuid: string) =>
+    `/api-service/${encodeURIComponent(uuid)}`,
 } as const;

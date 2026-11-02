@@ -1208,7 +1208,8 @@
     },
     "deleteDialog": {
       "title": "Delete service",
-      "description": "Choose an option for “{{name}}”. Nothing is persisted until final save.",
+      "description": "Choose an option for “{{name}}”: remove it from this category only, or delete it entirely from the platform.",
+      "descriptionConfirm": "Are you sure you want to permanently delete “{{name}}”? This action cannot be undone from the management panel.",
       "removeFromCategory": "Remove from “{{category}}”",
       "deleteEntire": "Delete service entirely"
     },
@@ -1279,7 +1280,9 @@
       "toggleFailed": "Failed to update service status",
       "customSaved": "Service edits saved",
       "reindexSuccess": "Search index rebuilt ({{count}} services)",
-      "reindexFailed": "Failed to rebuild search index"
+      "reindexFailed": "Failed to rebuild search index",
+      "deleteSuccess": "Service deleted successfully",
+      "deleteFailed": "Failed to delete service"
     },
     "hierarchy": {
       "title": "Service structure",

@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { IconAlertTriangle, IconLoader2 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { ManageService, ServiceDeleteMode } from "../types";
 
@@ -19,6 +19,7 @@ type ServiceDeleteDialogProps = {
   service: ManageService | null;
   categoryName?: string | null;
   allowRemoveFromCategory: boolean;
+  isDeleting?: boolean;
   onConfirm: (mode: ServiceDeleteMode) => void;
 };
 
@@ -28,6 +29,7 @@ export function ServiceDeleteDialog({
   service,
   categoryName,
   allowRemoveFromCategory,
+  isDeleting = false,
   onConfirm,
 }: ServiceDeleteDialogProps) {
   const { t } = useTranslation("common");
@@ -43,9 +45,13 @@ export function ServiceDeleteDialog({
             {t("manageServices.deleteDialog.title")}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center leading-relaxed">
-            {t("manageServices.deleteDialog.description", {
-              name: service?.name ?? "",
-            })}
+            {allowRemoveFromCategory
+              ? t("manageServices.deleteDialog.description", {
+                  name: service?.name ?? "",
+                })
+              : t("manageServices.deleteDialog.descriptionConfirm", {
+                  name: service?.name ?? "",
+                })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -54,6 +60,7 @@ export function ServiceDeleteDialog({
             <Button
               type="button"
               variant="outline"
+              disabled={isDeleting}
               onClick={() => onConfirm("fromCategory")}
             >
               {t("manageServices.deleteDialog.removeFromCategory", {
@@ -62,18 +69,22 @@ export function ServiceDeleteDialog({
             </Button>
           ) : null}
           <AlertDialogAction
-            className="bg-destructive hover:bg-destructive/90 text-white"
+            className="bg-destructive hover:bg-destructive/90 gap-2 text-white"
+            disabled={isDeleting}
             onClick={(event) => {
               event.preventDefault();
               onConfirm("entire");
             }}
           >
+            {isDeleting ? (
+              <IconLoader2 className="size-4 animate-spin" />
+            ) : null}
             {t("manageServices.deleteDialog.deleteEntire")}
           </AlertDialogAction>
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel className="w-full">
+          <AlertDialogCancel disabled={isDeleting} className="w-full">
             {t("manageServices.form.cancel")}
           </AlertDialogCancel>
         </AlertDialogFooter>

@@ -141,18 +141,16 @@ function ServiceRowContent({
             <IconEdit className="size-3.5" />
             {t("manageServices.actions.edit")}
           </Button>
-          {reorderEnabled ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 text-xs"
-              onClick={() => onDelete(service)}
-            >
-              <IconTrash className="size-3.5" />
-              {t("manageServices.actions.delete")}
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 gap-1.5 text-xs"
+            onClick={() => onDelete(service)}
+          >
+            <IconTrash className="size-3.5" />
+            {t("manageServices.actions.delete")}
+          </Button>
         </div>
       </TableCell>
     </>

@@ -1,4 +1,4 @@
-import { apiGet, apiPatch, apiPost, apiPut } from "@/services/api";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/services/api";
 import type { ManageService } from "../types";
 import { mapAdminApiServiceToManageService } from "@/features/manage-services/utils/map-admin-api-service";
 import {
@@ -479,4 +479,11 @@ export type ReindexSearchResult = {
 
 export async function reindexManageServicesSearch(): Promise<ReindexSearchResult> {
   return apiPost<ReindexSearchResult>(MANAGE_SERVICES_ENDPOINTS.reindexSearch);
+}
+
+/**
+ * Delete an API service (model) permanently or soft-delete on backend
+ */
+export async function deleteApiService(uuid: string): Promise<boolean> {
+  return apiDelete<boolean>(MANAGE_SERVICES_ENDPOINTS.deleteApiService(uuid));
 }

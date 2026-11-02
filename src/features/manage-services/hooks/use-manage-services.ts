@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
+  deleteApiService,
   fetchManageServiceDetail,
   fetchManageServices,
   fetchManageServicesBatch,
@@ -219,6 +220,37 @@ export function useReindexManageServicesSearch() {
         error instanceof Error
           ? error.message
           : t("manageServices.toasts.reindexFailed")
+      );
+    },
+  });
+}
+
+/** Delete an API service (model) via DELETE /api-service/:uuid */
+export function useDeleteManageService(category?: string | null) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation("common");
+
+  return useMutation({
+    mutationFn: (uuid: string) => deleteApiService(uuid),
+    onSuccess: async (_data, uuid) => {
+      // Optimistically remove the deleted service from cache
+      queryClient.setQueryData<ManageService[]>(
+        manageServicesQueryKey(category),
+        (current) => (current ?? []).filter((item) => item.uuid !== uuid)
+      );
+
+      // Invalidate all services queries so catalogs, pickers, and tables refresh
+      await queryClient.invalidateQueries({
+        queryKey: MANAGE_SERVICES_QUERY_KEY,
+      });
+
+      toast.success(t("manageServices.toasts.deleteSuccess"));
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("manageServices.toasts.deleteFailed")
       );
     },
   });

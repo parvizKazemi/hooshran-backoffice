@@ -31,6 +31,7 @@ import {
   resolveServiceTemplateName,
 } from "./constants";
 import {
+  useDeleteManageService,
   useManageServiceDetail,
   useManageServices,
   useReindexManageServicesSearch,
@@ -252,6 +253,7 @@ export default function ManageServices() {
   });
 
   const saveServices = useSaveManageServices();
+  const deleteService = useDeleteManageService(categoryParam);
   const loadServiceDetail = useManageServiceDetail();
   const reindexSearch = useReindexManageServicesSearch();
   const upsertCustomData = useUpsertServiceCustomData(categoryParam);
@@ -699,7 +701,7 @@ export default function ManageServices() {
     );
   };
 
-  const handleDeleteConfirm = (mode: ServiceDeleteMode) => {
+  const handleDeleteConfirm = async (mode: ServiceDeleteMode) => {
     if (!deletingService) return;
 
     if (mode === "fromCategory" && categoryFilter !== "all") {
@@ -708,15 +710,32 @@ export default function ManageServices() {
           removeServiceFromCategory(prev, deletingService.uuid, categoryFilter)
         )
       );
+      setDeletingService(null);
     } else {
-      setItems((prev) =>
-        applyServiceOrders(
-          prev.filter((item) => item.uuid !== deletingService.uuid)
-        )
-      );
+      if (deletingService.isLocal) {
+        setItems((prev) =>
+          applyServiceOrders(
+            prev.filter((item) => item.uuid !== deletingService.uuid)
+          )
+        );
+        setDeletingService(null);
+      } else {
+        try {
+          await deleteService.mutateAsync(deletingService.uuid);
+          setItems((prev) =>
+            applyServiceOrders(
+              prev.filter((item) => item.uuid !== deletingService.uuid)
+            )
+          );
+          setBaseline((prev) =>
+            prev.filter((item) => item.uuid !== deletingService.uuid)
+          );
+          setDeletingService(null);
+        } catch {
+          // Toast is handled by useDeleteManageService onError
+        }
+      }
     }
-
-    setDeletingService(null);
   };
 
   return (
@@ -948,11 +967,12 @@ export default function ManageServices() {
       <ServiceDeleteDialog
         open={!!deletingService}
         onOpenChange={(open) => {
-          if (!open) setDeletingService(null);
+          if (!open && !deleteService.isPending) setDeletingService(null);
         }}
         service={deletingService}
         categoryName={selectedCategoryName}
         allowRemoveFromCategory={categoryFilter !== "all"}
+        isDeleting={deleteService.isPending}
         onConfirm={handleDeleteConfirm}
       />
     </div>
