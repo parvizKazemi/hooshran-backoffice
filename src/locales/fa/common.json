@@ -2842,6 +2842,8 @@
       "capAmountHint": "حداکثر سقف پرداختی برای یک فاکتور اول",
       "buyerDiscountPercentage": "درصد پورسانت کدتخفیف (%):",
       "buyerDiscountPercentageHint": "درصد تخفیف پیش‌فرض برای کدتخفیف. قابل تغییر به صورت اختصاصی",
+      "allowPurchasedPlanToUseDiscountCode": "اجازه خرید پلن برای استفاده از کد تخفیف",
+      "allowPurchasedPlanToUseDiscountCodeHint": "با فعال بودن، کاربر میتواند بعد از خرید اشتراک هم از کد تخفیف استفاده کند",
       "renewalCommissionRate": "درصد پورسانت تمدیدها (%):",
       "renewalCommissionRateHint": "پورسانت خریدهای بعدی کاربر ارجاع‌شده",
       "renewalSunsetDays": "مدت اعتبار پورسانت تمدید (روز):",

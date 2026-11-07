@@ -88,6 +88,7 @@ export type AffiliateProgramRules = {
   firstCommissionRate: number;
   capAmount: number;
   buyerDiscountPercentage: number;
+  allowPurchasedPlanToUseDiscountCode: boolean;
   renewalCommissionRate: number;
   renewalSunsetDays: number;
   holdDays: number;

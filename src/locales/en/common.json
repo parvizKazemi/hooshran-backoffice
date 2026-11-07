@@ -2791,6 +2791,8 @@
       "capAmount": "Per-transaction commission cap (Toman):",
       "buyerDiscountPercentage": "Buyer discount percentage (%):",
       "buyerDiscountPercentageHint": "Discount percentage for buyers",
+      "allowPurchasedPlanToUseDiscountCode": "Allow purchased plan to use discount code",
+      "allowPurchasedPlanToUseDiscountCodeHint": "If enabled, the user can use the discount code after purchasing the plan",
       "capAmountHint": "Maximum payout for a first invoice",
       "renewalCommissionRate": "Renewal commission (%):",
       "renewalCommissionRateHint": "Commission on subsequent referred purchases",

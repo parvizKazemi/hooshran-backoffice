@@ -40,6 +40,14 @@ type NumericRuleField = {
   step?: number;
 };
 
+type BooleanRuleKey = "allowPurchasedPlanToUseDiscountCode";
+
+type BooleanRuleField = {
+  key: BooleanRuleKey;
+  labelKey: string;
+  hintKey: string;
+};
+
 const AFFILIATE_RULE_FIELDS: NumericRuleField[] = [
   {
     key: "firstCommissionRate",
@@ -94,6 +102,14 @@ const AFFILIATE_RULE_FIELDS: NumericRuleField[] = [
     toneClass: "text-emerald-600 dark:text-emerald-400",
     min: 1,
     max: 100,
+  },
+];
+
+const AFFILIATE_BOOLEAN_FIELDS: BooleanRuleField[] = [
+  {
+    key: "allowPurchasedPlanToUseDiscountCode",
+    labelKey: "affiliate.rules.allowPurchasedPlanToUseDiscountCode",
+    hintKey: "affiliate.rules.allowPurchasedPlanToUseDiscountCodeHint",
   },
 ];
 
@@ -200,6 +216,38 @@ export function AffiliateRulesForm({
                 <span className="text-muted-foreground text-[10px]">
                   {t(field.hintKey)}
                 </span>
+              </div>
+            ))}
+
+            {AFFILIATE_BOOLEAN_FIELDS.map((field) => (
+              <div
+                key={field.key}
+                className="bg-muted/30 flex items-center justify-between gap-4 rounded-2xl border p-4 transition-colors"
+              >
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor={field.key}
+                    className="cursor-pointer leading-normal font-bold"
+                  >
+                    {t(field.labelKey)}
+                  </Label>
+                  <p className="text-muted-foreground text-[10px] leading-relaxed">
+                    {t(field.hintKey)}
+                  </p>
+                </div>
+                <Switch
+                  dir="ltr"
+                  id={field.key}
+                  checked={Boolean(formValues[field.key])}
+                  onCheckedChange={(checked) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      [field.key]: checked,
+                    }))
+                  }
+                  disabled={isSaving}
+                  className="shrink-0"
+                />
               </div>
             ))}
           </div>

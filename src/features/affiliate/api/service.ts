@@ -324,6 +324,8 @@ export async function saveAffiliateProgramRules(
       firstPurchasePercentage: rules.firstCommissionRate,
       transactionCap: rules.capAmount,
       buyerDiscountPercentage: rules.buyerDiscountPercentage,
+      allowPurchasedPlanToUseDiscountCode:
+        rules.allowPurchasedPlanToUseDiscountCode,
       renewalPercentage: rules.renewalCommissionRate,
       cookieDurationDays: rules.renewalSunsetDays,
       holdPeriodDays: rules.holdDays,

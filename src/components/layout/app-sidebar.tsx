@@ -303,6 +303,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               "/packages",
               "/packages/showcase",
               "/purchase-payments",
+              "/feedback-management",
               "/user-settings",
               "/user-settings/welcome-packages",
               "/discount-codes",

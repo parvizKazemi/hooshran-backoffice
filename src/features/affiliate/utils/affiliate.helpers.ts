@@ -85,6 +85,10 @@ export function normalizeAffiliateProgramRules(
       PROGRAM_RULE_ALIASES.buyerDiscountPercentage,
       defaults.buyerDiscountPercentage
     ),
+    allowPurchasedPlanToUseDiscountCode:
+      typeof combined.allowPurchasedPlanToUseDiscountCode === "boolean"
+        ? combined.allowPurchasedPlanToUseDiscountCode
+        : defaults.allowPurchasedPlanToUseDiscountCode,
     renewalCommissionRate: readNumber(
       combined,
       PROGRAM_RULE_ALIASES.renewalCommissionRate,

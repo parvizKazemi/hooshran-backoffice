@@ -27,6 +27,7 @@ export const AFFILIATE_DEFAULT_RULES = {
   firstCommissionRate: 20,
   capAmount: 1_500_000,
   buyerDiscountPercentage: 10,
+  allowPurchasedPlanToUseDiscountCode: false,
   renewalCommissionRate: 10,
   renewalSunsetDays: 180,
   holdDays: 14,
@@ -62,6 +63,11 @@ export const PROGRAM_RULE_ALIASES = {
   ],
   buyerDiscountPercentage: [
     "buyerDiscountPercentage",
+    "buyerDiscount",
+    "buyer_discount_percentage",
+  ],
+  allowPurchasedPlanToUseDiscountCode: [
+    "allowPurchasedPlanToUseDiscountCode",
     "buyerDiscount",
     "buyer_discount_percentage",
   ],
